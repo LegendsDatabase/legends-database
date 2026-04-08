@@ -16,52 +16,43 @@ const { data: players, error } = await supabase
 <body style="font-family: Arial; padding:20px;">
   <h1>Legends Database</h1>
 
-  <!-- SEARCH -->
-  <input 
-    type="text" 
-    id="searchInput" 
-    placeholder="Search player..." 
-    style="padding:8px; margin-bottom:15px; width:250px;"
-  />
+  <input type="text" id="searchInput" placeholder="Search player..." />
 
-<select id="filterRole">
-  <option value="">All Roles</option>
-  <option value="FW">FW</option>
-  <option value="CB">CB</option>
-  <option value="AM">AM</option>
-  <option value="CM">CM</option>
-<option value="SW">SW</option>
-  <option value="GK">GK</option>
-</select>
+  <select id="filterRole">
+    <option value="">All Roles</option>
+    <option value="FW">FW</option>
+    <option value="CB">CB</option>
+    <option value="AM">AM</option>
+    <option value="CM">CM</option>
+    <option value="SW">SW</option>
+    <option value="GK">GK</option>
+  </select>
 
-<select id="filterNation">
-  <option value="">All Nations</option>
-  <option value="Italy">Italy</option>
-  <option value="Brazil">Brazil</option>
-<option value="Germany">Germany</option>
-<option value="Argentina">Argentina</option>
-<option value="France">France</option>
-  <option value="Argentina">Argentina</option>
-</select>
+  <select id="filterNation">
+    <option value="">All Nations</option>
+    <option value="Italy">Italy</option>
+    <option value="Brazil">Brazil</option>
+    <option value="Germany">Germany</option>
+    <option value="Argentina">Argentina</option>
+    <option value="France">France</option>
+  </select>
 
-<select id="filterDecade">
-  <option value="">All Decades</option>
-<option value="1950">1950</option>
-<option value="1960">1960</option>
-<option value="1970">1970</option>
-  <option value="1980">1980</option>
-  <option value="1990">1990</option>
-  <option value="2000">2000</option>
-</select>
-
-  {error && <p>Errore</p>}
+  <select id="filterDecade">
+    <option value="">All Decades</option>
+    <option value="1950">1950</option>
+    <option value="1960">1960</option>
+    <option value="1970">1970</option>
+    <option value="1980">1980</option>
+    <option value="1990">1990</option>
+    <option value="2000">2000</option>
+  </select>
 
   {!error && (
     <div style="overflow-x:auto;">
-      <table border="1" cellpadding="6" cellspacing="0">
+      <table border="1">
         <thead>
           <tr>
-            <th>Name</th>
+            <th onclick="handleSort('name')">Name</th>
             <th>Birth Year</th>
             <th>Nation</th>
             <th>Role</th>
@@ -70,7 +61,7 @@ const { data: players, error } = await supabase
             <th>Foot</th>
             <th>Decade</th>
             <th>Club</th>
-            <th>Overall</th>
+            <th onclick="handleSort('overall_rating')">Overall</th>
 
             <th onclick="toggle('stats-col', this)">Stats ▾</th>
             <th class="stats-col" style="display:none;">Club Apps</th>
@@ -80,7 +71,7 @@ const { data: players, error } = await supabase
             <th class="stats-col" style="display:none;">Nat Goals</th>
             <th class="stats-col" style="display:none;">Nat Ratio</th>
 
-            <th onclick="toggle('ath-col', this)">Athletic Skills ▾</th>
+            <th onclick="toggle('ath-col', this)">Athletic ▾</th>
             <th class="ath-col" style="display:none;">Acceleration</th>
             <th class="ath-col" style="display:none;">Pace</th>
             <th class="ath-col" style="display:none;">Agility</th>
@@ -90,7 +81,7 @@ const { data: players, error } = await supabase
             <th class="ath-col" style="display:none;">Stamina</th>
             <th class="ath-col" style="display:none;">Fitness</th>
 
-            <th onclick="toggle('tech-col', this)">Technical Skills ▾</th>
+            <th onclick="toggle('tech-col', this)">Technical ▾</th>
             <th class="tech-col" style="display:none;">Dribbling</th>
             <th class="tech-col" style="display:none;">Short Passing</th>
             <th class="tech-col" style="display:none;">Long Passing</th>
@@ -103,14 +94,14 @@ const { data: players, error } = await supabase
             <th class="tech-col" style="display:none;">Penalties</th>
             <th class="tech-col" style="display:none;">First Touch</th>
 
-            <th onclick="toggle('ment-col', this)">Mental Skills ▾</th>
+            <th onclick="toggle('ment-col', this)">Mental ▾</th>
             <th class="ment-col" style="display:none;">Composure</th>
             <th class="ment-col" style="display:none;">Aggression</th>
             <th class="ment-col" style="display:none;">Consistency</th>
             <th class="ment-col" style="display:none;">Creativity</th>
             <th class="ment-col" style="display:none;">Work Rate</th>
 
-            <th onclick="toggle('tact-col', this)">Tactical Skills ▾</th>
+            <th onclick="toggle('tact-col', this)">Tactical ▾</th>
             <th class="tact-col" style="display:none;">Vision</th>
             <th class="tact-col" style="display:none;">Off Ball</th>
             <th class="tact-col" style="display:none;">Def Positioning</th>
@@ -118,7 +109,7 @@ const { data: players, error } = await supabase
             <th class="tact-col" style="display:none;">Anticipation</th>
             <th class="tact-col" style="display:none;">Marking</th>
 
-            <th onclick="toggle('gk-col', this)">GK Skills ▾</th>
+            <th onclick="toggle('gk-col', this)">GK ▾</th>
             <th class="gk-col" style="display:none;">Reflexes</th>
             <th class="gk-col" style="display:none;">Positioning</th>
             <th class="gk-col" style="display:none;">Handling</th>
@@ -126,183 +117,161 @@ const { data: players, error } = await supabase
           </tr>
         </thead>
 
-        <tbody id="table-body">
-          {players.map((p) => (
-            <tr>
-              <td>{p.name}</td>
-              <td>{p.birth_year}</td>
-              <td>{p.nation}</td>
-              <td>{p.role}</td>
-              <td>{p.height}</td>
-              <td>{p.weight}</td>
-              <td>{p.preferred_foot}</td>
-              <td>{p.decade}</td>
-              <td>{p.iconic_club}</td>
-              <td>{p.overall_rating}</td>
-
-              <td></td>
-              <td class="stats-col" style="display:none;">{p.club_apps}</td>
-              <td class="stats-col" style="display:none;">{p.club_goals}</td>
-              <td class="stats-col" style="display:none;">{p.club_goal_ratio}</td>
-              <td class="stats-col" style="display:none;">{p.nat_apps}</td>
-              <td class="stats-col" style="display:none;">{p.nat_goals}</td>
-              <td class="stats-col" style="display:none;">{p.nat_goal_ratio}</td>
-
-              <td></td>
-              <td class="ath-col" style="display:none;">{p.acceleration}</td>
-              <td class="ath-col" style="display:none;">{p.pace}</td>
-              <td class="ath-col" style="display:none;">{p.agility}</td>
-              <td class="ath-col" style="display:none;">{p.strength}</td>
-              <td class="ath-col" style="display:none;">{p.balance}</td>
-              <td class="ath-col" style="display:none;">{p.jumping}</td>
-              <td class="ath-col" style="display:none;">{p.stamina}</td>
-              <td class="ath-col" style="display:none;">{p.fitness}</td>
-
-              <td></td>
-              <td class="tech-col" style="display:none;">{p.dribbling}</td>
-              <td class="tech-col" style="display:none;">{p.short_passing}</td>
-              <td class="tech-col" style="display:none;">{p.long_passing}</td>
-              <td class="tech-col" style="display:none;">{p.finishing}</td>
-              <td class="tech-col" style="display:none;">{p.shot_accuracy}</td>
-              <td class="tech-col" style="display:none;">{p.shot_power}</td>
-              <td class="tech-col" style="display:none;">{p.heading}</td>
-              <td class="tech-col" style="display:none;">{p.tackling}</td>
-              <td class="tech-col" style="display:none;">{p.free_kick}</td>
-              <td class="tech-col" style="display:none;">{p.penalties}</td>
-              <td class="tech-col" style="display:none;">{p['first-touch']}</td>
-
-              <td></td>
-              <td class="ment-col" style="display:none;">{p.composure}</td>
-              <td class="ment-col" style="display:none;">{p.aggression}</td>
-              <td class="ment-col" style="display:none;">{p.consistency}</td>
-              <td class="ment-col" style="display:none;">{p.creativity}</td>
-              <td class="ment-col" style="display:none;">{p.work_rate}</td>
-
-              <td></td>
-              <td class="tact-col" style="display:none;">{p.vision}</td>
-              <td class="tact-col" style="display:none;">{p.off_the_ball}</td>
-              <td class="tact-col" style="display:none;">{p.def_positioning}</td>
-              <td class="tact-col" style="display:none;">{p.teamwork}</td>
-              <td class="tact-col" style="display:none;">{p.anticipation}</td>
-              <td class="tact-col" style="display:none;">{p.marking}</td>
-
-              <td></td>
-              <td class="gk-col" style="display:none;">{p.reflexes}</td>
-              <td class="gk-col" style="display:none;">{p.positioning}</td>
-              <td class="gk-col" style="display:none;">{p.handling}</td>
-              <td class="gk-col" style="display:none;">{p.kicking}</td>
-            </tr>
-          ))}
-        </tbody>
+        <tbody id="table-body"></tbody>
       </table>
     </div>
   )}
 
 <script define:vars={{ players }}>
-  const allPlayers = players;
-  const input = document.getElementById('searchInput');
-  const tbody = document.getElementById('table-body');
+const allPlayers = players;
+const tbody = document.getElementById('table-body');
+const input = document.getElementById('searchInput');
 const roleFilter = document.getElementById('filterRole');
 const nationFilter = document.getElementById('filterNation');
 const decadeFilter = document.getElementById('filterDecade');
 
-  function renderRows(data) {
-    tbody.innerHTML = '';
-    data.forEach(p => {
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${p.name ?? ''}</td>
-        <td>${p.birth_year ?? ''}</td>
-        <td>${p.nation ?? ''}</td>
-        <td>${p.role ?? ''}</td>
-        <td>${p.height ?? ''}</td>
-        <td>${p.weight ?? ''}</td>
-        <td>${p.preferred_foot ?? ''}</td>
-        <td>${p.decade ?? ''}</td>
-        <td>${p.iconic_club ?? ''}</td>
-        <td>${p.overall_rating ?? ''}</td>
-        <td></td>
-        <td class="stats-col" style="display:none;">${p.club_apps ?? ''}</td>
-        <td class="stats-col" style="display:none;">${p.club_goals ?? ''}</td>
-        <td class="stats-col" style="display:none;">${p.club_goal_ratio ?? ''}</td>
-        <td class="stats-col" style="display:none;">${p.nat_apps ?? ''}</td>
-        <td class="stats-col" style="display:none;">${p.nat_goals ?? ''}</td>
-        <td class="stats-col" style="display:none;">${p.nat_goal_ratio ?? ''}</td>
-        <td></td>
-        <td class="ath-col" style="display:none;">${p.acceleration ?? ''}</td>
-        <td class="ath-col" style="display:none;">${p.pace ?? ''}</td>
-        <td class="ath-col" style="display:none;">${p.agility ?? ''}</td>
-        <td class="ath-col" style="display:none;">${p.strength ?? ''}</td>
-        <td class="ath-col" style="display:none;">${p.balance ?? ''}</td>
-        <td class="ath-col" style="display:none;">${p.jumping ?? ''}</td>
-        <td class="ath-col" style="display:none;">${p.stamina ?? ''}</td>
-        <td class="ath-col" style="display:none;">${p.fitness ?? ''}</td>
-        <td></td>
-        <td class="tech-col" style="display:none;">${p.dribbling ?? ''}</td>
-        <td class="tech-col" style="display:none;">${p.short_passing ?? ''}</td>
-        <td class="tech-col" style="display:none;">${p.long_passing ?? ''}</td>
-        <td class="tech-col" style="display:none;">${p.finishing ?? ''}</td>
-        <td class="tech-col" style="display:none;">${p.shot_accuracy ?? ''}</td>
-        <td class="tech-col" style="display:none;">${p.shot_power ?? ''}</td>
-        <td class="tech-col" style="display:none;">${p.heading ?? ''}</td>
-        <td class="tech-col" style="display:none;">${p.tackling ?? ''}</td>
-        <td class="tech-col" style="display:none;">${p.free_kick ?? ''}</td>
-        <td class="tech-col" style="display:none;">${p.penalties ?? ''}</td>
-        <td class="tech-col" style="display:none;">${p['first-touch'] ?? ''}</td>
-        <td></td>
-        <td class="ment-col" style="display:none;">${p.composure ?? ''}</td>
-        <td class="ment-col" style="display:none;">${p.aggression ?? ''}</td>
-        <td class="ment-col" style="display:none;">${p.consistency ?? ''}</td>
-        <td class="ment-col" style="display:none;">${p.creativity ?? ''}</td>
-        <td class="ment-col" style="display:none;">${p.work_rate ?? ''}</td>
-        <td></td>
-        <td class="tact-col" style="display:none;">${p.vision ?? ''}</td>
-        <td class="tact-col" style="display:none;">${p.off_the_ball ?? ''}</td>
-        <td class="tact-col" style="display:none;">${p.def_positioning ?? ''}</td>
-        <td class="tact-col" style="display:none;">${p.teamwork ?? ''}</td>
-        <td class="tact-col" style="display:none;">${p.anticipation ?? ''}</td>
-        <td class="tact-col" style="display:none;">${p.marking ?? ''}</td>
-        <td></td>
-        <td class="gk-col" style="display:none;">${p.reflexes ?? ''}</td>
-        <td class="gk-col" style="display:none;">${p.positioning ?? ''}</td>
-        <td class="gk-col" style="display:none;">${p.handling ?? ''}</td>
-        <td class="gk-col" style="display:none;">${p.kicking ?? ''}</td>
-      `;
-      tbody.appendChild(row);
-    });
+let currentSort = null;
+let sortDirection = 'asc';
+
+function renderRows(data) {
+  tbody.innerHTML = '';
+  data.forEach(p => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${p.name}</td>
+      <td>${p.birth_year}</td>
+      <td>${p.nation}</td>
+      <td>${p.role}</td>
+      <td>${p.height}</td>
+      <td>${p.weight}</td>
+      <td>${p.preferred_foot}</td>
+      <td>${p.decade}</td>
+      <td>${p.iconic_club}</td>
+      <td>${p.overall_rating}</td>
+
+      <td></td>
+      <td class="stats-col" style="display:none;">${p.club_apps}</td>
+      <td class="stats-col" style="display:none;">${p.club_goals}</td>
+      <td class="stats-col" style="display:none;">${p.club_goal_ratio}</td>
+      <td class="stats-col" style="display:none;">${p.nat_apps}</td>
+      <td class="stats-col" style="display:none;">${p.nat_goals}</td>
+      <td class="stats-col" style="display:none;">${p.nat_goal_ratio}</td>
+
+      <td></td>
+      <td class="ath-col" style="display:none;">${p.acceleration}</td>
+      <td class="ath-col" style="display:none;">${p.pace}</td>
+      <td class="ath-col" style="display:none;">${p.agility}</td>
+      <td class="ath-col" style="display:none;">${p.strength}</td>
+      <td class="ath-col" style="display:none;">${p.balance}</td>
+      <td class="ath-col" style="display:none;">${p.jumping}</td>
+      <td class="ath-col" style="display:none;">${p.stamina}</td>
+      <td class="ath-col" style="display:none;">${p.fitness}</td>
+
+      <td></td>
+      <td class="tech-col" style="display:none;">${p.dribbling}</td>
+      <td class="tech-col" style="display:none;">${p.short_passing}</td>
+      <td class="tech-col" style="display:none;">${p.long_passing}</td>
+      <td class="tech-col" style="display:none;">${p.finishing}</td>
+      <td class="tech-col" style="display:none;">${p.shot_accuracy}</td>
+      <td class="tech-col" style="display:none;">${p.shot_power}</td>
+      <td class="tech-col" style="display:none;">${p.heading}</td>
+      <td class="tech-col" style="display:none;">${p.tackling}</td>
+      <td class="tech-col" style="display:none;">${p.free_kick}</td>
+      <td class="tech-col" style="display:none;">${p.penalties}</td>
+      <td class="tech-col" style="display:none;">${p['first-touch']}</td>
+
+      <td></td>
+      <td class="ment-col" style="display:none;">${p.composure}</td>
+      <td class="ment-col" style="display:none;">${p.aggression}</td>
+      <td class="ment-col" style="display:none;">${p.consistency}</td>
+      <td class="ment-col" style="display:none;">${p.creativity}</td>
+      <td class="ment-col" style="display:none;">${p.work_rate}</td>
+
+      <td></td>
+      <td class="tact-col" style="display:none;">${p.vision}</td>
+      <td class="tact-col" style="display:none;">${p.off_the_ball}</td>
+      <td class="tact-col" style="display:none;">${p.def_positioning}</td>
+      <td class="tact-col" style="display:none;">${p.teamwork}</td>
+      <td class="tact-col" style="display:none;">${p.anticipation}</td>
+      <td class="tact-col" style="display:none;">${p.marking}</td>
+
+      <td></td>
+      <td class="gk-col" style="display:none;">${p.reflexes}</td>
+      <td class="gk-col" style="display:none;">${p.positioning}</td>
+      <td class="gk-col" style="display:none;">${p.handling}</td>
+      <td class="gk-col" style="display:none;">${p.kicking}</td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+function sortData(data, key) {
+  if (currentSort === key) {
+    sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+  } else {
+    currentSort = key;
+    sortDirection = 'asc';
   }
 
+  return [...data].sort((a, b) => {
+    let valA = a[key];
+    let valB = b[key];
+
+    if (!isNaN(valA) && !isNaN(valB)) {
+      valA = Number(valA);
+      valB = Number(valB);
+    } else {
+      valA = String(valA).toLowerCase();
+      valB = String(valB).toLowerCase();
+    }
+
+    if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
+    if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
+    return 0;
+  });
+}
+
 function applyFilters() {
-  const q = input.value.toLowerCase().trim();
+  const q = input.value.toLowerCase();
   const role = roleFilter.value;
   const nation = nationFilter.value;
   const decade = decadeFilter.value;
 
-  const filtered = allPlayers.filter(p => {
-    return (
-      (!q || p.name?.toLowerCase().includes(q)) &&
-      (!role || p.role === role) &&
-      (!nation || p.nation === nation) &&
-      (!decade || String(p.decade) === decade)
-    );
-  });
+  let filtered = allPlayers.filter(p =>
+    (!q || p.name?.toLowerCase().includes(q)) &&
+    (!role || p.role === role) &&
+    (!nation || p.nation === nation) &&
+    (!decade || String(p.decade) === decade)
+  );
+
+  if (currentSort) filtered = sortData(filtered, currentSort);
 
   renderRows(filtered);
 }
+
+function handleSort(key) {
+  currentSort = key;
+  applyFilters();
+}
+
 input.addEventListener('input', applyFilters);
 roleFilter.addEventListener('change', applyFilters);
 nationFilter.addEventListener('change', applyFilters);
 decadeFilter.addEventListener('change', applyFilters);
 
-  function toggle(className, el) {
-    const cols = document.querySelectorAll('.' + className);
-    let open = false;
-    cols.forEach(c => { if (c.style.display === 'table-cell') open = true; });
-    cols.forEach(c => { c.style.display = open ? 'none' : 'table-cell'; });
-    el.innerText = open
-      ? el.innerText.replace('▴', '▾')
-      : el.innerText.replace('▾', '▴');
-  }
+function toggle(className, el) {
+  const cols = document.querySelectorAll('.' + className);
+  let open = false;
+  cols.forEach(c => { if (c.style.display === 'table-cell') open = true; });
+  cols.forEach(c => { c.style.display = open ? 'none' : 'table-cell'; });
+}
 
-  window.toggle = toggle;
+window.toggle = toggle;
+window.handleSort = handleSort;
+
+// render iniziale
+renderRows(allPlayers);
 </script>
+
+</body>
+</html>
