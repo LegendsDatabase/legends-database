@@ -13,6 +13,7 @@ const { data: players, error } = await supabase
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Legends Database</title>
   </head>
+
   <body style="font-family: Arial, sans-serif; padding: 20px;">
     <h1>Legends Database</h1>
 
@@ -20,31 +21,25 @@ const { data: players, error } = await supabase
 
     {!error && (
       <table border="1" cellpadding="8" cellspacing="0">
-        <tr>
-          <th>Name</th>
-          <th>Birth Year</th>
-          <th>Nation</th>
-          <th>Role</th>
-          <th>Height</th>
-          <th>Weight</th>
-          <th>Preferred Foot</th>
-          <th>Decade</th>
-          <th>Iconic Club</th>
-        </tr>
-
-        {players?.map((player) => (
+        <thead>
           <tr>
-            <td>{player.name}</td>
-            <td>{player.birth_year}</td>
-            <td>{player.nation}</td>
-            <td>{player.role}</td>
-            <td>{player.height}</td>
-            <td>{player.weight}</td>
-            <td>{player.preferred_foot}</td>
-            <td>{player.decade}</td>
-            <td>{player.iconic_club}</td>
+            <th>Name</th>
+            <th>Nation</th>
+            <th>Role</th>
+            <th>Birth Year</th>
           </tr>
-        ))}
+        </thead>
+
+        <tbody>
+          {players?.map((player) => (
+            <tr>
+              <td>{player.name}</td>
+              <td>{player.nation}</td>
+              <td>{player.role}</td>
+              <td>{player.birth_year}</td>
+            </tr>
+          ))}
+        </tbody>
       </table>
     )}
   </body>
