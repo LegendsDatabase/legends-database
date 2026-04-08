@@ -20,27 +20,38 @@ const { data: players, error } = await supabase
     {error && <p>Errore nel caricamento dati.</p>}
 
     {!error && (
-      <table border="1" cellpadding="8" cellspacing="0">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Nation</th>
-            <th>Role</th>
-            <th>Birth Year</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {players?.map((player) => (
+      <>
+        <table border="1" cellpadding="8" cellspacing="0">
+          <thead>
             <tr>
-              <td>{player.name}</td>
-              <td>{player.nation}</td>
-              <td>{player.role}</td>
-              <td>{player.birth_year}</td>
+              <th>Name</th>
+              <th>Nation</th>
+              <th>Role</th>
+              <th>Birth Year</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody>
+            {players?.map((player) => (
+              <tr style="cursor:pointer;" onclick={`selectPlayer('${player.name}')`}>
+                <td>{player.name}</td>
+                <td>{player.nation}</td>
+                <td>{player.role}</td>
+                <td>{player.birth_year}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <div id="selectedPlayer" style="margin-top:20px; font-size:18px;"></div>
+      </>
     )}
+
+    <script>
+      function selectPlayer(name) {
+        document.getElementById("selectedPlayer").innerText =
+          "Hai selezionato: " + name;
+      }
+    </script>
   </body>
 </html>
