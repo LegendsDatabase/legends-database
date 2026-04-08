@@ -132,7 +132,15 @@ const { data: players, error } = await supabase
 
     tbody tr:last-child { border-bottom: none; }
 
-    tbody tr:hover { background: #f9f9fb; }
+    tbody tr:hover { background: #f5f5f7; }
+
+tbody tr.selected {
+      background: #e8f0fd;
+    }
+
+    tbody tr.selected td {
+      color: #1d1d1f;
+    }
 
     tbody td {
       padding: 9px 12px;
@@ -194,6 +202,7 @@ const { data: players, error } = await supabase
       <option value="RW">RW</option>
       <option value="LW">LW</option>
       <option value="FW">FW</option>
+<option value="ST">ST</option>
     </select>
 
     <select id="filterNation">
