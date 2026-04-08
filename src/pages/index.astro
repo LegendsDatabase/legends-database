@@ -16,6 +16,14 @@ const { data: players, error } = await supabase
 <body style="font-family: Arial; padding:20px;">
   <h1>Legends Database</h1>
 
+  <!-- SEARCH -->
+  <input 
+    type="text" 
+    id="searchInput" 
+    placeholder="Search player..." 
+    style="padding:8px; margin-bottom:15px; width:250px;"
+  />
+
   {error && <p>Errore</p>}
 
   {!error && (
@@ -23,7 +31,6 @@ const { data: players, error } = await supabase
       <table border="1" cellpadding="6" cellspacing="0">
         <thead>
           <tr>
-            <!-- BASE -->
             <th>Name</th>
             <th>Birth Year</th>
             <th>Nation</th>
@@ -35,7 +42,6 @@ const { data: players, error } = await supabase
             <th>Club</th>
             <th>Overall</th>
 
-            <!-- STATS -->
             <th onclick="toggle('stats-col', this)">Stats ▾</th>
             <th class="stats-col" style="display:none;">Club Apps</th>
             <th class="stats-col" style="display:none;">Club Goals</th>
@@ -44,7 +50,6 @@ const { data: players, error } = await supabase
             <th class="stats-col" style="display:none;">Nat Goals</th>
             <th class="stats-col" style="display:none;">Nat Ratio</th>
 
-            <!-- ATHLETIC -->
             <th onclick="toggle('ath-col', this)">Athletic Skills ▾</th>
             <th class="ath-col" style="display:none;">Acceleration</th>
             <th class="ath-col" style="display:none;">Pace</th>
@@ -55,7 +60,6 @@ const { data: players, error } = await supabase
             <th class="ath-col" style="display:none;">Stamina</th>
             <th class="ath-col" style="display:none;">Fitness</th>
 
-            <!-- TECHNICAL -->
             <th onclick="toggle('tech-col', this)">Technical Skills ▾</th>
             <th class="tech-col" style="display:none;">Dribbling</th>
             <th class="tech-col" style="display:none;">Short Passing</th>
@@ -69,7 +73,6 @@ const { data: players, error } = await supabase
             <th class="tech-col" style="display:none;">Penalties</th>
             <th class="tech-col" style="display:none;">First Touch</th>
 
-            <!-- MENTAL -->
             <th onclick="toggle('ment-col', this)">Mental Skills ▾</th>
             <th class="ment-col" style="display:none;">Composure</th>
             <th class="ment-col" style="display:none;">Aggression</th>
@@ -77,7 +80,6 @@ const { data: players, error } = await supabase
             <th class="ment-col" style="display:none;">Creativity</th>
             <th class="ment-col" style="display:none;">Work Rate</th>
 
-            <!-- TACTICAL -->
             <th onclick="toggle('tact-col', this)">Tactical Skills ▾</th>
             <th class="tact-col" style="display:none;">Vision</th>
             <th class="tact-col" style="display:none;">Off Ball</th>
@@ -86,7 +88,6 @@ const { data: players, error } = await supabase
             <th class="tact-col" style="display:none;">Anticipation</th>
             <th class="tact-col" style="display:none;">Marking</th>
 
-            <!-- GK -->
             <th onclick="toggle('gk-col', this)">GK Skills ▾</th>
             <th class="gk-col" style="display:none;">Reflexes</th>
             <th class="gk-col" style="display:none;">Positioning</th>
@@ -95,10 +96,9 @@ const { data: players, error } = await supabase
           </tr>
         </thead>
 
-        <tbody>
+        <tbody id="table-body">
           {players.map((p) => (
             <tr>
-              <!-- BASE -->
               <td>{p.name}</td>
               <td>{p.birth_year}</td>
               <td>{p.nation}</td>
@@ -110,7 +110,6 @@ const { data: players, error } = await supabase
               <td>{p.iconic_club}</td>
               <td>{p.overall_rating}</td>
 
-              <!-- STATS -->
               <td></td>
               <td class="stats-col" style="display:none;">{p.club_apps}</td>
               <td class="stats-col" style="display:none;">{p.club_goals}</td>
@@ -119,7 +118,6 @@ const { data: players, error } = await supabase
               <td class="stats-col" style="display:none;">{p.nat_goals}</td>
               <td class="stats-col" style="display:none;">{p.nat_goal_ratio}</td>
 
-              <!-- ATH -->
               <td></td>
               <td class="ath-col" style="display:none;">{p.acceleration}</td>
               <td class="ath-col" style="display:none;">{p.pace}</td>
@@ -130,7 +128,6 @@ const { data: players, error } = await supabase
               <td class="ath-col" style="display:none;">{p.stamina}</td>
               <td class="ath-col" style="display:none;">{p.fitness}</td>
 
-              <!-- TECH -->
               <td></td>
               <td class="tech-col" style="display:none;">{p.dribbling}</td>
               <td class="tech-col" style="display:none;">{p.short_passing}</td>
@@ -144,7 +141,6 @@ const { data: players, error } = await supabase
               <td class="tech-col" style="display:none;">{p.penalties}</td>
               <td class="tech-col" style="display:none;">{p['first-touch']}</td>
 
-              <!-- MENTAL -->
               <td></td>
               <td class="ment-col" style="display:none;">{p.composure}</td>
               <td class="ment-col" style="display:none;">{p.aggression}</td>
@@ -152,7 +148,6 @@ const { data: players, error } = await supabase
               <td class="ment-col" style="display:none;">{p.creativity}</td>
               <td class="ment-col" style="display:none;">{p.work_rate}</td>
 
-              <!-- TACTICAL -->
               <td></td>
               <td class="tact-col" style="display:none;">{p.vision}</td>
               <td class="tact-col" style="display:none;">{p.off_the_ball}</td>
@@ -161,7 +156,6 @@ const { data: players, error } = await supabase
               <td class="tact-col" style="display:none;">{p.anticipation}</td>
               <td class="tact-col" style="display:none;">{p.marking}</td>
 
-              <!-- GK -->
               <td></td>
               <td class="gk-col" style="display:none;">{p.reflexes}</td>
               <td class="gk-col" style="display:none;">{p.positioning}</td>
@@ -175,6 +169,54 @@ const { data: players, error } = await supabase
   )}
 
   <script is:inline>
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js'
+
+    const supabase = createClient('https://azejnlswoahmwjmhixmh.supabase.co', 'sb_publishable_3O4ss6GKErNXagrDftwz_w_mjlgOKp6')
+
+    const input = document.getElementById('searchInput')
+
+    input.addEventListener('input', async (e) => {
+      const query = e.target.value
+
+      let result
+
+      if (query) {
+        result = await supabase
+          .from('players')
+          .select('*')
+          .ilike('name', `%${query}%`)
+      } else {
+        result = await supabase
+          .from('players')
+          .select('*')
+          .order('name', { ascending: true })
+      }
+
+      const { data, error } = result
+
+      if (error) return
+
+      const tbody = document.getElementById('table-body')
+      tbody.innerHTML = ''
+
+      data.forEach(p => {
+        const row = document.createElement('tr')
+        row.innerHTML = `
+          <td>${p.name}</td>
+          <td>${p.birth_year}</td>
+          <td>${p.nation}</td>
+          <td>${p.role}</td>
+          <td>${p.height}</td>
+          <td>${p.weight}</td>
+          <td>${p.preferred_foot}</td>
+          <td>${p.decade}</td>
+          <td>${p.iconic_club}</td>
+          <td>${p.overall_rating}</td>
+        `
+        tbody.appendChild(row)
+      })
+    })
+
     function toggle(className, el) {
       const cols = document.querySelectorAll('.' + className);
       let open = false;
