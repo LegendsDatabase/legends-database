@@ -81,7 +81,7 @@ const { data: players, error } = await supabase
             <th onclick="toggle('tact-col', this)">Tactical Skills ▾</th>
             <th class="tact-col" style="display:none;">Vision</th>
             <th class="tact-col" style="display:none;">Off Ball</th>
-            <th class="tact-col" style="display:none;">Positioning</th>
+            <th class="tact-col" style="display:none;">Def Positioning</th>
             <th class="tact-col" style="display:none;">Teamwork</th>
             <th class="tact-col" style="display:none;">Anticipation</th>
             <th class="tact-col" style="display:none;">Marking</th>
@@ -89,7 +89,7 @@ const { data: players, error } = await supabase
             <!-- GK -->
             <th onclick="toggle('gk-col', this)">GK Skills ▾</th>
             <th class="gk-col" style="display:none;">Reflexes</th>
-            <th class="gk-col" style="display:none;">GK Positioning</th>
+            <th class="gk-col" style="display:none;">Positioning</th>
             <th class="gk-col" style="display:none;">Handling</th>
             <th class="gk-col" style="display:none;">Kicking</th>
           </tr>
@@ -110,8 +110,9 @@ const { data: players, error } = await supabase
               <td>{p.iconic_club}</td>
               <td>{p.overall_rating}</td>
 
-              <!-- TOGGLES EMPTY -->
-              <td></td><td class="stats-col" style="display:none;">{p.club_apps}</td>
+              <!-- STATS -->
+              <td></td>
+              <td class="stats-col" style="display:none;">{p.club_apps}</td>
               <td class="stats-col" style="display:none;">{p.club_goals}</td>
               <td class="stats-col" style="display:none;">{p.club_goal_ratio}</td>
               <td class="stats-col" style="display:none;">{p.nat_apps}</td>
@@ -141,7 +142,7 @@ const { data: players, error } = await supabase
               <td class="tech-col" style="display:none;">{p.tackling}</td>
               <td class="tech-col" style="display:none;">{p.free_kick}</td>
               <td class="tech-col" style="display:none;">{p.penalties}</td>
-              <td class="tech-col" style="display:none;">{p.first_touch}</td>
+              <td class="tech-col" style="display:none;">{p['first-touch']}</td>
 
               <!-- MENTAL -->
               <td></td>
@@ -155,7 +156,7 @@ const { data: players, error } = await supabase
               <td></td>
               <td class="tact-col" style="display:none;">{p.vision}</td>
               <td class="tact-col" style="display:none;">{p.off_the_ball}</td>
-              <td class="tact-col" style="display:none;">{p.positioning}</td>
+              <td class="tact-col" style="display:none;">{p.def_positioning}</td>
               <td class="tact-col" style="display:none;">{p.teamwork}</td>
               <td class="tact-col" style="display:none;">{p.anticipation}</td>
               <td class="tact-col" style="display:none;">{p.marking}</td>
@@ -163,7 +164,7 @@ const { data: players, error } = await supabase
               <!-- GK -->
               <td></td>
               <td class="gk-col" style="display:none;">{p.reflexes}</td>
-              <td class="gk-col" style="display:none;">{p.gk_positioning}</td>
+              <td class="gk-col" style="display:none;">{p.positioning}</td>
               <td class="gk-col" style="display:none;">{p.handling}</td>
               <td class="gk-col" style="display:none;">{p.kicking}</td>
             </tr>
