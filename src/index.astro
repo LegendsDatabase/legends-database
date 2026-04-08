@@ -37,6 +37,10 @@ const { data: players, error } = await supabase
     <option value="">All Nations</option>
   </select>
 
+  <select id="filterClub" style="padding:8px; margin-left:8px;">
+    <option value="">All Clubs</option>
+  </select>
+
   <select id="filterDecade" style="padding:8px; margin-left:8px;">
     <option value="">All Decades</option>
     <option value="1950">1950</option>
@@ -49,6 +53,8 @@ const { data: players, error } = await supabase
     <option value="2020">2020</option>
   </select>
 
+<input type="number" id="filterOverallMin" placeholder="Min OVR" style="width:80px; padding:8px; margin-left:8px;">
+<input type="number" id="filterOverallMax" placeholder="Max OVR" style="width:80px; padding:8px; margin-left:4px;">
   {!error && (
     <div style="overflow-x:auto; margin-top:15px;">
       <table border="1" cellpadding="6" cellspacing="0">
@@ -129,18 +135,30 @@ const { data: players, error } = await supabase
   const input = document.getElementById('searchInput');
   const roleFilter = document.getElementById('filterRole');
   const nationFilter = document.getElementById('filterNation');
+  const clubFilter = document.getElementById('filterClub'); // FIX
   const decadeFilter = document.getElementById('filterDecade');
+const overallMin = document.getElementById('filterOverallMin');
+const overallMax = document.getElementById('filterOverallMax');
 
   let currentSort = null;
   let sortDirection = 'asc';
 
-  // Popola nazioni dinamicamente
+  // Popola nazioni
   const nations = [...new Set(allPlayers.map(p => p.nation).filter(Boolean))].sort();
   nations.forEach(n => {
     const opt = document.createElement('option');
     opt.value = n;
     opt.textContent = n;
     nationFilter.appendChild(opt);
+  });
+
+  // Popola clubs
+  const clubs = [...new Set(allPlayers.map(p => p.iconic_club).filter(Boolean))].sort();
+  clubs.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c;
+    opt.textContent = c;
+    clubFilter.appendChild(opt);
   });
 
   function renderRows(data) {
@@ -219,13 +237,19 @@ const { data: players, error } = await supabase
     const q = input.value.toLowerCase().trim();
     const role = roleFilter.value;
     const nation = nationFilter.value;
+    const club = clubFilter.value; // FIX
     const decade = decadeFilter.value;
+const min = overallMin.value ? Number(overallMin.value) : null;
+const max = overallMax.value ? Number(overallMax.value) : null;
 
     let filtered = allPlayers.filter(p =>
       (!q || p.name?.toLowerCase().includes(q)) &&
       (!role || p.role === role) &&
       (!nation || p.nation === nation) &&
+      (!club || p.iconic_club === club) && // FIX
       (!decade || String(p.decade) === decade)
+(!min || p.overall_rating >= min) &&
+(!max || p.overall_rating <= max)
     );
 
     if (currentSort) {
@@ -280,13 +304,15 @@ const { data: players, error } = await supabase
   input.addEventListener('input', applyFilters);
   roleFilter.addEventListener('change', applyFilters);
   nationFilter.addEventListener('change', applyFilters);
+  clubFilter.addEventListener('change', applyFilters); // FIX
   decadeFilter.addEventListener('change', applyFilters);
+overallMin.addEventListener('input', applyFilters);
+overallMax.addEventListener('input', applyFilters);
 
   window.toggle = toggle;
   window.handleSort = handleSort;
 
   renderRows(allPlayers);
 </script>
-
 </body>
 </html>
