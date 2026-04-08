@@ -129,35 +129,41 @@ const { data: players, error } = await supabase
 
 <script define:vars={{ players }}>
   const allPlayers = players;
-  const tbody = document.getElementById('table-body');
-  const input = document.getElementById('searchInput');
-  const roleFilter = document.getElementById('filterRole');
-  const nationFilter = document.getElementById('filterNation');
-  const clubFilter = document.getElementById('filterClub'); // 👈 AGGIUNTA QUI
-  const decadeFilter = document.getElementById('filterDecade');
 
-  let currentSort = null;
-  let sortDirection = 'asc';
+  if (typeof window !== 'undefined') {
+    const tbody = document.getElementById('table-body');
+    const input = document.getElementById('searchInput');
+    const roleFilter = document.getElementById('filterRole');
+    const nationFilter = document.getElementById('filterNation');
+    const clubFilter = document.getElementById('filterClub');
+    const decadeFilter = document.getElementById('filterDecade');
 
-  // Popola nazioni dinamicamente
-  const nations = [...new Set(allPlayers.map(p => p.nation).filter(Boolean))].sort();
-  nations.forEach(n => {
-    const opt = document.createElement('option');
-    opt.value = n;
-    opt.textContent = n;
-    nationFilter.appendChild(opt);
-  });
+    let currentSort = null;
+    let sortDirection = 'asc';
 
-  // Popola clubs dinamicamente
-  const clubs = [...new Set(allPlayers.map(p => p.iconic_club).filter(Boolean))].sort();
-  clubs.forEach(c => {
-    const opt = document.createElement('option');
-    opt.value = c;
-    opt.textContent = c;
-    clubFilter.appendChild(opt);
-  });
+    // Popola nazioni
+    if (nationFilter) {
+      const nations = [...new Set(allPlayers.map(p => p.nation).filter(Boolean))].sort();
+      nations.forEach(n => {
+        const opt = document.createElement('option');
+        opt.value = n;
+        opt.textContent = n;
+        nationFilter.appendChild(opt);
+      });
+    }
+
+    // Popola clubs
+    if (clubFilter) {
+      const clubs = [...new Set(allPlayers.map(p => p.iconic_club).filter(Boolean))].sort();
+      clubs.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c;
+        opt.textContent = c;
+        clubFilter.appendChild(opt);
+      });
+    }
+  }
 </script>
-
   function renderRows(data) {
     tbody.innerHTML = '';
     data.forEach(p => {
