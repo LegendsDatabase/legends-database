@@ -169,9 +169,7 @@ const { data: players, error } = await supabase
   )}
 
   <script is:inline>
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js'
-
-    const supabase = createClient('https://azejnlswoahmwjmhixmh.supabase.co', 'sb_publishable_3O4ss6GKErNXagrDftwz_w_mjlgOKp6')
+  const supabase = window.supabase
 
     const input = document.getElementById('searchInput')
 
