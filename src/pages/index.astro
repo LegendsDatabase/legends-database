@@ -27,71 +27,43 @@ const { data: players, error } = await supabase
             <th>Birth Year</th>
             <th>Nation</th>
             <th>Role</th>
-            <th>Height</th>
-            <th>Weight</th>
-            <th>Foot</th>
-            <th>Decade</th>
-            <th>Club</th>
             <th>Overall</th>
 
-            <!-- TOGGLES -->
-            <th onclick="toggle('stats-col', this)">Stats ▾</th>
-            <th onclick="toggle('ath-col', this)">Athletic ▾</th>
-            <th onclick="toggle('tech-col', this)">Technical ▾</th>
-            <th onclick="toggle('ment-col', this)">Mental ▾</th>
-            <th onclick="toggle('tact-col', this)">Tactical ▾</th>
-            <th onclick="toggle('gk-col', this)">GK ▾</th>
-
             <!-- STATS -->
+            <th onclick="toggle('stats-col', this)">Stats ▾</th>
             <th class="stats-col" style="display:none;">Club Apps</th>
-            <th class="stats-col" style="display:none;">Club Goals</th>
-            <th class="stats-col" style="display:none;">Club Ratio</th>
-            <th class="stats-col" style="display:none;">Nat Apps</th>
-            <th class="stats-col" style="display:none;">Nat Goals</th>
-            <th class="stats-col" style="display:none;">Nat Ratio</th>
+            <th class="stats-col" style="display:none;">Goals</th>
 
             <!-- ATHLETIC -->
+            <th onclick="toggle('ath-col', this)">Athletic Skills ▾</th>
             <th class="ath-col" style="display:none;">Acceleration</th>
             <th class="ath-col" style="display:none;">Pace</th>
             <th class="ath-col" style="display:none;">Agility</th>
             <th class="ath-col" style="display:none;">Strength</th>
-            <th class="ath-col" style="display:none;">Balance</th>
-            <th class="ath-col" style="display:none;">Jumping</th>
-            <th class="ath-col" style="display:none;">Stamina</th>
-            <th class="ath-col" style="display:none;">Fitness</th>
 
             <!-- TECHNICAL -->
+            <th onclick="toggle('tech-col', this)">Technical Skills ▾</th>
             <th class="tech-col" style="display:none;">Dribbling</th>
             <th class="tech-col" style="display:none;">Passing</th>
             <th class="tech-col" style="display:none;">Finishing</th>
-            <th class="tech-col" style="display:none;">Shot Accuracy</th>
-            <th class="tech-col" style="display:none;">Shot Power</th>
-            <th class="tech-col" style="display:none;">Heading</th>
-            <th class="tech-col" style="display:none;">Tackling</th>
-            <th class="tech-col" style="display:none;">Free Kick</th>
-            <th class="tech-col" style="display:none;">Penalties</th>
             <th class="tech-col" style="display:none;">First Touch</th>
 
             <!-- MENTAL -->
-            <th class="ment-col" style="display:none;">Composure</th>
-            <th class="ment-col" style="display:none;">Aggression</th>
-            <th class="ment-col" style="display:none;">Consistency</th>
+            <th onclick="toggle('ment-col', this)">Mental Skills ▾</th>
             <th class="ment-col" style="display:none;">Creativity</th>
             <th class="ment-col" style="display:none;">Work Rate</th>
+            <th class="ment-col" style="display:none;">Composure</th>
 
             <!-- TACTICAL -->
+            <th onclick="toggle('tact-col', this)">Tactical Skills ▾</th>
             <th class="tact-col" style="display:none;">Vision</th>
-            <th class="tact-col" style="display:none;">Off Ball</th>
             <th class="tact-col" style="display:none;">Positioning</th>
             <th class="tact-col" style="display:none;">Teamwork</th>
-            <th class="tact-col" style="display:none;">Anticipation</th>
-            <th class="tact-col" style="display:none;">Marking</th>
 
             <!-- GK -->
+            <th onclick="toggle('gk-col', this)">GK Skills ▾</th>
             <th class="gk-col" style="display:none;">Reflexes</th>
-            <th class="gk-col" style="display:none;">GK Positioning</th>
             <th class="gk-col" style="display:none;">Handling</th>
-            <th class="gk-col" style="display:none;">Kicking</th>
           </tr>
         </thead>
 
@@ -102,65 +74,43 @@ const { data: players, error } = await supabase
               <td>{p.birth_year}</td>
               <td>{p.nation}</td>
               <td>{p.role}</td>
-              <td>{p.height}</td>
-              <td>{p.weight}</td>
-              <td>{p.preferred_foot}</td>
-              <td>{p.decade}</td>
-              <td>{p.iconic_club}</td>
               <td>{p.overall_rating}</td>
 
-              <td></td><td></td><td></td><td></td><td></td><td></td>
-
               <!-- STATS -->
+              <td></td>
               <td class="stats-col" style="display:none;">{p.club_apps}</td>
               <td class="stats-col" style="display:none;">{p.club_goals}</td>
-              <td class="stats-col" style="display:none;">{p.club_goal_ratio}</td>
-              <td class="stats-col" style="display:none;">{p.nat_apps}</td>
-              <td class="stats-col" style="display:none;">{p.nat_goals}</td>
-              <td class="stats-col" style="display:none;">{p.nat_goal_ratio}</td>
 
-              <!-- ATHLETIC -->
+              <!-- ATH -->
+              <td></td>
               <td class="ath-col" style="display:none;">{p.acceleration}</td>
               <td class="ath-col" style="display:none;">{p.pace}</td>
               <td class="ath-col" style="display:none;">{p.agility}</td>
               <td class="ath-col" style="display:none;">{p.strength}</td>
-              <td class="ath-col" style="display:none;">{p.balance}</td>
-              <td class="ath-col" style="display:none;">{p.jumping}</td>
-              <td class="ath-col" style="display:none;">{p.stamina}</td>
-              <td class="ath-col" style="display:none;">{p.fitness}</td>
 
               <!-- TECH -->
+              <td></td>
               <td class="tech-col" style="display:none;">{p.dribbling}</td>
               <td class="tech-col" style="display:none;">{p.passing}</td>
               <td class="tech-col" style="display:none;">{p.finishing}</td>
-              <td class="tech-col" style="display:none;">{p.shot_accuracy}</td>
-              <td class="tech-col" style="display:none;">{p.shot_power}</td>
-              <td class="tech-col" style="display:none;">{p.heading}</td>
-              <td class="tech-col" style="display:none;">{p.tackling}</td>
-              <td class="tech-col" style="display:none;">{p.free_kick}</td>
-              <td class="tech-col" style="display:none;">{p.penalties}</td>
               <td class="tech-col" style="display:none;">{p.first_touch}</td>
 
               <!-- MENTAL -->
-              <td class="ment-col" style="display:none;">{p.composure}</td>
-              <td class="ment-col" style="display:none;">{p.aggression}</td>
-              <td class="ment-col" style="display:none;">{p.consistency}</td>
+              <td></td>
               <td class="ment-col" style="display:none;">{p.creativity}</td>
               <td class="ment-col" style="display:none;">{p.work_rate}</td>
+              <td class="ment-col" style="display:none;">{p.composure}</td>
 
               <!-- TACTICAL -->
+              <td></td>
               <td class="tact-col" style="display:none;">{p.vision}</td>
-              <td class="tact-col" style="display:none;">{p.off_the_ball}</td>
               <td class="tact-col" style="display:none;">{p.positioning}</td>
               <td class="tact-col" style="display:none;">{p.teamwork}</td>
-              <td class="tact-col" style="display:none;">{p.anticipation}</td>
-              <td class="tact-col" style="display:none;">{p.marking}</td>
 
               <!-- GK -->
+              <td></td>
               <td class="gk-col" style="display:none;">{p.reflexes}</td>
-              <td class="gk-col" style="display:none;">{p.gk_positioning}</td>
               <td class="gk-col" style="display:none;">{p.handling}</td>
-              <td class="gk-col" style="display:none;">{p.kicking}</td>
             </tr>
           ))}
         </tbody>
