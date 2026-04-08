@@ -129,41 +129,34 @@ const { data: players, error } = await supabase
 
 <script define:vars={{ players }}>
   const allPlayers = players;
+  const tbody = document.getElementById('table-body');
+  const input = document.getElementById('searchInput');
+  const roleFilter = document.getElementById('filterRole');
+  const nationFilter = document.getElementById('filterNation');
+  const clubFilter = document.getElementById('filterClub'); // FIX
+  const decadeFilter = document.getElementById('filterDecade');
 
-  if (typeof window !== 'undefined') {
-    const tbody = document.getElementById('table-body');
-    const input = document.getElementById('searchInput');
-    const roleFilter = document.getElementById('filterRole');
-    const nationFilter = document.getElementById('filterNation');
-    const clubFilter = document.getElementById('filterClub');
-    const decadeFilter = document.getElementById('filterDecade');
+  let currentSort = null;
+  let sortDirection = 'asc';
 
-    let currentSort = null;
-    let sortDirection = 'asc';
+  // Popola nazioni
+  const nations = [...new Set(allPlayers.map(p => p.nation).filter(Boolean))].sort();
+  nations.forEach(n => {
+    const opt = document.createElement('option');
+    opt.value = n;
+    opt.textContent = n;
+    nationFilter.appendChild(opt);
+  });
 
-    // Popola nazioni
-    if (nationFilter) {
-      const nations = [...new Set(allPlayers.map(p => p.nation).filter(Boolean))].sort();
-      nations.forEach(n => {
-        const opt = document.createElement('option');
-        opt.value = n;
-        opt.textContent = n;
-        nationFilter.appendChild(opt);
-      });
-    }
+  // Popola clubs
+  const clubs = [...new Set(allPlayers.map(p => p.iconic_club).filter(Boolean))].sort();
+  clubs.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c;
+    opt.textContent = c;
+    clubFilter.appendChild(opt);
+  });
 
-    // Popola clubs
-    if (clubFilter) {
-      const clubs = [...new Set(allPlayers.map(p => p.iconic_club).filter(Boolean))].sort();
-      clubs.forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c;
-        opt.textContent = c;
-        clubFilter.appendChild(opt);
-      });
-    }
-  }
-</script>
   function renderRows(data) {
     tbody.innerHTML = '';
     data.forEach(p => {
@@ -240,12 +233,14 @@ const { data: players, error } = await supabase
     const q = input.value.toLowerCase().trim();
     const role = roleFilter.value;
     const nation = nationFilter.value;
+    const club = clubFilter.value; // FIX
     const decade = decadeFilter.value;
 
     let filtered = allPlayers.filter(p =>
       (!q || p.name?.toLowerCase().includes(q)) &&
       (!role || p.role === role) &&
       (!nation || p.nation === nation) &&
+      (!club || p.iconic_club === club) && // FIX
       (!decade || String(p.decade) === decade)
     );
 
@@ -301,6 +296,7 @@ const { data: players, error } = await supabase
   input.addEventListener('input', applyFilters);
   roleFilter.addEventListener('change', applyFilters);
   nationFilter.addEventListener('change', applyFilters);
+  clubFilter.addEventListener('change', applyFilters); // FIX
   decadeFilter.addEventListener('change', applyFilters);
 
   window.toggle = toggle;
@@ -308,6 +304,5 @@ const { data: players, error } = await supabase
 
   renderRows(allPlayers);
 </script>
-
 </body>
 </html>
