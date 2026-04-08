@@ -1,0 +1,51 @@
+---
+import { supabase } from '../lib/supabase.js';
+
+const { data: players, error } = await supabase
+  .from('players')
+  .select('*')
+  .order('name', { ascending: true });
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Legends Database</title>
+  </head>
+  <body style="font-family: Arial, sans-serif; padding: 20px;">
+    <h1>Legends Database</h1>
+
+    {error && <p>Errore nel caricamento dati.</p>}
+
+    {!error && (
+      <table border="1" cellpadding="8" cellspacing="0">
+        <tr>
+          <th>Name</th>
+          <th>Birth Year</th>
+          <th>Nation</th>
+          <th>Role</th>
+          <th>Height</th>
+          <th>Weight</th>
+          <th>Preferred Foot</th>
+          <th>Decade</th>
+          <th>Iconic Club</th>
+        </tr>
+
+        {players?.map((player) => (
+          <tr>
+            <td>{player.name}</td>
+            <td>{player.birth_year}</td>
+            <td>{player.nation}</td>
+            <td>{player.role}</td>
+            <td>{player.height}</td>
+            <td>{player.weight}</td>
+            <td>{player.preferred_foot}</td>
+            <td>{player.decade}</td>
+            <td>{player.iconic_club}</td>
+          </tr>
+        ))}
+      </table>
+    )}
+  </body>
+</html>
