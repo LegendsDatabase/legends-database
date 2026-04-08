@@ -19,9 +19,7 @@ const { data: players, error } = await supabase
       font-family: -apple-system, 'SF Pro Text', 'Inter', sans-serif;
       background: #f2f2f7;
       color: #1d1d1f;
-      padding: 56px 64px;
-      max-width: 1800px;
-      margin: 0 auto;
+      padding: 40px 32px;
       font-size: 13px;
       -webkit-font-smoothing: antialiased;
     }
@@ -31,14 +29,15 @@ const { data: players, error } = await supabase
       font-weight: 600;
       letter-spacing: -0.5px;
       color: #1d1d1f;
-      margin-bottom: 28px;
+      margin-bottom: 24px;
     }
 
+    /* TOOLBAR */
     .toolbar {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       align-items: center;
     }
 
@@ -78,6 +77,7 @@ const { data: players, error } = await supabase
       box-shadow: 0 0 0 3px rgba(0,113,227,0.15);
     }
 
+    /* TABLE WRAP */
     .table-wrap {
       overflow-x: auto;
       border-radius: 12px;
@@ -92,6 +92,7 @@ const { data: players, error } = await supabase
       font-size: 12.5px;
     }
 
+    /* HEADER */
     thead tr {
       background: #f9f9fb;
       border-bottom: 1px solid #e5e5ea;
@@ -117,28 +118,21 @@ const { data: players, error } = await supabase
       color: #1d1d1f;
     }
 
+    /* Toggle headers (Stats, Athletic, etc.) */
     thead th:not([data-key])[onclick] {
       color: #0071e3;
       font-weight: 600;
     }
 
+    /* ROWS */
     tbody tr {
       border-bottom: 1px solid #f2f2f7;
       transition: background 0.1s;
-      cursor: pointer;
     }
 
     tbody tr:last-child { border-bottom: none; }
 
-    tbody tr:hover { background: #f5f5f7; }
-
-    tbody tr.selected {
-      background: #e8f0fd;
-    }
-
-    tbody tr.selected td {
-      color: #1d1d1f;
-    }
+    tbody tr:hover { background: #f9f9fb; }
 
     tbody td {
       padding: 9px 12px;
@@ -149,6 +143,7 @@ const { data: players, error } = await supabase
 
     tbody td:last-child { border-right: none; }
 
+    /* Separator cells (the empty ones between groups) */
     tbody td:empty {
       background: #f9f9fb;
       width: 4px;
@@ -156,18 +151,21 @@ const { data: players, error } = await supabase
       border-right: 1px solid #e5e5ea;
     }
 
+    /* Numbers right-aligned */
     tbody td:nth-child(n+5):not(:empty) {
       text-align: right;
       font-variant-numeric: tabular-nums;
       color: #3a3a3c;
     }
 
+    /* Name column bold */
     tbody td:first-child {
       font-weight: 500;
       color: #1d1d1f;
       text-align: left;
     }
 
+    /* Nation / Role pill-style */
     tbody td:nth-child(3),
     tbody td:nth-child(4) {
       font-size: 11px;
@@ -304,7 +302,6 @@ const { data: players, error } = await supabase
 
   let currentSort = null;
   let sortDirection = 'asc';
-  let selectedRow = null;
 
   const nations = [...new Set(allPlayers.map(p => p.nation).filter(Boolean))].sort();
   nations.forEach(n => {
@@ -333,7 +330,6 @@ const { data: players, error } = await supabase
   function renderRows(data) {
     const visibleGroups = getVisibleGroups();
     tbody.innerHTML = '';
-    selectedRow = null;
     data.forEach(p => {
       const row = document.createElement('tr');
       row.innerHTML = `
@@ -400,17 +396,6 @@ const { data: players, error } = await supabase
         <td class="gk-col">${p.handling ?? ''}</td>
         <td class="gk-col">${p.kicking ?? ''}</td>
       `;
-
-      row.addEventListener('click', () => {
-        if (selectedRow) selectedRow.classList.remove('selected');
-        if (selectedRow === row) {
-          selectedRow = null;
-        } else {
-          row.classList.add('selected');
-          selectedRow = row;
-        }
-      });
-
       tbody.appendChild(row);
     });
 
