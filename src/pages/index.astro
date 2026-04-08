@@ -16,35 +16,28 @@ const { data: players, error } = await supabase
 <body style="font-family: Arial; padding:20px;">
   <h1>Legends Database</h1>
 
-  <input type="text" id="searchInput" placeholder="Search player..." />
+  <input type="text" id="searchInput" placeholder="Search player..." style="padding:8px; margin-bottom:15px; width:250px;" />
 
-  <select id="filterRole">
+  <select id="filterRole" style="padding:8px; margin-left:8px;">
     <option value="">All Roles</option>
-    <option value="FW">FW</option>
-    <option value="CB">CB</option>
-    <option value="AM">AM</option>
-    <option value="CM">CM</option>
-    <option value="DM">DM</option>
-<option value="RB">RB</option>
-<option value="LB">RL</option>
-<option value="RW">RW</option>
-    <option value="SW">SW</option>
     <option value="GK">GK</option>
+    <option value="CB">CB</option>
+    <option value="RB">RB</option>
+    <option value="LB">LB</option>
+    <option value="SW">SW</option>
+    <option value="DM">DM</option>
+    <option value="CM">CM</option>
+    <option value="AM">AM</option>
+    <option value="RW">RW</option>
+    <option value="LW">LW</option>
+    <option value="FW">FW</option>
   </select>
 
-  <select id="filterNation">
+  <select id="filterNation" style="padding:8px; margin-left:8px;">
     <option value="">All Nations</option>
-    <option value="Italy">Italy</option>
-    <option value="Brazil">Brazil</option>
-    <option value="Germany">Germany</option>
-    <option value="Argentina">Argentina</option>
-    <option value="France">France</option>
-<option value="Spain">Spain</option>
-<option value="Netherlands">Netherlands</option>
-
   </select>
 
-  <select id="filterDecade">
+  <select id="filterDecade" style="padding:8px; margin-left:8px;">
     <option value="">All Decades</option>
     <option value="1950">1950</option>
     <option value="1960">1960</option>
@@ -52,26 +45,27 @@ const { data: players, error } = await supabase
     <option value="1980">1980</option>
     <option value="1990">1990</option>
     <option value="2000">2000</option>
-<option value="2010">2010</option>
+    <option value="2010">2010</option>
+    <option value="2020">2020</option>
   </select>
 
   {!error && (
-<div style="overflow-x:auto;">
-  <table border="1">
-    <thead>
-      <tr>
-        <th data-key="name" onclick="handleSort('name')">Name</th>
-        <th data-key="birth_year" onclick="handleSort('birth_year')">Birth Year</th>
-        <th data-key="nation" onclick="handleSort('nation')">Nation</th>
-        <th data-key="role" onclick="handleSort('role')">Role</th>
-        <th data-key="height" onclick="handleSort('height')">Height</th>
-        <th data-key="weight" onclick="handleSort('weight')">Weight</th>
-        <th data-key="preferred_foot" onclick="handleSort('preferred_foot')">Foot</th>
-        <th data-key="decade" onclick="handleSort('decade')">Decade</th>
-        <th data-key="iconic_club" onclick="handleSort('iconic_club')">Club</th>
-        <th data-key="overall_rating" onclick="handleSort('overall_rating')">Overall</th>
+    <div style="overflow-x:auto; margin-top:15px;">
+      <table border="1" cellpadding="6" cellspacing="0">
+        <thead>
+          <tr>
+            <th data-key="name" onclick="handleSort('name')" style="cursor:pointer;">Name</th>
+            <th data-key="birth_year" onclick="handleSort('birth_year')" style="cursor:pointer;">Birth Year</th>
+            <th data-key="nation" onclick="handleSort('nation')" style="cursor:pointer;">Nation</th>
+            <th data-key="role" onclick="handleSort('role')" style="cursor:pointer;">Role</th>
+            <th data-key="height" onclick="handleSort('height')" style="cursor:pointer;">Height</th>
+            <th data-key="weight" onclick="handleSort('weight')" style="cursor:pointer;">Weight</th>
+            <th data-key="preferred_foot" onclick="handleSort('preferred_foot')" style="cursor:pointer;">Foot</th>
+            <th data-key="decade" onclick="handleSort('decade')" style="cursor:pointer;">Decade</th>
+            <th data-key="iconic_club" onclick="handleSort('iconic_club')" style="cursor:pointer;">Club</th>
+            <th data-key="overall_rating" onclick="handleSort('overall_rating')" style="cursor:pointer;">Overall</th>
 
-            <th onclick="toggle('stats-col', this)">Stats ▾</th>
+            <th onclick="toggle('stats-col', this)" style="cursor:pointer;">Stats ▾</th>
             <th class="stats-col" style="display:none;">Club Apps</th>
             <th class="stats-col" style="display:none;">Club Goals</th>
             <th class="stats-col" style="display:none;">Club Ratio</th>
@@ -79,7 +73,7 @@ const { data: players, error } = await supabase
             <th class="stats-col" style="display:none;">Nat Goals</th>
             <th class="stats-col" style="display:none;">Nat Ratio</th>
 
-            <th onclick="toggle('ath-col', this)">Athletic ▾</th>
+            <th onclick="toggle('ath-col', this)" style="cursor:pointer;">Athletic ▾</th>
             <th class="ath-col" style="display:none;">Acceleration</th>
             <th class="ath-col" style="display:none;">Pace</th>
             <th class="ath-col" style="display:none;">Agility</th>
@@ -89,7 +83,7 @@ const { data: players, error } = await supabase
             <th class="ath-col" style="display:none;">Stamina</th>
             <th class="ath-col" style="display:none;">Fitness</th>
 
-            <th onclick="toggle('tech-col', this)">Technical ▾</th>
+            <th onclick="toggle('tech-col', this)" style="cursor:pointer;">Technical ▾</th>
             <th class="tech-col" style="display:none;">Dribbling</th>
             <th class="tech-col" style="display:none;">Short Passing</th>
             <th class="tech-col" style="display:none;">Long Passing</th>
@@ -102,14 +96,14 @@ const { data: players, error } = await supabase
             <th class="tech-col" style="display:none;">Penalties</th>
             <th class="tech-col" style="display:none;">First Touch</th>
 
-            <th onclick="toggle('ment-col', this)">Mental ▾</th>
+            <th onclick="toggle('ment-col', this)" style="cursor:pointer;">Mental ▾</th>
             <th class="ment-col" style="display:none;">Composure</th>
             <th class="ment-col" style="display:none;">Aggression</th>
             <th class="ment-col" style="display:none;">Consistency</th>
             <th class="ment-col" style="display:none;">Creativity</th>
             <th class="ment-col" style="display:none;">Work Rate</th>
 
-            <th onclick="toggle('tact-col', this)">Tactical ▾</th>
+            <th onclick="toggle('tact-col', this)" style="cursor:pointer;">Tactical ▾</th>
             <th class="tact-col" style="display:none;">Vision</th>
             <th class="tact-col" style="display:none;">Off Ball</th>
             <th class="tact-col" style="display:none;">Def Positioning</th>
@@ -117,208 +111,181 @@ const { data: players, error } = await supabase
             <th class="tact-col" style="display:none;">Anticipation</th>
             <th class="tact-col" style="display:none;">Marking</th>
 
-            <th onclick="toggle('gk-col', this)">GK ▾</th>
+            <th onclick="toggle('gk-col', this)" style="cursor:pointer;">GK ▾</th>
             <th class="gk-col" style="display:none;">Reflexes</th>
             <th class="gk-col" style="display:none;">Positioning</th>
             <th class="gk-col" style="display:none;">Handling</th>
             <th class="gk-col" style="display:none;">Kicking</th>
           </tr>
         </thead>
-
         <tbody id="table-body"></tbody>
       </table>
     </div>
   )}
 
 <script define:vars={{ players }}>
-const allPlayers = players;
-const tbody = document.getElementById('table-body');
-const input = document.getElementById('searchInput');
-const roleFilter = document.getElementById('filterRole');
-const nationFilter = document.getElementById('filterNation');
-const decadeFilter = document.getElementById('filterDecade');
+  const allPlayers = players;
+  const tbody = document.getElementById('table-body');
+  const input = document.getElementById('searchInput');
+  const roleFilter = document.getElementById('filterRole');
+  const nationFilter = document.getElementById('filterNation');
+  const decadeFilter = document.getElementById('filterDecade');
 
-let currentSort = null;
-let sortDirection = 'asc';
+  let currentSort = null;
+  let sortDirection = 'asc';
 
-function renderRows(data) {
-  tbody.innerHTML = '';
-  data.forEach(p => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${p.name}</td>
-      <td>${p.birth_year}</td>
-      <td>${p.nation}</td>
-      <td>${p.role}</td>
-      <td>${p.height}</td>
-      <td>${p.weight}</td>
-      <td>${p.preferred_foot}</td>
-      <td>${p.decade}</td>
-      <td>${p.iconic_club}</td>
-      <td>${p.overall_rating}</td>
-    `;
-    tbody.appendChild(row);
+  // Popola nazioni dinamicamente
+  const nations = [...new Set(allPlayers.map(p => p.nation).filter(Boolean))].sort();
+  nations.forEach(n => {
+    const opt = document.createElement('option');
+    opt.value = n;
+    opt.textContent = n;
+    nationFilter.appendChild(opt);
   });
-}
 
-// 👇 AGGIUNTA QUI (STEP 2)
-function updateSortIndicators() {
-  const headers = document.querySelectorAll('th[data-key]');
+  function renderRows(data) {
+    tbody.innerHTML = '';
+    data.forEach(p => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${p.name ?? ''}</td>
+        <td>${p.birth_year ?? ''}</td>
+        <td>${p.nation ?? ''}</td>
+        <td>${p.role ?? ''}</td>
+        <td>${p.height ?? ''}</td>
+        <td>${p.weight ?? ''}</td>
+        <td>${p.preferred_foot ?? ''}</td>
+        <td>${p.decade ?? ''}</td>
+        <td>${p.iconic_club ?? ''}</td>
+        <td>${p.overall_rating ?? ''}</td>
 
-  headers.forEach(th => {
-    const key = th.getAttribute('data-key');
+        <td></td>
+        <td class="stats-col" style="display:none;">${p.club_apps ?? ''}</td>
+        <td class="stats-col" style="display:none;">${p.club_goals ?? ''}</td>
+        <td class="stats-col" style="display:none;">${p.club_goal_ratio ?? ''}</td>
+        <td class="stats-col" style="display:none;">${p.nat_apps ?? ''}</td>
+        <td class="stats-col" style="display:none;">${p.nat_goals ?? ''}</td>
+        <td class="stats-col" style="display:none;">${p.nat_goal_ratio ?? ''}</td>
 
-    let label = th.textContent.replace(' ↑', '').replace(' ↓', '');
+        <td></td>
+        <td class="ath-col" style="display:none;">${p.acceleration ?? ''}</td>
+        <td class="ath-col" style="display:none;">${p.pace ?? ''}</td>
+        <td class="ath-col" style="display:none;">${p.agility ?? ''}</td>
+        <td class="ath-col" style="display:none;">${p.strength ?? ''}</td>
+        <td class="ath-col" style="display:none;">${p.balance ?? ''}</td>
+        <td class="ath-col" style="display:none;">${p.jumping ?? ''}</td>
+        <td class="ath-col" style="display:none;">${p.stamina ?? ''}</td>
+        <td class="ath-col" style="display:none;">${p.fitness ?? ''}</td>
 
-    if (key === currentSort) {
-      th.textContent = label + (sortDirection === 'asc' ? ' ↑' : ' ↓');
-    } else {
-      th.textContent = label;
-    }
-  });
-}
+        <td></td>
+        <td class="tech-col" style="display:none;">${p.dribbling ?? ''}</td>
+        <td class="tech-col" style="display:none;">${p.short_passing ?? ''}</td>
+        <td class="tech-col" style="display:none;">${p.long_passing ?? ''}</td>
+        <td class="tech-col" style="display:none;">${p.finishing ?? ''}</td>
+        <td class="tech-col" style="display:none;">${p.shot_accuracy ?? ''}</td>
+        <td class="tech-col" style="display:none;">${p.shot_power ?? ''}</td>
+        <td class="tech-col" style="display:none;">${p.heading ?? ''}</td>
+        <td class="tech-col" style="display:none;">${p.tackling ?? ''}</td>
+        <td class="tech-col" style="display:none;">${p.free_kick ?? ''}</td>
+        <td class="tech-col" style="display:none;">${p.penalties ?? ''}</td>
+        <td class="tech-col" style="display:none;">${p['first-touch'] ?? ''}</td>
 
-      <td></td>
-      <td class="stats-col" style="display:none;">${p.club_apps}</td>
-      <td class="stats-col" style="display:none;">${p.club_goals}</td>
-      <td class="stats-col" style="display:none;">${p.club_goal_ratio}</td>
-      <td class="stats-col" style="display:none;">${p.nat_apps}</td>
-      <td class="stats-col" style="display:none;">${p.nat_goals}</td>
-      <td class="stats-col" style="display:none;">${p.nat_goal_ratio}</td>
+        <td></td>
+        <td class="ment-col" style="display:none;">${p.composure ?? ''}</td>
+        <td class="ment-col" style="display:none;">${p.aggression ?? ''}</td>
+        <td class="ment-col" style="display:none;">${p.consistency ?? ''}</td>
+        <td class="ment-col" style="display:none;">${p.creativity ?? ''}</td>
+        <td class="ment-col" style="display:none;">${p.work_rate ?? ''}</td>
 
-      <td></td>
-      <td class="ath-col" style="display:none;">${p.acceleration}</td>
-      <td class="ath-col" style="display:none;">${p.pace}</td>
-      <td class="ath-col" style="display:none;">${p.agility}</td>
-      <td class="ath-col" style="display:none;">${p.strength}</td>
-      <td class="ath-col" style="display:none;">${p.balance}</td>
-      <td class="ath-col" style="display:none;">${p.jumping}</td>
-      <td class="ath-col" style="display:none;">${p.stamina}</td>
-      <td class="ath-col" style="display:none;">${p.fitness}</td>
+        <td></td>
+        <td class="tact-col" style="display:none;">${p.vision ?? ''}</td>
+        <td class="tact-col" style="display:none;">${p.off_the_ball ?? ''}</td>
+        <td class="tact-col" style="display:none;">${p.def_positioning ?? ''}</td>
+        <td class="tact-col" style="display:none;">${p.teamwork ?? ''}</td>
+        <td class="tact-col" style="display:none;">${p.anticipation ?? ''}</td>
+        <td class="tact-col" style="display:none;">${p.marking ?? ''}</td>
 
-      <td></td>
-      <td class="tech-col" style="display:none;">${p.dribbling}</td>
-      <td class="tech-col" style="display:none;">${p.short_passing}</td>
-      <td class="tech-col" style="display:none;">${p.long_passing}</td>
-      <td class="tech-col" style="display:none;">${p.finishing}</td>
-      <td class="tech-col" style="display:none;">${p.shot_accuracy}</td>
-      <td class="tech-col" style="display:none;">${p.shot_power}</td>
-      <td class="tech-col" style="display:none;">${p.heading}</td>
-      <td class="tech-col" style="display:none;">${p.tackling}</td>
-      <td class="tech-col" style="display:none;">${p.free_kick}</td>
-      <td class="tech-col" style="display:none;">${p.penalties}</td>
-      <td class="tech-col" style="display:none;">${p['first-touch']}</td>
-
-      <td></td>
-      <td class="ment-col" style="display:none;">${p.composure}</td>
-      <td class="ment-col" style="display:none;">${p.aggression}</td>
-      <td class="ment-col" style="display:none;">${p.consistency}</td>
-      <td class="ment-col" style="display:none;">${p.creativity}</td>
-      <td class="ment-col" style="display:none;">${p.work_rate}</td>
-
-      <td></td>
-      <td class="tact-col" style="display:none;">${p.vision}</td>
-      <td class="tact-col" style="display:none;">${p.off_the_ball}</td>
-      <td class="tact-col" style="display:none;">${p.def_positioning}</td>
-      <td class="tact-col" style="display:none;">${p.teamwork}</td>
-      <td class="tact-col" style="display:none;">${p.anticipation}</td>
-      <td class="tact-col" style="display:none;">${p.marking}</td>
-
-      <td></td>
-      <td class="gk-col" style="display:none;">${p.reflexes}</td>
-      <td class="gk-col" style="display:none;">${p.positioning}</td>
-      <td class="gk-col" style="display:none;">${p.handling}</td>
-      <td class="gk-col" style="display:none;">${p.kicking}</td>
-    `;
-    tbody.appendChild(row);
-  });
-}
-
-function sortData(data, key) {
-  if (currentSort === key) {
-    sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-  } else {
-    currentSort = key;
-    sortDirection = 'asc';
+        <td></td>
+        <td class="gk-col" style="display:none;">${p.reflexes ?? ''}</td>
+        <td class="gk-col" style="display:none;">${p.positioning ?? ''}</td>
+        <td class="gk-col" style="display:none;">${p.handling ?? ''}</td>
+        <td class="gk-col" style="display:none;">${p.kicking ?? ''}</td>
+      `;
+      tbody.appendChild(row);
+    });
   }
 
-  return [...data].sort((a, b) => {
-    let valA = a[key];
-    let valB = b[key];
+  function applyFilters() {
+    const q = input.value.toLowerCase().trim();
+    const role = roleFilter.value;
+    const nation = nationFilter.value;
+    const decade = decadeFilter.value;
 
-    if (!isNaN(valA) && !isNaN(valB)) {
-      valA = Number(valA);
-      valB = Number(valB);
-    } else {
-      valA = String(valA).toLowerCase();
-      valB = String(valB).toLowerCase();
+    let filtered = allPlayers.filter(p =>
+      (!q || p.name?.toLowerCase().includes(q)) &&
+      (!role || p.role === role) &&
+      (!nation || p.nation === nation) &&
+      (!decade || String(p.decade) === decade)
+    );
+
+    if (currentSort) {
+      filtered = [...filtered].sort((a, b) => {
+        let valA = a[currentSort];
+        let valB = b[currentSort];
+        if (!isNaN(valA) && !isNaN(valB)) {
+          valA = Number(valA);
+          valB = Number(valB);
+        } else {
+          valA = String(valA ?? '').toLowerCase();
+          valB = String(valB ?? '').toLowerCase();
+        }
+        if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
+        if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
+        return 0;
+      });
     }
 
-    if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
-    if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
-    return 0;
-  });
-}
-
-function applyFilters() {
-  const q = input.value.toLowerCase();
-  const role = roleFilter.value;
-  const nation = nationFilter.value;
-  const decade = decadeFilter.value;
-
-  let filtered = allPlayers.filter(p =>
-    (!q || p.name?.toLowerCase().includes(q)) &&
-    (!role || p.role === role) &&
-    (!nation || p.nation === nation) &&
-    (!decade || String(p.decade) === decade)
-  );
-
-  if (currentSort) filtered = sortData(filtered, currentSort);
-
-  renderRows(filtered);
-}
-
-function handleSort(key) {
-  if (currentSort === key) {
-    sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-  } else {
-    currentSort = key;
-    sortDirection = 'asc';
+    renderRows(filtered);
   }
 
-  // aggiorna freccette
-  const headers = document.querySelectorAll('th[data-key]');
-  headers.forEach(th => {
-    const k = th.getAttribute('data-key');
-    let label = th.textContent.replace(' ↑', '').replace(' ↓', '');
-
-    if (k === currentSort) {
-      th.textContent = label + (sortDirection === 'asc' ? ' ↑' : ' ↓');
+  function handleSort(key) {
+    if (currentSort === key) {
+      sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
     } else {
-      th.textContent = label;
+      currentSort = key;
+      sortDirection = 'asc';
     }
-  });
 
-  applyFilters();
-}
+    document.querySelectorAll('th[data-key]').forEach(th => {
+      const k = th.getAttribute('data-key');
+      const label = th.textContent.replace(' ↑', '').replace(' ↓', '');
+      th.textContent = k === currentSort
+        ? label + (sortDirection === 'asc' ? ' ↑' : ' ↓')
+        : label;
+    });
 
-input.addEventListener('input', applyFilters);
-roleFilter.addEventListener('change', applyFilters);
-nationFilter.addEventListener('change', applyFilters);
-decadeFilter.addEventListener('change', applyFilters);
+    applyFilters();
+  }
 
-function toggle(className, el) {
-  const cols = document.querySelectorAll('.' + className);
-  let open = false;
-  cols.forEach(c => { if (c.style.display === 'table-cell') open = true; });
-  cols.forEach(c => { c.style.display = open ? 'none' : 'table-cell'; });
-}
+  function toggle(className, el) {
+    const cols = document.querySelectorAll('.' + className);
+    let open = false;
+    cols.forEach(c => { if (c.style.display === 'table-cell') open = true; });
+    cols.forEach(c => { c.style.display = open ? 'none' : 'table-cell'; });
+    el.textContent = open
+      ? el.textContent.replace('▴', '▾')
+      : el.textContent.replace('▾', '▴');
+  }
 
-window.toggle = toggle;
-window.handleSort = handleSort;
+  input.addEventListener('input', applyFilters);
+  roleFilter.addEventListener('change', applyFilters);
+  nationFilter.addEventListener('change', applyFilters);
+  decadeFilter.addEventListener('change', applyFilters);
 
-// render iniziale
-renderRows(allPlayers);
+  window.toggle = toggle;
+  window.handleSort = handleSort;
+
+  renderRows(allPlayers);
 </script>
 
 </body>
