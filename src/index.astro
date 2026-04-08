@@ -11,9 +11,10 @@ const { data: players, error } = await supabase
 <head>
   <meta charset="UTF-8" />
   <title>Legends Database</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
 
-<body style="font-family: Arial; padding:20px;">
+<body style="font-family: 'Inter', sans-serif; padding: 24px; background: #f5f5f7; color: #1d1d1f;">
   <h1>Legends Database</h1>
 
   <input type="text" id="searchInput" placeholder="Search player..." style="padding:8px; margin-bottom:15px; width:250px;" />
@@ -53,8 +54,6 @@ const { data: players, error } = await supabase
     <option value="2020">2020</option>
   </select>
 
-<input type="number" id="filterOverallMin" placeholder="Min OVR" style="width:80px; padding:8px; margin-left:8px;">
-<input type="number" id="filterOverallMax" placeholder="Max OVR" style="width:80px; padding:8px; margin-left:4px;">
   {!error && (
     <div style="overflow-x:auto; margin-top:15px;">
       <table border="1" cellpadding="6" cellspacing="0">
@@ -137,8 +136,6 @@ const { data: players, error } = await supabase
   const nationFilter = document.getElementById('filterNation');
   const clubFilter = document.getElementById('filterClub'); // FIX
   const decadeFilter = document.getElementById('filterDecade');
-const overallMin = document.getElementById('filterOverallMin');
-const overallMax = document.getElementById('filterOverallMax');
 
   let currentSort = null;
   let sortDirection = 'asc';
@@ -239,30 +236,14 @@ const overallMax = document.getElementById('filterOverallMax');
     const nation = nationFilter.value;
     const club = clubFilter.value; // FIX
     const decade = decadeFilter.value;
-const min = overallMin.value !== '' ? Number(overallMin.value) : null;
-const max = overallMax.value !== '' ? Number(overallMax.value) : null;
 
-let filtered = allPlayers.filter(p => {
-  const rawOverall = p.overall_rating;
-  const overall =
-    rawOverall === null || rawOverall === undefined || rawOverall === ''
-      ? null
-      : Number(rawOverall);
-
-  const hasOverallFilter = min !== null || max !== null;
-  const hasValidOverall = overall !== null && Number.isFinite(overall);
-
-  return (
-    (!q || p.name?.toLowerCase().includes(q)) &&
-    (!role || p.role === role) &&
-    (!nation || p.nation === nation) &&
-    (!club || p.iconic_club === club) &&
-    (!decade || String(p.decade) === decade) &&
-    (!hasOverallFilter || hasValidOverall) &&
-    (min === null || overall >= min) &&
-    (max === null || overall <= max)
-  );
-});
+    let filtered = allPlayers.filter(p =>
+      (!q || p.name?.toLowerCase().includes(q)) &&
+      (!role || p.role === role) &&
+      (!nation || p.nation === nation) &&
+      (!club || p.iconic_club === club) && // FIX
+      (!decade || String(p.decade) === decade)
+    );
 
     if (currentSort) {
       filtered = [...filtered].sort((a, b) => {
@@ -318,8 +299,6 @@ let filtered = allPlayers.filter(p => {
   nationFilter.addEventListener('change', applyFilters);
   clubFilter.addEventListener('change', applyFilters); // FIX
   decadeFilter.addEventListener('change', applyFilters);
-overallMin.addEventListener('input', applyFilters);
-overallMax.addEventListener('input', applyFilters);
 
   window.toggle = toggle;
   window.handleSort = handleSort;

@@ -15,7 +15,13 @@ const { data: players, error } = await supabase
 </head>
 
 <body style="font-family: 'Inter', sans-serif; padding: 24px; background: #f5f5f7; color: #1d1d1f;">
-  <h1>Legends Database</h1>
+<h1 style="font-weight:500; font-size:28px; margin-bottom:20px;">
+  Legends Database
+</h1>
+
+<div style="max-width:1200px; margin:0 auto;">
+
+<div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px;">
 
   <input type="text" id="searchInput" placeholder="Search player..." style="padding:8px; margin-bottom:15px; width:250px;" />
 
@@ -53,6 +59,8 @@ const { data: players, error } = await supabase
     <option value="2010">2010</option>
     <option value="2020">2020</option>
   </select>
+
+</div>
 
   {!error && (
     <div style="overflow-x:auto; margin-top:15px;">
@@ -305,5 +313,6 @@ const { data: players, error } = await supabase
 
   renderRows(allPlayers);
 </script>
+</di>
 </body>
 </html>
