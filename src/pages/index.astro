@@ -53,15 +53,15 @@ const { data: players, error } = await supabase
         <thead>
           <tr>
             <th onclick="handleSort('name')">Name</th>
-            <th>Birth Year</th>
-            <th>Nation</th>
-            <th>Role</th>
-            <th>Height</th>
-            <th>Weight</th>
-            <th>Foot</th>
-            <th>Decade</th>
-            <th>Club</th>
-            <th onclick="handleSort('overall_rating')">Overall</th>
+<th onclick="handleSort('birth_year')">Birth Year</th>
+<th onclick="handleSort('nation')">Nation</th>
+<th onclick="handleSort('role')">Role</th>
+<th onclick="handleSort('height')">Height</th>
+<th onclick="handleSort('weight')">Weight</th>
+<th onclick="handleSort('preferred_foot')">Foot</th>
+<th onclick="handleSort('decade')">Decade</th>
+<th onclick="handleSort('iconic_club')">Club</th>
+<th onclick="handleSort('overall_rating')">Overall</th>
 
             <th onclick="toggle('stats-col', this)">Stats ▾</th>
             <th class="stats-col" style="display:none;">Club Apps</th>
