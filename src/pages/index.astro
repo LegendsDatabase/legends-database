@@ -142,105 +142,141 @@ const { data: players, error } = await supabase
     opt.textContent = n;
     nationFilter.appendChild(opt);
   });
-function getVisibleGroups() {
-  const groups = ['stats-col', 'ath-col', 'tech-col', 'ment-col', 'tact-col', 'gk-col'];
-  const state = {};
-  groups.forEach(cls => {
-    const first = document.querySelector('.' + cls);
-    state[cls] = first ? first.style.display === 'table-cell' : false;
-  });
-  return state;
-}
 
-function renderRows(data) {
-  const visibleGroups = getVisibleGroups();
-  tbody.innerHTML = '';
-  data.forEach(p => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${p.name ?? ''}</td>
-      <td>${p.birth_year ?? ''}</td>
-      <td>${p.nation ?? ''}</td>
-      <td>${p.role ?? ''}</td>
-      <td>${p.height ?? ''}</td>
-      <td>${p.weight ?? ''}</td>
-      <td>${p.preferred_foot ?? ''}</td>
-      <td>${p.decade ?? ''}</td>
-      <td>${p.iconic_club ?? ''}</td>
-      <td>${p.overall_rating ?? ''}</td>
+  function renderRows(data) {
+    tbody.innerHTML = '';
+    data.forEach(p => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${p.name ?? ''}</td>
+        <td>${p.birth_year ?? ''}</td>
+        <td>${p.nation ?? ''}</td>
+        <td>${p.role ?? ''}</td>
+        <td>${p.height ?? ''}</td>
+        <td>${p.weight ?? ''}</td>
+        <td>${p.preferred_foot ?? ''}</td>
+        <td>${p.decade ?? ''}</td>
+        <td>${p.iconic_club ?? ''}</td>
+        <td>${p.overall_rating ?? ''}</td>
 
-      <td></td>
-      <td class="stats-col">${p.club_apps ?? ''}</td>
-      <td class="stats-col">${p.club_goals ?? ''}</td>
-      <td class="stats-col">${p.club_goal_ratio ?? ''}</td>
-      <td class="stats-col">${p.nat_apps ?? ''}</td>
-      <td class="stats-col">${p.nat_goals ?? ''}</td>
-      <td class="stats-col">${p.nat_goal_ratio ?? ''}</td>
+        <td></td>
+        <td class="stats-col" style="display:none;">${p.club_apps ?? ''}</td>
+        <td class="stats-col" style="display:none;">${p.club_goals ?? ''}</td>
+        <td class="stats-col" style="display:none;">${p.club_goal_ratio ?? ''}</td>
+        <td class="stats-col" style="display:none;">${p.nat_apps ?? ''}</td>
+        <td class="stats-col" style="display:none;">${p.nat_goals ?? ''}</td>
+        <td class="stats-col" style="display:none;">${p.nat_goal_ratio ?? ''}</td>
 
-      <td></td>
-      <td class="ath-col">${p.acceleration ?? ''}</td>
-      <td class="ath-col">${p.pace ?? ''}</td>
-      <td class="ath-col">${p.agility ?? ''}</td>
-      <td class="ath-col">${p.strength ?? ''}</td>
-      <td class="ath-col">${p.balance ?? ''}</td>
-      <td class="ath-col">${p.jumping ?? ''}</td>
-      <td class="ath-col">${p.stamina ?? ''}</td>
-      <td class="ath-col">${p.fitness ?? ''}</td>
+        <td></td>
+        <td class="ath-col" style="display:none;">${p.acceleration ?? ''}</td>
+        <td class="ath-col" style="display:none;">${p.pace ?? ''}</td>
+        <td class="ath-col" style="display:none;">${p.agility ?? ''}</td>
+        <td class="ath-col" style="display:none;">${p.strength ?? ''}</td>
+        <td class="ath-col" style="display:none;">${p.balance ?? ''}</td>
+        <td class="ath-col" style="display:none;">${p.jumping ?? ''}</td>
+        <td class="ath-col" style="display:none;">${p.stamina ?? ''}</td>
+        <td class="ath-col" style="display:none;">${p.fitness ?? ''}</td>
 
-      <td></td>
-      <td class="tech-col">${p.dribbling ?? ''}</td>
-      <td class="tech-col">${p.short_passing ?? ''}</td>
-      <td class="tech-col">${p.long_passing ?? ''}</td>
-      <td class="tech-col">${p.finishing ?? ''}</td>
-      <td class="tech-col">${p.shot_accuracy ?? ''}</td>
-      <td class="tech-col">${p.shot_power ?? ''}</td>
-      <td class="tech-col">${p.heading ?? ''}</td>
-      <td class="tech-col">${p.tackling ?? ''}</td>
-      <td class="tech-col">${p.free_kick ?? ''}</td>
-      <td class="tech-col">${p.penalties ?? ''}</td>
-      <td class="tech-col">${p['first-touch'] ?? ''}</td>
+        <td></td>
+        <td class="tech-col" style="display:none;">${p.dribbling ?? ''}</td>
+        <td class="tech-col" style="display:none;">${p.short_passing ?? ''}</td>
+        <td class="tech-col" style="display:none;">${p.long_passing ?? ''}</td>
+        <td class="tech-col" style="display:none;">${p.finishing ?? ''}</td>
+        <td class="tech-col" style="display:none;">${p.shot_accuracy ?? ''}</td>
+        <td class="tech-col" style="display:none;">${p.shot_power ?? ''}</td>
+        <td class="tech-col" style="display:none;">${p.heading ?? ''}</td>
+        <td class="tech-col" style="display:none;">${p.tackling ?? ''}</td>
+        <td class="tech-col" style="display:none;">${p.free_kick ?? ''}</td>
+        <td class="tech-col" style="display:none;">${p.penalties ?? ''}</td>
+        <td class="tech-col" style="display:none;">${p['first-touch'] ?? ''}</td>
 
-      <td></td>
-      <td class="ment-col">${p.composure ?? ''}</td>
-      <td class="ment-col">${p.aggression ?? ''}</td>
-      <td class="ment-col">${p.consistency ?? ''}</td>
-      <td class="ment-col">${p.creativity ?? ''}</td>
-      <td class="ment-col">${p.work_rate ?? ''}</td>
+        <td></td>
+        <td class="ment-col" style="display:none;">${p.composure ?? ''}</td>
+        <td class="ment-col" style="display:none;">${p.aggression ?? ''}</td>
+        <td class="ment-col" style="display:none;">${p.consistency ?? ''}</td>
+        <td class="ment-col" style="display:none;">${p.creativity ?? ''}</td>
+        <td class="ment-col" style="display:none;">${p.work_rate ?? ''}</td>
 
-      <td></td>
-      <td class="tact-col">${p.vision ?? ''}</td>
-      <td class="tact-col">${p.off_the_ball ?? ''}</td>
-      <td class="tact-col">${p.def_positioning ?? ''}</td>
-      <td class="tact-col">${p.teamwork ?? ''}</td>
-      <td class="tact-col">${p.anticipation ?? ''}</td>
-      <td class="tact-col">${p.marking ?? ''}</td>
+        <td></td>
+        <td class="tact-col" style="display:none;">${p.vision ?? ''}</td>
+        <td class="tact-col" style="display:none;">${p.off_the_ball ?? ''}</td>
+        <td class="tact-col" style="display:none;">${p.def_positioning ?? ''}</td>
+        <td class="tact-col" style="display:none;">${p.teamwork ?? ''}</td>
+        <td class="tact-col" style="display:none;">${p.anticipation ?? ''}</td>
+        <td class="tact-col" style="display:none;">${p.marking ?? ''}</td>
 
-      <td></td>
-      <td class="gk-col">${p.reflexes ?? ''}</td>
-      <td class="gk-col">${p.positioning ?? ''}</td>
-      <td class="gk-col">${p.handling ?? ''}</td>
-      <td class="gk-col">${p.kicking ?? ''}</td>
-    `;
-    tbody.appendChild(row);
-  });
-
-  // Riapplica stato visibilità
-  Object.entries(visibleGroups).forEach(([cls, isOpen]) => {
-    tbody.querySelectorAll('.' + cls).forEach(td => {
-      td.style.display = isOpen ? 'table-cell' : 'none';
+        <td></td>
+        <td class="gk-col" style="display:none;">${p.reflexes ?? ''}</td>
+        <td class="gk-col" style="display:none;">${p.positioning ?? ''}</td>
+        <td class="gk-col" style="display:none;">${p.handling ?? ''}</td>
+        <td class="gk-col" style="display:none;">${p.kicking ?? ''}</td>
+      `;
+      tbody.appendChild(row);
     });
-  });
-}
+  }
 
-function toggle(className, el) {
-  const cols = document.querySelectorAll('.' + className);
-  let open = false;
-  cols.forEach(c => { if (c.style.display === 'table-cell') open = true; });
-  cols.forEach(c => { c.style.display = open ? 'none' : 'table-cell'; });
-  el.textContent = open
-    ? el.textContent.replace('▴', '▾')
-    : el.textContent.replace('▾', '▴');
-}
+  function applyFilters() {
+    const q = input.value.toLowerCase().trim();
+    const role = roleFilter.value;
+    const nation = nationFilter.value;
+    const decade = decadeFilter.value;
+
+    let filtered = allPlayers.filter(p =>
+      (!q || p.name?.toLowerCase().includes(q)) &&
+      (!role || p.role === role) &&
+      (!nation || p.nation === nation) &&
+      (!decade || String(p.decade) === decade)
+    );
+
+    if (currentSort) {
+      filtered = [...filtered].sort((a, b) => {
+        let valA = a[currentSort];
+        let valB = b[currentSort];
+        if (!isNaN(valA) && !isNaN(valB)) {
+          valA = Number(valA);
+          valB = Number(valB);
+        } else {
+          valA = String(valA ?? '').toLowerCase();
+          valB = String(valB ?? '').toLowerCase();
+        }
+        if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
+        if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    renderRows(filtered);
+  }
+
+  function handleSort(key) {
+    if (currentSort === key) {
+      sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      currentSort = key;
+      sortDirection = 'asc';
+    }
+
+    document.querySelectorAll('th[data-key]').forEach(th => {
+      const k = th.getAttribute('data-key');
+      const label = th.textContent.replace(' ↑', '').replace(' ↓', '');
+      th.textContent = k === currentSort
+        ? label + (sortDirection === 'asc' ? ' ↑' : ' ↓')
+        : label;
+    });
+
+    applyFilters();
+  }
+
+  function toggle(className, el) {
+    const cols = document.querySelectorAll('.' + className);
+    let open = false;
+    cols.forEach(c => { if (c.style.display === 'table-cell') open = true; });
+    cols.forEach(c => { c.style.display = open ? 'none' : 'table-cell'; });
+    el.textContent = open
+      ? el.textContent.replace('▴', '▾')
+      : el.textContent.replace('▾', '▴');
+  }
+
   input.addEventListener('input', applyFilters);
   roleFilter.addEventListener('change', applyFilters);
   nationFilter.addEventListener('change', applyFilters);
