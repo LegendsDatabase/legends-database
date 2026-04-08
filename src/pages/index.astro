@@ -24,6 +24,10 @@ const { data: players, error } = await supabase
     <option value="CB">CB</option>
     <option value="AM">AM</option>
     <option value="CM">CM</option>
+    <option value="DM">DM</option>
+<option value="RB">RB</option>
+<option value="LB">RL</option>
+<option value="RW">RW</option>
     <option value="SW">SW</option>
     <option value="GK">GK</option>
   </select>
@@ -35,6 +39,9 @@ const { data: players, error } = await supabase
     <option value="Germany">Germany</option>
     <option value="Argentina">Argentina</option>
     <option value="France">France</option>
+<option value="Spain">Spain</option>
+<option value="Netherlands">Netherlands</option>
+
   </select>
 
   <select id="filterDecade">
@@ -45,6 +52,7 @@ const { data: players, error } = await supabase
     <option value="1980">1980</option>
     <option value="1990">1990</option>
     <option value="2000">2000</option>
+<option value="2010">2010</option>
   </select>
 
   {!error && (
