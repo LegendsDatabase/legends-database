@@ -7,96 +7,76 @@ const { data: players, error } = await supabase
   .order('name', { ascending: true });
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Legends Database</title>
-  </head>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Legends Database</title>
+</head>
 
-  <body style="font-family: Arial, sans-serif; padding: 20px;">
-    <h1>Legends Database</h1>
+<body style="font-family: Arial; padding:20px;">
+  <h1>Legends Database</h1>
 
-    {error && <p>Errore nel caricamento dati.</p>}
+  {error && <p>Errore</p>}
 
-    {!error && (
-      <table border="1" cellpadding="6" cellspacing="0">
-        <thead>
+  {!error && (
+    <table border="1" cellpadding="6" cellspacing="0">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Birth Year</th>
+          <th>Nation</th>
+          <th>Role</th>
+          <th>Overall</th>
+
+          <th onclick="toggleStats()" style="cursor:pointer;">
+            EXPAND
+          </th>
+
+          <!-- COLONNE NASCOSTE -->
+          <th class="stats-col" style="display:none;">Club Apps</th>
+          <th class="stats-col" style="display:none;">Club Goals</th>
+          <th class="stats-col" style="display:none;">Ratio</th>
+          <th class="stats-col" style="display:none;">Nat Apps</th>
+          <th class="stats-col" style="display:none;">Nat Goals</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {players.map((p) => (
           <tr>
-            <th>Name</th>
-            <th>Birth Year</th>
-            <th>Nation</th>
-            <th>Role</th>
-            <th>Height</th>
-            <th>Weight</th>
-            <th>Foot</th>
-            <th>Decade</th>
-            <th>Club</th>
-            <th>Overall</th>
-            <th>Stats</th>
+            <td>{p.name}</td>
+            <td>{p.birth_year}</td>
+            <td>{p.nation}</td>
+            <td>{p.role}</td>
+            <td>{p.overall_rating}</td>
+
+            <td></td>
+
+            <!-- DATI -->
+            <td class="stats-col" style="display:none;">{p.club_apps}</td>
+            <td class="stats-col" style="display:none;">{p.club_goals}</td>
+            <td class="stats-col" style="display:none;">{p.club_goal_ratio}</td>
+            <td class="stats-col" style="display:none;">{p.nat_apps}</td>
+            <td class="stats-col" style="display:none;">{p.nat_goals}</td>
           </tr>
-        </thead>
+        ))}
+      </tbody>
+    </table>
+  )}
 
-        <tbody>
-          {players?.map((p, index) => (
-            <tr>
-              <td>{p.name}</td>
-              <td>{p.birth_year}</td>
-              <td>{p.nation}</td>
-              <td>{p.role}</td>
-              <td>{p.height}</td>
-              <td>{p.weight}</td>
-              <td>{p.preferred_foot}</td>
-              <td>{p.decade}</td>
-              <td>{p.iconic_club}</td>
-              <td>{p.overall_rating}</td>
+  <script is:inline>
+    function toggleStats() {
+      const cols = document.querySelectorAll('.stats-col');
 
-              <td>
-                <div
-                  class="toggle-stats"
-                  data-target={`stats-${index}`}
-                  style="cursor:pointer; user-select:none;"
-                >
-                  📊 Stats
-                </div>
-
-                <div
-                  id={`stats-${index}`}
-                  style="display:none; font-size:12px; margin-top:5px; line-height:1.4;"
-                >
-                  Club Apps: {p.club_apps}<br />
-                  Club Goals: {p.club_goals}<br />
-                  Club Ratio: {p.club_goal_ratio}<br />
-                  Nat Apps: {p.nat_apps}<br />
-                  Nat Goals: {p.nat_goals}<br />
-                  Nat Ratio: {p.nat_goal_ratio}
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    )}
-
-    <script is:inline>
-      document.addEventListener('DOMContentLoaded', () => {
-        const toggles = document.querySelectorAll('.toggle-stats');
-
-        toggles.forEach((toggle) => {
-          toggle.addEventListener('click', () => {
-            const targetId = toggle.getAttribute('data-target');
-            const content = document.getElementById(targetId);
-
-            if (!content) return;
-
-            if (content.style.display === 'none' || content.style.display === '') {
-              content.style.display = 'block';
-            } else {
-              content.style.display = 'none';
-            }
-          });
-        });
+      cols.forEach(col => {
+        if (col.style.display === 'none') {
+          col.style.display = 'table-cell';
+        } else {
+          col.style.display = 'none';
+        }
       });
-    </script>
-  </body>
+    }
+  </script>
+
+</body>
 </html>
