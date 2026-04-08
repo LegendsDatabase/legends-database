@@ -33,24 +33,38 @@ const { data: players, error } = await supabase
 
           <tbody>
             {players?.map((player) => (
-              <tr style="cursor:pointer;" onclick={`selectPlayer('${player.name}')`}>
-                <td>{player.name}</td>
-                <td>{player.nation}</td>
-                <td>{player.role}</td>
-                <td>{player.birth_year}</td>
-              </tr>
+              <>
+                <tr style="cursor:pointer;" onclick={`togglePlayer('${player.name}')`}>
+                  <td>{player.name}</td>
+                  <td>{player.nation}</td>
+                  <td>{player.role}</td>
+                  <td>{player.birth_year}</td>
+                </tr>
+
+                <tr id={`detail-${player.name}`} style="display:none; background:#f5f5f5;">
+                  <td colspan="4">
+                    <strong>{player.name}</strong><br/>
+                    Height: {player.height} cm<br/>
+                    Weight: {player.weight} kg<br/>
+                    Preferred Foot: {player.preferred_foot}<br/>
+                    Iconic Club: {player.iconic_club}
+                  </td>
+                </tr>
+              </>
             ))}
           </tbody>
         </table>
-
-        <div id="selectedPlayer" style="margin-top:20px; font-size:18px;"></div>
       </>
     )}
 
     <script>
-      function selectPlayer(name) {
-        document.getElementById("selectedPlayer").innerText =
-          "Hai selezionato: " + name;
+      function togglePlayer(name) {
+        const row = document.getElementById("detail-" + name);
+        if (row.style.display === "none") {
+          row.style.display = "table-row";
+        } else {
+          row.style.display = "none";
+        }
       }
     </script>
   </body>
