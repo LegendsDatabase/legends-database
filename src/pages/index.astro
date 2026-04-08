@@ -133,6 +133,7 @@ const { data: players, error } = await supabase
   const input = document.getElementById('searchInput');
   const roleFilter = document.getElementById('filterRole');
   const nationFilter = document.getElementById('filterNation');
+  const clubFilter = document.getElementById('filterClub'); // 👈 AGGIUNTA QUI
   const decadeFilter = document.getElementById('filterDecade');
 
   let currentSort = null;
@@ -146,6 +147,16 @@ const { data: players, error } = await supabase
     opt.textContent = n;
     nationFilter.appendChild(opt);
   });
+
+  // Popola clubs dinamicamente
+  const clubs = [...new Set(allPlayers.map(p => p.iconic_club).filter(Boolean))].sort();
+  clubs.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c;
+    opt.textContent = c;
+    clubFilter.appendChild(opt);
+  });
+</script>
 
   function renderRows(data) {
     tbody.innerHTML = '';
