@@ -239,8 +239,8 @@ const overallMax = document.getElementById('filterOverallMax');
     const nation = nationFilter.value;
     const club = clubFilter.value; // FIX
     const decade = decadeFilter.value;
-const min = overallMin.value ? Number(overallMin.value) : null;
-const max = overallMax.value ? Number(overallMax.value) : null;
+const min = overallMin.value !== '' ? Number(overallMin.value) : null;
+const max = overallMax.value !== '' ? Number(overallMax.value) : null;
 
     let filtered = allPlayers.filter(p =>
       (!q || p.name?.toLowerCase().includes(q)) &&
@@ -248,8 +248,8 @@ const max = overallMax.value ? Number(overallMax.value) : null;
       (!nation || p.nation === nation) &&
       (!club || p.iconic_club === club) && // FIX
       (!decade || String(p.decade) === decade)
-(!min || Number(p.overall_rating) >= min) &&
-(!max || Number(p.overall_rating) <= max)
+(min === null || Number(p.overall_rating) >= min) &&
+(max === null || Number(p.overall_rating) <= max)
     );
 
     if (currentSort) {
