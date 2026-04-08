@@ -24,6 +24,36 @@ const { data: players, error } = await supabase
     style="padding:8px; margin-bottom:15px; width:250px;"
   />
 
+<select id="filterRole">
+  <option value="">All Roles</option>
+  <option value="FW">FW</option>
+  <option value="CB">CB</option>
+  <option value="AM">AM</option>
+  <option value="CM">CM</option>
+<option value="SW">SW</option>
+  <option value="GK">GK</option>
+</select>
+
+<select id="filterNation">
+  <option value="">All Nations</option>
+  <option value="Italy">Italy</option>
+  <option value="Brazil">Brazil</option>
+<option value="Germany">Germany</option>
+<option value="Argentina">Argentina</option>
+<option value="France">France</option>
+  <option value="Argentina">Argentina</option>
+</select>
+
+<select id="filterDecade">
+  <option value="">All Decades</option>
+<option value="1950">1950</option>
+<option value="1960">1960</option>
+<option value="1970">1970</option>
+  <option value="1980">1980</option>
+  <option value="1990">1990</option>
+  <option value="2000">2000</option>
+</select>
+
   {error && <p>Errore</p>}
 
   {!error && (
@@ -172,6 +202,9 @@ const { data: players, error } = await supabase
   const allPlayers = players;
   const input = document.getElementById('searchInput');
   const tbody = document.getElementById('table-body');
+const roleFilter = document.getElementById('filterRole');
+const nationFilter = document.getElementById('filterNation');
+const decadeFilter = document.getElementById('filterDecade');
 
   function renderRows(data) {
     tbody.innerHTML = '';
@@ -239,13 +272,27 @@ const { data: players, error } = await supabase
     });
   }
 
-  input.addEventListener('input', (e) => {
-    const q = e.target.value.toLowerCase().trim();
-    const filtered = q
-      ? allPlayers.filter(p => p.name?.toLowerCase().includes(q))
-      : allPlayers;
-    renderRows(filtered);
+function applyFilters() {
+  const q = input.value.toLowerCase().trim();
+  const role = roleFilter.value;
+  const nation = nationFilter.value;
+  const decade = decadeFilter.value;
+
+  const filtered = allPlayers.filter(p => {
+    return (
+      (!q || p.name?.toLowerCase().includes(q)) &&
+      (!role || p.role === role) &&
+      (!nation || p.nation === nation) &&
+      (!decade || String(p.decade) === decade)
+    );
   });
+
+  renderRows(filtered);
+}
+input.addEventListener('input', applyFilters);
+roleFilter.addEventListener('change', applyFilters);
+nationFilter.addEventListener('change', applyFilters);
+decadeFilter.addEventListener('change', applyFilters);
 
   function toggle(className, el) {
     const cols = document.querySelectorAll('.' + className);
