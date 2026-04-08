@@ -242,15 +242,15 @@ const overallMax = document.getElementById('filterOverallMax');
 const min = overallMin.value !== '' ? Number(overallMin.value) : null;
 const max = overallMax.value !== '' ? Number(overallMax.value) : null;
 
-    let filtered = allPlayers.filter(p =>
-      (!q || p.name?.toLowerCase().includes(q)) &&
-      (!role || p.role === role) &&
-      (!nation || p.nation === nation) &&
-      (!club || p.iconic_club === club) && // FIX
-      (!decade || String(p.decade) === decade)
-(min === null || Number(p.overall_rating) >= min) &&
-(max === null || Number(p.overall_rating) <= max)
-    );
+let filtered = allPlayers.filter(p =>
+  (!q || p.name?.toLowerCase().includes(q)) &&
+  (!role || p.role === role) &&
+  (!nation || p.nation === nation) &&
+  (!club || p.iconic_club === club) &&
+  (!decade || String(p.decade) === decade) &&
+  (min === null || Number(p.overall_rating) >= min) &&
+  (max === null || Number(p.overall_rating) <= max)
+);
 
     if (currentSort) {
       filtered = [...filtered].sort((a, b) => {
