@@ -7,16 +7,17 @@ const { data: players, error } = await supabase
   .order('name', { ascending: true });
 ---
 
-<html>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Legends Database</title>
   </head>
 
-  <body style="font-family: Arial; padding:20px;">
+  <body style="font-family: Arial, sans-serif; padding: 20px;">
     <h1>Legends Database</h1>
 
-    {error && <p>Errore nel caricamento</p>}
+    {error && <p>Errore nel caricamento dati.</p>}
 
     {!error && (
       <table border="1" cellpadding="6" cellspacing="0">
@@ -37,7 +38,7 @@ const { data: players, error } = await supabase
         </thead>
 
         <tbody>
-          {players.map((p) => (
+          {players?.map((p, index) => (
             <tr>
               <td>{p.name}</td>
               <td>{p.birth_year}</td>
@@ -51,16 +52,23 @@ const { data: players, error } = await supabase
               <td>{p.overall_rating}</td>
 
               <td>
-                <div onclick="toggleStats(this)" style="cursor:pointer;">
+                <div
+                  class="toggle-stats"
+                  data-target={`stats-${index}`}
+                  style="cursor:pointer; user-select:none;"
+                >
                   📊 Stats
                 </div>
 
-                <div style="display:none; font-size:12px; margin-top:5px;">
-                  Club Apps: {p.club_apps}<br/>
-                  Club Goals: {p.club_goals}<br/>
-                  Ratio: {p.club_goal_ratio}<br/>
-                  Nat Apps: {p.nat_apps}<br/>
-                  Nat Goals: {p.nat_goals}<br/>
+                <div
+                  id={`stats-${index}`}
+                  style="display:none; font-size:12px; margin-top:5px; line-height:1.4;"
+                >
+                  Club Apps: {p.club_apps}<br />
+                  Club Goals: {p.club_goals}<br />
+                  Club Ratio: {p.club_goal_ratio}<br />
+                  Nat Apps: {p.nat_apps}<br />
+                  Nat Goals: {p.nat_goals}<br />
                   Nat Ratio: {p.nat_goal_ratio}
                 </div>
               </td>
@@ -70,12 +78,25 @@ const { data: players, error } = await supabase
       </table>
     )}
 
-    <script>
-      function toggleStats(el) {
-        const content = el.nextElementSibling;
-        content.style.display =
-          content.style.display === "none" ? "block" : "none";
-      }
+    <script is:inline>
+      document.addEventListener('DOMContentLoaded', () => {
+        const toggles = document.querySelectorAll('.toggle-stats');
+
+        toggles.forEach((toggle) => {
+          toggle.addEventListener('click', () => {
+            const targetId = toggle.getAttribute('data-target');
+            const content = document.getElementById(targetId);
+
+            if (!content) return;
+
+            if (content.style.display === 'none' || content.style.display === '') {
+              content.style.display = 'block';
+            } else {
+              content.style.display = 'none';
+            }
+          });
+        });
+      });
     </script>
   </body>
 </html>
