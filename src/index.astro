@@ -248,8 +248,8 @@ const max = overallMax.value ? Number(overallMax.value) : null;
       (!nation || p.nation === nation) &&
       (!club || p.iconic_club === club) && // FIX
       (!decade || String(p.decade) === decade)
-(!min || p.overall_rating >= min) &&
-(!max || p.overall_rating <= max)
+(!min || Number(p.overall_rating) >= min) &&
+(!max || Number(p.overall_rating) <= max)
     );
 
     if (currentSort) {
