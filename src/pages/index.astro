@@ -56,20 +56,20 @@ const { data: players, error } = await supabase
   </select>
 
   {!error && (
-    <div style="overflow-x:auto;">
-      <table border="1">
-        <thead>
-          <tr>
-            <th onclick="handleSort('name')">Name</th>
-<th onclick="handleSort('birth_year')">Birth Year</th>
-<th onclick="handleSort('nation')">Nation</th>
-<th onclick="handleSort('role')">Role</th>
-<th onclick="handleSort('height')">Height</th>
-<th onclick="handleSort('weight')">Weight</th>
-<th onclick="handleSort('preferred_foot')">Foot</th>
-<th onclick="handleSort('decade')">Decade</th>
-<th onclick="handleSort('iconic_club')">Club</th>
-<th onclick="handleSort('overall_rating')">Overall</th>
+<div style="overflow-x:auto;">
+  <table border="1">
+    <thead>
+      <tr>
+        <th data-key="name" onclick="handleSort('name')">Name</th>
+        <th data-key="birth_year" onclick="handleSort('birth_year')">Birth Year</th>
+        <th data-key="nation" onclick="handleSort('nation')">Nation</th>
+        <th data-key="role" onclick="handleSort('role')">Role</th>
+        <th data-key="height" onclick="handleSort('height')">Height</th>
+        <th data-key="weight" onclick="handleSort('weight')">Weight</th>
+        <th data-key="preferred_foot" onclick="handleSort('preferred_foot')">Foot</th>
+        <th data-key="decade" onclick="handleSort('decade')">Decade</th>
+        <th data-key="iconic_club" onclick="handleSort('iconic_club')">Club</th>
+        <th data-key="overall_rating" onclick="handleSort('overall_rating')">Overall</th>
 
             <th onclick="toggle('stats-col', this)">Stats ▾</th>
             <th class="stats-col" style="display:none;">Club Apps</th>
@@ -156,6 +156,27 @@ function renderRows(data) {
       <td>${p.decade}</td>
       <td>${p.iconic_club}</td>
       <td>${p.overall_rating}</td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+// 👇 AGGIUNTA QUI (STEP 2)
+function updateSortIndicators() {
+  const headers = document.querySelectorAll('th[data-key]');
+
+  headers.forEach(th => {
+    const key = th.getAttribute('data-key');
+
+    let label = th.textContent.replace(' ↑', '').replace(' ↓', '');
+
+    if (key === currentSort) {
+      th.textContent = label + (sortDirection === 'asc' ? ' ↑' : ' ↓');
+    } else {
+      th.textContent = label;
+    }
+  });
+}
 
       <td></td>
       <td class="stats-col" style="display:none;">${p.club_apps}</td>
@@ -258,7 +279,14 @@ function applyFilters() {
 }
 
 function handleSort(key) {
-  currentSort = key;
+  if (currentSort === key) {
+    sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+  } else {
+    currentSort = key;
+    sortDirection = 'asc';
+  }
+
+  updateSortIndicators();
   applyFilters();
 }
 
