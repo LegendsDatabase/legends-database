@@ -286,7 +286,19 @@ function handleSort(key) {
     sortDirection = 'asc';
   }
 
-  updateSortIndicators();
+  // aggiorna freccette
+  const headers = document.querySelectorAll('th[data-key]');
+  headers.forEach(th => {
+    const k = th.getAttribute('data-key');
+    let label = th.textContent.replace(' ↑', '').replace(' ↓', '');
+
+    if (k === currentSort) {
+      th.textContent = label + (sortDirection === 'asc' ? ' ↑' : ' ↓');
+    } else {
+      th.textContent = label;
+    }
+  });
+
   applyFilters();
 }
 
