@@ -28,8 +28,8 @@ const { data: players, error } = await supabase
           <th>Role</th>
           <th>Overall</th>
 
-          <th onclick="toggleStats()" style="cursor:pointer;">
-            EXPAND
+          <th id="stats-toggle" onclick="toggleStats()" style="cursor:pointer;">
+            Stats ▾
           </th>
 
           <!-- COLONNE NASCOSTE -->
@@ -65,16 +65,19 @@ const { data: players, error } = await supabase
   )}
 
   <script is:inline>
+    let statsOpen = false;
+
     function toggleStats() {
       const cols = document.querySelectorAll('.stats-col');
+      const toggle = document.getElementById('stats-toggle');
+
+      statsOpen = !statsOpen;
 
       cols.forEach(col => {
-        if (col.style.display === 'none') {
-          col.style.display = 'table-cell';
-        } else {
-          col.style.display = 'none';
-        }
+        col.style.display = statsOpen ? 'table-cell' : 'none';
       });
+
+      toggle.innerText = statsOpen ? 'Stats ▴' : 'Stats ▾';
     }
   </script>
 
