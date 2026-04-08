@@ -53,71 +53,71 @@ const { data: players, error } = await supabase
     <div style="overflow-x:auto; margin-top:15px;">
       <table border="1" cellpadding="6" cellspacing="0">
         <thead>
-          <tr>
-            <th data-key="name" onclick="handleSort('name')" style="cursor:pointer;">Name</th>
-            <th data-key="birth_year" onclick="handleSort('birth_year')" style="cursor:pointer;">Birth Year</th>
-            <th data-key="nation" onclick="handleSort('nation')" style="cursor:pointer;">Nation</th>
-            <th data-key="role" onclick="handleSort('role')" style="cursor:pointer;">Role</th>
-            <th data-key="height" onclick="handleSort('height')" style="cursor:pointer;">Height</th>
-            <th data-key="weight" onclick="handleSort('weight')" style="cursor:pointer;">Weight</th>
-            <th data-key="preferred_foot" onclick="handleSort('preferred_foot')" style="cursor:pointer;">Foot</th>
-            <th data-key="decade" onclick="handleSort('decade')" style="cursor:pointer;">Decade</th>
-            <th data-key="iconic_club" onclick="handleSort('iconic_club')" style="cursor:pointer;">Club</th>
-            <th data-key="overall_rating" onclick="handleSort('overall_rating')" style="cursor:pointer;">Overall</th>
+  <tr>
+    <th data-key="name" onclick="handleSort('name')" style="cursor:pointer;">Name</th>
+    <th data-key="birth_year" onclick="handleSort('birth_year')" style="cursor:pointer;">Birth Year</th>
+    <th data-key="nation" onclick="handleSort('nation')" style="cursor:pointer;">Nation</th>
+    <th data-key="role" onclick="handleSort('role')" style="cursor:pointer;">Role</th>
+    <th data-key="height" onclick="handleSort('height')" style="cursor:pointer;">Height</th>
+    <th data-key="weight" onclick="handleSort('weight')" style="cursor:pointer;">Weight</th>
+    <th data-key="preferred_foot" onclick="handleSort('preferred_foot')" style="cursor:pointer;">Foot</th>
+    <th data-key="decade" onclick="handleSort('decade')" style="cursor:pointer;">Decade</th>
+    <th data-key="iconic_club" onclick="handleSort('iconic_club')" style="cursor:pointer;">Club</th>
+    <th data-key="overall_rating" onclick="handleSort('overall_rating')" style="cursor:pointer;">Overall</th>
 
-           <th onclick="toggle('stats-col', this)" style="cursor:pointer;">Stats ▾</th>
-            <th class="stats-col" style="display:none;">Club Apps</th>
-            <th class="stats-col" style="display:none;">Club Goals</th>
-            <th class="stats-col" style="display:none;">Club Ratio</th>
-            <th class="stats-col" style="display:none;">Nat Apps</th>
-            <th class="stats-col" style="display:none;">Nat Goals</th>
-            <th class="stats-col" style="display:none;">Nat Ratio</th>
+    <th onclick="toggle('stats-col', this)" style="cursor:pointer;">Stats ▾</th>
+    <th class="stats-col" data-key="club_apps" onclick="handleSort('club_apps')" style="display:none; cursor:pointer;">Club Apps</th>
+    <th class="stats-col" data-key="club_goals" onclick="handleSort('club_goals')" style="display:none; cursor:pointer;">Club Goals</th>
+    <th class="stats-col" data-key="club_goal_ratio" onclick="handleSort('club_goal_ratio')" style="display:none; cursor:pointer;">Club Ratio</th>
+    <th class="stats-col" data-key="nat_apps" onclick="handleSort('nat_apps')" style="display:none; cursor:pointer;">Nat Apps</th>
+    <th class="stats-col" data-key="nat_goals" onclick="handleSort('nat_goals')" style="display:none; cursor:pointer;">Nat Goals</th>
+    <th class="stats-col" data-key="nat_goal_ratio" onclick="handleSort('nat_goal_ratio')" style="display:none; cursor:pointer;">Nat Ratio</th>
 
-            <th onclick="toggle('ath-col', this)" style="cursor:pointer;">Athletic ▾</th>
-            <th class="ath-col" style="display:none;">Acceleration</th>
-            <th class="ath-col" style="display:none;">Pace</th>
-            <th class="ath-col" style="display:none;">Agility</th>
-            <th class="ath-col" style="display:none;">Strength</th>
-            <th class="ath-col" style="display:none;">Balance</th>
-            <th class="ath-col" style="display:none;">Jumping</th>
-            <th class="ath-col" style="display:none;">Stamina</th>
-            <th class="ath-col" style="display:none;">Fitness</th>
+    <th onclick="toggle('ath-col', this)" style="cursor:pointer;">Athletic ▾</th>
+    <th class="ath-col" data-key="acceleration" onclick="handleSort('acceleration')" style="display:none; cursor:pointer;">Acceleration</th>
+    <th class="ath-col" data-key="pace" onclick="handleSort('pace')" style="display:none; cursor:pointer;">Pace</th>
+    <th class="ath-col" data-key="agility" onclick="handleSort('agility')" style="display:none; cursor:pointer;">Agility</th>
+    <th class="ath-col" data-key="strength" onclick="handleSort('strength')" style="display:none; cursor:pointer;">Strength</th>
+    <th class="ath-col" data-key="balance" onclick="handleSort('balance')" style="display:none; cursor:pointer;">Balance</th>
+    <th class="ath-col" data-key="jumping" onclick="handleSort('jumping')" style="display:none; cursor:pointer;">Jumping</th>
+    <th class="ath-col" data-key="stamina" onclick="handleSort('stamina')" style="display:none; cursor:pointer;">Stamina</th>
+    <th class="ath-col" data-key="fitness" onclick="handleSort('fitness')" style="display:none; cursor:pointer;">Fitness</th>
 
-            <th onclick="toggle('tech-col', this)" style="cursor:pointer;">Technical ▾</th>
-            <th class="tech-col" style="display:none;">Dribbling</th>
-            <th class="tech-col" style="display:none;">Short Passing</th>
-            <th class="tech-col" style="display:none;">Long Passing</th>
-            <th class="tech-col" style="display:none;">Finishing</th>
-            <th class="tech-col" style="display:none;">Shot Accuracy</th>
-            <th class="tech-col" style="display:none;">Shot Power</th>
-            <th class="tech-col" style="display:none;">Heading</th>
-            <th class="tech-col" style="display:none;">Tackling</th>
-            <th class="tech-col" style="display:none;">Free Kick</th>
-            <th class="tech-col" style="display:none;">Penalties</th>
-            <th class="tech-col" style="display:none;">First Touch</th>
+    <th onclick="toggle('tech-col', this)" style="cursor:pointer;">Technical ▾</th>
+    <th class="tech-col" data-key="dribbling" onclick="handleSort('dribbling')" style="display:none; cursor:pointer;">Dribbling</th>
+    <th class="tech-col" data-key="short_passing" onclick="handleSort('short_passing')" style="display:none; cursor:pointer;">Short Passing</th>
+    <th class="tech-col" data-key="long_passing" onclick="handleSort('long_passing')" style="display:none; cursor:pointer;">Long Passing</th>
+    <th class="tech-col" data-key="finishing" onclick="handleSort('finishing')" style="display:none; cursor:pointer;">Finishing</th>
+    <th class="tech-col" data-key="shot_accuracy" onclick="handleSort('shot_accuracy')" style="display:none; cursor:pointer;">Shot Accuracy</th>
+    <th class="tech-col" data-key="shot_power" onclick="handleSort('shot_power')" style="display:none; cursor:pointer;">Shot Power</th>
+    <th class="tech-col" data-key="heading" onclick="handleSort('heading')" style="display:none; cursor:pointer;">Heading</th>
+    <th class="tech-col" data-key="tackling" onclick="handleSort('tackling')" style="display:none; cursor:pointer;">Tackling</th>
+    <th class="tech-col" data-key="free_kick" onclick="handleSort('free_kick')" style="display:none; cursor:pointer;">Free Kick</th>
+    <th class="tech-col" data-key="penalties" onclick="handleSort('penalties')" style="display:none; cursor:pointer;">Penalties</th>
+    <th class="tech-col" data-key="first-touch" onclick="handleSort('first-touch')" style="display:none; cursor:pointer;">First Touch</th>
 
-            <th onclick="toggle('ment-col', this)" style="cursor:pointer;">Mental ▾</th>
-            <th class="ment-col" style="display:none;">Composure</th>
-            <th class="ment-col" style="display:none;">Aggression</th>
-            <th class="ment-col" style="display:none;">Consistency</th>
-            <th class="ment-col" style="display:none;">Creativity</th>
-            <th class="ment-col" style="display:none;">Work Rate</th>
+    <th onclick="toggle('ment-col', this)" style="cursor:pointer;">Mental ▾</th>
+    <th class="ment-col" data-key="composure" onclick="handleSort('composure')" style="display:none; cursor:pointer;">Composure</th>
+    <th class="ment-col" data-key="aggression" onclick="handleSort('aggression')" style="display:none; cursor:pointer;">Aggression</th>
+    <th class="ment-col" data-key="consistency" onclick="handleSort('consistency')" style="display:none; cursor:pointer;">Consistency</th>
+    <th class="ment-col" data-key="creativity" onclick="handleSort('creativity')" style="display:none; cursor:pointer;">Creativity</th>
+    <th class="ment-col" data-key="work_rate" onclick="handleSort('work_rate')" style="display:none; cursor:pointer;">Work Rate</th>
 
-            <th onclick="toggle('tact-col', this)" style="cursor:pointer;">Tactical ▾</th>
-            <th class="tact-col" style="display:none;">Vision</th>
-            <th class="tact-col" style="display:none;">Off Ball</th>
-            <th class="tact-col" style="display:none;">Def Positioning</th>
-            <th class="tact-col" style="display:none;">Teamwork</th>
-            <th class="tact-col" style="display:none;">Anticipation</th>
-            <th class="tact-col" style="display:none;">Marking</th>
+    <th onclick="toggle('tact-col', this)" style="cursor:pointer;">Tactical ▾</th>
+    <th class="tact-col" data-key="vision" onclick="handleSort('vision')" style="display:none; cursor:pointer;">Vision</th>
+    <th class="tact-col" data-key="off_the_ball" onclick="handleSort('off_the_ball')" style="display:none; cursor:pointer;">Off Ball</th>
+    <th class="tact-col" data-key="def_positioning" onclick="handleSort('def_positioning')" style="display:none; cursor:pointer;">Def Positioning</th>
+    <th class="tact-col" data-key="teamwork" onclick="handleSort('teamwork')" style="display:none; cursor:pointer;">Teamwork</th>
+    <th class="tact-col" data-key="anticipation" onclick="handleSort('anticipation')" style="display:none; cursor:pointer;">Anticipation</th>
+    <th class="tact-col" data-key="marking" onclick="handleSort('marking')" style="display:none; cursor:pointer;">Marking</th>
 
-            <th onclick="toggle('gk-col', this)" style="cursor:pointer;">GK ▾</th>
-            <th class="gk-col" style="display:none;">Reflexes</th>
-            <th class="gk-col" style="display:none;">Positioning</th>
-            <th class="gk-col" style="display:none;">Handling</th>
-            <th class="gk-col" style="display:none;">Kicking</th>
-          </tr>
-        </thead>
+    <th onclick="toggle('gk-col', this)" style="cursor:pointer;">GK ▾</th>
+    <th class="gk-col" data-key="reflexes" onclick="handleSort('reflexes')" style="display:none; cursor:pointer;">Reflexes</th>
+    <th class="gk-col" data-key="positioning" onclick="handleSort('positioning')" style="display:none; cursor:pointer;">Positioning</th>
+    <th class="gk-col" data-key="handling" onclick="handleSort('handling')" style="display:none; cursor:pointer;">Handling</th>
+    <th class="gk-col" data-key="kicking" onclick="handleSort('kicking')" style="display:none; cursor:pointer;">Kicking</th>
+  </tr>
+</thead>
         <tbody id="table-body"></tbody>
       </table>
     </div>
