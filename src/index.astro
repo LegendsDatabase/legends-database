@@ -242,15 +242,27 @@ const overallMax = document.getElementById('filterOverallMax');
 const min = overallMin.value !== '' ? Number(overallMin.value) : null;
 const max = overallMax.value !== '' ? Number(overallMax.value) : null;
 
-let filtered = allPlayers.filter(p =>
-  (!q || p.name?.toLowerCase().includes(q)) &&
-  (!role || p.role === role) &&
-  (!nation || p.nation === nation) &&
-  (!club || p.iconic_club === club) &&
-  (!decade || String(p.decade) === decade) &&
-  (min === null || Number(p.overall_rating) >= min) &&
-  (max === null || Number(p.overall_rating) <= max)
-);
+let filtered = allPlayers.filter(p => {
+  const rawOverall = p.overall_rating;
+  const overall =
+    rawOverall === null || rawOverall === undefined || rawOverall === ''
+      ? null
+      : Number(rawOverall);
+
+  const hasOverallFilter = min !== null || max !== null;
+  const hasValidOverall = overall !== null && Number.isFinite(overall);
+
+  return (
+    (!q || p.name?.toLowerCase().includes(q)) &&
+    (!role || p.role === role) &&
+    (!nation || p.nation === nation) &&
+    (!club || p.iconic_club === club) &&
+    (!decade || String(p.decade) === decade) &&
+    (!hasOverallFilter || hasValidOverall) &&
+    (min === null || overall >= min) &&
+    (max === null || overall <= max)
+  );
+});
 
     if (currentSort) {
       filtered = [...filtered].sort((a, b) => {
