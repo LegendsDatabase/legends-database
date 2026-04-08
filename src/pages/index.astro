@@ -51,16 +51,17 @@ const { data: players, error } = await supabase
               <td>{p.overall_rating}</td>
 
               <td>
-                <div onclick={`toggleStats('${p.name}')`} style="cursor:pointer;">
+                <div onclick="toggleStats(this)" style="cursor:pointer;">
                   📊 Stats
                 </div>
 
-                <div id={`stats-${p.name}`} style="display:none; font-size:12px; margin-top:5px;">
-                  Apps: {p.club_apps}<br/>
-                  Goals: {p.club_goals}<br/>
+                <div style="display:none; font-size:12px; margin-top:5px;">
+                  Club Apps: {p.club_apps}<br/>
+                  Club Goals: {p.club_goals}<br/>
                   Ratio: {p.club_goal_ratio}<br/>
                   Nat Apps: {p.nat_apps}<br/>
                   Nat Goals: {p.nat_goals}<br/>
+                  Nat Ratio: {p.nat_goal_ratio}
                 </div>
               </td>
             </tr>
@@ -70,9 +71,10 @@ const { data: players, error } = await supabase
     )}
 
     <script>
-      function toggleStats(name) {
-        const el = document.getElementById("stats-" + name);
-        el.style.display = el.style.display === "none" ? "block" : "none";
+      function toggleStats(el) {
+        const content = el.nextElementSibling;
+        content.style.display =
+          content.style.display === "none" ? "block" : "none";
       }
     </script>
   </body>
