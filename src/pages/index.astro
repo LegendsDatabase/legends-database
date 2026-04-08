@@ -7,64 +7,72 @@ const { data: players, error } = await supabase
   .order('name', { ascending: true });
 ---
 
-<html lang="en">
+<html>
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Legends Database</title>
   </head>
 
-  <body style="font-family: Arial, sans-serif; padding: 20px;">
+  <body style="font-family: Arial; padding:20px;">
     <h1>Legends Database</h1>
 
-    {error && <p>Errore nel caricamento dati.</p>}
+    {error && <p>Errore nel caricamento</p>}
 
     {!error && (
-      <>
-        <table border="1" cellpadding="8" cellspacing="0">
-          <thead>
+      <table border="1" cellpadding="6" cellspacing="0">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Birth Year</th>
+            <th>Nation</th>
+            <th>Role</th>
+            <th>Height</th>
+            <th>Weight</th>
+            <th>Foot</th>
+            <th>Decade</th>
+            <th>Club</th>
+            <th>Overall</th>
+            <th>Stats</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {players.map((p) => (
             <tr>
-              <th>Name</th>
-              <th>Nation</th>
-              <th>Role</th>
-              <th>Birth Year</th>
+              <td>{p.name}</td>
+              <td>{p.birth_year}</td>
+              <td>{p.nation}</td>
+              <td>{p.role}</td>
+              <td>{p.height}</td>
+              <td>{p.weight}</td>
+              <td>{p.preferred_foot}</td>
+              <td>{p.decade}</td>
+              <td>{p.iconic_club}</td>
+              <td>{p.overall_rating}</td>
+
+              <td>
+                <div onclick={`toggleStats('${p.name}')`} style="cursor:pointer;">
+                  📊 Stats
+                </div>
+
+                <div id={`stats-${p.name}`} style="display:none; font-size:12px; margin-top:5px;">
+                  Apps: {p.club_apps}<br/>
+                  Goals: {p.club_goals}<br/>
+                  Ratio: {p.club_goal_ratio}<br/>
+                  Nat Apps: {p.nat_apps}<br/>
+                  Nat Goals: {p.nat_goals}<br/>
+                </div>
+              </td>
             </tr>
-          </thead>
-
-          <tbody>
-            {players?.map((player) => (
-              <>
-                <tr style="cursor:pointer;" onclick={`togglePlayer('${player.name}')`}>
-                  <td>{player.name}</td>
-                  <td>{player.nation}</td>
-                  <td>{player.role}</td>
-                  <td>{player.birth_year}</td>
-                </tr>
-
-                <tr id={`detail-${player.name}`} style="display:none; background:#f5f5f5;">
-                  <td colspan="4">
-                    <strong>{player.name}</strong><br/>
-                    Height: {player.height} cm<br/>
-                    Weight: {player.weight} kg<br/>
-                    Preferred Foot: {player.preferred_foot}<br/>
-                    Iconic Club: {player.iconic_club}
-                  </td>
-                </tr>
-              </>
-            ))}
-          </tbody>
-        </table>
-      </>
+          ))}
+        </tbody>
+      </table>
     )}
 
     <script>
-      function togglePlayer(name) {
-        const row = document.getElementById("detail-" + name);
-        if (row.style.display === "none") {
-          row.style.display = "table-row";
-        } else {
-          row.style.display = "none";
-        }
+      function toggleStats(name) {
+        const el = document.getElementById("stats-" + name);
+        el.style.display = el.style.display === "none" ? "block" : "none";
       }
     </script>
   </body>
