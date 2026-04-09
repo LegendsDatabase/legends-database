@@ -76,7 +76,6 @@ const { data: players, error } = await supabase
       box-shadow: 0 0 0 3px rgba(0,113,227,0.15);
     }
 
-    /* RANGE GROUP */
     .range-group {
       display: flex;
       align-items: center;
@@ -123,9 +122,7 @@ const { data: players, error } = await supabase
       -webkit-appearance: none;
     }
 
-    .range-group input[type="number"]::placeholder {
-      color: #c7c7cc;
-    }
+    .range-group input[type="number"]::placeholder { color: #c7c7cc; }
 
     .range-sep {
       font-size: 11px;
@@ -134,7 +131,6 @@ const { data: players, error } = await supabase
       user-select: none;
     }
 
-    /* RESET */
     #resetBtn {
       font-family: inherit;
       font-size: 12px;
@@ -148,14 +144,9 @@ const { data: players, error } = await supabase
       transition: border-color 0.15s, color 0.15s;
     }
 
-    #resetBtn:hover {
-      border-color: #0071e3;
-      color: #0071e3;
-    }
-
+    #resetBtn:hover { border-color: #0071e3; color: #0071e3; }
     #resetBtn.visible { display: inline-block; }
 
-    /* META */
     .db-meta {
       font-size: 11px;
       color: #aeaeb2;
@@ -163,12 +154,8 @@ const { data: players, error } = await supabase
       height: 16px;
     }
 
-    .db-meta span {
-      color: #6e6e73;
-      font-weight: 500;
-    }
+    .db-meta span { color: #6e6e73; font-weight: 500; }
 
-    /* TABLE WRAP */
     .table-wrap {
       overflow-x: auto;
       border-radius: 12px;
@@ -189,12 +176,12 @@ const { data: players, error } = await supabase
     }
 
     thead th {
-      padding: 10px 12px;
+      padding: 10px 10px;
       text-align: left;
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 600;
       color: #6e6e73;
-      letter-spacing: 0.03em;
+      letter-spacing: 0.04em;
       text-transform: uppercase;
       white-space: nowrap;
       user-select: none;
@@ -214,6 +201,15 @@ const { data: players, error } = await supabase
       font-weight: 600;
     }
 
+    /* STICKY first column header */
+    thead th:first-child {
+      position: sticky;
+      left: 0;
+      z-index: 3;
+      background: #f9f9fb;
+      border-right: 1px solid #e5e5ea;
+    }
+
     tbody tr {
       border-bottom: 1px solid #f2f2f7;
       transition: background 0.1s;
@@ -224,15 +220,14 @@ const { data: players, error } = await supabase
 
     tbody tr:hover td { background: #f7f7f9; }
 
-    tbody tr.selected td {
-      background: #deeafc !important;
-    }
+    tbody tr.selected td { background: #deeafc !important; }
 
     tbody td {
-      padding: 9px 12px;
+      padding: 9px 10px;
       color: #1d1d1f;
       white-space: nowrap;
       border-right: 1px solid #f5f5f7;
+      font-size: 12px;
     }
 
     tbody td:last-child { border-right: none; }
@@ -244,16 +239,25 @@ const { data: players, error } = await supabase
       border-right: 1px solid #e5e5ea;
     }
 
+    /* STICKY first column body */
+    tbody td:first-child {
+      position: sticky;
+      left: 0;
+      z-index: 1;
+      background: #ffffff;
+      font-weight: 500;
+      color: #1d1d1f;
+      text-align: left;
+      border-right: 1px solid #e5e5ea;
+    }
+
+    tbody tr:hover td:first-child { background: #f7f7f9; }
+    tbody tr.selected td:first-child { background: #deeafc !important; }
+
     tbody td:nth-child(n+5):not(:empty) {
       text-align: right;
       font-variant-numeric: tabular-nums;
       color: #3a3a3c;
-    }
-
-    tbody td:first-child {
-      font-weight: 500;
-      color: #1d1d1f;
-      text-align: left;
     }
 
     tbody td:nth-child(3),
@@ -284,7 +288,6 @@ const { data: players, error } = await supabase
   <h1>Legends Database</h1>
 
   <div class="toolbar">
-
     <input type="text" id="searchInput" placeholder="Search player..." />
 
     <select id="filterRole">
@@ -330,7 +333,6 @@ const { data: players, error } = await supabase
       <option value="Both">Both</option>
     </select>
 
-    <!-- BIRTH YEAR RANGE -->
     <div class="range-group">
       <span class="range-label">Year</span>
       <input type="number" id="birthMin" placeholder="1900" min="1900" max="2000" />
@@ -338,7 +340,6 @@ const { data: players, error } = await supabase
       <input type="number" id="birthMax" placeholder="2000" min="1900" max="2000" />
     </div>
 
-    <!-- HEIGHT RANGE -->
     <div class="range-group">
       <span class="range-label">cm</span>
       <input type="number" id="heightMin" placeholder="150" min="150" max="210" />
@@ -346,7 +347,6 @@ const { data: players, error } = await supabase
       <input type="number" id="heightMax" placeholder="210" min="150" max="210" />
     </div>
 
-    <!-- OVERALL RANGE -->
     <div class="range-group">
       <span class="range-label">OVR</span>
       <input type="number" id="overallMin" placeholder="30" min="30" max="99" />
@@ -355,7 +355,6 @@ const { data: players, error } = await supabase
     </div>
 
     <button id="resetBtn" onclick="resetFilters()">✕ Reset</button>
-
   </div>
 
   <div class="db-meta" id="dbMeta"></div>
@@ -365,68 +364,68 @@ const { data: players, error } = await supabase
       <table>
         <thead>
           <tr>
-            <th data-key="name" onclick="handleSort('name')">Name</th>
-            <th data-key="birth_year" onclick="handleSort('birth_year')">Birth Year</th>
-            <th data-key="nation" onclick="handleSort('nation')">Nation</th>
-            <th data-key="role" onclick="handleSort('role')">Role</th>
-            <th data-key="height" onclick="handleSort('height')">Height</th>
-            <th data-key="weight" onclick="handleSort('weight')">Weight</th>
-            <th data-key="preferred_foot" onclick="handleSort('preferred_foot')">Foot</th>
-            <th data-key="decade" onclick="handleSort('decade')">Decade</th>
-            <th data-key="iconic_club" onclick="handleSort('iconic_club')">Club</th>
-            <th data-key="overall_rating" onclick="handleSort('overall_rating')">Overall</th>
+            <th data-key="name" onclick="handleSort('name')" title="Player Name">Name</th>
+            <th data-key="birth_year" onclick="handleSort('birth_year')" title="Birth Year">Born</th>
+            <th data-key="nation" onclick="handleSort('nation')" title="Nation">NAT</th>
+            <th data-key="role" onclick="handleSort('role')" title="Role">Role</th>
+            <th data-key="height" onclick="handleSort('height')" title="Height">HEI</th>
+            <th data-key="weight" onclick="handleSort('weight')" title="Weight">WEI</th>
+            <th data-key="preferred_foot" onclick="handleSort('preferred_foot')" title="Preferred Foot">Foot</th>
+            <th data-key="decade" onclick="handleSort('decade')" title="Decade">DEC</th>
+            <th data-key="iconic_club" onclick="handleSort('iconic_club')" title="Iconic Club">Club</th>
+            <th data-key="overall_rating" onclick="handleSort('overall_rating')" title="Global Overall" style="color:#c0392b;">OVR</th>
 
-            <th onclick="toggle('stats-col', this)">Stats ▾</th>
-            <th class="stats-col" data-key="club_apps" onclick="handleSort('club_apps')" style="display:none;">Club Apps</th>
-            <th class="stats-col" data-key="club_goals" onclick="handleSort('club_goals')" style="display:none;">Club Goals</th>
-            <th class="stats-col" data-key="club_goal_ratio" onclick="handleSort('club_goal_ratio')" style="display:none;">Club Ratio</th>
-            <th class="stats-col" data-key="nat_apps" onclick="handleSort('nat_apps')" style="display:none;">Nat Apps</th>
-            <th class="stats-col" data-key="nat_goals" onclick="handleSort('nat_goals')" style="display:none;">Nat Goals</th>
-            <th class="stats-col" data-key="nat_goal_ratio" onclick="handleSort('nat_goal_ratio')" style="display:none;">Nat Ratio</th>
+            <th onclick="toggle('stats-col', this)" title="Career Statistics">Stats ▾</th>
+            <th class="stats-col" data-key="club_apps" onclick="handleSort('club_apps')" title="Club Appearances" style="display:none;">Club Apps</th>
+            <th class="stats-col" data-key="club_goals" onclick="handleSort('club_goals')" title="Club Goals" style="display:none;">Club Goals</th>
+            <th class="stats-col" data-key="club_goal_ratio" onclick="handleSort('club_goal_ratio')" title="Club Goal Ratio" style="display:none;">Club Ratio</th>
+            <th class="stats-col" data-key="nat_apps" onclick="handleSort('nat_apps')" title="National Team Appearances" style="display:none;">Nat Apps</th>
+            <th class="stats-col" data-key="nat_goals" onclick="handleSort('nat_goals')" title="National Team Goals" style="display:none;">Nat Goals</th>
+            <th class="stats-col" data-key="nat_goal_ratio" onclick="handleSort('nat_goal_ratio')" title="National Team Goal Ratio" style="display:none;">Nat Ratio</th>
 
-            <th onclick="toggle('ath-col', this)">Athletic ▾</th>
-            <th class="ath-col" data-key="acceleration" onclick="handleSort('acceleration')" style="display:none;">Acceleration</th>
-            <th class="ath-col" data-key="pace" onclick="handleSort('pace')" style="display:none;">Pace</th>
-            <th class="ath-col" data-key="agility" onclick="handleSort('agility')" style="display:none;">Agility</th>
-            <th class="ath-col" data-key="strength" onclick="handleSort('strength')" style="display:none;">Strength</th>
-            <th class="ath-col" data-key="balance" onclick="handleSort('balance')" style="display:none;">Balance</th>
-            <th class="ath-col" data-key="jumping" onclick="handleSort('jumping')" style="display:none;">Jumping</th>
-            <th class="ath-col" data-key="stamina" onclick="handleSort('stamina')" style="display:none;">Stamina</th>
-            <th class="ath-col" data-key="fitness" onclick="handleSort('fitness')" style="display:none;">Fitness</th>
+            <th onclick="toggle('ath-col', this)" title="Athletic Skills">ATH ▾</th>
+            <th class="ath-col" data-key="acceleration" onclick="handleSort('acceleration')" title="Acceleration" style="display:none;">ACC</th>
+            <th class="ath-col" data-key="pace" onclick="handleSort('pace')" title="Pace" style="display:none;">PAC</th>
+            <th class="ath-col" data-key="agility" onclick="handleSort('agility')" title="Agility" style="display:none;">AGI</th>
+            <th class="ath-col" data-key="strength" onclick="handleSort('strength')" title="Strength" style="display:none;">STR</th>
+            <th class="ath-col" data-key="balance" onclick="handleSort('balance')" title="Balance" style="display:none;">BAL</th>
+            <th class="ath-col" data-key="jumping" onclick="handleSort('jumping')" title="Jumping" style="display:none;">JMP</th>
+            <th class="ath-col" data-key="stamina" onclick="handleSort('stamina')" title="Stamina" style="display:none;">STA</th>
+            <th class="ath-col" data-key="fitness" onclick="handleSort('fitness')" title="Fitness" style="display:none;">FIT</th>
 
-            <th onclick="toggle('tech-col', this)">Technical ▾</th>
-            <th class="tech-col" data-key="dribbling" onclick="handleSort('dribbling')" style="display:none;">Dribbling</th>
-            <th class="tech-col" data-key="short_passing" onclick="handleSort('short_passing')" style="display:none;">Short Passing</th>
-            <th class="tech-col" data-key="long_passing" onclick="handleSort('long_passing')" style="display:none;">Long Passing</th>
-            <th class="tech-col" data-key="finishing" onclick="handleSort('finishing')" style="display:none;">Finishing</th>
-            <th class="tech-col" data-key="shot_accuracy" onclick="handleSort('shot_accuracy')" style="display:none;">Shot Accuracy</th>
-            <th class="tech-col" data-key="shot_power" onclick="handleSort('shot_power')" style="display:none;">Shot Power</th>
-            <th class="tech-col" data-key="heading" onclick="handleSort('heading')" style="display:none;">Heading</th>
-            <th class="tech-col" data-key="tackling" onclick="handleSort('tackling')" style="display:none;">Tackling</th>
-            <th class="tech-col" data-key="free_kick" onclick="handleSort('free_kick')" style="display:none;">Free Kick</th>
-            <th class="tech-col" data-key="penalties" onclick="handleSort('penalties')" style="display:none;">Penalties</th>
-            <th class="tech-col" data-key="first-touch" onclick="handleSort('first-touch')" style="display:none;">First Touch</th>
+            <th onclick="toggle('tech-col', this)" title="Technical Skills">TEC ▾</th>
+            <th class="tech-col" data-key="dribbling" onclick="handleSort('dribbling')" title="Dribbling" style="display:none;">DRI</th>
+            <th class="tech-col" data-key="short_passing" onclick="handleSort('short_passing')" title="Short Passing" style="display:none;">S-PAS</th>
+            <th class="tech-col" data-key="long_passing" onclick="handleSort('long_passing')" title="Long Passing" style="display:none;">L-PAS</th>
+            <th class="tech-col" data-key="finishing" onclick="handleSort('finishing')" title="Finishing" style="display:none;">FIN</th>
+            <th class="tech-col" data-key="shot_accuracy" onclick="handleSort('shot_accuracy')" title="Shot Accuracy" style="display:none;">SHO-A</th>
+            <th class="tech-col" data-key="shot_power" onclick="handleSort('shot_power')" title="Shot Power" style="display:none;">SHO-P</th>
+            <th class="tech-col" data-key="heading" onclick="handleSort('heading')" title="Heading" style="display:none;">HEA</th>
+            <th class="tech-col" data-key="tackling" onclick="handleSort('tackling')" title="Tackling" style="display:none;">TAC</th>
+            <th class="tech-col" data-key="free_kick" onclick="handleSort('free_kick')" title="Free Kick" style="display:none;">FRK</th>
+            <th class="tech-col" data-key="penalties" onclick="handleSort('penalties')" title="Penalties" style="display:none;">PEN</th>
+            <th class="tech-col" data-key="first-touch" onclick="handleSort('first-touch')" title="Technique - First Touch" style="display:none;">1-TCH</th>
 
-            <th onclick="toggle('ment-col', this)">Mental ▾</th>
-            <th class="ment-col" data-key="composure" onclick="handleSort('composure')" style="display:none;">Composure</th>
-            <th class="ment-col" data-key="aggression" onclick="handleSort('aggression')" style="display:none;">Aggression</th>
-            <th class="ment-col" data-key="consistency" onclick="handleSort('consistency')" style="display:none;">Consistency</th>
-            <th class="ment-col" data-key="creativity" onclick="handleSort('creativity')" style="display:none;">Creativity</th>
-            <th class="ment-col" data-key="work_rate" onclick="handleSort('work_rate')" style="display:none;">Work Rate</th>
+            <th onclick="toggle('ment-col', this)" title="Mental Skills">MEN ▾</th>
+            <th class="ment-col" data-key="composure" onclick="handleSort('composure')" title="Composure / Concentration" style="display:none;">COM</th>
+            <th class="ment-col" data-key="aggression" onclick="handleSort('aggression')" title="Aggression" style="display:none;">AGG</th>
+            <th class="ment-col" data-key="consistency" onclick="handleSort('consistency')" title="Consistency" style="display:none;">CON</th>
+            <th class="ment-col" data-key="creativity" onclick="handleSort('creativity')" title="Creativity" style="display:none;">CREA</th>
+            <th class="ment-col" data-key="work_rate" onclick="handleSort('work_rate')" title="Work Rate" style="display:none;">WRT</th>
 
-            <th onclick="toggle('tact-col', this)">Tactical ▾</th>
-            <th class="tact-col" data-key="vision" onclick="handleSort('vision')" style="display:none;">Vision</th>
-            <th class="tact-col" data-key="off_the_ball" onclick="handleSort('off_the_ball')" style="display:none;">Off Ball</th>
-            <th class="tact-col" data-key="def_positioning" onclick="handleSort('def_positioning')" style="display:none;">Def Positioning</th>
-            <th class="tact-col" data-key="teamwork" onclick="handleSort('teamwork')" style="display:none;">Teamwork</th>
-            <th class="tact-col" data-key="anticipation" onclick="handleSort('anticipation')" style="display:none;">Anticipation</th>
-            <th class="tact-col" data-key="marking" onclick="handleSort('marking')" style="display:none;">Marking</th>
+            <th onclick="toggle('tact-col', this)" title="Tactical Skills">TACT ▾</th>
+            <th class="tact-col" data-key="vision" onclick="handleSort('vision')" title="Vision" style="display:none;">VIS</th>
+            <th class="tact-col" data-key="off_the_ball" onclick="handleSort('off_the_ball')" title="Off the Ball Movement" style="display:none;">OFB</th>
+            <th class="tact-col" data-key="def_positioning" onclick="handleSort('def_positioning')" title="Defensive Positioning" style="display:none;">DEF</th>
+            <th class="tact-col" data-key="teamwork" onclick="handleSort('teamwork')" title="Teamwork" style="display:none;">TMW</th>
+            <th class="tact-col" data-key="anticipation" onclick="handleSort('anticipation')" title="Anticipation" style="display:none;">ANT</th>
+            <th class="tact-col" data-key="marking" onclick="handleSort('marking')" title="Marking" style="display:none;">MAR</th>
 
-            <th onclick="toggle('gk-col', this)">GK ▾</th>
-            <th class="gk-col" data-key="reflexes" onclick="handleSort('reflexes')" style="display:none;">Reflexes</th>
-            <th class="gk-col" data-key="positioning" onclick="handleSort('positioning')" style="display:none;">Positioning</th>
-            <th class="gk-col" data-key="handling" onclick="handleSort('handling')" style="display:none;">Handling</th>
-            <th class="gk-col" data-key="kicking" onclick="handleSort('kicking')" style="display:none;">Kicking</th>
+            <th onclick="toggle('gk-col', this)" title="Goalkeeping Skills">GK ▾</th>
+            <th class="gk-col" data-key="reflexes" onclick="handleSort('reflexes')" title="Reflexes" style="display:none;">REF</th>
+            <th class="gk-col" data-key="positioning" onclick="handleSort('positioning')" title="Positioning" style="display:none;">POS</th>
+            <th class="gk-col" data-key="handling" onclick="handleSort('handling')" title="Handling" style="display:none;">HAN</th>
+            <th class="gk-col" data-key="kicking" onclick="handleSort('kicking')" title="Kicking" style="display:none;">KIC</th>
           </tr>
         </thead>
         <tbody id="table-body"></tbody>
@@ -472,16 +471,11 @@ const { data: players, error } = await supabase
 
   function isFiltered() {
     return input.value.trim() !== '' ||
-      roleFilter.value !== '' ||
-      nationFilter.value !== '' ||
-      clubFilter.value !== '' ||
-      decadeFilter.value !== '' ||
-      footFilter.value !== '' ||
-      birthMin.value !== '' ||
-      birthMax.value !== '' ||
-      heightMin.value !== '' ||
-      heightMax.value !== '' ||
-      overallMin.value !== '' ||
+      roleFilter.value !== '' || nationFilter.value !== '' ||
+      clubFilter.value !== '' || decadeFilter.value !== '' ||
+      footFilter.value !== '' || birthMin.value !== '' ||
+      birthMax.value !== '' || heightMin.value !== '' ||
+      heightMax.value !== '' || overallMin.value !== '' ||
       overallMax.value !== '';
   }
 
@@ -495,23 +489,18 @@ const { data: players, error } = await supabase
 
   function resetFilters() {
     input.value = '';
-    roleFilter.value = '';
-    nationFilter.value = '';
-    clubFilter.value = '';
-    decadeFilter.value = '';
-    footFilter.value = '';
-    birthMin.value = '';
-    birthMax.value = '';
-    heightMin.value = '';
-    heightMax.value = '';
-    overallMin.value = '';
+    roleFilter.value = ''; nationFilter.value = '';
+    clubFilter.value = ''; decadeFilter.value = '';
+    footFilter.value = ''; birthMin.value = '';
+    birthMax.value = ''; heightMin.value = '';
+    heightMax.value = ''; overallMin.value = '';
     overallMax.value = '';
     applyFilters();
   }
 
   function inRange(val, min, max) {
     const v = Number(val);
-    if (isNaN(v)) return true; // valore mancante → non filtrare
+    if (isNaN(v)) return true;
     if (min !== '' && v < Number(min)) return false;
     if (max !== '' && v > Number(max)) return false;
     return true;
@@ -637,12 +626,9 @@ const { data: players, error } = await supabase
     const club = clubFilter.value;
     const decade = decadeFilter.value;
     const foot = footFilter.value;
-    const bMin = birthMin.value;
-    const bMax = birthMax.value;
-    const hMin = heightMin.value;
-    const hMax = heightMax.value;
-    const oMin = overallMin.value;
-    const oMax = overallMax.value;
+    const bMin = birthMin.value, bMax = birthMax.value;
+    const hMin = heightMin.value, hMax = heightMax.value;
+    const oMin = overallMin.value, oMax = overallMax.value;
 
     let filtered = allPlayers.filter(p =>
       (!q || p.name?.toLowerCase().includes(q)) &&
@@ -658,8 +644,7 @@ const { data: players, error } = await supabase
 
     if (currentSort) {
       filtered = [...filtered].sort((a, b) => {
-        let valA = a[currentSort];
-        let valB = b[currentSort];
+        let valA = a[currentSort], valB = b[currentSort];
         if (!isNaN(valA) && !isNaN(valB)) {
           valA = Number(valA); valB = Number(valB);
         } else {
@@ -688,6 +673,8 @@ const { data: players, error } = await supabase
       th.textContent = k === currentSort
         ? label + (sortDirection === 'asc' ? ' ↑' : ' ↓')
         : label;
+      // Ripristina colore rosso su OVR dopo textContent reset
+      if (k === 'overall_rating') th.style.color = '#c0392b';
     });
     applyFilters();
   }
