@@ -76,6 +76,7 @@ const { data: players, error } = await supabase
       box-shadow: 0 0 0 3px rgba(0,113,227,0.15);
     }
 
+    /* RANGE GROUP */
     .range-group {
       display: flex;
       align-items: center;
@@ -122,7 +123,9 @@ const { data: players, error } = await supabase
       -webkit-appearance: none;
     }
 
-    .range-group input[type="number"]::placeholder { color: #c7c7cc; }
+    .range-group input[type="number"]::placeholder {
+      color: #c7c7cc;
+    }
 
     .range-sep {
       font-size: 11px;
@@ -131,6 +134,7 @@ const { data: players, error } = await supabase
       user-select: none;
     }
 
+    /* RESET */
     #resetBtn {
       font-family: inherit;
       font-size: 12px;
@@ -144,9 +148,14 @@ const { data: players, error } = await supabase
       transition: border-color 0.15s, color 0.15s;
     }
 
-    #resetBtn:hover { border-color: #0071e3; color: #0071e3; }
+    #resetBtn:hover {
+      border-color: #0071e3;
+      color: #0071e3;
+    }
+
     #resetBtn.visible { display: inline-block; }
 
+    /* META */
     .db-meta {
       font-size: 11px;
       color: #aeaeb2;
@@ -154,8 +163,12 @@ const { data: players, error } = await supabase
       height: 16px;
     }
 
-    .db-meta span { color: #6e6e73; font-weight: 500; }
+    .db-meta span {
+      color: #6e6e73;
+      font-weight: 500;
+    }
 
+    /* TABLE WRAP */
     .table-wrap {
       overflow-x: auto;
       border-radius: 12px;
@@ -201,15 +214,6 @@ const { data: players, error } = await supabase
       font-weight: 600;
     }
 
-    /* STICKY FIRST COLUMN — header */
-    thead th:first-child {
-      position: sticky;
-      left: 0;
-      z-index: 3;
-      background: #f9f9fb;
-      border-right: 1px solid #e5e5ea;
-    }
-
     tbody tr {
       border-bottom: 1px solid #f2f2f7;
       transition: background 0.1s;
@@ -220,7 +224,9 @@ const { data: players, error } = await supabase
 
     tbody tr:hover td { background: #f7f7f9; }
 
-    tbody tr.selected td { background: #deeafc !important; }
+    tbody tr.selected td {
+      background: #deeafc !important;
+    }
 
     tbody td {
       padding: 9px 12px;
@@ -238,26 +244,16 @@ const { data: players, error } = await supabase
       border-right: 1px solid #e5e5ea;
     }
 
-    /* STICKY FIRST COLUMN — body */
-    tbody td:first-child {
-      position: sticky;
-      left: 0;
-      z-index: 1;
-      background: #ffffff;
-      font-weight: 500;
-      color: #1d1d1f;
-      text-align: left;
-      border-right: 1px solid #e5e5ea;
-    }
-
-    /* Mantieni sfondo corretto su hover e selected per la cella pinned */
-    tbody tr:hover td:first-child { background: #f7f7f9; }
-    tbody tr.selected td:first-child { background: #deeafc !important; }
-
     tbody td:nth-child(n+5):not(:empty) {
       text-align: right;
       font-variant-numeric: tabular-nums;
       color: #3a3a3c;
+    }
+
+    tbody td:first-child {
+      font-weight: 500;
+      color: #1d1d1f;
+      text-align: left;
     }
 
     tbody td:nth-child(3),
@@ -288,6 +284,7 @@ const { data: players, error } = await supabase
   <h1>Legends Database</h1>
 
   <div class="toolbar">
+
     <input type="text" id="searchInput" placeholder="Search player..." />
 
     <select id="filterRole">
@@ -333,6 +330,7 @@ const { data: players, error } = await supabase
       <option value="Both">Both</option>
     </select>
 
+    <!-- BIRTH YEAR RANGE -->
     <div class="range-group">
       <span class="range-label">Year</span>
       <input type="number" id="birthMin" placeholder="1900" min="1900" max="2000" />
@@ -340,6 +338,7 @@ const { data: players, error } = await supabase
       <input type="number" id="birthMax" placeholder="2000" min="1900" max="2000" />
     </div>
 
+    <!-- HEIGHT RANGE -->
     <div class="range-group">
       <span class="range-label">cm</span>
       <input type="number" id="heightMin" placeholder="150" min="150" max="210" />
@@ -347,6 +346,7 @@ const { data: players, error } = await supabase
       <input type="number" id="heightMax" placeholder="210" min="150" max="210" />
     </div>
 
+    <!-- OVERALL RANGE -->
     <div class="range-group">
       <span class="range-label">OVR</span>
       <input type="number" id="overallMin" placeholder="30" min="30" max="99" />
@@ -355,6 +355,7 @@ const { data: players, error } = await supabase
     </div>
 
     <button id="resetBtn" onclick="resetFilters()">✕ Reset</button>
+
   </div>
 
   <div class="db-meta" id="dbMeta"></div>
@@ -471,11 +472,16 @@ const { data: players, error } = await supabase
 
   function isFiltered() {
     return input.value.trim() !== '' ||
-      roleFilter.value !== '' || nationFilter.value !== '' ||
-      clubFilter.value !== '' || decadeFilter.value !== '' ||
-      footFilter.value !== '' || birthMin.value !== '' ||
-      birthMax.value !== '' || heightMin.value !== '' ||
-      heightMax.value !== '' || overallMin.value !== '' ||
+      roleFilter.value !== '' ||
+      nationFilter.value !== '' ||
+      clubFilter.value !== '' ||
+      decadeFilter.value !== '' ||
+      footFilter.value !== '' ||
+      birthMin.value !== '' ||
+      birthMax.value !== '' ||
+      heightMin.value !== '' ||
+      heightMax.value !== '' ||
+      overallMin.value !== '' ||
       overallMax.value !== '';
   }
 
@@ -489,18 +495,23 @@ const { data: players, error } = await supabase
 
   function resetFilters() {
     input.value = '';
-    roleFilter.value = ''; nationFilter.value = '';
-    clubFilter.value = ''; decadeFilter.value = '';
-    footFilter.value = ''; birthMin.value = '';
-    birthMax.value = ''; heightMin.value = '';
-    heightMax.value = ''; overallMin.value = '';
+    roleFilter.value = '';
+    nationFilter.value = '';
+    clubFilter.value = '';
+    decadeFilter.value = '';
+    footFilter.value = '';
+    birthMin.value = '';
+    birthMax.value = '';
+    heightMin.value = '';
+    heightMax.value = '';
+    overallMin.value = '';
     overallMax.value = '';
     applyFilters();
   }
 
   function inRange(val, min, max) {
     const v = Number(val);
-    if (isNaN(v)) return true;
+    if (isNaN(v)) return true; // valore mancante → non filtrare
     if (min !== '' && v < Number(min)) return false;
     if (max !== '' && v > Number(max)) return false;
     return true;
@@ -626,9 +637,12 @@ const { data: players, error } = await supabase
     const club = clubFilter.value;
     const decade = decadeFilter.value;
     const foot = footFilter.value;
-    const bMin = birthMin.value, bMax = birthMax.value;
-    const hMin = heightMin.value, hMax = heightMax.value;
-    const oMin = overallMin.value, oMax = overallMax.value;
+    const bMin = birthMin.value;
+    const bMax = birthMax.value;
+    const hMin = heightMin.value;
+    const hMax = heightMax.value;
+    const oMin = overallMin.value;
+    const oMax = overallMax.value;
 
     let filtered = allPlayers.filter(p =>
       (!q || p.name?.toLowerCase().includes(q)) &&
@@ -644,7 +658,8 @@ const { data: players, error } = await supabase
 
     if (currentSort) {
       filtered = [...filtered].sort((a, b) => {
-        let valA = a[currentSort], valB = b[currentSort];
+        let valA = a[currentSort];
+        let valB = b[currentSort];
         if (!isNaN(valA) && !isNaN(valB)) {
           valA = Number(valA); valB = Number(valB);
         } else {
