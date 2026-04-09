@@ -37,7 +37,7 @@ const { data: players, error } = await supabase
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      margin-bottom: 20px;
+      margin-bottom: 12px;
       align-items: center;
     }
 
@@ -75,6 +75,40 @@ const { data: players, error } = await supabase
     .toolbar select:focus {
       border-color: #0071e3;
       box-shadow: 0 0 0 3px rgba(0,113,227,0.15);
+    }
+
+    /* RESET BUTTON */
+    #resetBtn {
+      font-family: inherit;
+      font-size: 12px;
+      padding: 7px 12px;
+      border: 1px solid #d1d1d6;
+      border-radius: 8px;
+      background: #ffffff;
+      color: #6e6e73;
+      cursor: pointer;
+      display: none;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    #resetBtn:hover {
+      border-color: #0071e3;
+      color: #0071e3;
+    }
+
+    #resetBtn.visible { display: inline-block; }
+
+    /* COUNTER */
+    .db-meta {
+      font-size: 11px;
+      color: #aeaeb2;
+      margin-bottom: 12px;
+      height: 16px;
+    }
+
+    .db-meta span {
+      color: #6e6e73;
+      font-weight: 500;
     }
 
     /* TABLE WRAP */
@@ -116,9 +150,9 @@ const { data: players, error } = await supabase
     thead th[onclick]:hover {
       background: #f0f0f5;
       color: #1d1d1f;
+      cursor: pointer;
     }
 
-    /* Toggle headers (Stats, Athletic, etc.) */
     thead th:not([data-key])[onclick] {
       color: #0071e3;
       font-weight: 600;
@@ -127,17 +161,20 @@ const { data: players, error } = await supabase
     /* ROWS */
     tbody tr {
       border-bottom: 1px solid #f2f2f7;
-      transition: background 0.12s;
+      transition: background 0.1s;
       cursor: pointer;
     }
 
     tbody tr:last-child { border-bottom: none; }
 
-   
-    tbody tr.selected {
-  background: #deeafc !important;
-}
+    tbody tr:hover td {
+      background: #f7f7f9;
+    }
 
+    /* FIX: selected applicato alle td, non al tr */
+    tbody tr.selected td {
+      background: #deeafc !important;
+    }
 
     tbody td {
       padding: 9px 12px;
@@ -148,7 +185,7 @@ const { data: players, error } = await supabase
 
     tbody td:last-child { border-right: none; }
 
-    /* Separator cells (the empty ones between groups) */
+    /* Separator cells */
     tbody td:empty {
       background: #f9f9fb;
       width: 4px;
@@ -163,19 +200,35 @@ const { data: players, error } = await supabase
       color: #3a3a3c;
     }
 
-    /* Name column bold */
+    /* Name column */
     tbody td:first-child {
       font-weight: 500;
       color: #1d1d1f;
       text-align: left;
     }
 
-    /* Nation / Role pill-style */
+    /* Nation / Role */
     tbody td:nth-child(3),
     tbody td:nth-child(4) {
       font-size: 11px;
       color: #6e6e73;
       text-align: left;
+    }
+
+    /* NO RESULTS */
+    .no-results {
+      padding: 48px 24px;
+      text-align: center;
+      color: #aeaeb2;
+      font-size: 13px;
+    }
+
+    .no-results strong {
+      display: block;
+      font-size: 15px;
+      color: #6e6e73;
+      font-weight: 500;
+      margin-bottom: 6px;
     }
   </style>
 </head>
@@ -228,7 +281,11 @@ const { data: players, error } = await supabase
       <option value="Left">Left</option>
       <option value="Both">Both</option>
     </select>
+
+    <button id="resetBtn" onclick="resetFilters()">✕ Reset</button>
   </div>
+
+  <div class="db-meta" id="dbMeta"></div>
 
   {!error && (
     <div class="table-wrap">
@@ -313,11 +370,14 @@ const { data: players, error } = await supabase
   const clubFilter = document.getElementById('filterClub');
   const decadeFilter = document.getElementById('filterDecade');
   const footFilter = document.getElementById('filterFoot');
+  const resetBtn = document.getElementById('resetBtn');
+  const dbMeta = document.getElementById('dbMeta');
 
   let currentSort = null;
   let sortDirection = 'asc';
   let selectedRow = null;
 
+  // Popola nazioni
   const nations = [...new Set(allPlayers.map(p => p.nation).filter(Boolean))].sort();
   nations.forEach(n => {
     const opt = document.createElement('option');
@@ -325,12 +385,42 @@ const { data: players, error } = await supabase
     nationFilter.appendChild(opt);
   });
 
+  // Popola clubs
   const clubs = [...new Set(allPlayers.map(p => p.iconic_club).filter(Boolean))].sort();
   clubs.forEach(c => {
     const opt = document.createElement('option');
     opt.value = c; opt.textContent = c;
     clubFilter.appendChild(opt);
   });
+
+  function isFiltered() {
+    return input.value.trim() !== '' ||
+      roleFilter.value !== '' ||
+      nationFilter.value !== '' ||
+      clubFilter.value !== '' ||
+      decadeFilter.value !== '' ||
+      footFilter.value !== '';
+  }
+
+  function updateMeta(shown) {
+    const total = allPlayers.length;
+    if (shown === total) {
+      dbMeta.innerHTML = `<span>${total}</span> players`;
+    } else {
+      dbMeta.innerHTML = `<span>${shown}</span> of <span>${total}</span> players`;
+    }
+    resetBtn.classList.toggle('visible', isFiltered());
+  }
+
+  function resetFilters() {
+    input.value = '';
+    roleFilter.value = '';
+    nationFilter.value = '';
+    clubFilter.value = '';
+    decadeFilter.value = '';
+    footFilter.value = '';
+    applyFilters();
+  }
 
   function getVisibleGroups() {
     const groups = ['stats-col','ath-col','tech-col','ment-col','tact-col','gk-col'];
@@ -346,6 +436,15 @@ const { data: players, error } = await supabase
     const visibleGroups = getVisibleGroups();
     tbody.innerHTML = '';
     selectedRow = null;
+
+    if (data.length === 0) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td colspan="60" class="no-results"><strong>No players found</strong>Try adjusting your filters</td>`;
+      tbody.appendChild(tr);
+      updateMeta(0);
+      return;
+    }
+
     data.forEach(p => {
       const row = document.createElement('tr');
       row.innerHTML = `
@@ -414,9 +513,7 @@ const { data: players, error } = await supabase
       `;
 
       row.addEventListener('click', () => {
-        if (selectedRow && selectedRow !== row) {
-          selectedRow.classList.remove('selected');
-        }
+        if (selectedRow && selectedRow !== row) selectedRow.classList.remove('selected');
         if (selectedRow === row) {
           row.classList.remove('selected');
           selectedRow = null;
@@ -434,6 +531,8 @@ const { data: players, error } = await supabase
         td.style.display = isOpen ? 'table-cell' : 'none';
       });
     });
+
+    updateMeta(data.length);
   }
 
   function applyFilters() {
@@ -508,6 +607,7 @@ const { data: players, error } = await supabase
 
   window.toggle = toggle;
   window.handleSort = handleSort;
+  window.resetFilters = resetFilters;
 
   renderRows(allPlayers);
 </script>
