@@ -167,6 +167,68 @@ const { data: players, error } = await supabase
     #advBtn:hover { border-color: #0071e3; color: #0071e3; }
     #advBtn.open { border-color: #0071e3; color: #0071e3; background: #f0f6ff; }
 
+    /* EXPORT DROPDOWN */
+    .export-wrap {
+      position: relative;
+      display: inline-block;
+    }
+
+    #exportBtn {
+      font-family: inherit;
+      font-size: 12px;
+      padding: 7px 12px;
+      border: 1px solid #d1d1d6;
+      border-radius: 8px;
+      background: #ffffff;
+      color: #6e6e73;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+      user-select: none;
+    }
+
+    #exportBtn:hover { border-color: #0071e3; color: #0071e3; }
+    #exportBtn.open { border-color: #0071e3; color: #0071e3; background: #f0f6ff; }
+
+    .export-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      background: #ffffff;
+      border: 1px solid #e5e5ea;
+      border-radius: 10px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+      min-width: 140px;
+      z-index: 100;
+      overflow: hidden;
+    }
+
+    .export-menu.open { display: block; }
+
+    .export-menu button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      font-family: inherit;
+      font-size: 12.5px;
+      padding: 10px 14px;
+      border: none;
+      background: transparent;
+      color: #1d1d1f;
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+
+    .export-menu button:hover { background: #f5f5f7; }
+    .export-menu button + button { border-top: 1px solid #f2f2f7; }
+
+    .export-menu .menu-icon {
+      display: inline-block;
+      margin-right: 6px;
+      font-size: 11px;
+      color: #6e6e73;
+    }
+
     .adv-panel {
       display: none;
       background: #ffffff;
@@ -519,6 +581,16 @@ const { data: players, error } = await supabase
     </div>
 
     <button id="advBtn" onclick="toggleAdv()">Advanced Search - Skills ▾</button>
+
+    <!-- EXPORT DROPDOWN -->
+    <div class="export-wrap">
+      <button id="exportBtn" onclick="toggleExport()">↓ Export</button>
+      <div class="export-menu" id="exportMenu">
+        <button onclick="exportData('csv')"><span class="menu-icon">CSV</span> Download CSV</button>
+        <button onclick="exportData('json')"><span class="menu-icon">JSON</span> Download JSON</button>
+      </div>
+    </div>
+
     <button id="resetBtn" onclick="resetFilters()">✕ Reset</button>
   </div>
 
@@ -661,7 +733,6 @@ const { data: players, error } = await supabase
     </div>
   )}
 
-  <!-- PAGINATION -->
   <div class="pagination" id="pagination"></div>
 
 <script define:vars={{ players }}>
@@ -682,7 +753,6 @@ const { data: players, error } = await supabase
   const resetBtn = document.getElementById('resetBtn');
   const dbMeta = document.getElementById('dbMeta');
 
-  // PAGINATION state
   let currentPage = 1;
   const pageSize = 50;
   let currentData = [];
@@ -783,6 +853,66 @@ const { data: players, error } = await supabase
     btn.textContent = isOpen ? 'Advanced Search - Skills ▴' : 'Advanced Search - Skills ▾';
   }
 
+  // EXPORT — toggle dropdown
+  function toggleExport() {
+    const menu = document.getElementById('exportMenu');
+    const btn = document.getElementById('exportBtn');
+    const isOpen = menu.classList.toggle('open');
+    btn.classList.toggle('open', isOpen);
+    if (isOpen) {
+      // chiude cliccando fuori
+      const close = (e) => {
+        if (!e.target.closest('.export-wrap')) {
+          menu.classList.remove('open');
+          btn.classList.remove('open');
+          document.removeEventListener('click', close);
+        }
+      };
+      setTimeout(() => document.addEventListener('click', close), 0);
+    }
+  }
+
+  // EXPORT — scarica i dati filtrati in CSV o JSON
+  function exportData(format) {
+    // chiude il menu
+    document.getElementById('exportMenu').classList.remove('open');
+    document.getElementById('exportBtn').classList.remove('open');
+
+    if (currentData.length === 0) return;
+
+    let content, mimeType, filename;
+
+    if (format === 'json') {
+      content = JSON.stringify(currentData, null, 2);
+      mimeType = 'application/json';
+      filename = 'legends_database.json';
+    } else {
+      // CSV: prende le chiavi dal primo oggetto come header
+      const keys = Object.keys(currentData[0]);
+      const escape = (val) => {
+        const str = val == null ? '' : String(val);
+        // wrap in virgolette se contiene virgola, virgolette o newline
+        return str.includes(',') || str.includes('"') || str.includes('\n')
+          ? `"${str.replace(/"/g, '""')}"`
+          : str;
+      };
+      const header = keys.map(escape).join(',');
+      const rows = currentData.map(p => keys.map(k => escape(p[k])).join(','));
+      content = [header, ...rows].join('\n');
+      mimeType = 'text/csv;charset=utf-8;';
+      filename = 'legends_database.csv';
+    }
+
+    // Download lato client — zero richieste a Supabase
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   function resetFilters() {
     input.value = '';
     roleFilter.value = ''; nationFilter.value = '';
@@ -818,7 +948,6 @@ const { data: players, error } = await supabase
     return state;
   }
 
-  // PAGINATION: renderPage() — slices currentData and calls renderRows
   function renderPage() {
     const start = (currentPage - 1) * pageSize;
     const paginated = currentData.slice(start, start + pageSize);
@@ -826,12 +955,10 @@ const { data: players, error } = await supabase
     renderPagination();
   }
 
-  // PAGINATION: renderPagination() — builds the page buttons
   function renderPagination() {
     const container = document.getElementById('pagination');
     const totalPages = Math.ceil(currentData.length / pageSize);
     container.innerHTML = '';
-
     if (totalPages <= 1) return;
 
     const mkBtn = (label, page, isActive, isDisabled) => {
@@ -856,32 +983,23 @@ const { data: players, error } = await supabase
       return span;
     };
 
-    // Prev
     container.appendChild(mkBtn('‹', currentPage - 1, false, currentPage === 1));
 
-    // Page numbers with smart ellipsis
     const pages = [];
     if (totalPages <= 7) {
       for (let i = 1; i <= totalPages; i++) pages.push(i);
     } else {
       pages.push(1);
       if (currentPage > 3) pages.push('…');
-      for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
-        pages.push(i);
-      }
+      for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) pages.push(i);
       if (currentPage < totalPages - 2) pages.push('…');
       pages.push(totalPages);
     }
 
     pages.forEach(p => {
-      if (p === '…') {
-        container.appendChild(mkDots());
-      } else {
-        container.appendChild(mkBtn(p, p, p === currentPage, false));
-      }
+      container.appendChild(p === '…' ? mkDots() : mkBtn(p, p, p === currentPage, false));
     });
 
-    // Next
     container.appendChild(mkBtn('›', currentPage + 1, false, currentPage === totalPages));
   }
 
@@ -911,7 +1029,6 @@ const { data: players, error } = await supabase
         <td>${p.decade ?? ''}</td>
         <td>${p.iconic_club ?? ''}</td>
         <td>${p.overall_rating ?? ''}</td>
-
         <td></td>
         <td class="stats-col">${p.club_apps ?? ''}</td>
         <td class="stats-col">${p.club_goals ?? ''}</td>
@@ -919,7 +1036,6 @@ const { data: players, error } = await supabase
         <td class="stats-col">${p.nat_apps ?? ''}</td>
         <td class="stats-col">${p.nat_goals ?? ''}</td>
         <td class="stats-col">${p.nat_goal_ratio ?? ''}</td>
-
         <td></td>
         <td class="ath-col">${p.acceleration ?? ''}</td>
         <td class="ath-col">${p.pace ?? ''}</td>
@@ -929,7 +1045,6 @@ const { data: players, error } = await supabase
         <td class="ath-col">${p.jumping ?? ''}</td>
         <td class="ath-col">${p.stamina ?? ''}</td>
         <td class="ath-col">${p.fitness ?? ''}</td>
-
         <td></td>
         <td class="tech-col">${p.dribbling ?? ''}</td>
         <td class="tech-col">${p.short_passing ?? ''}</td>
@@ -942,14 +1057,12 @@ const { data: players, error } = await supabase
         <td class="tech-col">${p.free_kick ?? ''}</td>
         <td class="tech-col">${p.penalties ?? ''}</td>
         <td class="tech-col">${p['first-touch'] ?? ''}</td>
-
         <td></td>
         <td class="ment-col">${p.composure ?? ''}</td>
         <td class="ment-col">${p.aggression ?? ''}</td>
         <td class="ment-col">${p.consistency ?? ''}</td>
         <td class="ment-col">${p.creativity ?? ''}</td>
         <td class="ment-col">${p.work_rate ?? ''}</td>
-
         <td></td>
         <td class="tact-col">${p.vision ?? ''}</td>
         <td class="tact-col">${p.off_the_ball ?? ''}</td>
@@ -957,7 +1070,6 @@ const { data: players, error } = await supabase
         <td class="tact-col">${p.teamwork ?? ''}</td>
         <td class="tact-col">${p.anticipation ?? ''}</td>
         <td class="tact-col">${p.marking ?? ''}</td>
-
         <td></td>
         <td class="gk-col">${p.reflexes ?? ''}</td>
         <td class="gk-col">${p.positioning ?? ''}</td>
@@ -1032,7 +1144,6 @@ const { data: players, error } = await supabase
       });
     }
 
-    // PAGINATION: store result, reset to page 1, render
     currentData = filtered;
     currentPage = 1;
     renderPage();
@@ -1085,6 +1196,8 @@ const { data: players, error } = await supabase
   window.handleSort = handleSort;
   window.resetFilters = resetFilters;
   window.toggleAdv = toggleAdv;
+  window.toggleExport = toggleExport;
+  window.exportData = exportData;
 
   applyFilters();
 </script>
