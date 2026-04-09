@@ -133,11 +133,11 @@ const { data: players, error } = await supabase
 
     tbody tr:last-child { border-bottom: none; }
 
-   
-    tbody tr.selected {
-  background: #deeafc !important;
-}
-
+    tbody tr.selected,
+    tbody tr.selected td,
+    tbody tr.selected td:empty {
+      background: #e7f0ff !important;
+    }
 
     tbody td {
       padding: 9px 12px;
