@@ -20,7 +20,7 @@ const { data: players, error } = await supabase
       font-family: -apple-system, 'SF Pro Text', 'Inter', sans-serif;
       background: #f2f2f7;
       color: #1d1d1f;
-      padding: 84px 40px 40px; /* 44px navbar + 40px originale */
+      padding: 84px 40px 40px;
       font-size: 13px;
       -webkit-font-smoothing: antialiased;
     }
@@ -37,10 +37,10 @@ const { data: players, error } = await supabase
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      margin-bottom: 12px;
+      margin-bottom: 4px;
       align-items: center;
       position: sticky;
-      top: 44px; /* si ferma sotto la navbar */
+      top: 44px;
       z-index: 10;
       padding: 12px 0 8px;
       background: rgba(242, 242, 247, 0.7);
@@ -87,7 +87,6 @@ const { data: players, error } = await supabase
     .range-group {
       display: flex;
       align-items: center;
-      gap: 0;
       border: 1px solid #d1d1d6;
       border-radius: 8px;
       background: #ffffff;
@@ -126,10 +125,7 @@ const { data: players, error } = await supabase
     }
 
     .range-group input[type="number"]::-webkit-outer-spin-button,
-    .range-group input[type="number"]::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-    }
-
+    .range-group input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
     .range-group input[type="number"]::placeholder { color: #c7c7cc; }
 
     .range-sep {
@@ -154,6 +150,115 @@ const { data: players, error } = await supabase
 
     #resetBtn:hover { border-color: #0071e3; color: #0071e3; }
     #resetBtn.visible { display: inline-block; }
+
+    /* ADVANCED FILTERS BUTTON */
+    #advBtn {
+      font-family: inherit;
+      font-size: 12px;
+      padding: 7px 12px;
+      border: 1px solid #d1d1d6;
+      border-radius: 8px;
+      background: #ffffff;
+      color: #6e6e73;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+      user-select: none;
+    }
+
+    #advBtn:hover { border-color: #0071e3; color: #0071e3; }
+    #advBtn.open { border-color: #0071e3; color: #0071e3; background: #f0f6ff; }
+
+    /* ADVANCED PANEL */
+    .adv-panel {
+      display: none;
+      background: #ffffff;
+      border: 1px solid #e5e5ea;
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+
+    .adv-panel.open { display: block; }
+
+    .adv-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid #f2f2f7;
+    }
+
+    .adv-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .adv-row:first-child { padding-top: 0; }
+
+    .adv-cat {
+      font-size: 10px;
+      font-weight: 700;
+      color: #aeaeb2;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      min-width: 40px;
+      padding-top: 8px;
+    }
+
+    .adv-skills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    /* singolo skill range dentro il pannello */
+    .sk-rg {
+      display: flex;
+      align-items: center;
+      border: 1px solid #e5e5ea;
+      border-radius: 7px;
+      background: #f9f9fb;
+      overflow: hidden;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .sk-rg:focus-within {
+      border-color: #0071e3;
+      box-shadow: 0 0 0 2px rgba(0,113,227,0.12);
+      background: #ffffff;
+    }
+
+    .sk-rg .sk-label {
+      font-size: 9.5px;
+      font-weight: 700;
+      color: #6e6e73;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 0 6px 0 8px;
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    .sk-rg input[type="number"] {
+      font-family: inherit;
+      font-size: 11.5px;
+      padding: 5px 4px;
+      border: none;
+      border-left: 1px solid #e5e5ea;
+      background: transparent;
+      color: #1d1d1f;
+      outline: none;
+      width: 40px;
+      -moz-appearance: textfield;
+      text-align: center;
+    }
+
+    .sk-rg input[type="number"]::-webkit-outer-spin-button,
+    .sk-rg input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .sk-rg input[type="number"]::placeholder { color: #c7c7cc; }
+
+    .sk-sep {
+      font-size: 10px;
+      color: #c7c7cc;
+      padding: 0 1px;
+    }
 
     .db-meta {
       font-size: 11px;
@@ -233,9 +338,7 @@ const { data: players, error } = await supabase
     }
 
     tbody tr:last-child { border-bottom: none; }
-
     tbody tr:hover td { background: #f7f7f9; }
-
     tbody tr.selected td { background: #deeafc !important; }
 
     tbody td {
@@ -352,7 +455,7 @@ const { data: players, error } = await supabase
 
     <div class="range-group">
       <span class="range-label">Year</span>
-      <input type="number" id="birthMin" placeholder="1900" min="1900" max="2000" />
+      <input type="number" id="birthMin" placeholder="0" min="0" max="99" />
       <span class="range-sep">–</span>
       <input type="number" id="birthMax" placeholder="2000" min="1900" max="2000" />
     </div>
@@ -366,12 +469,82 @@ const { data: players, error } = await supabase
 
     <div class="range-group">
       <span class="range-label">OVR</span>
-      <input type="number" id="overallMin" placeholder="30" min="30" max="99" />
+      <input type="number" id="overallMin" placeholder="0" min="0" max="99" />
       <span class="range-sep">–</span>
-      <input type="number" id="overallMax" placeholder="99" min="30" max="99" />
+      <input type="number" id="overallMax" placeholder="99" min="0" max="99" />
     </div>
 
+    <button id="advBtn" onclick="toggleAdv()">Advanced Search - Skills ▾</button>
     <button id="resetBtn" onclick="resetFilters()">✕ Reset</button>
+  </div>
+
+  <!-- ADVANCED SKILLS PANEL -->
+  <div class="adv-panel" id="advPanel">
+
+    <div class="adv-row">
+      <span class="adv-cat">ATH</span>
+      <div class="adv-skills">
+        <div class="sk-rg"><span class="sk-label">ACC</span><input type="number" id="sk_acceleration_min" placeholder="0" min="0" max="99"/><span class="sk-sep">–</span><input type="number" id="sk_acceleration_max" placeholder="99" min="0" max="99"/></div>
+        <div class="sk-rg"><span class="sk-label">PAC</span><input type="number" id="sk_pace_min" placeholder="0" min="0" max="99"/><span class="sk-sep">–</span><input type="number" id="sk_pace_max" placeholder="99" min="0" max="99"/></div>
+        <div class="sk-rg"><span class="sk-label">AGI</span><input type="number" id="sk_agility_min" placeholder="0" min="0" max="99"/><span class="sk-sep">–</span><input type="number" id="sk_agility_max" placeholder="99" min="0" max="99"/></div>
+        <div class="sk-rg"><span class="sk-label">STR</span><input type="number" id="sk_strength_min" placeholder="0" min="0" max="99"/><span class="sk-sep">–</span><input type="number" id="sk_strength_max" placeholder="99" min="0" max="99"/></div>
+        <div class="sk-rg"><span class="sk-label">BAL</span><input type="number" id="sk_balance_min" placeholder="0" min="0" max="99"/><span class="sk-sep">–</span><input type="number" id="sk_balance_max" placeholder="99" min="0" max="99"/></div>
+        <div class="sk-rg"><span class="sk-label">JMP</span><input type="number" id="sk_jumping_min" placeholder="0" min="0" max="99"/><span class="sk-sep">–</span><input type="number" id="sk_jumping_max" placeholder="99" min="0" max="99"/></div>
+        <div class="sk-rg"><span class="sk-label">STA</span><input type="number" id="sk_stamina_min" placeholder="0" min="0" max="99"/><span class="sk-sep">–</span><input type="number" id="sk_stamina_max" placeholder="99" min="0" max="99"/></div>
+        <div class="sk-rg"><span class="sk-label">FIT</span><input type="number" id="sk_fitness_min" placeholder="0" min="0" max="99"/><span class="sk-sep">–</span><input type="number" id="sk_fitness_max" placeholder="99" min="0" max="99"/></div>
+      </div>
+    </div>
+
+    <div class="adv-row">
+      <span class="adv-cat">TEC</span>
+      <div class="adv-skills">
+        <div class="sk-rg"><span class="sk-label">DRI</span><input type="number" id="sk_dribbling_min" placeholder="0" min="0" max="99"/><span class="sk-sep">–</span><input type="number" id="sk_dribbling_max" placeholder="99" min="0" max="99"/></div>
+        <div class="sk-rg"><span class="sk-label">S-PAS</span><input type="number" id="sk_short_passing_min" placeholder="0" min="0" max="99"/><span class="sk-sep">–</span><input type="number" id="sk_short_passing_max" placeholder="99" min="0" max="99"/></div>
+        <div class="sk-rg"><span class="sk-label">L-PAS</span><input type="number" id="sk_long_passing_min" placeholder="0" min="0" max="99"/><span class="sk-sep">–</span><input type="number" id="sk_long_passing_max" placeholder="99" min="0" max="99"/></div>
+        <div class="sk-rg"><span class="sk-label">FIN</span><input type="number" id="sk_finishing_min" placeholder="0" min="0" max="99"/><span class="sk-sep">–</span><input type="number" id="sk_finishing_max" placeholder="99" min="0" max="99"/></div>
+        <div class="sk-rg"><span class="sk-label">SHO-A</span><input type="number" id="sk_shot_accuracy_min" placeholder="0" min="0" max="99"/><span class="sk-sep">–</span><input type="number" id="sk_shot_accuracy_max" placeholder="99" min="0" max="99"/></div>
+        <div class="sk-rg"><span class="sk-label">SHO-P</span><input type="number" id="sk_shot_power_min" placeholder="0" min="0" max="99"/><span class="sk-sep">–</span><input type="number" id="sk_shot_power_max" placeholder="99" min="0" max="99"/></div>
+        <div class="sk-rg"><span class="sk-label">HEA</span><input type="number" id="sk_heading_min" placeholder="0" min="0" max="99"/><span class="sk-sep">–</span><input type="number" id="sk_heading_max" placeholder="99" min="0" max="99"/></div>
+        <div class="sk-rg"><span class="sk-label">TAC</span><input type="number" id="sk_tackling_min" placeholder="0" min="0" max="99"/><span class="sk-sep">–</span><input type="number" id="sk_tackling_max" placeholder="99" min="0" max="99"/></div>
+        <div class="sk-rg"><span class="sk-label">FRK</span><input type="number" id="sk_free_kick_min" placeholder="0" min="0" max="99"/><span class="sk-sep">–</span><input type="number" id="sk_free_kick_max" placeholder="99" min="0" max="99"/></div>
+        <div class="sk-rg"><span class="sk-label">PEN</span><input type="number" id="sk_penalties_min" placeholder="0" min="0" max="99"/><span class="sk-sep">–</span><input type="number" id="sk_penalties_max" placeholder="99" min="0" max="99"/></div>
+        <div class="sk-rg"><span class="sk-label">1-TCH</span><input type="number" id="sk_firsttouch_min" placeholder="0" min="0" max="99"/><span class="sk-sep">–</span><input type="number" id="sk_firsttouch_max" placeholder="99" min="0" max="99"/></div>
+      </div>
+    </div>
+
+    <div class="adv-row">
+      <span class="adv-cat">MEN</span>
+      <div class="adv-skills">
+        <div class="sk-rg"><span class="sk-label">COM</span><input type="number" id="sk_composure_min" placeholder="0" min="0" max="99"/><span class="sk-sep">–</span><input type="number" id="sk_composure_max" placeholder="99" min="0" max="99"/></div>
+        <div class="sk-rg"><span class="sk-label">AGG</span><input type="number" id="sk_aggression_min" placeholder="0" min="0" max="99"/><span class="sk-sep">–</span><input type="number" id="sk_aggression_max" placeholder="99" min="0" max="99"/></div>
+        <div class="sk-rg"><span class="sk-label">CON</span><input type="number" id="sk_consistency_min" placeholder="0" min="0" max="99"/><span class="sk-sep">–</span><input type="number" id="sk_consistency_max" placeholder="99" min="0" max="99"/></div>
+        <div class="sk-rg"><span class="sk-label">CREA</span><input type="number" id="sk_creativity_min" placeholder="0" min="0" max="99"/><span class="sk-sep">–</span><input type="number" id="sk_creativity_max" placeholder="99" min="0" max="99"/></div>
+        <div class="sk-rg"><span class="sk-label">WRT</span><input type="number" id="sk_work_rate_min" placeholder="0" min="0" max="99"/><span class="sk-sep">–</span><input type="number" id="sk_work_rate_max" placeholder="99" min="0" max="99"/></div>
+      </div>
+    </div>
+
+    <div class="adv-row">
+      <span class="adv-cat">TACT</span>
+      <div class="adv-skills">
+        <div class="sk-rg"><span class="sk-label">VIS</span><input type="number" id="sk_vision_min" placeholder="0" min="0" max="99"/><span class="sk-sep">–</span><input type="number" id="sk_vision_max" placeholder="99" min="0" max="99"/></div>
+        <div class="sk-rg"><span class="sk-label">OFB</span><input type="number" id="sk_off_the_ball_min" placeholder="0" min="0" max="99"/><span class="sk-sep">–</span><input type="number" id="sk_off_the_ball_max" placeholder="99" min="0" max="99"/></div>
+        <div class="sk-rg"><span class="sk-label">DEF</span><input type="number" id="sk_def_positioning_min" placeholder="0" min="0" max="99"/><span class="sk-sep">–</span><input type="number" id="sk_def_positioning_max" placeholder="99" min="0" max="99"/></div>
+        <div class="sk-rg"><span class="sk-label">TMW</span><input type="number" id="sk_teamwork_min" placeholder="0" min="0" max="99"/><span class="sk-sep">–</span><input type="number" id="sk_teamwork_max" placeholder="99" min="0" max="99"/></div>
+        <div class="sk-rg"><span class="sk-label">ANT</span><input type="number" id="sk_anticipation_min" placeholder="0" min="0" max="99"/><span class="sk-sep">–</span><input type="number" id="sk_anticipation_max" placeholder="99" min="0" max="99"/></div>
+        <div class="sk-rg"><span class="sk-label">MAR</span><input type="number" id="sk_marking_min" placeholder="0" min="0" max="99"/><span class="sk-sep">–</span><input type="number" id="sk_marking_max" placeholder="99" min="0" max="99"/></div>
+      </div>
+    </div>
+
+    <div class="adv-row">
+      <span class="adv-cat">GK</span>
+      <div class="adv-skills">
+        <div class="sk-rg"><span class="sk-label">REF</span><input type="number" id="sk_reflexes_min" placeholder="0" min="0" max="99"/><span class="sk-sep">–</span><input type="number" id="sk_reflexes_max" placeholder="99" min="0" max="99"/></div>
+        <div class="sk-rg"><span class="sk-label">POS</span><input type="number" id="sk_positioning_min" placeholder="0" min="0" max="99"/><span class="sk-sep">–</span><input type="number" id="sk_positioning_max" placeholder="99" min="0" max="99"/></div>
+        <div class="sk-rg"><span class="sk-label">HAN</span><input type="number" id="sk_handling_min" placeholder="0" min="0" max="99"/><span class="sk-sep">–</span><input type="number" id="sk_handling_max" placeholder="99" min="0" max="99"/></div>
+        <div class="sk-rg"><span class="sk-label">KIC</span><input type="number" id="sk_kicking_min" placeholder="0" min="0" max="99"/><span class="sk-sep">–</span><input type="number" id="sk_kicking_max" placeholder="99" min="0" max="99"/></div>
+      </div>
+    </div>
+
   </div>
 
   <div class="db-meta" id="dbMeta"></div>
@@ -468,6 +641,44 @@ const { data: players, error } = await supabase
   const resetBtn = document.getElementById('resetBtn');
   const dbMeta = document.getElementById('dbMeta');
 
+  // Mappa skill: [idSuffix, colonnaDB]
+  const SKILL_MAP = [
+    ['acceleration',   'acceleration'],
+    ['pace',           'pace'],
+    ['agility',        'agility'],
+    ['strength',       'strength'],
+    ['balance',        'balance'],
+    ['jumping',        'jumping'],
+    ['stamina',        'stamina'],
+    ['fitness',        'fitness'],
+    ['dribbling',      'dribbling'],
+    ['short_passing',  'short_passing'],
+    ['long_passing',   'long_passing'],
+    ['finishing',      'finishing'],
+    ['shot_accuracy',  'shot_accuracy'],
+    ['shot_power',     'shot_power'],
+    ['heading',        'heading'],
+    ['tackling',       'tackling'],
+    ['free_kick',      'free_kick'],
+    ['penalties',      'penalties'],
+    ['firsttouch',     'first-touch'],
+    ['composure',      'composure'],
+    ['aggression',     'aggression'],
+    ['consistency',    'consistency'],
+    ['creativity',     'creativity'],
+    ['work_rate',      'work_rate'],
+    ['vision',         'vision'],
+    ['off_the_ball',   'off_the_ball'],
+    ['def_positioning','def_positioning'],
+    ['teamwork',       'teamwork'],
+    ['anticipation',   'anticipation'],
+    ['marking',        'marking'],
+    ['reflexes',       'reflexes'],
+    ['positioning',    'positioning'],
+    ['handling',       'handling'],
+    ['kicking',        'kicking'],
+  ];
+
   let currentSort = null;
   let sortDirection = 'asc';
   let selectedRow = null;
@@ -494,14 +705,21 @@ const { data: players, error } = await supabase
     clubFilter.appendChild(opt);
   });
 
+  function getSkillInput(id) {
+    return document.getElementById(id)?.value ?? '';
+  }
+
   function isFiltered() {
-    return input.value.trim() !== '' ||
-      roleFilter.value !== '' || nationFilter.value !== '' ||
-      clubFilter.value !== '' || decadeFilter.value !== '' ||
-      footFilter.value !== '' || birthMin.value !== '' ||
-      birthMax.value !== '' || heightMin.value !== '' ||
-      heightMax.value !== '' || overallMin.value !== '' ||
-      overallMax.value !== '';
+    if (input.value.trim() !== '') return true;
+    if (roleFilter.value || nationFilter.value || clubFilter.value) return true;
+    if (decadeFilter.value || footFilter.value) return true;
+    if (birthMin.value || birthMax.value) return true;
+    if (heightMin.value || heightMax.value) return true;
+    if (overallMin.value || overallMax.value) return true;
+    for (const [id] of SKILL_MAP) {
+      if (getSkillInput(`sk_${id}_min`) || getSkillInput(`sk_${id}_max`)) return true;
+    }
+    return false;
   }
 
   function updateMeta(shown) {
@@ -512,6 +730,14 @@ const { data: players, error } = await supabase
     resetBtn.classList.toggle('visible', isFiltered());
   }
 
+  function toggleAdv() {
+    const panel = document.getElementById('advPanel');
+    const btn = document.getElementById('advBtn');
+    const isOpen = panel.classList.toggle('open');
+    btn.classList.toggle('open', isOpen);
+    btn.textContent = isOpen ? 'Skills ▴' : 'Skills ▾';
+  }
+
   function resetFilters() {
     input.value = '';
     roleFilter.value = ''; nationFilter.value = '';
@@ -520,6 +746,12 @@ const { data: players, error } = await supabase
     birthMax.value = ''; heightMin.value = '';
     heightMax.value = ''; overallMin.value = '';
     overallMax.value = '';
+    for (const [id] of SKILL_MAP) {
+      const minEl = document.getElementById(`sk_${id}_min`);
+      const maxEl = document.getElementById(`sk_${id}_max`);
+      if (minEl) minEl.value = '';
+      if (maxEl) maxEl.value = '';
+    }
     applyFilters();
   }
 
@@ -655,17 +887,26 @@ const { data: players, error } = await supabase
     const hMin = heightMin.value, hMax = heightMax.value;
     const oMin = overallMin.value, oMax = overallMax.value;
 
-    let filtered = allPlayers.filter(p =>
-      (!q || p.name?.toLowerCase().includes(q)) &&
-      (!role || p.role === role) &&
-      (!nation || p.nation === nation) &&
-      (!club || p.iconic_club === club) &&
-      (!decade || String(p.decade) === decade) &&
-      (!foot || p.preferred_foot === foot) &&
-      inRange(p.birth_year, bMin, bMax) &&
-      inRange(p.height, hMin, hMax) &&
-      inRange(p.overall_rating, oMin, oMax)
-    );
+    let filtered = allPlayers.filter(p => {
+      if (q && !p.name?.toLowerCase().includes(q)) return false;
+      if (role && p.role !== role) return false;
+      if (nation && p.nation !== nation) return false;
+      if (club && p.iconic_club !== club) return false;
+      if (decade && String(p.decade) !== decade) return false;
+      if (foot && p.preferred_foot !== foot) return false;
+      if (!inRange(p.birth_year, bMin, bMax)) return false;
+      if (!inRange(p.height, hMin, hMax)) return false;
+      if (!inRange(p.overall_rating, oMin, oMax)) return false;
+
+      // Skill filters — tutti devono passare
+      for (const [id, col] of SKILL_MAP) {
+        const sMin = getSkillInput(`sk_${id}_min`);
+        const sMax = getSkillInput(`sk_${id}_max`);
+        if ((sMin !== '' || sMax !== '') && !inRange(p[col], sMin, sMax)) return false;
+      }
+
+      return true;
+    });
 
     if (currentSort) {
       filtered = [...filtered].sort((a, b) => {
@@ -713,6 +954,7 @@ const { data: players, error } = await supabase
       : el.textContent.replace('▾', '▴');
   }
 
+  // Listeners
   const debouncedFilter = debounce(applyFilters, 300);
   input.addEventListener('input', debouncedFilter);
 
@@ -721,9 +963,18 @@ const { data: players, error } = await supabase
   instantInputs.forEach(el => el.addEventListener('input', applyFilters));
   instantInputs.forEach(el => el.addEventListener('change', applyFilters));
 
+  // Skill inputs — tutti istantanei
+  for (const [id] of SKILL_MAP) {
+    const minEl = document.getElementById(`sk_${id}_min`);
+    const maxEl = document.getElementById(`sk_${id}_max`);
+    if (minEl) { minEl.addEventListener('input', applyFilters); minEl.addEventListener('change', applyFilters); }
+    if (maxEl) { maxEl.addEventListener('input', applyFilters); maxEl.addEventListener('change', applyFilters); }
+  }
+
   window.toggle = toggle;
   window.handleSort = handleSort;
   window.resetFilters = resetFilters;
+  window.toggleAdv = toggleAdv;
 
   renderRows(allPlayers);
 </script>
