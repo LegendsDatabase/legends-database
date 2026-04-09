@@ -32,7 +32,6 @@ const { data: players, error } = await supabase
       margin-bottom: 24px;
     }
 
-    /* TOOLBAR */
     .toolbar {
       display: flex;
       flex-wrap: wrap;
@@ -41,7 +40,7 @@ const { data: players, error } = await supabase
       align-items: center;
     }
 
-    .toolbar input,
+    .toolbar input[type="text"],
     .toolbar select {
       font-family: inherit;
       font-size: 13px;
@@ -56,7 +55,7 @@ const { data: players, error } = await supabase
       -webkit-appearance: none;
     }
 
-    .toolbar input {
+    .toolbar input[type="text"] {
       width: 220px;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23aeaeb2' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
@@ -71,13 +70,71 @@ const { data: players, error } = await supabase
       background-position: right 10px center;
     }
 
-    .toolbar input:focus,
+    .toolbar input[type="text"]:focus,
     .toolbar select:focus {
       border-color: #0071e3;
       box-shadow: 0 0 0 3px rgba(0,113,227,0.15);
     }
 
-    /* RESET BUTTON */
+    /* RANGE GROUP */
+    .range-group {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      border: 1px solid #d1d1d6;
+      border-radius: 8px;
+      background: #ffffff;
+      overflow: hidden;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .range-group:focus-within {
+      border-color: #0071e3;
+      box-shadow: 0 0 0 3px rgba(0,113,227,0.15);
+    }
+
+    .range-group .range-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: #aeaeb2;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 0 8px 0 10px;
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    .range-group input[type="number"] {
+      font-family: inherit;
+      font-size: 12px;
+      padding: 7px 6px;
+      border: none;
+      border-left: 1px solid #f0f0f5;
+      background: transparent;
+      color: #1d1d1f;
+      outline: none;
+      width: 58px;
+      -moz-appearance: textfield;
+      text-align: center;
+    }
+
+    .range-group input[type="number"]::-webkit-outer-spin-button,
+    .range-group input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+    }
+
+    .range-group input[type="number"]::placeholder {
+      color: #c7c7cc;
+    }
+
+    .range-sep {
+      font-size: 11px;
+      color: #c7c7cc;
+      padding: 0 2px;
+      user-select: none;
+    }
+
+    /* RESET */
     #resetBtn {
       font-family: inherit;
       font-size: 12px;
@@ -98,7 +155,7 @@ const { data: players, error } = await supabase
 
     #resetBtn.visible { display: inline-block; }
 
-    /* COUNTER */
+    /* META */
     .db-meta {
       font-size: 11px;
       color: #aeaeb2;
@@ -126,7 +183,6 @@ const { data: players, error } = await supabase
       font-size: 12.5px;
     }
 
-    /* HEADER */
     thead tr {
       background: #f9f9fb;
       border-bottom: 1px solid #e5e5ea;
@@ -158,7 +214,6 @@ const { data: players, error } = await supabase
       font-weight: 600;
     }
 
-    /* ROWS */
     tbody tr {
       border-bottom: 1px solid #f2f2f7;
       transition: background 0.1s;
@@ -167,11 +222,8 @@ const { data: players, error } = await supabase
 
     tbody tr:last-child { border-bottom: none; }
 
-    tbody tr:hover td {
-      background: #f7f7f9;
-    }
+    tbody tr:hover td { background: #f7f7f9; }
 
-    /* FIX: selected applicato alle td, non al tr */
     tbody tr.selected td {
       background: #deeafc !important;
     }
@@ -185,7 +237,6 @@ const { data: players, error } = await supabase
 
     tbody td:last-child { border-right: none; }
 
-    /* Separator cells */
     tbody td:empty {
       background: #f9f9fb;
       width: 4px;
@@ -193,21 +244,18 @@ const { data: players, error } = await supabase
       border-right: 1px solid #e5e5ea;
     }
 
-    /* Numbers right-aligned */
     tbody td:nth-child(n+5):not(:empty) {
       text-align: right;
       font-variant-numeric: tabular-nums;
       color: #3a3a3c;
     }
 
-    /* Name column */
     tbody td:first-child {
       font-weight: 500;
       color: #1d1d1f;
       text-align: left;
     }
 
-    /* Nation / Role */
     tbody td:nth-child(3),
     tbody td:nth-child(4) {
       font-size: 11px;
@@ -215,7 +263,6 @@ const { data: players, error } = await supabase
       text-align: left;
     }
 
-    /* NO RESULTS */
     .no-results {
       padding: 48px 24px;
       text-align: center;
@@ -237,6 +284,7 @@ const { data: players, error } = await supabase
   <h1>Legends Database</h1>
 
   <div class="toolbar">
+
     <input type="text" id="searchInput" placeholder="Search player..." />
 
     <select id="filterRole">
@@ -282,7 +330,32 @@ const { data: players, error } = await supabase
       <option value="Both">Both</option>
     </select>
 
+    <!-- BIRTH YEAR RANGE -->
+    <div class="range-group">
+      <span class="range-label">Year</span>
+      <input type="number" id="birthMin" placeholder="1900" min="1900" max="2000" />
+      <span class="range-sep">–</span>
+      <input type="number" id="birthMax" placeholder="2000" min="1900" max="2000" />
+    </div>
+
+    <!-- HEIGHT RANGE -->
+    <div class="range-group">
+      <span class="range-label">cm</span>
+      <input type="number" id="heightMin" placeholder="150" min="150" max="210" />
+      <span class="range-sep">–</span>
+      <input type="number" id="heightMax" placeholder="210" min="150" max="210" />
+    </div>
+
+    <!-- OVERALL RANGE -->
+    <div class="range-group">
+      <span class="range-label">OVR</span>
+      <input type="number" id="overallMin" placeholder="30" min="30" max="99" />
+      <span class="range-sep">–</span>
+      <input type="number" id="overallMax" placeholder="99" min="30" max="99" />
+    </div>
+
     <button id="resetBtn" onclick="resetFilters()">✕ Reset</button>
+
   </div>
 
   <div class="db-meta" id="dbMeta"></div>
@@ -370,6 +443,12 @@ const { data: players, error } = await supabase
   const clubFilter = document.getElementById('filterClub');
   const decadeFilter = document.getElementById('filterDecade');
   const footFilter = document.getElementById('filterFoot');
+  const birthMin = document.getElementById('birthMin');
+  const birthMax = document.getElementById('birthMax');
+  const heightMin = document.getElementById('heightMin');
+  const heightMax = document.getElementById('heightMax');
+  const overallMin = document.getElementById('overallMin');
+  const overallMax = document.getElementById('overallMax');
   const resetBtn = document.getElementById('resetBtn');
   const dbMeta = document.getElementById('dbMeta');
 
@@ -377,7 +456,6 @@ const { data: players, error } = await supabase
   let sortDirection = 'asc';
   let selectedRow = null;
 
-  // Popola nazioni
   const nations = [...new Set(allPlayers.map(p => p.nation).filter(Boolean))].sort();
   nations.forEach(n => {
     const opt = document.createElement('option');
@@ -385,7 +463,6 @@ const { data: players, error } = await supabase
     nationFilter.appendChild(opt);
   });
 
-  // Popola clubs
   const clubs = [...new Set(allPlayers.map(p => p.iconic_club).filter(Boolean))].sort();
   clubs.forEach(c => {
     const opt = document.createElement('option');
@@ -399,16 +476,20 @@ const { data: players, error } = await supabase
       nationFilter.value !== '' ||
       clubFilter.value !== '' ||
       decadeFilter.value !== '' ||
-      footFilter.value !== '';
+      footFilter.value !== '' ||
+      birthMin.value !== '' ||
+      birthMax.value !== '' ||
+      heightMin.value !== '' ||
+      heightMax.value !== '' ||
+      overallMin.value !== '' ||
+      overallMax.value !== '';
   }
 
   function updateMeta(shown) {
     const total = allPlayers.length;
-    if (shown === total) {
-      dbMeta.innerHTML = `<span>${total}</span> players`;
-    } else {
-      dbMeta.innerHTML = `<span>${shown}</span> of <span>${total}</span> players`;
-    }
+    dbMeta.innerHTML = shown === total
+      ? `<span>${total}</span> players`
+      : `<span>${shown}</span> of <span>${total}</span> players`;
     resetBtn.classList.toggle('visible', isFiltered());
   }
 
@@ -419,7 +500,21 @@ const { data: players, error } = await supabase
     clubFilter.value = '';
     decadeFilter.value = '';
     footFilter.value = '';
+    birthMin.value = '';
+    birthMax.value = '';
+    heightMin.value = '';
+    heightMax.value = '';
+    overallMin.value = '';
+    overallMax.value = '';
     applyFilters();
+  }
+
+  function inRange(val, min, max) {
+    const v = Number(val);
+    if (isNaN(v)) return true; // valore mancante → non filtrare
+    if (min !== '' && v < Number(min)) return false;
+    if (max !== '' && v > Number(max)) return false;
+    return true;
   }
 
   function getVisibleGroups() {
@@ -542,6 +637,12 @@ const { data: players, error } = await supabase
     const club = clubFilter.value;
     const decade = decadeFilter.value;
     const foot = footFilter.value;
+    const bMin = birthMin.value;
+    const bMax = birthMax.value;
+    const hMin = heightMin.value;
+    const hMax = heightMax.value;
+    const oMin = overallMin.value;
+    const oMax = overallMax.value;
 
     let filtered = allPlayers.filter(p =>
       (!q || p.name?.toLowerCase().includes(q)) &&
@@ -549,7 +650,10 @@ const { data: players, error } = await supabase
       (!nation || p.nation === nation) &&
       (!club || p.iconic_club === club) &&
       (!decade || String(p.decade) === decade) &&
-      (!foot || p.preferred_foot === foot)
+      (!foot || p.preferred_foot === foot) &&
+      inRange(p.birth_year, bMin, bMax) &&
+      inRange(p.height, hMin, hMax) &&
+      inRange(p.overall_rating, oMin, oMax)
     );
 
     if (currentSort) {
@@ -598,12 +702,10 @@ const { data: players, error } = await supabase
       : el.textContent.replace('▾', '▴');
   }
 
-  input.addEventListener('input', applyFilters);
-  roleFilter.addEventListener('change', applyFilters);
-  nationFilter.addEventListener('change', applyFilters);
-  clubFilter.addEventListener('change', applyFilters);
-  decadeFilter.addEventListener('change', applyFilters);
-  footFilter.addEventListener('change', applyFilters);
+  const allInputs = [input, roleFilter, nationFilter, clubFilter, decadeFilter,
+    footFilter, birthMin, birthMax, heightMin, heightMax, overallMin, overallMax];
+  allInputs.forEach(el => el.addEventListener('input', applyFilters));
+  allInputs.forEach(el => el.addEventListener('change', applyFilters));
 
   window.toggle = toggle;
   window.handleSort = handleSort;
