@@ -1,4 +1,5 @@
 ---
+import Navbar from '../components/Navbar.astro';
 ---
 
 <html>
@@ -16,35 +17,9 @@
       font-size: 14px;
       line-height: 1.7;
       -webkit-font-smoothing: antialiased;
+      padding-top: 44px; /* spazio per la navbar fixed */
     }
 
-    /* NAV */
-    nav {
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      background: rgba(242, 242, 247, 0.8);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border-bottom: 1px solid #e5e5ea;
-      padding: 14px 40px;
-      display: flex;
-      align-items: center;
-      gap: 24px;
-    }
-
-    nav a {
-      font-size: 13px;
-      font-weight: 500;
-      color: #6e6e73;
-      text-decoration: none;
-      transition: color 0.15s;
-    }
-
-    nav a:hover { color: #1d1d1f; }
-    nav a.active { color: #0071e3; }
-
-    /* LAYOUT */
     .page {
       max-width: 860px;
       margin: 0 auto;
@@ -55,10 +30,9 @@
       align-items: start;
     }
 
-    /* SIDEBAR INDEX */
     .sidebar {
       position: sticky;
-      top: 72px;
+      top: 68px; /* 44px navbar + 24px margine */
     }
 
     .sidebar p {
@@ -88,7 +62,6 @@
 
     .sidebar ul li a:hover { color: #0071e3; }
 
-    /* CONTENT */
     .content h1 {
       font-size: 28px;
       font-weight: 600;
@@ -103,7 +76,6 @@
       margin-bottom: 48px;
     }
 
-    /* SECTIONS */
     .section {
       margin-bottom: 48px;
     }
@@ -118,16 +90,6 @@
       border-bottom: 1px solid #e5e5ea;
     }
 
-    .section h3 {
-      font-size: 12px;
-      font-weight: 600;
-      color: #aeaeb2;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      margin: 24px 0 10px;
-    }
-
-    /* NOTE BOX */
     .note {
       background: #ffffff;
       border: 1px solid #e5e5ea;
@@ -140,7 +102,6 @@
 
     .note strong { color: #1d1d1f; }
 
-    /* SKILL TABLE */
     .skill-list {
       display: flex;
       flex-direction: column;
@@ -172,7 +133,6 @@
       color: #3a3a3c;
     }
 
-    /* ROLE TABLE */
     .role-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -203,7 +163,6 @@
       color: #3a3a3c;
     }
 
-    /* OVR BADGE */
     .ovr-badge {
       display: inline-block;
       font-size: 13px;
@@ -221,15 +180,10 @@
 </head>
 
 <body>
-
-  <nav>
-    <a href="/">← Database</a>
-    <a href="/legenda" class="active">Legend</a>
-  </nav>
+  <Navbar />
 
   <div class="page">
 
-    <!-- SIDEBAR -->
     <aside class="sidebar">
       <p>On this page</p>
       <ul>
@@ -243,13 +197,11 @@
       </ul>
     </aside>
 
-    <!-- CONTENT -->
     <main class="content">
 
       <h1>Legend</h1>
       <p class="subtitle">A clear and precise explanation of every attribute and skill used in this database.</p>
 
-      <!-- ROLES -->
       <section class="section" id="roles">
         <h2>Roles</h2>
         <div class="role-grid">
@@ -273,7 +225,6 @@
         </div>
       </section>
 
-      <!-- OVR -->
       <section class="section" id="ovr">
         <h2>Overall Rating</h2>
         <p style="font-size:13px; color:#3a3a3c;">
@@ -281,7 +232,6 @@
         </p>
       </section>
 
-      <!-- ATHLETIC -->
       <section class="section" id="athletic">
         <h2>Athletic Skills</h2>
         <div class="skill-list">
@@ -296,7 +246,6 @@
         </div>
       </section>
 
-      <!-- TECHNICAL -->
       <section class="section" id="technical">
         <h2>Technical Skills</h2>
         <div class="skill-list">
@@ -314,7 +263,6 @@
         </div>
       </section>
 
-      <!-- MENTAL -->
       <section class="section" id="mental">
         <h2>Mental Skills</h2>
         <div class="skill-list">
@@ -326,7 +274,6 @@
         </div>
       </section>
 
-      <!-- TACTICAL -->
       <section class="section" id="tactical">
         <h2>Tactical Skills</h2>
         <div class="skill-list">
@@ -339,7 +286,6 @@
         </div>
       </section>
 
-      <!-- GK -->
       <section class="section" id="gk">
         <h2>Goalkeeping Skills</h2>
         <div class="skill-list">

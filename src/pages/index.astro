@@ -1,5 +1,6 @@
 ---
 import { supabase } from '../lib/supabase.js';
+import Navbar from '../components/Navbar.astro';
 
 const { data: players, error } = await supabase
   .from('players')
@@ -19,7 +20,7 @@ const { data: players, error } = await supabase
       font-family: -apple-system, 'SF Pro Text', 'Inter', sans-serif;
       background: #f2f2f7;
       color: #1d1d1f;
-      padding: 40px 40px;
+      padding: 84px 40px 40px; /* 44px navbar + 40px originale */
       font-size: 13px;
       -webkit-font-smoothing: antialiased;
     }
@@ -32,7 +33,6 @@ const { data: players, error } = await supabase
       margin-bottom: 24px;
     }
 
-    /* GLASSMORPHISM sulla toolbar — sticky, z-index alto, blur */
     .toolbar {
       display: flex;
       flex-wrap: wrap;
@@ -40,7 +40,7 @@ const { data: players, error } = await supabase
       margin-bottom: 12px;
       align-items: center;
       position: sticky;
-      top: 0;
+      top: 44px; /* si ferma sotto la navbar */
       z-index: 10;
       padding: 12px 0 8px;
       background: rgba(242, 242, 247, 0.7);
@@ -184,7 +184,6 @@ const { data: players, error } = await supabase
       border-bottom: 1px solid #e5e5ea;
     }
 
-    /* GLASSMORPHISM sull'header della tabella */
     thead th {
       padding: 10px 16px;
       text-align: left;
@@ -217,7 +216,6 @@ const { data: players, error } = await supabase
       font-weight: 600;
     }
 
-    /* Prima colonna sticky — z-index più alto per sovrapporsi alle altre */
     thead th:first-child {
       position: sticky;
       left: 0;
@@ -302,6 +300,8 @@ const { data: players, error } = await supabase
 </head>
 
 <body>
+  <Navbar />
+
   <h1>Legends Database</h1>
 
   <div class="toolbar">
@@ -472,7 +472,6 @@ const { data: players, error } = await supabase
   let sortDirection = 'asc';
   let selectedRow = null;
 
-  // DEBOUNCE — evita chiamate frenetiche durante la digitazione
   function debounce(fn, delay) {
     let timer;
     return function(...args) {
@@ -714,8 +713,6 @@ const { data: players, error } = await supabase
       : el.textContent.replace('▾', '▴');
   }
 
-  // Debounce applicato SOLO alla ricerca testuale (300ms)
-  // I select e i range reagiscono subito perché sono già eventi discreti
   const debouncedFilter = debounce(applyFilters, 300);
   input.addEventListener('input', debouncedFilter);
 
