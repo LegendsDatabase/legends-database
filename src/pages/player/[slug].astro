@@ -36,6 +36,12 @@ function skillColor(v) {
   return '#c0392b';                /* rosso */
 }
 
+function avg(arr) {
+  const valid = arr.filter(v => typeof v === 'number' && !isNaN(v));
+  if (valid.length === 0) return 0;
+  return Math.round(valid.reduce((a, b) => a + b, 0) / valid.length);
+}
+
 function roleColor(role) {
   const att = ['ST','FW','RW','LW'];
   const mid = ['AM','CM','DM','RM','LM'];
@@ -99,6 +105,10 @@ const gkSkills = [
 ];
 
 const isGK = p.role === 'GK';
+const athleticAvg = avg(athleticSkills.map(s => p[s.key]));
+const technicalAvg = avg(technicalSkills.map(s => p[s.key]));
+const mentalAvg = avg(mentalSkills.map(s => p[s.key]));
+const tacticalAvg = avg(tacticalSkills.map(s => p[s.key]));
 ---
 
 <html>
@@ -400,7 +410,12 @@ const isGK = p.role === 'GK';
     <div class="skills-grid">
 
       <div class="skill-card">
-        <div class="skill-cat">Athletic</div>
+        <div class="skill-cat" style="display:flex; justify-content:space-between; align-items:center;">
+          <span>Athletic</span>
+          <span style={`font-weight:600; font-size:13px; color:${skillColor(athleticAvg)};`}>
+            {athleticAvg}
+          </span>
+        </div>
         {athleticSkills.map(s => (
           <div class="skill-row">
             <span class="skill-abbr" title={s.full}>{s.label}</span>
@@ -413,7 +428,12 @@ const isGK = p.role === 'GK';
       </div>
 
       <div class="skill-card">
-        <div class="skill-cat">Technical</div>
+        <div class="skill-cat" style="display:flex; justify-content:space-between; align-items:center;">
+          <span>Technical</span>
+          <span style={`font-weight:600; font-size:13px; color:${skillColor(technicalAvg)};`}>
+            {technicalAvg}
+          </span>
+        </div>
         {technicalSkills.map(s => (
           <div class="skill-row">
             <span class="skill-abbr" title={s.full}>{s.label}</span>
@@ -426,7 +446,12 @@ const isGK = p.role === 'GK';
       </div>
 
       <div class="skill-card">
-        <div class="skill-cat">Mental</div>
+        <div class="skill-cat" style="display:flex; justify-content:space-between; align-items:center;">
+          <span>Mental</span>
+          <span style={`font-weight:600; font-size:13px; color:${skillColor(mentalAvg)};`}>
+            {mentalAvg}
+          </span>
+        </div>
         {mentalSkills.map(s => (
           <div class="skill-row">
             <span class="skill-abbr" title={s.full}>{s.label}</span>
@@ -439,7 +464,12 @@ const isGK = p.role === 'GK';
       </div>
 
       <div class="skill-card">
-        <div class="skill-cat">Tactical</div>
+        <div class="skill-cat" style="display:flex; justify-content:space-between; align-items:center;">
+          <span>Tactical</span>
+          <span style={`font-weight:600; font-size:13px; color:${skillColor(tacticalAvg)};`}>
+            {tacticalAvg}
+          </span>
+        </div>
         {tacticalSkills.map(s => (
           <div class="skill-row">
             <span class="skill-abbr" title={s.full}>{s.label}</span>
