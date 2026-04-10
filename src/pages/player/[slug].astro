@@ -1,0 +1,485 @@
+---
+import { supabase } from '../../lib/supabase.js';
+import Navbar from '../../components/Navbar.astro';
+
+export async function getStaticPaths() {
+  const { data: players } = await supabase
+    .from('players')
+    .select('*');
+
+  return players.map((p) => ({
+    params: { slug: p.slug },
+    props: { player: p },
+  }));
+}
+
+const { player: p } = Astro.props;
+
+// Colore OVR
+function ovrColor(v) {
+  if (v >= 95) return '#0071e3';
+  if (v >= 89) return '#1a8a1a';
+  if (v >= 79) return '#4a9e1a';
+  if (v >= 69) return '#8ab01a';
+  if (v >= 59) return '#e07800';
+  if (v >= 49) return '#e04000';
+  return '#999';
+}
+
+// Colore ruolo
+function roleColor(role) {
+  const att = ['ST','FW','RW','LW'];
+  const mid = ['AM','CM','DM','RM','LM'];
+  const def = ['CB','SW','RB','LB'];
+  if (att.includes(role)) return { bg: '#fff0ee', text: '#c0392b', label: 'Attacker' };
+  if (mid.includes(role)) return { bg: '#eef4ff', text: '#0071e3', label: 'Midfielder' };
+  if (def.includes(role)) return { bg: '#eeffee', text: '#1a7a1a', label: 'Defender' };
+  return { bg: '#f5f0e8', text: '#b07800', label: 'Goalkeeper' };
+}
+
+const rc = roleColor(p.role);
+const initials = p.name.split(',').map(s => s.trim()[0]).join('').toUpperCase().slice(0, 2);
+
+const athleticSkills = [
+  { key: 'acceleration', label: 'ACC', full: 'Acceleration' },
+  { key: 'pace', label: 'PAC', full: 'Pace' },
+  { key: 'agility', label: 'AGI', full: 'Agility' },
+  { key: 'strength', label: 'STR', full: 'Strength' },
+  { key: 'balance', label: 'BAL', full: 'Balance' },
+  { key: 'jumping', label: 'JMP', full: 'Jumping' },
+  { key: 'stamina', label: 'STA', full: 'Stamina' },
+  { key: 'fitness', label: 'FIT', full: 'Fitness' },
+];
+
+const technicalSkills = [
+  { key: 'dribbling', label: 'DRI', full: 'Dribbling' },
+  { key: 'short_passing', label: 'S-PAS', full: 'Short Passing' },
+  { key: 'long_passing', label: 'L-PAS', full: 'Long Passing' },
+  { key: 'finishing', label: 'FIN', full: 'Finishing' },
+  { key: 'shot_accuracy', label: 'SHO-A', full: 'Shot Accuracy' },
+  { key: 'shot_power', label: 'SHO-P', full: 'Shot Power' },
+  { key: 'heading', label: 'HEA', full: 'Heading' },
+  { key: 'tackling', label: 'TAC', full: 'Tackling' },
+  { key: 'free_kick', label: 'FRK', full: 'Free Kick' },
+  { key: 'penalties', label: 'PEN', full: 'Penalties' },
+  { key: 'first-touch', label: '1-TCH', full: 'First Touch' },
+];
+
+const mentalSkills = [
+  { key: 'composure', label: 'COM', full: 'Composure' },
+  { key: 'aggression', label: 'AGG', full: 'Aggression' },
+  { key: 'consistency', label: 'CON', full: 'Consistency' },
+  { key: 'creativity', label: 'CREA', full: 'Creativity' },
+  { key: 'work_rate', label: 'WRT', full: 'Work Rate' },
+];
+
+const tacticalSkills = [
+  { key: 'vision', label: 'VIS', full: 'Vision' },
+  { key: 'off_the_ball', label: 'OFB', full: 'Off the Ball' },
+  { key: 'def_positioning', label: 'DEF', full: 'Def. Positioning' },
+  { key: 'teamwork', label: 'TMW', full: 'Teamwork' },
+  { key: 'anticipation', label: 'ANT', full: 'Anticipation' },
+  { key: 'marking', label: 'MAR', full: 'Marking' },
+];
+
+const gkSkills = [
+  { key: 'reflexes', label: 'REF', full: 'Reflexes' },
+  { key: 'positioning', label: 'POS', full: 'Positioning' },
+  { key: 'handling', label: 'HAN', full: 'Handling' },
+  { key: 'kicking', label: 'KIC', full: 'Kicking' },
+];
+
+const isGK = p.role === 'GK';
+---
+
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>{p.name} – Legends Database</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, 'SF Pro Text', 'Inter', sans-serif;
+      background: #f2f2f7;
+      color: #1d1d1f;
+      padding-top: 44px;
+      font-size: 13px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 40px 40px 80px;
+    }
+
+    .back {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 13px;
+      color: #6e6e73;
+      text-decoration: none;
+      margin-bottom: 28px;
+      transition: color 0.15s;
+    }
+
+    .back:hover { color: #0071e3; }
+
+    /* HEADER CARD */
+    .hero {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 28px 32px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.04);
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      margin-bottom: 20px;
+    }
+
+    .avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: #e8e8ed;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 600;
+      color: #6e6e73;
+      flex-shrink: 0;
+      letter-spacing: -0.5px;
+    }
+
+    .hero-info { flex: 1; min-width: 0; }
+
+    .hero-name {
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: -0.4px;
+      color: #1d1d1f;
+      margin-bottom: 8px;
+    }
+
+    .hero-tags {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .tag {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 6px;
+      letter-spacing: 0.02em;
+    }
+
+    .bio-grid {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .bio-item {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .bio-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: #aeaeb2;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .bio-value {
+      font-size: 13px;
+      color: #1d1d1f;
+      font-weight: 500;
+    }
+
+    .ovr-badge {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -1px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .ovr-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: #aeaeb2;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-align: center;
+      margin-top: 2px;
+    }
+
+    /* STATS ROW */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 14px 12px;
+      text-align: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+
+    .stat-card .sv {
+      font-size: 20px;
+      font-weight: 600;
+      color: #1d1d1f;
+      letter-spacing: -0.5px;
+    }
+
+    .stat-card .sl {
+      font-size: 9.5px;
+      font-weight: 600;
+      color: #aeaeb2;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    /* SKILLS */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .skill-card {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 20px 20px 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+
+    .skill-card.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .skill-cat {
+      font-size: 11px;
+      font-weight: 700;
+      color: #aeaeb2;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    .skill-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 9px;
+    }
+
+    .skill-row:last-child { margin-bottom: 0; }
+
+    .skill-abbr {
+      font-size: 10px;
+      font-weight: 700;
+      color: #6e6e73;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      min-width: 38px;
+    }
+
+    .skill-bar-wrap {
+      flex: 1;
+      height: 5px;
+      background: #f0f0f5;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .skill-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.4s ease;
+    }
+
+    .skill-val {
+      font-size: 12px;
+      font-weight: 600;
+      color: #1d1d1f;
+      min-width: 24px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    @media (max-width: 600px) {
+      .page { padding: 24px 20px 60px; }
+      .hero { flex-direction: column; align-items: flex-start; gap: 16px; }
+      .stats-row { grid-template-columns: repeat(3, 1fr); }
+      .skills-grid { grid-template-columns: 1fr; }
+      .skill-card.full-width { grid-column: auto; }
+    }
+  </style>
+</head>
+
+<body>
+  <Navbar />
+
+  <div class="page">
+
+    <a href="/" class="back">← Database</a>
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="avatar">{initials}</div>
+
+      <div class="hero-info">
+        <div class="hero-name">{p.name}</div>
+        <div class="hero-tags">
+          <span class="tag" style={`background:${rc.bg}; color:${rc.text};`}>{p.role} — {rc.label}</span>
+          <span class="tag" style="background:#f5f5f7; color:#6e6e73;">{p.nation}</span>
+          <span class="tag" style="background:#f5f5f7; color:#6e6e73;">{p.iconic_club}</span>
+          <span class="tag" style="background:#f5f5f7; color:#6e6e73;">{p.decade}s</span>
+        </div>
+        <div class="bio-grid">
+          <div class="bio-item">
+            <span class="bio-label">Born</span>
+            <span class="bio-value">{p.birth_year}</span>
+          </div>
+          <div class="bio-item">
+            <span class="bio-label">Height</span>
+            <span class="bio-value">{p.height} cm</span>
+          </div>
+          <div class="bio-item">
+            <span class="bio-label">Weight</span>
+            <span class="bio-value">{p.weight} kg</span>
+          </div>
+          <div class="bio-item">
+            <span class="bio-label">Foot</span>
+            <span class="bio-value">{p.preferred_foot}</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center;">
+        <div class="ovr-badge" style={`color:${ovrColor(p.overall_rating)};`}>{p.overall_rating}</div>
+        <div class="ovr-label">Overall</div>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="sv">{p.club_apps}</div>
+        <div class="sl">Club Apps</div>
+      </div>
+      <div class="stat-card">
+        <div class="sv">{p.club_goals}</div>
+        <div class="sl">Club Goals</div>
+      </div>
+      <div class="stat-card">
+        <div class="sv">{p.club_goal_ratio}</div>
+        <div class="sl">Club Ratio</div>
+      </div>
+      <div class="stat-card">
+        <div class="sv">{p.nat_apps}</div>
+        <div class="sl">Nat Apps</div>
+      </div>
+      <div class="stat-card">
+        <div class="sv">{p.nat_goals}</div>
+        <div class="sl">Nat Goals</div>
+      </div>
+      <div class="stat-card">
+        <div class="sv">{p.nat_goal_ratio}</div>
+        <div class="sl">Nat Ratio</div>
+      </div>
+    </div>
+
+    <!-- SKILLS -->
+    <div class="skills-grid">
+
+      <div class="skill-card">
+        <div class="skill-cat">Athletic</div>
+        {athleticSkills.map(s => (
+          <div class="skill-row">
+            <span class="skill-abbr" title={s.full}>{s.label}</span>
+            <div class="skill-bar-wrap">
+              <div class="skill-bar-fill" style={`width:${p[s.key]}%; background:${p[s.key] >= 85 ? '#0071e3' : p[s.key] >= 70 ? '#1a8a1a' : '#aeaeb2'};`}></div>
+            </div>
+            <span class="skill-val">{p[s.key]}</span>
+          </div>
+        ))}
+      </div>
+
+      <div class="skill-card">
+        <div class="skill-cat">Technical</div>
+        {technicalSkills.map(s => (
+          <div class="skill-row">
+            <span class="skill-abbr" title={s.full}>{s.label}</span>
+            <div class="skill-bar-wrap">
+              <div class="skill-bar-fill" style={`width:${p[s.key]}%; background:${p[s.key] >= 85 ? '#0071e3' : p[s.key] >= 70 ? '#1a8a1a' : '#aeaeb2'};`}></div>
+            </div>
+            <span class="skill-val">{p[s.key]}</span>
+          </div>
+        ))}
+      </div>
+
+      <div class="skill-card">
+        <div class="skill-cat">Mental</div>
+        {mentalSkills.map(s => (
+          <div class="skill-row">
+            <span class="skill-abbr" title={s.full}>{s.label}</span>
+            <div class="skill-bar-wrap">
+              <div class="skill-bar-fill" style={`width:${p[s.key]}%; background:${p[s.key] >= 85 ? '#0071e3' : p[s.key] >= 70 ? '#1a8a1a' : '#aeaeb2'};`}></div>
+            </div>
+            <span class="skill-val">{p[s.key]}</span>
+          </div>
+        ))}
+      </div>
+
+      <div class="skill-card">
+        <div class="skill-cat">Tactical</div>
+        {tacticalSkills.map(s => (
+          <div class="skill-row">
+            <span class="skill-abbr" title={s.full}>{s.label}</span>
+            <div class="skill-bar-wrap">
+              <div class="skill-bar-fill" style={`width:${p[s.key]}%; background:${p[s.key] >= 85 ? '#0071e3' : p[s.key] >= 70 ? '#1a8a1a' : '#aeaeb2'};`}></div>
+            </div>
+            <span class="skill-val">{p[s.key]}</span>
+          </div>
+        ))}
+      </div>
+
+      {isGK && (
+        <div class="skill-card full-width">
+          <div class="skill-cat">Goalkeeping</div>
+          {gkSkills.map(s => (
+            <div class="skill-row">
+              <span class="skill-abbr" title={s.full}>{s.label}</span>
+              <div class="skill-bar-wrap">
+                <div class="skill-bar-fill" style={`width:${p[s.key]}%; background:${p[s.key] >= 85 ? '#0071e3' : p[s.key] >= 70 ? '#1a8a1a' : '#aeaeb2'};`}></div>
+              </div>
+              <span class="skill-val">{p[s.key]}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+    </div>
+
+  </div>
+</body>
+</html>
