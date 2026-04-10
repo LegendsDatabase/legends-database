@@ -15,27 +15,18 @@ export async function getStaticPaths() {
 
 const { player: p } = Astro.props;
 
+// Colore OVR
 function ovrColor(v) {
   if (v >= 95) return '#0071e3';
-  if (v >= 90) return '#1a5e1a';
-  if (v >= 80) return '#2e8b2e';
-  if (v >= 70) return '#6aaa2a';
-  if (v >= 60) return '#c8a800';
-  if (v >= 50) return '#e07800';
-  if (v >= 40) return '#cc4400';
-  return '#c0392b';
+  if (v >= 89) return '#1a8a1a';
+  if (v >= 79) return '#4a9e1a';
+  if (v >= 69) return '#8ab01a';
+  if (v >= 59) return '#e07800';
+  if (v >= 49) return '#e04000';
+  return '#999';
 }
 
-function skillColor(v) {
-  if (v >= 95) return '#5aabff';   /* azzurrino */
-  if (v >= 90) return '#1a5e1a';   /* verde scuro */
-  if (v >= 80) return '#2e8b2e';   /* verde */
-  if (v >= 70) return '#6aaa2a';   /* verdino chiaro */
-  if (v >= 60) return '#c8a800';   /* giallo scuro */
-  if (v >= 40) return '#e07800';   /* arancione */
-  return '#c0392b';                /* rosso */
-}
-
+// Colore ruolo
 function roleColor(role) {
   const att = ['ST','FW','RW','LW'];
   const mid = ['AM','CM','DM','RM','LM'];
@@ -51,51 +42,51 @@ const initials = p.name.split(',').map(s => s.trim()[0]).join('').toUpperCase().
 
 const athleticSkills = [
   { key: 'acceleration', label: 'ACC', full: 'Acceleration' },
-  { key: 'pace',         label: 'PAC', full: 'Pace' },
-  { key: 'agility',      label: 'AGI', full: 'Agility' },
-  { key: 'strength',     label: 'STR', full: 'Strength' },
-  { key: 'balance',      label: 'BAL', full: 'Balance' },
-  { key: 'jumping',      label: 'JMP', full: 'Jumping' },
-  { key: 'stamina',      label: 'STA', full: 'Stamina' },
-  { key: 'fitness',      label: 'FIT', full: 'Fitness' },
+  { key: 'pace', label: 'PAC', full: 'Pace' },
+  { key: 'agility', label: 'AGI', full: 'Agility' },
+  { key: 'strength', label: 'STR', full: 'Strength' },
+  { key: 'balance', label: 'BAL', full: 'Balance' },
+  { key: 'jumping', label: 'JMP', full: 'Jumping' },
+  { key: 'stamina', label: 'STA', full: 'Stamina' },
+  { key: 'fitness', label: 'FIT', full: 'Fitness' },
 ];
 
 const technicalSkills = [
-  { key: 'dribbling',     label: 'DRI',   full: 'Dribbling' },
+  { key: 'dribbling', label: 'DRI', full: 'Dribbling' },
   { key: 'short_passing', label: 'S-PAS', full: 'Short Passing' },
-  { key: 'long_passing',  label: 'L-PAS', full: 'Long Passing' },
-  { key: 'finishing',     label: 'FIN',   full: 'Finishing' },
+  { key: 'long_passing', label: 'L-PAS', full: 'Long Passing' },
+  { key: 'finishing', label: 'FIN', full: 'Finishing' },
   { key: 'shot_accuracy', label: 'SHO-A', full: 'Shot Accuracy' },
-  { key: 'shot_power',    label: 'SHO-P', full: 'Shot Power' },
-  { key: 'heading',       label: 'HEA',   full: 'Heading' },
-  { key: 'tackling',      label: 'TAC',   full: 'Tackling' },
-  { key: 'free_kick',     label: 'FRK',   full: 'Free Kick' },
-  { key: 'penalties',     label: 'PEN',   full: 'Penalties' },
-  { key: 'first-touch',   label: '1-TCH', full: 'First Touch' },
+  { key: 'shot_power', label: 'SHO-P', full: 'Shot Power' },
+  { key: 'heading', label: 'HEA', full: 'Heading' },
+  { key: 'tackling', label: 'TAC', full: 'Tackling' },
+  { key: 'free_kick', label: 'FRK', full: 'Free Kick' },
+  { key: 'penalties', label: 'PEN', full: 'Penalties' },
+  { key: 'first-touch', label: '1-TCH', full: 'First Touch' },
 ];
 
 const mentalSkills = [
-  { key: 'composure',   label: 'COM',  full: 'Composure' },
-  { key: 'aggression',  label: 'AGG',  full: 'Aggression' },
-  { key: 'consistency', label: 'CON',  full: 'Consistency' },
-  { key: 'creativity',  label: 'CREA', full: 'Creativity' },
-  { key: 'work_rate',   label: 'WRT',  full: 'Work Rate' },
+  { key: 'composure', label: 'COM', full: 'Composure' },
+  { key: 'aggression', label: 'AGG', full: 'Aggression' },
+  { key: 'consistency', label: 'CON', full: 'Consistency' },
+  { key: 'creativity', label: 'CREA', full: 'Creativity' },
+  { key: 'work_rate', label: 'WRT', full: 'Work Rate' },
 ];
 
 const tacticalSkills = [
-  { key: 'vision',          label: 'VIS', full: 'Vision' },
-  { key: 'off_the_ball',    label: 'OFB', full: 'Off the Ball' },
+  { key: 'vision', label: 'VIS', full: 'Vision' },
+  { key: 'off_the_ball', label: 'OFB', full: 'Off the Ball' },
   { key: 'def_positioning', label: 'DEF', full: 'Def. Positioning' },
-  { key: 'teamwork',        label: 'TMW', full: 'Teamwork' },
-  { key: 'anticipation',    label: 'ANT', full: 'Anticipation' },
-  { key: 'marking',         label: 'MAR', full: 'Marking' },
+  { key: 'teamwork', label: 'TMW', full: 'Teamwork' },
+  { key: 'anticipation', label: 'ANT', full: 'Anticipation' },
+  { key: 'marking', label: 'MAR', full: 'Marking' },
 ];
 
 const gkSkills = [
-  { key: 'reflexes',    label: 'REF', full: 'Reflexes' },
+  { key: 'reflexes', label: 'REF', full: 'Reflexes' },
   { key: 'positioning', label: 'POS', full: 'Positioning' },
-  { key: 'handling',    label: 'HAN', full: 'Handling' },
-  { key: 'kicking',     label: 'KIC', full: 'Kicking' },
+  { key: 'handling', label: 'HAN', full: 'Handling' },
+  { key: 'kicking', label: 'KIC', full: 'Kicking' },
 ];
 
 const isGK = p.role === 'GK';
@@ -137,7 +128,7 @@ const isGK = p.role === 'GK';
 
     .back:hover { color: #0071e3; }
 
-    /* HERO */
+    /* HEADER CARD */
     .hero {
       background: #ffffff;
       border-radius: 16px;
@@ -234,7 +225,7 @@ const isGK = p.role === 'GK';
       margin-top: 2px;
     }
 
-    /* STATS */
+    /* STATS ROW */
     .stats-row {
       display: grid;
       grid-template-columns: repeat(6, 1fr);
@@ -280,7 +271,9 @@ const isGK = p.role === 'GK';
       box-shadow: 0 1px 3px rgba(0,0,0,0.06);
     }
 
-    .skill-card.full-width { grid-column: 1 / -1; }
+    .skill-card.full-width {
+      grid-column: 1 / -1;
+    }
 
     .skill-cat {
       font-size: 11px;
@@ -320,6 +313,7 @@ const isGK = p.role === 'GK';
     .skill-bar-fill {
       height: 100%;
       border-radius: 3px;
+      transition: width 0.4s ease;
     }
 
     .skill-val {
@@ -388,12 +382,30 @@ const isGK = p.role === 'GK';
 
     <!-- STATS -->
     <div class="stats-row">
-      <div class="stat-card"><div class="sv">{p.club_apps}</div><div class="sl">Club Apps</div></div>
-      <div class="stat-card"><div class="sv">{p.club_goals}</div><div class="sl">Club Goals</div></div>
-      <div class="stat-card"><div class="sv">{p.club_goal_ratio}</div><div class="sl">Club Ratio</div></div>
-      <div class="stat-card"><div class="sv">{p.nat_apps}</div><div class="sl">Nat Apps</div></div>
-      <div class="stat-card"><div class="sv">{p.nat_goals}</div><div class="sl">Nat Goals</div></div>
-      <div class="stat-card"><div class="sv">{p.nat_goal_ratio}</div><div class="sl">Nat Ratio</div></div>
+      <div class="stat-card">
+        <div class="sv">{p.club_apps}</div>
+        <div class="sl">Club Apps</div>
+      </div>
+      <div class="stat-card">
+        <div class="sv">{p.club_goals}</div>
+        <div class="sl">Club Goals</div>
+      </div>
+      <div class="stat-card">
+        <div class="sv">{p.club_goal_ratio}</div>
+        <div class="sl">Club Ratio</div>
+      </div>
+      <div class="stat-card">
+        <div class="sv">{p.nat_apps}</div>
+        <div class="sl">Nat Apps</div>
+      </div>
+      <div class="stat-card">
+        <div class="sv">{p.nat_goals}</div>
+        <div class="sl">Nat Goals</div>
+      </div>
+      <div class="stat-card">
+        <div class="sv">{p.nat_goal_ratio}</div>
+        <div class="sl">Nat Ratio</div>
+      </div>
     </div>
 
     <!-- SKILLS -->
@@ -405,7 +417,7 @@ const isGK = p.role === 'GK';
           <div class="skill-row">
             <span class="skill-abbr" title={s.full}>{s.label}</span>
             <div class="skill-bar-wrap">
-              <div class="skill-bar-fill" style={`width:${p[s.key]}%; background:${skillColor(p[s.key])};`}></div>
+              <div class="skill-bar-fill" style={`width:${p[s.key]}%; background:${p[s.key] >= 85 ? '#0071e3' : p[s.key] >= 70 ? '#1a8a1a' : '#aeaeb2'};`}></div>
             </div>
             <span class="skill-val">{p[s.key]}</span>
           </div>
@@ -418,7 +430,7 @@ const isGK = p.role === 'GK';
           <div class="skill-row">
             <span class="skill-abbr" title={s.full}>{s.label}</span>
             <div class="skill-bar-wrap">
-              <div class="skill-bar-fill" style={`width:${p[s.key]}%; background:${skillColor(p[s.key])};`}></div>
+              <div class="skill-bar-fill" style={`width:${p[s.key]}%; background:${p[s.key] >= 85 ? '#0071e3' : p[s.key] >= 70 ? '#1a8a1a' : '#aeaeb2'};`}></div>
             </div>
             <span class="skill-val">{p[s.key]}</span>
           </div>
@@ -431,7 +443,7 @@ const isGK = p.role === 'GK';
           <div class="skill-row">
             <span class="skill-abbr" title={s.full}>{s.label}</span>
             <div class="skill-bar-wrap">
-              <div class="skill-bar-fill" style={`width:${p[s.key]}%; background:${skillColor(p[s.key])};`}></div>
+              <div class="skill-bar-fill" style={`width:${p[s.key]}%; background:${p[s.key] >= 85 ? '#0071e3' : p[s.key] >= 70 ? '#1a8a1a' : '#aeaeb2'};`}></div>
             </div>
             <span class="skill-val">{p[s.key]}</span>
           </div>
@@ -444,7 +456,7 @@ const isGK = p.role === 'GK';
           <div class="skill-row">
             <span class="skill-abbr" title={s.full}>{s.label}</span>
             <div class="skill-bar-wrap">
-              <div class="skill-bar-fill" style={`width:${p[s.key]}%; background:${skillColor(p[s.key])};`}></div>
+              <div class="skill-bar-fill" style={`width:${p[s.key]}%; background:${p[s.key] >= 85 ? '#0071e3' : p[s.key] >= 70 ? '#1a8a1a' : '#aeaeb2'};`}></div>
             </div>
             <span class="skill-val">{p[s.key]}</span>
           </div>
@@ -458,7 +470,7 @@ const isGK = p.role === 'GK';
             <div class="skill-row">
               <span class="skill-abbr" title={s.full}>{s.label}</span>
               <div class="skill-bar-wrap">
-                <div class="skill-bar-fill" style={`width:${p[s.key]}%; background:${skillColor(p[s.key])};`}></div>
+                <div class="skill-bar-fill" style={`width:${p[s.key]}%; background:${p[s.key] >= 85 ? '#0071e3' : p[s.key] >= 70 ? '#1a8a1a' : '#aeaeb2'};`}></div>
               </div>
               <span class="skill-val">{p[s.key]}</span>
             </div>
@@ -467,6 +479,7 @@ const isGK = p.role === 'GK';
       )}
 
     </div>
+
   </div>
 </body>
 </html>
