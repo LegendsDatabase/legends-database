@@ -428,7 +428,7 @@ if (!isGK) {
       font-variant-numeric: tabular-nums;
     }
 
-    /* PLAYER TRAITS — restyling */
+    /* PLAYER TRAITS */
     .traits-section {
       margin-top: 14px;
       background: #ffffff;
@@ -447,31 +447,30 @@ if (!isGK) {
     }
 
     .traits-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 14px;
+      display: grid;
+      grid-template-columns: repeat(6, 60px);
+      gap: 12px;
+      justify-content: start;
     }
 
-    /* icona: niente background, floating su bianco */
     .trait-icon {
-      width: 36px;
-      height: 36px;
+      width: 60px;
+      height: 60px;
       display: flex;
       align-items: center;
       justify-content: center;
       position: relative;
       cursor: default;
-      transition: transform 0.15s ease, filter 0.15s ease;
+      transition: transform 0.18s ease;
     }
 
     .trait-icon:hover {
-      transform: scale(1.12);
-      filter: brightness(1.12);
+      transform: scale(1.07);
     }
 
     .trait-icon img {
-      width: 36px;
-      height: 36px;
+      width: 60px;
+      height: 60px;
       display: block;
       object-fit: contain;
     }
@@ -514,9 +513,12 @@ if (!isGK) {
       .gauge-section { grid-template-columns: repeat(3, 1fr); gap: 8px; }
       .skills-grid { grid-template-columns: 1fr; }
       .skill-card.full-width { grid-column: auto; }
-      .traits-grid { gap: 10px; }
+      .traits-grid {
+        grid-template-columns: repeat(5, 52px);
+        gap: 10px;
+      }
       .trait-icon,
-      .trait-icon img { width: 32px; height: 32px; }
+      .trait-icon img { width: 52px; height: 52px; }
     }
   </style>
 </head>
