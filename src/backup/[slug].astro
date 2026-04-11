@@ -111,19 +111,55 @@ const technicalAvg  = avg(technicalSkills.map(s => p[s.key]));
 const mentalAvg     = avg(mentalSkills.map(s => p[s.key]));
 const tacticalAvg   = avg(tacticalSkills.map(s => p[s.key]));
 
-// Gauge averages (non-GK only)
 const attAvg        = avg([p.finishing, p.off_the_ball, p.composure, p.anticipation, p.shot_accuracy]);
 const playmakingAvg = avg([p.short_passing, p.long_passing, p.vision, p.composure]);
 const defAvg        = avg([p.marking, p.tackling, p.def_positioning, p.anticipation, p.heading, p.composure]);
 
-// SVG gauge math: r=45, semicircle
-const GAUGE_R       = 45;
-const HALF_CIRC     = Math.PI * GAUGE_R;        // 141.37
-const FULL_CIRC     = 2 * Math.PI * GAUGE_R;    // 282.74
+const GAUGE_R    = 45;
+const HALF_CIRC  = Math.PI * GAUGE_R;
+const FULL_CIRC  = 2 * Math.PI * GAUGE_R;
 
 function gaugeDash(v) {
   const filled = (Math.max(0, Math.min(v, 99)) / 99) * HALF_CIRC;
   return `${filled} ${FULL_CIRC}`;
+}
+
+type Trait = { file: string; tooltip: string };
+const activeTraits: Trait[] = [];
+
+if (!isGK) {
+  if ((p.jumping ?? 0) + (p.heading ?? 0) > 170)
+    activeTraits.push({ file: '/traits/aerialthreat.svg',      tooltip: 'Aerial Threat' });
+  if ((p.aggression ?? 0) > 85)
+    activeTraits.push({ file: '/traits/aggressor.svg',          tooltip: 'Aggressor' });
+  if ((p.strength ?? 0) > 90)
+    activeTraits.push({ file: '/traits/beast.svg',              tooltip: 'Beast' });
+  if ((p.finishing ?? 0) > 93)
+    activeTraits.push({ file: '/traits/clinicalstriker.svg',    tooltip: 'Clinical Striker' });
+  if ((p.composure ?? 0) > 90)
+    activeTraits.push({ file: '/traits/coldblooded.svg',        tooltip: 'Cold Blooded' });
+  if ((p.fitness ?? 0) > 90)
+    activeTraits.push({ file: '/traits/durable.svg',            tooltip: 'Durable' });
+  if ((p.stamina ?? 0) > 90)
+    activeTraits.push({ file: '/traits/engine.svg',             tooltip: 'Engine' });
+  if ((p.shot_accuracy ?? 0) > 90)
+    activeTraits.push({ file: '/traits/finesseshooter.svg',     tooltip: 'Finesse Shooter' });
+  if ((p.anticipation ?? 0) > 90)
+    activeTraits.push({ file: '/traits/gamereader.svg',         tooltip: 'Game Reader' });
+  if ((p.fitness ?? 0) < 78)
+    activeTraits.push({ file: '/traits/injuryprone.svg',        tooltip: 'Injury Prone' });
+  if ((p.penalties ?? 0) > 90)
+    activeTraits.push({ file: '/traits/penaltyspecialist.svg',  tooltip: 'Penalty Specialist' });
+  if ((p.shot_power ?? 0) > 90)
+    activeTraits.push({ file: '/traits/powershooter.svg',       tooltip: 'Power Shooter' });
+  if ((p.acceleration ?? 0) > 90)
+    activeTraits.push({ file: '/traits/speedster.svg',          tooltip: 'Speedster' });
+  if ((p.dribbling ?? 0) > 91)
+    activeTraits.push({ file: '/traits/trickster.svg',          tooltip: 'Trickster' });
+  if ((p.free_kick ?? 0) > 90)
+    activeTraits.push({ file: '/traits/freekickspecialist.svg', tooltip: 'Free Kick Specialist' });
+  if ((p.short_passing ?? 0) > 90 || (p.long_passing ?? 0) > 90)
+    activeTraits.push({ file: '/traits/greatpasser.svg',        tooltip: 'Great Passer' });
 }
 ---
 
@@ -392,6 +428,85 @@ function gaugeDash(v) {
       font-variant-numeric: tabular-nums;
     }
 
+    /* PLAYER TRAITS — restyling */
+    .traits-section {
+      margin-top: 14px;
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 20px 24px 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+
+    .traits-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #aeaeb2;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+
+    .traits-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    /* icona: niente background, floating su bianco */
+    .trait-icon {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: default;
+      transition: transform 0.15s ease, filter 0.15s ease;
+    }
+
+    .trait-icon:hover {
+      transform: scale(1.12);
+      filter: brightness(1.12);
+    }
+
+    .trait-icon img {
+      width: 36px;
+      height: 36px;
+      display: block;
+      object-fit: contain;
+    }
+
+    /* tooltip custom */
+    .trait-icon[data-tip]:hover::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: calc(100% + 7px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1d1d1f;
+      color: #ffffff;
+      font-size: 10px;
+      font-weight: 600;
+      white-space: nowrap;
+      padding: 4px 9px;
+      border-radius: 6px;
+      pointer-events: none;
+      z-index: 20;
+      letter-spacing: 0.02em;
+    }
+
+    .trait-icon[data-tip]:hover::before {
+      content: '';
+      position: absolute;
+      bottom: calc(100% + 2px);
+      left: 50%;
+      transform: translateX(-50%);
+      border: 4px solid transparent;
+      border-top-color: #1d1d1f;
+      pointer-events: none;
+      z-index: 20;
+    }
+
     @media (max-width: 600px) {
       .page { padding: 24px 20px 60px; }
       .hero { flex-direction: column; align-items: flex-start; gap: 16px; }
@@ -399,6 +514,9 @@ function gaugeDash(v) {
       .gauge-section { grid-template-columns: repeat(3, 1fr); gap: 8px; }
       .skills-grid { grid-template-columns: 1fr; }
       .skill-card.full-width { grid-column: auto; }
+      .traits-grid { gap: 10px; }
+      .trait-icon,
+      .trait-icon img { width: 32px; height: 32px; }
     }
   </style>
 </head>
@@ -461,70 +579,53 @@ function gaugeDash(v) {
     <!-- GAUGES (non-GK only) -->
     {!isGK && (
       <div class="gauge-section">
-
         <div class="gauge-item">
           <svg viewBox="0 0 120 66" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <!-- track -->
             <circle cx="60" cy="62" r={GAUGE_R} fill="none" stroke="#f0f0f5" stroke-width="9"
               stroke-dasharray={`${HALF_CIRC} ${FULL_CIRC}`}
-              transform="rotate(180 60 62)"
-            />
-            <!-- filled arc -->
+              transform="rotate(180 60 62)" />
             <circle cx="60" cy="62" r={GAUGE_R} fill="none" stroke={skillColor(attAvg)} stroke-width="9"
               stroke-dasharray={gaugeDash(attAvg)}
               transform="rotate(180 60 62)"
-              stroke-linecap="round"
-            />
-            <!-- value -->
+              stroke-linecap="round" />
             <text x="60" y="57" text-anchor="middle"
               font-size="22" font-weight="700" fill="#1d1d1f"
               font-family="-apple-system, 'SF Pro Text', sans-serif">{attAvg}</text>
           </svg>
-          <div class="gauge-label" title="Avg: Finishing, Off the Ball, Composure, Anticipation, Shot Accuracy">
-            Att. Skills
-          </div>
+          <div class="gauge-label" title="Avg: Finishing, Off the Ball, Composure, Anticipation, Shot Accuracy">Att. Skills</div>
         </div>
 
         <div class="gauge-item">
           <svg viewBox="0 0 120 66" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <circle cx="60" cy="62" r={GAUGE_R} fill="none" stroke="#f0f0f5" stroke-width="9"
               stroke-dasharray={`${HALF_CIRC} ${FULL_CIRC}`}
-              transform="rotate(180 60 62)"
-            />
+              transform="rotate(180 60 62)" />
             <circle cx="60" cy="62" r={GAUGE_R} fill="none" stroke={skillColor(playmakingAvg)} stroke-width="9"
               stroke-dasharray={gaugeDash(playmakingAvg)}
               transform="rotate(180 60 62)"
-              stroke-linecap="round"
-            />
+              stroke-linecap="round" />
             <text x="60" y="57" text-anchor="middle"
               font-size="22" font-weight="700" fill="#1d1d1f"
               font-family="-apple-system, 'SF Pro Text', sans-serif">{playmakingAvg}</text>
           </svg>
-          <div class="gauge-label" title="Avg: Short Passing, Long Passing, Vision, Composure">
-            Playmaking
-          </div>
+          <div class="gauge-label" title="Avg: Short Passing, Long Passing, Vision, Composure">Playmaking</div>
         </div>
 
         <div class="gauge-item">
           <svg viewBox="0 0 120 66" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <circle cx="60" cy="62" r={GAUGE_R} fill="none" stroke="#f0f0f5" stroke-width="9"
               stroke-dasharray={`${HALF_CIRC} ${FULL_CIRC}`}
-              transform="rotate(180 60 62)"
-            />
+              transform="rotate(180 60 62)" />
             <circle cx="60" cy="62" r={GAUGE_R} fill="none" stroke={skillColor(defAvg)} stroke-width="9"
               stroke-dasharray={gaugeDash(defAvg)}
               transform="rotate(180 60 62)"
-              stroke-linecap="round"
-            />
+              stroke-linecap="round" />
             <text x="60" y="57" text-anchor="middle"
               font-size="22" font-weight="700" fill="#1d1d1f"
               font-family="-apple-system, 'SF Pro Text', sans-serif">{defAvg}</text>
           </svg>
-          <div class="gauge-label" title="Avg: Marking, Tackling, Def. Positioning, Anticipation, Heading, Composure">
-            Def. Skills
-          </div>
+          <div class="gauge-label" title="Avg: Marking, Tackling, Def. Positioning, Anticipation, Heading, Composure">Def. Skills</div>
         </div>
-
       </div>
     )}
 
@@ -611,6 +712,21 @@ function gaugeDash(v) {
       )}
 
     </div>
+
+    <!-- PLAYER TRAITS -->
+    {!isGK && activeTraits.length > 0 && (
+      <div class="traits-section">
+        <div class="traits-title">Player Traits</div>
+        <div class="traits-grid">
+          {activeTraits.map(t => (
+            <div class="trait-icon" data-tip={t.tooltip} title={t.tooltip}>
+              <img src={t.file} alt={t.tooltip} />
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+
   </div>
 </body>
 </html>
