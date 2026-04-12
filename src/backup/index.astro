@@ -1078,15 +1078,17 @@ const { data: players, error } = await supabase
       `;
 
       row.addEventListener('click', () => {
-        if (selectedRow && selectedRow !== row) selectedRow.classList.remove('selected');
-        if (selectedRow === row) {
-          row.classList.remove('selected');
-          selectedRow = null;
-        } else {
-          row.classList.add('selected');
-          selectedRow = row;
-        }
-      });
+  if (!p.slug) return;
+
+  if (selectedRow && selectedRow !== row) selectedRow.classList.remove('selected');
+  row.classList.add('selected');
+  selectedRow = row;
+
+  setTimeout(() => {
+    window.location.href = `/player/${p.slug}`;
+  }, 120);
+});
+
 
       tbody.appendChild(row);
     });

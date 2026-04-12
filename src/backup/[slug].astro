@@ -15,6 +15,100 @@ export async function getStaticPaths() {
 
 const { player: p } = Astro.props;
 
+// ROLE FULL NAME MAP
+const ROLE_NAMES = {
+  GK: 'Goalkeeper',
+  SW: 'Sweeper',
+  CB: 'Centre-back',
+  RB: 'Right Back',
+  LB: 'Left Back',
+  DM: 'Defensive Midfielder',
+  CM: 'Centre Midfielder',
+  LM: 'Left Midfielder',
+  RM: 'Right Midfielder',
+  AM: 'Attacking Midfielder',
+  FW: 'Forward',
+  RW: 'Right Winger',
+  LW: 'Left Winger',
+  ST: 'Striker',
+};
+
+const fullRoleName = ROLE_NAMES[p.role] ?? p.role;
+
+// NATION COLOR MAP
+const NATION_COLORS = {
+  'Italy':           ['#009246', '#ffffff', '#ce2b37'],
+  'France':          ['#002395', '#ffffff', '#ed2939'],
+  'Germany':         ['#000000', '#dd0000', '#ffce00'],
+  'Spain':           ['#aa151b', '#f1bf00', '#aa151b'],
+  'Brazil':          ['#009c3b', '#ffdf00', '#002776'],
+  'Argentina':       ['#74acdf', '#ffffff', '#74acdf'],
+  'England':         ['#cf142b', '#ffffff'],
+  'Netherlands':     ['#ae1c28', '#ffffff', '#21468b'],
+  'Portugal':        ['#006600', '#ff0000'],
+  'Belgium':         ['#000000', '#fdda24', '#ef3340'],
+  'Uruguay':         ['#ffffff', '#5aaae7'],
+  'Croatia':         ['#ff0000', '#ffffff', '#171796'],
+  'Czech Republic':  ['#d7141a', '#ffffff', '#11457e'],
+  'Czechoslovakia':  ['#d7141a', '#ffffff', '#11457e'],
+  'Denmark':         ['#c60c30', '#ffffff'],
+  'Sweden':          ['#006aa7', '#fecc02'],
+  'Norway':          ['#ef2b2d', '#ffffff', '#002868'],
+  'Poland':          ['#ffffff', '#dc143c'],
+  'Russia':          ['#ffffff', '#0039a6', '#d52b1e'],
+  'Soviet Union':    ['#cc0000', '#ffcc00'],
+  'Yugoslavia':      ['#003da5', '#de0000'],
+  'Romania':         ['#002b7f', '#fcd116', '#ce1126'],
+  'Hungary':         ['#ce2939', '#ffffff', '#477050'],
+  'Austria':         ['#ed2939', '#ffffff', '#ed2939'],
+  'Switzerland':     ['#ff0000', '#ffffff'],
+  'Scotland':        ['#003087', '#ffffff'],
+  'Wales':           ['#c8102e', '#00a651'],
+  'Republic of Ireland': ['#169b62', '#ffffff', '#ff883e'],
+  'Ireland':         ['#169b62', '#ffffff', '#ff883e'],
+  'Greece':          ['#0d5eaf', '#ffffff'],
+  'Turkey':          ['#e30a17', '#ffffff'],
+  'Serbia':          ['#c6363c', '#0c4076', '#ffffff'],
+  'Ukraine':         ['#005bbb', '#ffd500'],
+  'Slovakia':        ['#ffffff', '#0b4ea2', '#ee1c25'],
+  'Bulgaria':        ['#ffffff', '#00966e', '#d62612'],
+  'Colombia':        ['#fcd116', '#003087', '#ce1126'],
+  'Mexico':          ['#006847', '#ffffff', '#ce1126'],
+  'Chile':           ['#d52b1e', '#ffffff', '#002868'],
+  'Paraguay':        ['#d52b1e', '#ffffff', '#009bde'],
+  'Ecuador':         ['#ffda00', '#003580', '#ee1c25'],
+  'Peru':            ['#d91023', '#ffffff', '#d91023'],
+  'Bolivia':         ['#d52b1e', '#f4e400', '#007934'],
+  'Venezuela':       ['#cf142b', '#00247d', '#f4c300'],
+  'Costa Rica':      ['#002b7f', '#ffffff', '#ce1126'],
+  'United States':   ['#b22234', '#ffffff', '#3c3b6e'],
+  'USA':             ['#b22234', '#ffffff', '#3c3b6e'],
+  'Ghana':           ['#006b3f', '#fcd116', '#ce1126'],
+  'Nigeria':         ['#008751', '#ffffff'],
+  'Ivory Coast':     ['#f77f00', '#ffffff', '#009a00'],
+  'Cameroon':        ['#007a5e', '#ce1126', '#fcd116'],
+  'Senegal':         ['#00853f', '#fdef42', '#e31b23'],
+  'Morocco':         ['#c1272d', '#006233'],
+  'Egypt':           ['#ce1126', '#ffffff', '#000000'],
+  'Algeria':         ['#006233', '#ffffff', '#d21034'],
+  'Japan':           ['#ffffff', '#bc002d'],
+  'South Korea':     ['#ffffff', '#003478', '#cd2e3a'],
+  'Australia':       ['#00008b', '#ffffff', '#ff0000'],
+  'Saudi Arabia':    ['#006c35', '#ffffff'],
+  'Iran':            ['#239f40', '#ffffff', '#da0000'],
+};
+
+const nationColors = NATION_COLORS[p.nation] ?? null;
+const hasSolidBorder = nationColors && nationColors.length === 1;
+const hasGradientBorder = nationColors && nationColors.length >= 2;
+
+// Build gradient string for conic-gradient
+const gradientStops = hasGradientBorder
+  ? nationColors.map((c, i) => `${c} ${Math.round((i / (nationColors.length - 1)) * 100)}%`).join(', ')
+  : '';
+
+const solidColor = hasSolidBorder ? nationColors[0] : '#e8e8ed';
+
 function ovrColor(v) {
   if (v >= 95) return '#0071e3';
   if (v >= 90) return '#1a5e1a';
@@ -46,10 +140,10 @@ function roleColor(role) {
   const att = ['ST','FW','RW','LW'];
   const mid = ['AM','CM','DM','RM','LM'];
   const def = ['CB','SW','RB','LB'];
-  if (att.includes(role)) return { bg: '#fff0ee', text: '#c0392b', label: 'Attacker' };
-  if (mid.includes(role)) return { bg: '#eef4ff', text: '#0071e3', label: 'Midfielder' };
-  if (def.includes(role)) return { bg: '#eeffee', text: '#1a7a1a', label: 'Defender' };
-  return { bg: '#f5f0e8', text: '#b07800', label: 'Goalkeeper' };
+  if (att.includes(role)) return { bg: '#fff0ee', text: '#c0392b' };
+  if (mid.includes(role)) return { bg: '#eef4ff', text: '#0071e3' };
+  if (def.includes(role)) return { bg: '#eeffee', text: '#1a7a1a' };
+  return { bg: '#f5f0e8', text: '#b07800' };
 }
 
 const rc = roleColor(p.role);
@@ -124,8 +218,7 @@ function gaugeDash(v) {
   return `${filled} ${FULL_CIRC}`;
 }
 
-type Trait = { file: string; tooltip: string };
-const activeTraits: Trait[] = [];
+const activeTraits = [];
 
 if (!isGK) {
   if ((p.jumping ?? 0) + (p.heading ?? 0) > 170)
@@ -211,9 +304,20 @@ if (!isGK) {
       margin-bottom: 20px;
     }
 
+    .avatar-ring {
+      flex-shrink: 0;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3px;
+    }
+
     .avatar {
-      width: 72px;
-      height: 72px;
+      width: 74px;
+      height: 74px;
       border-radius: 50%;
       background: #e8e8ed;
       display: flex;
@@ -222,7 +326,6 @@ if (!isGK) {
       font-size: 22px;
       font-weight: 600;
       color: #6e6e73;
-      flex-shrink: 0;
       letter-spacing: -0.5px;
     }
 
@@ -464,9 +567,7 @@ if (!isGK) {
       transition: transform 0.18s ease;
     }
 
-    .trait-icon:hover {
-      transform: scale(1.07);
-    }
+    .trait-icon:hover { transform: scale(1.07); }
 
     .trait-icon img {
       width: 60px;
@@ -475,7 +576,6 @@ if (!isGK) {
       object-fit: contain;
     }
 
-    /* tooltip custom */
     .trait-icon[data-tip]:hover::after {
       content: attr(data-tip);
       position: absolute;
@@ -513,12 +613,8 @@ if (!isGK) {
       .gauge-section { grid-template-columns: repeat(3, 1fr); gap: 8px; }
       .skills-grid { grid-template-columns: 1fr; }
       .skill-card.full-width { grid-column: auto; }
-      .traits-grid {
-        grid-template-columns: repeat(5, 52px);
-        gap: 10px;
-      }
-      .trait-icon,
-      .trait-icon img { width: 52px; height: 52px; }
+      .traits-grid { grid-template-columns: repeat(5, 52px); gap: 10px; }
+      .trait-icon, .trait-icon img { width: 52px; height: 52px; }
     }
   </style>
 </head>
@@ -532,12 +628,25 @@ if (!isGK) {
 
     <!-- HERO -->
     <div class="hero">
-      <div class="avatar">{initials}</div>
+
+      {hasGradientBorder ? (
+        <div class="avatar-ring" style={`background: conic-gradient(${gradientStops});`}>
+          <div class="avatar">{initials}</div>
+        </div>
+      ) : hasSolidBorder ? (
+        <div class="avatar-ring" style={`background: ${solidColor};`}>
+          <div class="avatar">{initials}</div>
+        </div>
+      ) : (
+        <div class="avatar-ring" style="background: #e8e8ed;">
+          <div class="avatar">{initials}</div>
+        </div>
+      )}
 
       <div class="hero-info">
         <div class="hero-name">{p.name}</div>
         <div class="hero-tags">
-          <span class="tag" style={`background:${rc.bg}; color:${rc.text};`}>{p.role} — {rc.label}</span>
+          <span class="tag" style={`background:${rc.bg}; color:${rc.text};`}>{fullRoleName}</span>
           <span class="tag" style="background:#f5f5f7; color:#6e6e73;">{p.nation}</span>
           <span class="tag" style="background:#f5f5f7; color:#6e6e73;">{p.iconic_club}</span>
           <span class="tag" style="background:#f5f5f7; color:#6e6e73;">{p.decade}s</span>
