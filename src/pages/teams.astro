@@ -79,11 +79,11 @@ function buildRoster(t) {
   const attR = [...stR, ...fwR];
 
   const roster = [...gkR, ...defR, ...midR, ...attR];
-  return { roster, defR, midR, attR };
+  return { roster, gkR, defR, midR, attR };
 }
 
 const enriched = allTeams.map(t => {
-  const { roster, defR, midR, attR } = buildRoster(t);
+  const { roster, gkR, defR, midR, attR } = buildRoster(t);
 
   const displayName = (t.slug ?? '')
     .split('-')
@@ -91,11 +91,11 @@ const enriched = allTeams.map(t => {
     .join(' ');
 
   const ovr    = avg(roster.map(p => p.overall_rating)) ?? 0;
+  const gkOvr  = avg(gkR.map(p => p.overall_rating))   ?? 0;
   const defOvr = avg(defR.map(p => p.overall_rating))   ?? 0;
   const midOvr = avg(midR.map(p => p.overall_rating))   ?? 0;
   const attOvr = avg(attR.map(p => p.overall_rating))   ?? 0;
   const hAvg   = avg(roster.map(p => p.height).filter(Boolean)) ?? 0;
-  const size   = roster.length;
   const bestP  = sortByOvr(roster)[0];
 
   return {
@@ -104,7 +104,7 @@ const enriched = allTeams.map(t => {
     type: t.type,
     nation: t.nation,
     confederation: t.confederation,
-    ovr, defOvr, midOvr, attOvr, hAvg, size,
+    ovr, gkOvr, defOvr, midOvr, attOvr, hAvg,
     bestPlayer: bestP?.name  ?? '—',
     bestSlug:   bestP?.slug  ?? null,
     bestOvr:    bestP?.overall_rating ?? 0,
@@ -140,7 +140,6 @@ const clubTeams     = enriched.filter(t => t.type === 'club team'     || t.type 
       margin-bottom: 20px;
     }
 
-    /* TOGGLE */
     .toggle-bar {
       display: inline-flex;
       background: #e5e5ea;
@@ -170,7 +169,6 @@ const clubTeams     = enriched.filter(t => t.type === 'club team'     || t.type 
       box-shadow: 0 1px 3px rgba(0,0,0,0.10);
     }
 
-    /* META */
     .db-meta {
       font-size: 11px;
       color: #aeaeb2;
@@ -179,7 +177,6 @@ const clubTeams     = enriched.filter(t => t.type === 'club team'     || t.type 
     }
     .db-meta span { color: #6e6e73; font-weight: 500; }
 
-    /* TABLE WRAP */
     .table-wrap {
       overflow-x: auto;
       border-radius: 12px;
@@ -238,7 +235,6 @@ const clubTeams     = enriched.filter(t => t.type === 'club team'     || t.type 
 
     tbody td:last-child { border-right: none; }
 
-    /* sticky first column */
     thead th:first-child {
       position: sticky;
       left: 0;
@@ -258,7 +254,6 @@ const clubTeams     = enriched.filter(t => t.type === 'club team'     || t.type 
 
     tbody tr:hover td:first-child { background: #f7f7f9; }
 
-    /* team link with logo */
     .team-link {
       color: #1d1d1f;
       text-decoration: none;
@@ -297,23 +292,13 @@ const clubTeams     = enriched.filter(t => t.type === 'club team'     || t.type 
 
   <h1>All-Time Teams</h1>
 
-  <!-- TOGGLE -->
   <div class="toggle-bar">
-    <button class="toggle-btn active" id="btn-national" onclick="switchTab('national')">
-      National Teams
-    </button>
-    <button class="toggle-btn" id="btn-club" onclick="switchTab('club')">
-      Club Teams
-    </button>
+    <button class="toggle-btn active" id="btn-national" onclick="switchTab('national')">National Teams</button>
+    <button class="toggle-btn" id="btn-club" onclick="switchTab('club')">Club Teams</button>
   </div>
 
-  <!-- META -->
-  <div class="db-meta" id="meta-national">
-    <span>{nationalTeams.length}</span> national teams
-  </div>
-  <div class="db-meta" id="meta-club" style="display:none;">
-    <span>{clubTeams.length}</span> club teams
-  </div>
+  <div class="db-meta" id="meta-national"><span>{nationalTeams.length}</span> national teams</div>
+  <div class="db-meta" id="meta-club" style="display:none;"><span>{clubTeams.length}</span> club teams</div>
 
   <!-- NATIONAL TABLE -->
   <div id="wrap-national" class="table-wrap">
@@ -323,11 +308,11 @@ const clubTeams     = enriched.filter(t => t.type === 'club team'     || t.type 
           <th data-col="displayName" data-type="str">Team</th>
           <th data-col="confederation" data-type="str">Confederation</th>
           <th data-col="ovr" data-type="num" class="num-col ovr-col">OVR</th>
+          <th data-col="gkOvr" data-type="num" class="num-col">GK</th>
           <th data-col="defOvr" data-type="num" class="num-col">DEF</th>
           <th data-col="midOvr" data-type="num" class="num-col">MID</th>
           <th data-col="attOvr" data-type="num" class="num-col">ATT</th>
           <th data-col="hAvg" data-type="num" class="num-col">Avg HEI</th>
-          <th data-col="size" data-type="num" class="num-col">Players</th>
           <th data-col="bestPlayer" data-type="str">Best Player</th>
         </tr>
       </thead>
@@ -336,22 +321,17 @@ const clubTeams     = enriched.filter(t => t.type === 'club team'     || t.type 
           <tr onclick={`window.location='/team/${t.slug}'`}>
             <td>
               <a href={`/team/${t.slug}`} class="team-link">
-                <img
-                  src={`/teams/${t.slug}.svg`}
-                  class="team-logo-sm"
-                  alt=""
-                  onerror="this.style.display='none'"
-                />
+                <img src={`/teams/${t.slug}.svg`} class="team-logo-sm" alt="" onerror="this.style.display='none'" />
                 {t.displayName}
               </a>
             </td>
             <td>{t.confederation ?? '—'}</td>
             <td class="num-col" style={`color:${ovrColorStr(t.ovr)}`}>{t.ovr || '—'}</td>
+            <td class="num-col" style={`color:${ovrColorStr(t.gkOvr)}`}>{t.gkOvr || '—'}</td>
             <td class="num-col" style={`color:${ovrColorStr(t.defOvr)}`}>{t.defOvr || '—'}</td>
             <td class="num-col" style={`color:${ovrColorStr(t.midOvr)}`}>{t.midOvr || '—'}</td>
             <td class="num-col" style={`color:${ovrColorStr(t.attOvr)}`}>{t.attOvr || '—'}</td>
             <td class="num-col">{t.hAvg ? t.hAvg + ' cm' : '—'}</td>
-            <td class="num-col">{t.size || '—'}</td>
             <td>
               {t.bestSlug
                 ? <a href={`/player/${t.bestSlug}`} class="best-link" onclick="event.stopPropagation()">
@@ -374,11 +354,11 @@ const clubTeams     = enriched.filter(t => t.type === 'club team'     || t.type 
           <th data-col="displayName" data-type="str">Team</th>
           <th data-col="nation" data-type="str">Nation</th>
           <th data-col="ovr" data-type="num" class="num-col ovr-col">OVR</th>
+          <th data-col="gkOvr" data-type="num" class="num-col">GK</th>
           <th data-col="defOvr" data-type="num" class="num-col">DEF</th>
           <th data-col="midOvr" data-type="num" class="num-col">MID</th>
           <th data-col="attOvr" data-type="num" class="num-col">ATT</th>
           <th data-col="hAvg" data-type="num" class="num-col">Avg HEI</th>
-          <th data-col="size" data-type="num" class="num-col">Players</th>
           <th data-col="bestPlayer" data-type="str">Best Player</th>
         </tr>
       </thead>
@@ -387,27 +367,17 @@ const clubTeams     = enriched.filter(t => t.type === 'club team'     || t.type 
           <tr onclick={`window.location='/team/${t.slug}'`}>
             <td>
               <a href={`/team/${t.slug}`} class="team-link">
-                <img
-                  src={`/teams/${t.slug}.svg`}
-                  class="team-logo-sm"
-                  alt=""
-                  onerror="this.style.display='none'"
-                />
+                <img src={`/teams/${t.slug}.svg`} class="team-logo-sm" alt="" onerror="this.style.display='none'" />
                 {t.displayName}
               </a>
             </td>
-            <td>
-              {t.nation
-                ? t.nation.charAt(0).toUpperCase() + t.nation.slice(1)
-                : '—'
-              }
-            </td>
+            <td>{t.nation ? t.nation.charAt(0).toUpperCase() + t.nation.slice(1) : '—'}</td>
             <td class="num-col" style={`color:${ovrColorStr(t.ovr)}`}>{t.ovr || '—'}</td>
+            <td class="num-col" style={`color:${ovrColorStr(t.gkOvr)}`}>{t.gkOvr || '—'}</td>
             <td class="num-col" style={`color:${ovrColorStr(t.defOvr)}`}>{t.defOvr || '—'}</td>
             <td class="num-col" style={`color:${ovrColorStr(t.midOvr)}`}>{t.midOvr || '—'}</td>
             <td class="num-col" style={`color:${ovrColorStr(t.attOvr)}`}>{t.attOvr || '—'}</td>
             <td class="num-col">{t.hAvg ? t.hAvg + ' cm' : '—'}</td>
-            <td class="num-col">{t.size || '—'}</td>
             <td>
               {t.bestSlug
                 ? <a href={`/player/${t.bestSlug}`} class="best-link" onclick="event.stopPropagation()">
@@ -427,7 +397,6 @@ const clubTeams     = enriched.filter(t => t.type === 'club team'     || t.type 
 
 <script define:vars={{ nationalTeams, clubTeams }}>
 
-  // ── COLOR ──────────────────────────────────────────────────────────────
   function ovrColor(v) {
     if (!v) return '#aeaeb2';
     if (v >= 95) return '#0071e3';
@@ -440,7 +409,13 @@ const clubTeams     = enriched.filter(t => t.type === 'club team'     || t.type 
     return '#c0392b';
   }
 
-  // ── TAB SWITCH ─────────────────────────────────────────────────────────
+  let sortState = { col: null, dir: 1, tblId: null };
+
+  const dataMap = {
+    'tbl-national': [...nationalTeams],
+    'tbl-club':     [...clubTeams],
+  };
+
   function switchTab(tab) {
     document.getElementById('wrap-national').style.display = tab === 'national' ? '' : 'none';
     document.getElementById('wrap-club').style.display     = tab === 'club'     ? '' : 'none';
@@ -453,15 +428,6 @@ const clubTeams     = enriched.filter(t => t.type === 'club team'     || t.type 
 
   window.switchTab = switchTab;
 
-  // ── SORT STATE ─────────────────────────────────────────────────────────
-  let sortState = { col: null, dir: 1, tblId: null };
-
-  const dataMap = {
-    'tbl-national': [...nationalTeams],
-    'tbl-club':     [...clubTeams],
-  };
-
-  // ── RENDER TBODY ───────────────────────────────────────────────────────
   function renderTable(tblId, data) {
     const tbl   = document.getElementById(tblId);
     const tbody = tbl.querySelector('tbody');
@@ -473,34 +439,29 @@ const clubTeams     = enriched.filter(t => t.type === 'club team'     || t.type 
       tr.style.cursor = 'pointer';
       tr.addEventListener('click', () => window.location = `/team/${t.slug}`);
 
-      const logo = `<img src="/teams/${t.slug}.svg" class="team-logo-sm" alt="" onerror="this.style.display='none'" />`;
-
-      const col2 = isNat
+      const logo  = `<img src="/teams/${t.slug}.svg" class="team-logo-sm" alt="" onerror="this.style.display='none'" />`;
+      const col2  = isNat
         ? (t.confederation ?? '—')
         : (t.nation ? t.nation.charAt(0).toUpperCase() + t.nation.slice(1) : '—');
-
-      const best = t.bestSlug
-        ? `<a href="/player/${t.bestSlug}" class="best-link" onclick="event.stopPropagation()">
-             ${t.bestPlayer} <span style="color:#aeaeb2">(${t.bestOvr})</span>
-           </a>`
+      const best  = t.bestSlug
+        ? `<a href="/player/${t.bestSlug}" class="best-link" onclick="event.stopPropagation()">${t.bestPlayer} <span style="color:#aeaeb2">(${t.bestOvr})</span></a>`
         : '—';
 
       tr.innerHTML = `
         <td><a href="/team/${t.slug}" class="team-link">${logo}${t.displayName}</a></td>
         <td>${col2}</td>
         <td class="num-col" style="color:${ovrColor(t.ovr)}">${t.ovr || '—'}</td>
+        <td class="num-col" style="color:${ovrColor(t.gkOvr)}">${t.gkOvr || '—'}</td>
         <td class="num-col" style="color:${ovrColor(t.defOvr)}">${t.defOvr || '—'}</td>
         <td class="num-col" style="color:${ovrColor(t.midOvr)}">${t.midOvr || '—'}</td>
         <td class="num-col" style="color:${ovrColor(t.attOvr)}">${t.attOvr || '—'}</td>
         <td class="num-col">${t.hAvg ? t.hAvg + ' cm' : '—'}</td>
-        <td class="num-col">${t.size || '—'}</td>
         <td>${best}</td>
       `;
       tbody.appendChild(tr);
     });
   }
 
-  // ── SORT LISTENERS ─────────────────────────────────────────────────────
   ['tbl-national', 'tbl-club'].forEach(tblId => {
     document.getElementById(tblId).querySelectorAll('thead th').forEach(th => {
       th.addEventListener('click', () => {
@@ -514,7 +475,6 @@ const clubTeams     = enriched.filter(t => t.type === 'club team'     || t.type 
           sortState = { col, dir: 1, tblId };
         }
 
-        // update header indicators
         document.getElementById(tblId).querySelectorAll('thead th').forEach(h => {
           h.classList.remove('sorted');
           h.textContent = h.textContent.replace(' ↑','').replace(' ↓','');
