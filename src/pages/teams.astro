@@ -1,0 +1,536 @@
+---
+import { supabase } from '../lib/supabase.js';
+import Navbar from '../components/Navbar.astro';
+
+const { data: teams }   = await supabase.from('teams').select('*');
+const { data: players } = await supabase.from('players').select('*');
+
+const allTeams   = teams   ?? [];
+const allPlayers = players ?? [];
+
+function avg(vals) {
+  const v = vals.filter(x => x != null && !isNaN(Number(x)));
+  return v.length ? Math.round(v.reduce((a, b) => a + Number(b), 0) / v.length) : null;
+}
+
+function ovrColorStr(v) {
+  if (!v) return '#aeaeb2';
+  if (v >= 95) return '#0071e3';
+  if (v >= 90) return '#1a5e1a';
+  if (v >= 80) return '#2e8b2e';
+  if (v >= 70) return '#6aaa2a';
+  if (v >= 60) return '#c8a800';
+  if (v >= 50) return '#e07800';
+  if (v >= 40) return '#cc4400';
+  return '#c0392b';
+}
+
+function sortByOvr(arr) {
+  return [...arr].sort((a, b) =>
+    (b.overall_rating ?? 0) - (a.overall_rating ?? 0) ||
+    (a.name ?? '').localeCompare(b.name ?? '')
+  );
+}
+
+function pick(pool, n, usedIds) {
+  return sortByOvr(pool.filter(p => !usedIds.has(p.id))).slice(0, n);
+}
+
+function buildRoster(t) {
+  const isNational = t.type === 'national team' || t.type === 'national';
+  const tp = allPlayers.filter(p =>
+    isNational
+      ? (p.nation ?? '').toLowerCase() === (t.name ?? '').toLowerCase()
+      : (p.iconic_club ?? '').toLowerCase() === (t.name ?? '').toLowerCase()
+  );
+
+  const used = new Set();
+
+  const gkR = pick(tp.filter(p => p.role === 'GK'), 3, used);
+  gkR.forEach(p => used.add(p.id));
+
+  const rbR = pick(tp.filter(p => p.role === 'RB'), 2, used);
+  rbR.forEach(p => used.add(p.id));
+  const lbR = pick(tp.filter(p => p.role === 'LB'), 2, used);
+  lbR.forEach(p => used.add(p.id));
+  const swAvail = sortByOvr(tp.filter(p => p.role === 'SW' && !used.has(p.id)));
+  const cbAvail = sortByOvr(tp.filter(p => p.role === 'CB' && !used.has(p.id)));
+  const swSlot  = swAvail.length ? [swAvail[0]] : [];
+  swSlot.forEach(p => used.add(p.id));
+  const centerPool = sortByOvr([
+    ...cbAvail.filter(p => !used.has(p.id)),
+    ...swAvail.filter(p => !used.has(p.id))
+  ]);
+  const centerR = [...swSlot, ...pick(centerPool, 4 - swSlot.length, used)];
+  centerR.forEach(p => used.add(p.id));
+  const defR = [...rbR, ...lbR, ...centerR];
+
+  const dmR = pick(tp.filter(p => p.role === 'DM'), 2, used);
+  dmR.forEach(p => used.add(p.id));
+  const cmamR = pick(tp.filter(p => ['CM','AM'].includes(p.role)), 4, used);
+  cmamR.forEach(p => used.add(p.id));
+  const rmlmR = pick(tp.filter(p => ['RM','LM','CM','AM','DM'].includes(p.role)), 2, used);
+  rmlmR.forEach(p => used.add(p.id));
+  const midR = [...dmR, ...cmamR, ...rmlmR];
+
+  const stR = pick(tp.filter(p => p.role === 'ST'), 4, used);
+  stR.forEach(p => used.add(p.id));
+  const fwR = pick(tp.filter(p => ['FW','RW','LW','ST'].includes(p.role)), 2, used);
+  const attR = [...stR, ...fwR];
+
+  const roster = [...gkR, ...defR, ...midR, ...attR];
+  return { roster, defR, midR, attR };
+}
+
+const enriched = allTeams.map(t => {
+  const { roster, defR, midR, attR } = buildRoster(t);
+
+  const displayName = (t.slug ?? '')
+    .split('-')
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+
+  const ovr    = avg(roster.map(p => p.overall_rating)) ?? 0;
+  const defOvr = avg(defR.map(p => p.overall_rating))   ?? 0;
+  const midOvr = avg(midR.map(p => p.overall_rating))   ?? 0;
+  const attOvr = avg(attR.map(p => p.overall_rating))   ?? 0;
+  const hAvg   = avg(roster.map(p => p.height).filter(Boolean)) ?? 0;
+  const size   = roster.length;
+  const bestP  = sortByOvr(roster)[0];
+
+  return {
+    slug: t.slug,
+    displayName,
+    type: t.type,
+    nation: t.nation,
+    confederation: t.confederation,
+    ovr, defOvr, midOvr, attOvr, hAvg, size,
+    bestPlayer: bestP?.name  ?? '—',
+    bestSlug:   bestP?.slug  ?? null,
+    bestOvr:    bestP?.overall_rating ?? 0,
+  };
+});
+
+const nationalTeams = enriched.filter(t => t.type === 'national team' || t.type === 'national');
+const clubTeams     = enriched.filter(t => t.type === 'club team'     || t.type === 'club');
+---
+
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>All-Time Teams – Legends Database</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style is:global>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, 'SF Pro Text', 'Inter', sans-serif;
+      background: #f2f2f7;
+      color: #1d1d1f;
+      padding: 84px 40px 40px;
+      font-size: 13px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      color: #1d1d1f;
+      margin-bottom: 20px;
+    }
+
+    /* TOGGLE */
+    .toggle-bar {
+      display: inline-flex;
+      background: #e5e5ea;
+      border-radius: 10px;
+      padding: 3px;
+      margin-bottom: 20px;
+      gap: 2px;
+    }
+
+    .toggle-btn {
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 18px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      color: #6e6e73;
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s;
+      letter-spacing: 0.02em;
+    }
+
+    .toggle-btn.active {
+      background: #ffffff;
+      color: #1d1d1f;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.10);
+    }
+
+    /* META */
+    .db-meta {
+      font-size: 11px;
+      color: #aeaeb2;
+      margin-bottom: 12px;
+      height: 16px;
+    }
+    .db-meta span { color: #6e6e73; font-weight: 500; }
+
+    /* TABLE WRAP */
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
+      background: #ffffff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #ffffff;
+      font-size: 12.5px;
+    }
+
+    thead tr { border-bottom: 1px solid #e5e5ea; }
+
+    thead th {
+      padding: 10px 16px;
+      text-align: left;
+      font-size: 10.5px;
+      font-weight: 600;
+      color: #6e6e73;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      user-select: none;
+      border-right: 1px solid #f0f0f5;
+      cursor: pointer;
+      transition: color 0.12s, background 0.12s;
+      background: rgba(249,249,251,0.7);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    thead th:last-child { border-right: none; }
+    thead th:hover { color: #1d1d1f; background: rgba(240,240,245,0.85); }
+    thead th.sorted { color: #0071e3; }
+    thead th.ovr-col { color: #c0392b; }
+
+    tbody tr {
+      border-bottom: 1px solid #f2f2f7;
+      transition: background 0.1s;
+      cursor: pointer;
+    }
+
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover td { background: #f7f7f9; }
+
+    tbody td {
+      padding: 12px 16px;
+      color: #1d1d1f;
+      white-space: nowrap;
+      border-right: 1px solid #f5f5f7;
+      font-size: 12px;
+    }
+
+    tbody td:last-child { border-right: none; }
+
+    /* sticky first column */
+    thead th:first-child {
+      position: sticky;
+      left: 0;
+      z-index: 3;
+      background: rgba(249,249,251,0.9);
+      border-right: 1px solid #e5e5ea;
+    }
+
+    tbody td:first-child {
+      position: sticky;
+      left: 0;
+      z-index: 1;
+      background: #ffffff;
+      font-weight: 500;
+      border-right: 1px solid #e5e5ea;
+    }
+
+    tbody tr:hover td:first-child { background: #f7f7f9; }
+
+    /* team link with logo */
+    .team-link {
+      color: #1d1d1f;
+      text-decoration: none;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: color 0.12s;
+    }
+    .team-link:hover { color: #0071e3; }
+
+    .team-logo-sm {
+      width: 22px;
+      height: 22px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
+    .num-col {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+    }
+
+    .best-link {
+      color: #6e6e73;
+      text-decoration: none;
+      font-size: 11.5px;
+    }
+    .best-link:hover { color: #0071e3; }
+  </style>
+</head>
+
+<body>
+  <Navbar />
+
+  <h1>All-Time Teams</h1>
+
+  <!-- TOGGLE -->
+  <div class="toggle-bar">
+    <button class="toggle-btn active" id="btn-national" onclick="switchTab('national')">
+      National Teams
+    </button>
+    <button class="toggle-btn" id="btn-club" onclick="switchTab('club')">
+      Club Teams
+    </button>
+  </div>
+
+  <!-- META -->
+  <div class="db-meta" id="meta-national">
+    <span>{nationalTeams.length}</span> national teams
+  </div>
+  <div class="db-meta" id="meta-club" style="display:none;">
+    <span>{clubTeams.length}</span> club teams
+  </div>
+
+  <!-- NATIONAL TABLE -->
+  <div id="wrap-national" class="table-wrap">
+    <table id="tbl-national">
+      <thead>
+        <tr>
+          <th data-col="displayName" data-type="str">Team</th>
+          <th data-col="confederation" data-type="str">Confederation</th>
+          <th data-col="ovr" data-type="num" class="num-col ovr-col">OVR</th>
+          <th data-col="defOvr" data-type="num" class="num-col">DEF</th>
+          <th data-col="midOvr" data-type="num" class="num-col">MID</th>
+          <th data-col="attOvr" data-type="num" class="num-col">ATT</th>
+          <th data-col="hAvg" data-type="num" class="num-col">Avg HEI</th>
+          <th data-col="size" data-type="num" class="num-col">Players</th>
+          <th data-col="bestPlayer" data-type="str">Best Player</th>
+        </tr>
+      </thead>
+      <tbody>
+        {nationalTeams.map(t => (
+          <tr onclick={`window.location='/team/${t.slug}'`}>
+            <td>
+              <a href={`/team/${t.slug}`} class="team-link">
+                <img
+                  src={`/teams/${t.slug}.svg`}
+                  class="team-logo-sm"
+                  alt=""
+                  onerror="this.style.display='none'"
+                />
+                {t.displayName}
+              </a>
+            </td>
+            <td>{t.confederation ?? '—'}</td>
+            <td class="num-col" style={`color:${ovrColorStr(t.ovr)}`}>{t.ovr || '—'}</td>
+            <td class="num-col" style={`color:${ovrColorStr(t.defOvr)}`}>{t.defOvr || '—'}</td>
+            <td class="num-col" style={`color:${ovrColorStr(t.midOvr)}`}>{t.midOvr || '—'}</td>
+            <td class="num-col" style={`color:${ovrColorStr(t.attOvr)}`}>{t.attOvr || '—'}</td>
+            <td class="num-col">{t.hAvg ? t.hAvg + ' cm' : '—'}</td>
+            <td class="num-col">{t.size || '—'}</td>
+            <td>
+              {t.bestSlug
+                ? <a href={`/player/${t.bestSlug}`} class="best-link" onclick="event.stopPropagation()">
+                    {t.bestPlayer} <span style="color:#aeaeb2">({t.bestOvr})</span>
+                  </a>
+                : '—'
+              }
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- CLUB TABLE -->
+  <div id="wrap-club" class="table-wrap" style="display:none;">
+    <table id="tbl-club">
+      <thead>
+        <tr>
+          <th data-col="displayName" data-type="str">Team</th>
+          <th data-col="nation" data-type="str">Nation</th>
+          <th data-col="ovr" data-type="num" class="num-col ovr-col">OVR</th>
+          <th data-col="defOvr" data-type="num" class="num-col">DEF</th>
+          <th data-col="midOvr" data-type="num" class="num-col">MID</th>
+          <th data-col="attOvr" data-type="num" class="num-col">ATT</th>
+          <th data-col="hAvg" data-type="num" class="num-col">Avg HEI</th>
+          <th data-col="size" data-type="num" class="num-col">Players</th>
+          <th data-col="bestPlayer" data-type="str">Best Player</th>
+        </tr>
+      </thead>
+      <tbody>
+        {clubTeams.map(t => (
+          <tr onclick={`window.location='/team/${t.slug}'`}>
+            <td>
+              <a href={`/team/${t.slug}`} class="team-link">
+                <img
+                  src={`/teams/${t.slug}.svg`}
+                  class="team-logo-sm"
+                  alt=""
+                  onerror="this.style.display='none'"
+                />
+                {t.displayName}
+              </a>
+            </td>
+            <td>
+              {t.nation
+                ? t.nation.charAt(0).toUpperCase() + t.nation.slice(1)
+                : '—'
+              }
+            </td>
+            <td class="num-col" style={`color:${ovrColorStr(t.ovr)}`}>{t.ovr || '—'}</td>
+            <td class="num-col" style={`color:${ovrColorStr(t.defOvr)}`}>{t.defOvr || '—'}</td>
+            <td class="num-col" style={`color:${ovrColorStr(t.midOvr)}`}>{t.midOvr || '—'}</td>
+            <td class="num-col" style={`color:${ovrColorStr(t.attOvr)}`}>{t.attOvr || '—'}</td>
+            <td class="num-col">{t.hAvg ? t.hAvg + ' cm' : '—'}</td>
+            <td class="num-col">{t.size || '—'}</td>
+            <td>
+              {t.bestSlug
+                ? <a href={`/player/${t.bestSlug}`} class="best-link" onclick="event.stopPropagation()">
+                    {t.bestPlayer} <span style="color:#aeaeb2">({t.bestOvr})</span>
+                  </a>
+                : '—'
+              }
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+</body>
+</html>
+
+<script define:vars={{ nationalTeams, clubTeams }}>
+
+  // ── COLOR ──────────────────────────────────────────────────────────────
+  function ovrColor(v) {
+    if (!v) return '#aeaeb2';
+    if (v >= 95) return '#0071e3';
+    if (v >= 90) return '#1a5e1a';
+    if (v >= 80) return '#2e8b2e';
+    if (v >= 70) return '#6aaa2a';
+    if (v >= 60) return '#c8a800';
+    if (v >= 50) return '#e07800';
+    if (v >= 40) return '#cc4400';
+    return '#c0392b';
+  }
+
+  // ── TAB SWITCH ─────────────────────────────────────────────────────────
+  function switchTab(tab) {
+    document.getElementById('wrap-national').style.display = tab === 'national' ? '' : 'none';
+    document.getElementById('wrap-club').style.display     = tab === 'club'     ? '' : 'none';
+    document.getElementById('meta-national').style.display = tab === 'national' ? '' : 'none';
+    document.getElementById('meta-club').style.display     = tab === 'club'     ? '' : 'none';
+    document.getElementById('btn-national').classList.toggle('active', tab === 'national');
+    document.getElementById('btn-club').classList.toggle('active', tab === 'club');
+    sortState = { col: null, dir: 1, tblId: null };
+  }
+
+  window.switchTab = switchTab;
+
+  // ── SORT STATE ─────────────────────────────────────────────────────────
+  let sortState = { col: null, dir: 1, tblId: null };
+
+  const dataMap = {
+    'tbl-national': [...nationalTeams],
+    'tbl-club':     [...clubTeams],
+  };
+
+  // ── RENDER TBODY ───────────────────────────────────────────────────────
+  function renderTable(tblId, data) {
+    const tbl   = document.getElementById(tblId);
+    const tbody = tbl.querySelector('tbody');
+    const isNat = tblId === 'tbl-national';
+    tbody.innerHTML = '';
+
+    data.forEach(t => {
+      const tr = document.createElement('tr');
+      tr.style.cursor = 'pointer';
+      tr.addEventListener('click', () => window.location = `/team/${t.slug}`);
+
+      const logo = `<img src="/teams/${t.slug}.svg" class="team-logo-sm" alt="" onerror="this.style.display='none'" />`;
+
+      const col2 = isNat
+        ? (t.confederation ?? '—')
+        : (t.nation ? t.nation.charAt(0).toUpperCase() + t.nation.slice(1) : '—');
+
+      const best = t.bestSlug
+        ? `<a href="/player/${t.bestSlug}" class="best-link" onclick="event.stopPropagation()">
+             ${t.bestPlayer} <span style="color:#aeaeb2">(${t.bestOvr})</span>
+           </a>`
+        : '—';
+
+      tr.innerHTML = `
+        <td><a href="/team/${t.slug}" class="team-link">${logo}${t.displayName}</a></td>
+        <td>${col2}</td>
+        <td class="num-col" style="color:${ovrColor(t.ovr)}">${t.ovr || '—'}</td>
+        <td class="num-col" style="color:${ovrColor(t.defOvr)}">${t.defOvr || '—'}</td>
+        <td class="num-col" style="color:${ovrColor(t.midOvr)}">${t.midOvr || '—'}</td>
+        <td class="num-col" style="color:${ovrColor(t.attOvr)}">${t.attOvr || '—'}</td>
+        <td class="num-col">${t.hAvg ? t.hAvg + ' cm' : '—'}</td>
+        <td class="num-col">${t.size || '—'}</td>
+        <td>${best}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // ── SORT LISTENERS ─────────────────────────────────────────────────────
+  ['tbl-national', 'tbl-club'].forEach(tblId => {
+    document.getElementById(tblId).querySelectorAll('thead th').forEach(th => {
+      th.addEventListener('click', () => {
+        const col  = th.getAttribute('data-col');
+        const type = th.getAttribute('data-type');
+        if (!col) return;
+
+        if (sortState.col === col && sortState.tblId === tblId) {
+          sortState.dir = sortState.dir === 1 ? -1 : 1;
+        } else {
+          sortState = { col, dir: 1, tblId };
+        }
+
+        // update header indicators
+        document.getElementById(tblId).querySelectorAll('thead th').forEach(h => {
+          h.classList.remove('sorted');
+          h.textContent = h.textContent.replace(' ↑','').replace(' ↓','');
+        });
+        th.classList.add('sorted');
+        th.textContent += sortState.dir === 1 ? ' ↑' : ' ↓';
+
+        const sorted = [...dataMap[tblId]].sort((a, b) => {
+          const va = a[col] ?? '', vb = b[col] ?? '';
+          if (type === 'str') return String(va).localeCompare(String(vb)) * sortState.dir;
+          return (Number(vb) - Number(va)) * sortState.dir;
+        });
+
+        renderTable(tblId, sorted);
+      });
+    });
+  });
+
+</script>
