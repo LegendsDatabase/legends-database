@@ -13,6 +13,12 @@ export async function getStaticPaths() {
 
 const { team: t, allPlayers } = Astro.props;
 
+// ─── DISPLAY NAME — derived from slug, always "All-Time Italy" style ──────
+const displayName = (t.slug ?? '')
+  .split('-')
+  .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+  .join(' ');
+
 // ─── UTILITY ─────────────────────────────────────────────────────────────
 
 function ovrColor(v) {
@@ -52,7 +58,6 @@ function pick(pool, n, usedIds) {
   return sortByOvr(pool.filter(p => !usedIds.has(p.id))).slice(0, n);
 }
 
-// Gauge values — identical to player page
 function pAtt(p)  { return avg([p.finishing, p.off_the_ball, p.composure, p.anticipation, p.shot_accuracy]); }
 function pPlay(p) { return avg([p.short_passing, p.long_passing, p.vision, p.composure]); }
 function pDef(p)  { return avg([p.marking, p.tackling, p.def_positioning, p.anticipation, p.heading, p.composure]); }
@@ -72,11 +77,9 @@ const teamPlayers = allPlayers.filter(p =>
 
 const used = new Set();
 
-// GK — 3
 const gkR = pick(teamPlayers.filter(p => p.role === 'GK'), 3, used);
 gkR.forEach(p => used.add(p.id));
 
-// DEF — 8: 2 RB + 2 LB + 4 CB/SW (at least 1 SW)
 const rbR = pick(teamPlayers.filter(p => p.role === 'RB'), 2, used);
 rbR.forEach(p => used.add(p.id));
 
@@ -95,19 +98,15 @@ const centerR = [...swSlot, ...pick(centerPool, 4 - swSlot.length, used)];
 centerR.forEach(p => used.add(p.id));
 const defR = [...rbR, ...lbR, ...centerR];
 
-// MID — 8: 2 DM + 4 CM/AM + 2 RM/LM (flexible fallback)
 const dmR = pick(teamPlayers.filter(p => p.role === 'DM'), 2, used);
 dmR.forEach(p => used.add(p.id));
-
 const cmamR = pick(teamPlayers.filter(p => ['CM','AM'].includes(p.role)), 4, used);
 cmamR.forEach(p => used.add(p.id));
-
 const midFillPool = teamPlayers.filter(p => ['RM','LM','CM','AM','DM'].includes(p.role));
 const rmlmR = pick(midFillPool, 2, used);
 rmlmR.forEach(p => used.add(p.id));
 const midR = [...dmR, ...cmamR, ...rmlmR];
 
-// ATT — 6: 4 ST + 2 FW/RW/LW
 const stR = pick(teamPlayers.filter(p => p.role === 'ST'), 4, used);
 stR.forEach(p => used.add(p.id));
 const fwFillPool = teamPlayers.filter(p => ['FW','RW','LW','ST'].includes(p.role));
@@ -124,7 +123,7 @@ const defOvr  = avg(defR.map(p => p.overall_rating));
 const midOvr  = avg(midR.map(p => p.overall_rating));
 const attOvr  = avg(attR.map(p => p.overall_rating));
 
-// ─── RECORDS (all team players, not just roster) ──────────────────────────
+// ─── RECORDS ─────────────────────────────────────────────────────────────
 
 const src = teamPlayers.length ? teamPlayers : roster;
 const appsKey  = isNational ? 'nat_apps'       : 'club_apps';
@@ -146,7 +145,7 @@ const bestRatioP = sortBy(
   p => parseFloat(p[ratioKey] ?? 0)
 )[0];
 
-// ─── HEIGHT AVERAGES ─────────────────────────────────────────────────────
+// ─── HEIGHT ───────────────────────────────────────────────────────────────
 
 function hAvg(arr) {
   const v = arr.map(p => p.height).filter(Boolean);
@@ -158,21 +157,22 @@ const hMID = hAvg(midR);
 const hATT = hAvg(attR);
 const hTOT = hAvg(roster);
 
-// ─── DISPLAY ─────────────────────────────────────────────────────────────
-
-const displayName = (t.name ?? '')
-  .split(' ')
-  .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-  .join(' ');
-
-const teamInitials = (t.name ?? '')
-  .split(' ')
-  .map(w => w[0])
-  .join('')
-  .toUpperCase()
-  .slice(0, 3);
-
 const logoSrc = `/teams/${t.slug}.svg`;
+
+// ─── ROSTER JSON for client-side sort ────────────────────────────────────
+
+const rosterData = roster.map(p => ({
+  name:    p.name ?? '',
+  slug:    p.slug ?? '',
+  role:    p.role ?? '',
+  section: gkR.some(g => g.id === p.id)  ? 'GK'  :
+           defR.some(d => d.id === p.id)  ? 'DEF' :
+           midR.some(m => m.id === p.id)  ? 'MID' : 'ATT',
+  ovr:     p.overall_rating ?? 0,
+  def:     pDef(p),
+  play:    pPlay(p),
+  att:     pAtt(p),
+}));
 ---
 
 <html>
@@ -210,7 +210,6 @@ const logoSrc = `/teams/${t.slug}.svg`;
     }
     .back:hover { color: #0071e3; }
 
-    /* ── CARD BASE ── */
     .card {
       background: #ffffff;
       border-radius: 16px;
@@ -228,7 +227,7 @@ const logoSrc = `/teams/${t.slug}.svg`;
       margin-bottom: 18px;
     }
 
-    /* ── HERO ── */
+    /* HERO */
     .hero {
       background: #ffffff;
       border-radius: 16px;
@@ -240,34 +239,25 @@ const logoSrc = `/teams/${t.slug}.svg`;
       margin-bottom: 16px;
     }
 
-    .logo-circle {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      background: #f0f0f5;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      overflow: hidden;
-      border: 1px solid #e5e5ea;
-    }
-
+    /* logo — no background, no circle */
     .team-logo {
-      width: 64px;
-      height: 64px;
+      width: 72px;
+      height: 72px;
       object-fit: contain;
+      flex-shrink: 0;
+      display: block;
     }
 
     .team-initials-fb {
       display: none;
+      width: 72px;
+      height: 72px;
+      flex-shrink: 0;
       align-items: center;
       justify-content: center;
-      width: 80px;
-      height: 80px;
-      font-size: 18px;
+      font-size: 20px;
       font-weight: 700;
-      color: #6e6e73;
+      color: #aeaeb2;
       letter-spacing: -0.5px;
     }
 
@@ -300,28 +290,24 @@ const logoSrc = `/teams/${t.slug}.svg`;
     .tag-type { background: #f5f5f7; color: #6e6e73; }
     .tag-era  { background: #f5f0e8; color: #b07800; }
 
-    /* Department OVR row */
     .dept-grid {
       display: flex;
       align-items: center;
-      gap: 0;
     }
 
     .dept-item {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 2px;
-      padding: 0 20px 0 0;
+      gap: 3px;
+      padding: 0 22px 0 0;
     }
-
-    .dept-item:first-child { padding-left: 0; }
 
     .dept-sep {
       width: 1px;
       height: 32px;
       background: #e5e5ea;
-      margin-right: 20px;
+      margin-right: 22px;
     }
 
     .dept-val {
@@ -339,11 +325,7 @@ const logoSrc = `/teams/${t.slug}.svg`;
       text-transform: uppercase;
     }
 
-    /* OVR block */
-    .ovr-block {
-      text-align: center;
-      flex-shrink: 0;
-    }
+    .ovr-block { text-align: center; flex-shrink: 0; }
 
     .ovr-num {
       font-size: 40px;
@@ -361,7 +343,7 @@ const logoSrc = `/teams/${t.slug}.svg`;
       margin-top: 2px;
     }
 
-    /* ── ROSTER TABLE ── */
+    /* ROSTER TABLE */
     .roster-table {
       width: 100%;
       border-collapse: collapse;
@@ -376,20 +358,26 @@ const logoSrc = `/teams/${t.slug}.svg`;
       padding: 0 12px 12px;
       text-align: left;
       border-bottom: 1px solid #f0f0f5;
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+      transition: color 0.12s;
     }
+
+    .roster-table thead th:hover { color: #0071e3; }
+    .roster-table thead th.sorted { color: #0071e3; }
 
     .roster-table thead th.col-stat,
-    .roster-table thead th.col-ovr {
-      text-align: right;
-    }
+    .roster-table thead th.col-ovr { text-align: right; }
 
+    /* section header rows */
     .section-row td {
       font-size: 10px;
       font-weight: 700;
       color: #aeaeb2;
       letter-spacing: 0.07em;
       text-transform: uppercase;
-      padding: 14px 12px 6px;
+      padding: 16px 12px 6px;
     }
 
     .player-row td {
@@ -400,7 +388,6 @@ const logoSrc = `/teams/${t.slug}.svg`;
     }
 
     .player-row:last-child td { border-bottom: none; }
-
     .player-row:hover td { background: #f7f7f9; }
 
     .player-link {
@@ -431,7 +418,7 @@ const logoSrc = `/teams/${t.slug}.svg`;
 
     .muted { color: #d1d1d6 !important; font-weight: 400 !important; }
 
-    /* ── HIGHLIGHTS ── */
+    /* HIGHLIGHTS */
     .highlights-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -478,10 +465,9 @@ const logoSrc = `/teams/${t.slug}.svg`;
       font-size: 11px;
       font-weight: 600;
       color: #aeaeb2;
-      letter-spacing: 0.04em;
     }
 
-    /* ── RECORDS ── */
+    /* RECORDS */
     .records-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -530,11 +516,10 @@ const logoSrc = `/teams/${t.slug}.svg`;
       color: #aeaeb2;
     }
 
-    /* ── HEIGHT ── */
+    /* HEIGHT */
     .height-grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      gap: 0;
     }
 
     .height-item {
@@ -563,22 +548,15 @@ const logoSrc = `/teams/${t.slug}.svg`;
       text-transform: uppercase;
     }
 
-    .height-item.total .height-val {
-      color: #0071e3;
-    }
+    .height-item.total .height-val,
+    .height-item.total .height-label { color: #0071e3; }
 
-    .height-item.total .height-label {
-      color: #0071e3;
-    }
-
-    /* ── RESPONSIVE ── */
     @media (max-width: 640px) {
       .page { padding: 24px 20px 60px; }
       .hero { flex-direction: column; align-items: flex-start; gap: 16px; }
       .highlights-grid { grid-template-columns: repeat(2, 1fr); }
-      .records-grid { grid-template-columns: repeat(1, 1fr); }
+      .records-grid { grid-template-columns: 1fr; }
       .height-grid { grid-template-columns: repeat(3, 1fr); }
-      .height-item:nth-child(3) { border-right: none; }
     }
   </style>
 </head>
@@ -589,11 +567,11 @@ const logoSrc = `/teams/${t.slug}.svg`;
   <div class="page">
     <a href="/" class="back">← Database</a>
 
-    <!-- ── HERO ── -->
+    <!-- HERO -->
     <div class="hero">
-      <div class="logo-circle">
-        <img src={logoSrc} class="team-logo" alt={displayName} />
-        <div class="team-initials-fb">{teamInitials}</div>
+      <img src={logoSrc} class="team-logo" alt={displayName} id="team-logo" />
+      <div class="team-initials-fb" id="team-initials">
+        {(t.slug ?? '').split('-').map(w => w[0]).join('').toUpperCase().slice(0,3)}
       </div>
 
       <div class="hero-body">
@@ -633,91 +611,33 @@ const logoSrc = `/teams/${t.slug}.svg`;
       </div>
     </div>
 
-    <!-- ── ROSTER ── -->
+    <!-- ROSTER -->
     <div class="card">
       <div class="card-title">Roster</div>
-      <table class="roster-table">
+      <table class="roster-table" id="rosterTable">
         <thead>
           <tr>
-            <th>Player</th>
-            <th>Role</th>
-            <th class="col-ovr">OVR</th>
-            <th class="col-stat">DEF</th>
-            <th class="col-stat">PLAY</th>
-            <th class="col-stat">ATT</th>
+            <th data-col="name">Player <span id="sort-name"></span></th>
+            <th data-col="role">Role <span id="sort-role"></span></th>
+            <th class="col-ovr" data-col="ovr">OVR <span id="sort-ovr"></span></th>
+            <th class="col-stat" data-col="def">DEF <span id="sort-def"></span></th>
+            <th class="col-stat" data-col="play">PLAY <span id="sort-play"></span></th>
+            <th class="col-stat" data-col="att">ATT <span id="sort-att"></span></th>
           </tr>
         </thead>
-        <tbody>
-
-          <!-- Goalkeepers -->
-          {gkR.length > 0 && <tr class="section-row"><td colspan="6">Goalkeepers</td></tr>}
-          {gkR.map(p => (
-            <tr class="player-row">
-              <td><a href={`/player/${p.slug}`} class="player-link">{p.name}</a></td>
-              <td><span class="role-badge role-gk">{p.role}</span></td>
-              <td class="col-ovr" style={`color:${ovrColor(p.overall_rating)}`}>{p.overall_rating}</td>
-              <td class="col-stat muted">—</td>
-              <td class="col-stat muted">—</td>
-              <td class="col-stat muted">—</td>
-            </tr>
-          ))}
-
-          <!-- Defenders -->
-          {defR.length > 0 && <tr class="section-row"><td colspan="6">Defenders</td></tr>}
-          {defR.map(p => (
-            <tr class="player-row">
-              <td><a href={`/player/${p.slug}`} class="player-link">{p.name}</a></td>
-              <td><span class="role-badge role-def">{p.role}</span></td>
-              <td class="col-ovr" style={`color:${ovrColor(p.overall_rating)}`}>{p.overall_rating}</td>
-              <td class="col-stat" style={`color:${skillColor(pDef(p))}`}>{pDef(p)}</td>
-              <td class="col-stat" style={`color:${skillColor(pPlay(p))}`}>{pPlay(p)}</td>
-              <td class="col-stat" style={`color:${skillColor(pAtt(p))}`}>{pAtt(p)}</td>
-            </tr>
-          ))}
-
-          <!-- Midfielders -->
-          {midR.length > 0 && <tr class="section-row"><td colspan="6">Midfielders</td></tr>}
-          {midR.map(p => (
-            <tr class="player-row">
-              <td><a href={`/player/${p.slug}`} class="player-link">{p.name}</a></td>
-              <td><span class="role-badge role-mid">{p.role}</span></td>
-              <td class="col-ovr" style={`color:${ovrColor(p.overall_rating)}`}>{p.overall_rating}</td>
-              <td class="col-stat" style={`color:${skillColor(pDef(p))}`}>{pDef(p)}</td>
-              <td class="col-stat" style={`color:${skillColor(pPlay(p))}`}>{pPlay(p)}</td>
-              <td class="col-stat" style={`color:${skillColor(pAtt(p))}`}>{pAtt(p)}</td>
-            </tr>
-          ))}
-
-          <!-- Attackers -->
-          {attR.length > 0 && <tr class="section-row"><td colspan="6">Attackers</td></tr>}
-          {attR.map(p => (
-            <tr class="player-row">
-              <td><a href={`/player/${p.slug}`} class="player-link">{p.name}</a></td>
-              <td><span class="role-badge role-att">{p.role}</span></td>
-              <td class="col-ovr" style={`color:${ovrColor(p.overall_rating)}`}>{p.overall_rating}</td>
-              <td class="col-stat" style={`color:${skillColor(pDef(p))}`}>{pDef(p)}</td>
-              <td class="col-stat" style={`color:${skillColor(pPlay(p))}`}>{pPlay(p)}</td>
-              <td class="col-stat" style={`color:${skillColor(pAtt(p))}`}>{pAtt(p)}</td>
-            </tr>
-          ))}
-
-        </tbody>
+        <tbody id="rosterBody"></tbody>
       </table>
     </div>
 
-    <!-- ── HIGHLIGHTS ── -->
+    <!-- HIGHLIGHTS -->
     <div class="highlights-grid">
-
       {bestPlayer && (
         <div class="hl-card">
           <div class="hl-label">Best Player</div>
           <div class="hl-name"><a href={`/player/${bestPlayer.slug}`}>{bestPlayer.name}</a></div>
-          <div class="hl-val" style={`color:${ovrColor(bestPlayer.overall_rating)}`}>
-            {bestPlayer.overall_rating}
-          </div>
+          <div class="hl-val" style={`color:${ovrColor(bestPlayer.overall_rating)}`}>{bestPlayer.overall_rating}</div>
         </div>
       )}
-
       {fastestP && (
         <div class="hl-card">
           <div class="hl-label">Fastest</div>
@@ -727,7 +647,6 @@ const logoSrc = `/teams/${t.slug}.svg`;
           </div>
         </div>
       )}
-
       {bestTech && (
         <div class="hl-card">
           <div class="hl-label">Most Technical</div>
@@ -737,7 +656,6 @@ const logoSrc = `/teams/${t.slug}.svg`;
           </div>
         </div>
       )}
-
       {strongestP && (
         <div class="hl-card">
           <div class="hl-label">Strongest</div>
@@ -747,45 +665,34 @@ const logoSrc = `/teams/${t.slug}.svg`;
           </div>
         </div>
       )}
-
     </div>
 
-    <!-- ── RECORDS ── -->
+    <!-- RECORDS -->
     <div class="records-grid">
-
       {mostAppsP && (
         <div class="rec-card">
           <div class="rec-label">{isNational ? 'Most Caps' : 'Most Appearances'}</div>
           <div class="rec-name"><a href={`/player/${mostAppsP.slug}`}>{mostAppsP.name}</a></div>
-          <div class="rec-val">
-            {mostAppsP[appsKey]} <span class="rec-unit">apps</span>
-          </div>
+          <div class="rec-val">{mostAppsP[appsKey]} <span class="rec-unit">apps</span></div>
         </div>
       )}
-
       {mostGoalsP && (
         <div class="rec-card">
           <div class="rec-label">{isNational ? 'All-Time Top Scorer' : 'Top Scorer'}</div>
           <div class="rec-name"><a href={`/player/${mostGoalsP.slug}`}>{mostGoalsP.name}</a></div>
-          <div class="rec-val">
-            {mostGoalsP[goalsKey]} <span class="rec-unit">goals</span>
-          </div>
+          <div class="rec-val">{mostGoalsP[goalsKey]} <span class="rec-unit">goals</span></div>
         </div>
       )}
-
       {bestRatioP && (
         <div class="rec-card">
           <div class="rec-label">Best Goal Ratio</div>
           <div class="rec-name"><a href={`/player/${bestRatioP.slug}`}>{bestRatioP.name}</a></div>
-          <div class="rec-val">
-            {parseFloat(bestRatioP[ratioKey]).toFixed(2)} <span class="rec-unit">per game</span>
-          </div>
+          <div class="rec-val">{parseFloat(bestRatioP[ratioKey]).toFixed(2)} <span class="rec-unit">per game</span></div>
         </div>
       )}
-
     </div>
 
-    <!-- ── HEIGHT AVERAGES ── -->
+    <!-- HEIGHT -->
     <div class="card">
       <div class="card-title">Average Height</div>
       <div class="height-grid">
@@ -814,16 +721,134 @@ const logoSrc = `/teams/${t.slug}.svg`;
 
   </div>
 
-  <script>
-    const logo = document.querySelector('.team-logo');
-    if (logo) {
-      logo.addEventListener('error', function () {
-        this.style.display = 'none';
-        const fb = document.querySelector('.team-initials-fb');
-        if (fb) fb.style.display = 'flex';
+<script define:vars={{ rosterData }}>
+
+  // ── COLOR UTILS ──────────────────────────────────────────────────────────
+  function ovrColor(v) {
+    if (v >= 95) return '#0071e3';
+    if (v >= 90) return '#1a5e1a';
+    if (v >= 80) return '#2e8b2e';
+    if (v >= 70) return '#6aaa2a';
+    if (v >= 60) return '#c8a800';
+    if (v >= 50) return '#e07800';
+    if (v >= 40) return '#cc4400';
+    return '#c0392b';
+  }
+  function skillColor(v) {
+    if (v >= 95) return '#5aabff';
+    if (v >= 90) return '#1a5e1a';
+    if (v >= 80) return '#2e8b2e';
+    if (v >= 70) return '#6aaa2a';
+    if (v >= 60) return '#c8a800';
+    if (v >= 40) return '#e07800';
+    return '#c0392b';
+  }
+  function roleCls(role) {
+    if (role === 'GK') return 'role-gk';
+    if (['CB','SW','RB','LB'].includes(role)) return 'role-def';
+    if (['DM','CM','AM','RM','LM'].includes(role)) return 'role-mid';
+    return 'role-att';
+  }
+
+  // ── STATE ────────────────────────────────────────────────────────────────
+  let currentSort = { col: null, dir: 1 };
+  const SECTION_ORDER = { GK: 0, DEF: 1, MID: 2, ATT: 3 };
+
+  // ── RENDER ───────────────────────────────────────────────────────────────
+  function renderRoster(data) {
+    const tbody = document.getElementById('rosterBody');
+    tbody.innerHTML = '';
+
+    const isSorted = currentSort.col !== null;
+
+    if (isSorted) {
+      // flat sorted list — no section headers
+      [...data].sort((a, b) => {
+        let va = a[currentSort.col], vb = b[currentSort.col];
+        if (typeof va === 'string') return va.localeCompare(vb) * currentSort.dir;
+        return (vb - va) * currentSort.dir;
+      }).forEach(p => {
+        tbody.appendChild(makeRow(p));
+      });
+    } else {
+      // grouped by section
+      ['GK','DEF','MID','ATT'].forEach(sec => {
+        const group = data.filter(p => p.section === sec);
+        if (!group.length) return;
+        const labels = { GK: 'Goalkeepers', DEF: 'Defenders', MID: 'Midfielders', ATT: 'Attackers' };
+        const hr = document.createElement('tr');
+        hr.className = 'section-row';
+        hr.innerHTML = `<td colspan="6">${labels[sec]}</td>`;
+        tbody.appendChild(hr);
+        group.forEach(p => tbody.appendChild(makeRow(p)));
       });
     }
-  </script>
+  }
+
+  function makeRow(p) {
+    const tr = document.createElement('tr');
+    tr.className = 'player-row';
+    const isGK = p.role === 'GK';
+    tr.innerHTML = `
+      <td><a href="/player/${p.slug}" class="player-link">${p.name}</a></td>
+      <td><span class="role-badge ${roleCls(p.role)}">${p.role}</span></td>
+      <td class="col-ovr" style="color:${ovrColor(p.ovr)}">${p.ovr}</td>
+      <td class="col-stat ${isGK ? 'muted' : ''}" style="${isGK ? '' : `color:${skillColor(p.def)}`}">${isGK ? '—' : p.def}</td>
+      <td class="col-stat ${isGK ? 'muted' : ''}" style="${isGK ? '' : `color:${skillColor(p.play)}`}">${isGK ? '—' : p.play}</td>
+      <td class="col-stat ${isGK ? 'muted' : ''}" style="${isGK ? '' : `color:${skillColor(p.att)}`}">${isGK ? '—' : p.att}</td>
+    `;
+    return tr;
+  }
+
+  // ── SORT HEADERS ─────────────────────────────────────────────────────────
+  function updateHeaders() {
+    document.querySelectorAll('#rosterTable thead th').forEach(th => {
+      const col = th.getAttribute('data-col');
+      const span = th.querySelector('span');
+      th.classList.remove('sorted');
+      if (span) span.textContent = '';
+      if (col === currentSort.col) {
+        th.classList.add('sorted');
+        if (span) span.textContent = currentSort.dir === 1 ? ' ↑' : ' ↓';
+      }
+    });
+  }
+
+  document.querySelectorAll('#rosterTable thead th').forEach(th => {
+    th.addEventListener('click', () => {
+      const col = th.getAttribute('data-col');
+      if (!col) return;
+      if (currentSort.col === col) {
+        if (currentSort.dir === -1) {
+          // third click: reset to section grouping
+          currentSort = { col: null, dir: 1 };
+        } else {
+          currentSort.dir = -1;
+        }
+      } else {
+        // numeric cols: default desc; name/role: default asc
+        const numCols = ['ovr','def','play','att'];
+        currentSort = { col, dir: numCols.includes(col) ? 1 : 1 };
+      }
+      updateHeaders();
+      renderRoster(rosterData);
+    });
+  });
+
+  // ── LOGO FALLBACK ────────────────────────────────────────────────────────
+  const logo = document.getElementById('team-logo');
+  if (logo) {
+    logo.addEventListener('error', function () {
+      this.style.display = 'none';
+      const fb = document.getElementById('team-initials');
+      if (fb) fb.style.display = 'flex';
+    });
+  }
+
+  // ── INIT ─────────────────────────────────────────────────────────────────
+  renderRoster(rosterData);
+
+</script>
 
 </body>
 </html>
