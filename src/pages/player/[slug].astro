@@ -4,14 +4,15 @@ import Navbar from '../../components/Navbar.astro';
 
 export async function getStaticPaths() {
   const { data: players } = await supabase.from('players').select('*');
+  const { data: teams }   = await supabase.from('teams').select('*');
   const all = players ?? [];
   return all.map(p => ({
     params: { slug: p.slug },
-    props: { player: p, allPlayers: all }
+    props: { player: p, allPlayers: all, allTeams: teams ?? [] }
   }));
 }
 
-const { player: p, allPlayers } = Astro.props;
+const { player: p, allPlayers, allTeams } = Astro.props;
 
 // ─── ROLE FULL NAME ───────────────────────────────────────────────────────
 
@@ -39,7 +40,7 @@ const NATION_COLORS = {
   'Belgium':         ['#000000','#fdda24','#ef3340'],
   'Uruguay':         ['#ffffff','#5aaae7'],
   'Croatia':         ['#ff0000','#ffffff','#171796'],
-  'Czech Republic':  ['#d7141a','#ffffff','#11457e'],
+  'Czech Rep.':  ['#d7141a','#ffffff','#11457e'],
   'Czechoslovakia':  ['#d7141a','#ffffff','#11457e'],
   'Denmark':         ['#c60c30','#ffffff'],
   'Sweden':          ['#006aa7','#fecc02'],
@@ -54,7 +55,7 @@ const NATION_COLORS = {
   'Switzerland':     ['#ff0000','#ffffff'],
   'Scotland':        ['#003087','#ffffff'],
   'Wales':           ['#c8102e','#00a651'],
-  'Republic of Ireland': ['#169b62','#ffffff','#ff883e'],
+  'Northern Ireland': ['#169b62','#ffffff','#ff883e'],
   'Ireland':         ['#169b62','#ffffff','#ff883e'],
   'Greece':          ['#0d5eaf','#ffffff'],
   'Turkey':          ['#e30a17','#ffffff'],
@@ -121,10 +122,7 @@ function weightedAvg(values, weights) {
   for (let i = 0; i < values.length; i++) {
     const v = Number(values[i]);
     const w = weights[i] ?? 0;
-    if (!isNaN(v) && values[i] != null && w > 0) {
-      sum += v * w;
-      totalW += w;
-    }
+    if (!isNaN(v) && values[i] != null && w > 0) { sum += v * w; totalW += w; }
   }
   return totalW > 0 ? Math.round(sum / totalW) : 0;
 }
@@ -132,51 +130,39 @@ function weightedAvg(values, weights) {
 // ─── WEIGHT TABLES ────────────────────────────────────────────────────────
 
 const TECH_W = {
-  CB: [0.40,0.60,0.60,0.10,0.10,0.10,0.80,1.00,0,0,0.60],
-  SW: [0.60,0.75,0.75,0.10,0.20,0.20,0.70,0.75,0,0,0.70],
-  RB: [0.75,0.75,0.80,0.20,0.25,0.40,0.50,0.65,0,0,0.75],
-  LB: [0.75,0.75,0.80,0.20,0.25,0.40,0.50,0.65,0,0,0.75],
-  DM: [0.50,0.70,0.70,0.30,0.40,0.40,0.50,0.70,0,0,0.65],
-  CM: [0.65,0.80,0.80,0.40,0.50,0.60,0.45,0.60,0,0,0.80],
-  LM: [0.70,0.75,0.85,0.50,0.60,0.65,0.40,0.50,0,0,0.80],
-  RM: [0.70,0.75,0.85,0.50,0.60,0.65,0.40,0.50,0,0,0.80],
-  AM: [0.85,0.85,0.80,0.70,0.70,0.70,0.40,0.30,0,0,0.90],
-  RW: [0.85,0.70,0.80,0.65,0.70,0.70,0.40,0.40,0,0,0.85],
-  LW: [0.85,0.70,0.80,0.65,0.70,0.70,0.40,0.40,0,0,0.85],
-  FW: [0.85,0.80,0.70,0.80,0.80,0.70,0.45,0.30,0,0,0.90],
-  ST: [0.70,0.65,0.55,1.00,0.90,0.75,0.65,0.10,0,0,0.75],
+  CB:[0.40,0.60,0.60,0.10,0.10,0.10,0.80,1.00,0,0,0.60],
+  SW:[0.60,0.75,0.75,0.10,0.20,0.20,0.70,0.75,0,0,0.70],
+  RB:[0.75,0.75,0.80,0.20,0.25,0.40,0.50,0.65,0,0,0.75],
+  LB:[0.75,0.75,0.80,0.20,0.25,0.40,0.50,0.65,0,0,0.75],
+  DM:[0.50,0.70,0.70,0.30,0.40,0.40,0.50,0.70,0,0,0.65],
+  CM:[0.65,0.80,0.80,0.40,0.50,0.60,0.45,0.60,0,0,0.80],
+  LM:[0.70,0.75,0.85,0.50,0.60,0.65,0.40,0.50,0,0,0.80],
+  RM:[0.70,0.75,0.85,0.50,0.60,0.65,0.40,0.50,0,0,0.80],
+  AM:[0.85,0.85,0.80,0.70,0.70,0.70,0.40,0.30,0,0,0.90],
+  RW:[0.85,0.70,0.80,0.65,0.70,0.70,0.40,0.40,0,0,0.85],
+  LW:[0.85,0.70,0.80,0.65,0.70,0.70,0.40,0.40,0,0,0.85],
+  FW:[0.85,0.80,0.70,0.80,0.80,0.70,0.45,0.30,0,0,0.90],
+  ST:[0.70,0.65,0.55,1.00,0.90,0.75,0.65,0.10,0,0,0.75],
 };
 
 const MEN_W = {
-  CB: [0.85,0.70,1.00,0.00,0.70],
-  SW: [0.90,0.50,1.00,0.00,0.60],
-  RB: [0.70,0.55,1.00,0.20,0.75],
-  LB: [0.70,0.55,1.00,0.20,0.75],
-  DM: [0.75,0.75,1.00,0.20,0.80],
-  CM: [0.85,0.60,1.00,0.50,0.65],
-  LM: [0.70,0.55,1.00,0.50,0.65],
-  RM: [0.70,0.55,1.00,0.50,0.65],
-  AM: [0.85,0.50,1.00,0.75,0.55],
-  RW: [0.75,0.60,1.00,0.75,0.55],
-  LW: [0.75,0.60,1.00,0.75,0.55],
-  FW: [0.80,0.55,1.00,0.80,0.50],
-  ST: [0.85,0.50,1.00,0.65,0.50],
+  CB:[0.85,0.70,1.00,0.00,0.70], SW:[0.90,0.50,1.00,0.00,0.60],
+  RB:[0.70,0.55,1.00,0.20,0.75], LB:[0.70,0.55,1.00,0.20,0.75],
+  DM:[0.75,0.75,1.00,0.20,0.80], CM:[0.85,0.60,1.00,0.50,0.65],
+  LM:[0.70,0.55,1.00,0.50,0.65], RM:[0.70,0.55,1.00,0.50,0.65],
+  AM:[0.85,0.50,1.00,0.75,0.55], RW:[0.75,0.60,1.00,0.75,0.55],
+  LW:[0.75,0.60,1.00,0.75,0.55], FW:[0.80,0.55,1.00,0.80,0.50],
+  ST:[0.85,0.50,1.00,0.65,0.50],
 };
 
 const TACT_W = {
-  CB: [0.60,0.35,1.00,0.65,0.90,0.95],
-  SW: [0.75,0.65,0.75,0.80,0.75,0.70],
-  RB: [0.65,0.70,0.70,0.75,0.70,0.60],
-  LB: [0.65,0.70,0.70,0.75,0.70,0.60],
-  DM: [0.75,0.40,0.75,0.65,0.60,0.65],
-  CM: [0.85,0.50,0.50,0.75,0.65,0.30],
-  LM: [0.75,0.65,0.45,0.65,0.65,0.40],
-  RM: [0.75,0.65,0.45,0.65,0.65,0.40],
-  AM: [0.90,0.70,0.30,0.75,0.65,0.00],
-  RW: [0.70,0.70,0.20,0.50,0.65,0.00],
-  LW: [0.70,0.70,0.20,0.50,0.65,0.00],
-  FW: [0.80,0.75,0.10,0.45,0.70,0.00],
-  ST: [0.60,1.00,0.10,0.45,0.80,0.00],
+  CB:[0.60,0.35,1.00,0.65,0.90,0.95], SW:[0.75,0.65,0.75,0.80,0.75,0.70],
+  RB:[0.65,0.70,0.70,0.75,0.70,0.60], LB:[0.65,0.70,0.70,0.75,0.70,0.60],
+  DM:[0.75,0.40,0.75,0.65,0.60,0.65], CM:[0.85,0.50,0.50,0.75,0.65,0.30],
+  LM:[0.75,0.65,0.45,0.65,0.65,0.40], RM:[0.75,0.65,0.45,0.65,0.65,0.40],
+  AM:[0.90,0.70,0.30,0.75,0.65,0.00], RW:[0.70,0.70,0.20,0.50,0.65,0.00],
+  LW:[0.70,0.70,0.20,0.50,0.65,0.00], FW:[0.80,0.75,0.10,0.45,0.70,0.00],
+  ST:[0.60,1.00,0.10,0.45,0.80,0.00],
 };
 
 // ─── SKILL DEFINITIONS ────────────────────────────────────────────────────
@@ -311,27 +297,91 @@ if (!isGK) {
     activeTraits.push({ file: '/traits/greatpasser.svg',        tooltip: 'Great Passer' });
 }
 
-// ─── SEE ALSO — related players ───────────────────────────────────────────
+// ─── ALL-TIME TEAMS MEMBERSHIP ────────────────────────────────────────────
 
-// Role compatibility groups — no cross-macro-area
+function sortByOvr(arr) {
+  return [...arr].sort((a, b) =>
+    (b.overall_rating ?? 0) - (a.overall_rating ?? 0) ||
+    (a.name ?? '').localeCompare(b.name ?? '')
+  );
+}
+
+function pickR(pool, n, usedIds) {
+  return sortByOvr(pool.filter(q => !usedIds.has(q.id))).slice(0, n);
+}
+
+function buildRosterIds(t) {
+  const isNat = t.type === 'national team' || t.type === 'national';
+  const tp = allPlayers.filter(q =>
+    isNat
+      ? (q.nation ?? '').toLowerCase() === (t.name ?? '').toLowerCase()
+      : (q.iconic_club ?? '').toLowerCase() === (t.name ?? '').toLowerCase()
+  );
+  const used = new Set();
+
+  const gkR = pickR(tp.filter(q => q.role === 'GK'), 3, used);
+  gkR.forEach(q => used.add(q.id));
+
+  const rbR = pickR(tp.filter(q => q.role === 'RB'), 2, used);
+  rbR.forEach(q => used.add(q.id));
+  const lbR = pickR(tp.filter(q => q.role === 'LB'), 2, used);
+  lbR.forEach(q => used.add(q.id));
+  const swA = sortByOvr(tp.filter(q => q.role === 'SW' && !used.has(q.id)));
+  const cbA = sortByOvr(tp.filter(q => q.role === 'CB' && !used.has(q.id)));
+  const swSlot = swA.length ? [swA[0]] : [];
+  swSlot.forEach(q => used.add(q.id));
+  const cPool = sortByOvr([...cbA.filter(q => !used.has(q.id)), ...swA.filter(q => !used.has(q.id))]);
+  const cR = [...swSlot, ...pickR(cPool, 4 - swSlot.length, used)];
+  cR.forEach(q => used.add(q.id));
+
+  const dmR = pickR(tp.filter(q => q.role === 'DM'), 2, used);
+  dmR.forEach(q => used.add(q.id));
+  const cmamR = pickR(tp.filter(q => ['CM','AM'].includes(q.role)), 4, used);
+  cmamR.forEach(q => used.add(q.id));
+  const rmlmR = pickR(tp.filter(q => ['RM','LM','CM','AM','DM'].includes(q.role)), 2, used);
+  rmlmR.forEach(q => used.add(q.id));
+
+  const stR = pickR(tp.filter(q => q.role === 'ST'), 4, used);
+  stR.forEach(q => used.add(q.id));
+  const fwR = pickR(tp.filter(q => ['FW','RW','LW','ST'].includes(q.role)), 2, used);
+
+  return used;
+}
+
+// Check each team — only include if player is actually in the roster
+const playerTeams = allTeams
+  .filter(t => {
+    const isNat = t.type === 'national team' || t.type === 'national';
+    // Fast pre-filter: is player even in the pool?
+    const inPool = isNat
+      ? (p.nation ?? '').toLowerCase() === (t.name ?? '').toLowerCase()
+      : (p.iconic_club ?? '').toLowerCase() === (t.name ?? '').toLowerCase();
+    if (!inPool) return false;
+    // Full check: is player in the actual roster?
+    const rosterIds = buildRosterIds(t);
+    return rosterIds.has(p.id);
+  })
+  .map(t => ({
+    slug:        t.slug,
+    displayName: t.slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+    type:        t.type,
+    isNational:  t.type === 'national team' || t.type === 'national',
+  }));
+
+// ─── SEE ALSO ─────────────────────────────────────────────────────────────
+
 const ROLE_COMPAT = {
   GK: ['GK'],
-  CB: ['CB','SW'],
-  SW: ['SW','CB'],
-  RB: ['RB','LB'],
-  LB: ['LB','RB'],
-  DM: ['DM','CM'],
-  CM: ['CM','DM','AM'],
-  RM: ['RM','LM','AM','CM'],
-  LM: ['LM','RM','AM','CM'],
+  CB: ['CB','SW'], SW: ['SW','CB'],
+  RB: ['RB','LB'], LB: ['LB','RB'],
+  DM: ['DM','CM'], CM: ['CM','DM','AM'],
+  RM: ['RM','LM','AM','CM'], LM: ['LM','RM','AM','CM'],
   AM: ['AM','CM','FW','RW','LW'],
   FW: ['FW','ST','AM','RW','LW'],
-  RW: ['RW','LW','AM','FW'],
-  LW: ['LW','RW','AM','FW'],
+  RW: ['RW','LW','AM','FW'], LW: ['LW','RW','AM','FW'],
   ST: ['ST','FW'],
 };
 
-// Parse keywords into a clean set
 function parseKw(str) {
   if (!str) return new Set();
   return new Set(str.split(',').map(s => s.trim().toLowerCase()).filter(Boolean));
@@ -343,11 +393,7 @@ const compatRoles = ROLE_COMPAT[p.role] ?? [p.role];
 const related = allPlayers
   .filter(q => q.id !== p.id && q.slug && compatRoles.includes(q.role))
   .map(q => {
-    let score = 0;
-    // Role score
-    if (q.role === p.role) score += 3;
-    else score += 1;
-    // Keyword overlap
+    let score = q.role === p.role ? 3 : 1;
     const theirKw = parseKw(q.keywords);
     myKw.forEach(k => { if (theirKw.has(k)) score += 1; });
     return { q, score };
@@ -402,7 +448,7 @@ const related = allPlayers
       display: flex;
       align-items: center;
       gap: 28px;
-      margin-bottom: 20px;
+      margin-bottom: 12px;
     }
 
     .avatar-ring {
@@ -480,6 +526,69 @@ const related = allPlayers
       text-align: center;
       margin-top: 2px;
     }
+
+    /* ALL-TIME TEAMS STRIP */
+    .teams-strip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .teams-strip-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #aeaeb2;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      margin-right: 2px;
+    }
+
+    .team-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      background: #ffffff;
+      border: 1px solid #e5e5ea;
+      border-radius: 20px;
+      padding: 5px 12px 5px 8px;
+      transition: border-color 0.15s, box-shadow 0.15s, transform 0.12s;
+    }
+
+    .team-chip:hover {
+      border-color: #0071e3;
+      box-shadow: 0 0 0 3px rgba(0,113,227,0.08);
+      transform: translateY(-1px);
+    }
+
+    .team-chip-logo {
+      width: 18px;
+      height: 18px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
+    .team-chip-text {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #1d1d1f;
+      white-space: nowrap;
+    }
+
+    .team-chip-badge {
+      font-size: 9.5px;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 4px;
+      letter-spacing: 0.04em;
+      margin-left: 2px;
+    }
+
+    .badge-nat  { background: #eef4ff; color: #0071e3; }
+    .badge-club { background: #f5f0e8; color: #b07800; }
 
     /* STATS */
     .stats-row {
@@ -646,9 +755,7 @@ const related = allPlayers
     }
 
     /* SEE ALSO */
-    .see-also {
-      margin-top: 40px;
-    }
+    .see-also { margin-top: 40px; }
 
     .see-also-label {
       font-size: 11px;
@@ -660,11 +767,7 @@ const related = allPlayers
       padding-left: 2px;
     }
 
-    .see-also-grid {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
+    .see-also-grid { display: flex; gap: 10px; flex-wrap: wrap; }
 
     .see-also-card {
       text-decoration: none;
@@ -714,11 +817,7 @@ const related = allPlayers
       margin-bottom: 4px;
     }
 
-    .sa-meta {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
+    .sa-meta { display: flex; align-items: center; gap: 6px; }
 
     .sa-role {
       font-size: 9.5px;
@@ -803,6 +902,27 @@ const related = allPlayers
         <div class="ovr-label">Overall</div>
       </div>
     </div>
+
+    <!-- ALL-TIME TEAMS STRIP -->
+    {playerTeams.length > 0 && (
+      <div class="teams-strip">
+        <span class="teams-strip-label">All-Time</span>
+        {playerTeams.map(t => (
+          <a href={`/team/${t.slug}`} class="team-chip">
+            <img
+              src={`/teams/${t.slug}.svg`}
+              class="team-chip-logo"
+              alt={t.displayName}
+              onerror="this.style.display='none'"
+            />
+            <span class="team-chip-text">{t.displayName}</span>
+            <span class={`team-chip-badge ${t.isNational ? 'badge-nat' : 'badge-club'}`}>
+              {t.isNational ? 'NT' : 'Club'}
+            </span>
+          </a>
+        ))}
+      </div>
+    )}
 
     <!-- STATS -->
     <div class="stats-row">
