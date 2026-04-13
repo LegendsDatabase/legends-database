@@ -14,8 +14,6 @@ export async function getStaticPaths() {
 
 const { player: p, allPlayers, allTeams } = Astro.props;
 
-// ─── ROLE FULL NAME ───────────────────────────────────────────────────────
-
 const ROLE_NAMES = {
   GK: 'Goalkeeper', SW: 'Sweeper',   CB: 'Centre-back',
   RB: 'Right Back', LB: 'Left Back', DM: 'Defensive Midfielder',
@@ -24,8 +22,6 @@ const ROLE_NAMES = {
   RW: 'Right Winger', LW: 'Left Winger', ST: 'Striker',
 };
 const fullRoleName = ROLE_NAMES[p.role] ?? p.role;
-
-// ─── NATIONAL BORDER ──────────────────────────────────────────────────────
 
 const NATION_COLORS = {
   'Italy':           ['#009246','#ffffff','#ce2b37'],
@@ -87,8 +83,6 @@ const gradientStops     = hasGradientBorder
   : '';
 const solidColor = hasSolidBorder ? nationColors[0] : '#e8e8ed';
 
-// ─── COLORS ───────────────────────────────────────────────────────────────
-
 function ovrColor(v) {
   if (v >= 95) return '#0071e3';
   if (v >= 90) return '#1a5e1a';
@@ -110,8 +104,6 @@ function skillColor(v) {
   return '#c0392b';
 }
 
-// ─── AVERAGES ─────────────────────────────────────────────────────────────
-
 function avg(vals) {
   const v = vals.filter(x => x != null && !isNaN(Number(x)));
   return v.length ? Math.round(v.reduce((a, b) => a + Number(b), 0) / v.length) : 0;
@@ -126,8 +118,6 @@ function weightedAvg(values, weights) {
   }
   return totalW > 0 ? Math.round(sum / totalW) : 0;
 }
-
-// ─── WEIGHT TABLES ────────────────────────────────────────────────────────
 
 const TECH_W = {
   CB:[0.40,0.60,0.60,0.10,0.10,0.10,0.80,1.00,0,0,0.60],
@@ -164,8 +154,6 @@ const TACT_W = {
   LW:[0.70,0.70,0.20,0.50,0.65,0.00], FW:[0.80,0.75,0.10,0.45,0.70,0.00],
   ST:[0.60,1.00,0.10,0.45,0.80,0.00],
 };
-
-// ─── SKILL DEFINITIONS ────────────────────────────────────────────────────
 
 const athleticSkills = [
   { key: 'acceleration', label: 'ACC', full: 'Acceleration' },
@@ -218,8 +206,6 @@ const gkSkills = [
 
 const isGK = p.role === 'GK';
 
-// ─── AVERAGES ─────────────────────────────────────────────────────────────
-
 const athleticAvg  = avg(athleticSkills.map(s => p[s.key]));
 const technicalAvg = isGK ? avg(technicalSkills.map(s => p[s.key]))
   : weightedAvg(technicalSkills.map(s => p[s.key]), TECH_W[p.role] ?? TECH_W['CM']);
@@ -228,8 +214,6 @@ const mentalAvg    = isGK ? avg(mentalSkills.map(s => p[s.key]))
 const tacticalAvg  = isGK ? avg(tacticalSkills.map(s => p[s.key]))
   : weightedAvg(tacticalSkills.map(s => p[s.key]), TACT_W[p.role] ?? TACT_W['CM']);
 const gkAvg        = avg(gkSkills.map(s => p[s.key]));
-
-// ─── GAUGES ───────────────────────────────────────────────────────────────
 
 const attAvg        = avg([p.finishing, p.off_the_ball, p.composure, p.anticipation, p.shot_accuracy]);
 const playmakingAvg = avg([p.short_passing, p.long_passing, p.vision, p.composure]);
@@ -244,8 +228,6 @@ function gaugeDash(v) {
   return `${filled} ${FULL_CIRC}`;
 }
 
-// ─── ROLE & INITIALS ──────────────────────────────────────────────────────
-
 const initials = p.name.split(',').map(s => s.trim()[0]).join('').toUpperCase().slice(0, 2);
 
 function roleColor(role) {
@@ -258,8 +240,6 @@ function roleColor(role) {
   return { bg: '#f5f0e8', text: '#b07800' };
 }
 const rc = roleColor(p.role);
-
-// ─── TRAITS ───────────────────────────────────────────────────────────────
 
 const activeTraits = [];
 if (!isGK) {
@@ -326,6 +306,7 @@ function buildRosterIds(t) {
   rbR.forEach(q => used.add(q.id));
   const lbR = pickR(tp.filter(q => q.role === 'LB'), 2, used);
   lbR.forEach(q => used.add(q.id));
+
   const swA = sortByOvr(tp.filter(q => q.role === 'SW' && !used.has(q.id)));
   const cbA = sortByOvr(tp.filter(q => q.role === 'CB' && !used.has(q.id)));
   const swSlot = swA.length ? [swA[0]] : [];
@@ -344,20 +325,18 @@ function buildRosterIds(t) {
   const stR = pickR(tp.filter(q => q.role === 'ST'), 4, used);
   stR.forEach(q => used.add(q.id));
   const fwR = pickR(tp.filter(q => ['FW','RW','LW','ST'].includes(q.role)), 2, used);
+  fwR.forEach(q => used.add(q.id)); // ← FIX: riga mancante nella versione precedente
 
   return used;
 }
 
-// Check each team — only include if player is actually in the roster
 const playerTeams = allTeams
   .filter(t => {
     const isNat = t.type === 'national team' || t.type === 'national';
-    // Fast pre-filter: is player even in the pool?
     const inPool = isNat
       ? (p.nation ?? '').toLowerCase() === (t.name ?? '').toLowerCase()
       : (p.iconic_club ?? '').toLowerCase() === (t.name ?? '').toLowerCase();
     if (!inPool) return false;
-    // Full check: is player in the actual roster?
     const rosterIds = buildRosterIds(t);
     return rosterIds.has(p.id);
   })
@@ -439,7 +418,6 @@ const related = allPlayers
     }
     .back:hover { color: #0071e3; }
 
-    /* HERO */
     .hero {
       background: #ffffff;
       border-radius: 16px;
