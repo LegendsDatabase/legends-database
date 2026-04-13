@@ -10,8 +10,9 @@ const currentPath = Astro.url.pathname;
     <div class="nav-links">
       <a href="/" class={currentPath === '/' ? 'active' : ''}>Database</a>
       <a href="/teams" class={currentPath === '/teams' || currentPath.startsWith('/team/') ? 'active' : ''}>Teams</a>
+      <a href="/best" class={currentPath.startsWith('/best') ? 'active' : ''}>The Best</a>
+      <a href="/about" class={currentPath === '/about' ? 'active' : ''}>About</a>
       <a href="/legenda" class={currentPath === '/legenda' ? 'active' : ''}>Legend</a>
-<a href="/about" class={currentPath === '/about' ? 'active' : ''}>About</a>
     </div>
   </div>
 </nav>
@@ -19,17 +20,14 @@ const currentPath = Astro.url.pathname;
 <style>
   .nav {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
+    top: 0; left: 0; right: 0;
     z-index: 100;
     background: rgba(242, 242, 247, 0.82);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    border-bottom: 1px solid rgba(0,0,0,0.08);
     height: 44px;
   }
-
   .nav-inner {
     max-width: 1800px;
     margin: 0 auto;
@@ -39,11 +37,7 @@ const currentPath = Astro.url.pathname;
     align-items: center;
     justify-content: space-between;
   }
-
-  .nav-logo img {
-    display: block;
-  }
-
+  .nav-logo img { display: block; }
   .nav-links {
     position: absolute;
     left: 50%;
@@ -52,7 +46,6 @@ const currentPath = Astro.url.pathname;
     align-items: center;
     gap: 32px;
   }
-
   .nav-links a {
     font-family: -apple-system, 'SF Pro Text', 'Inter', sans-serif;
     font-size: 13px;
@@ -62,7 +55,6 @@ const currentPath = Astro.url.pathname;
     transition: color 0.15s;
     -webkit-font-smoothing: antialiased;
   }
-
   .nav-links a:hover { color: #1d1d1f; }
   .nav-links a.active { color: #1d1d1f; font-weight: 500; }
 </style>

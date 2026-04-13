@@ -1,0 +1,417 @@
+---
+import { supabase } from '../../../lib/supabase.js';
+import Navbar from '../../../components/Navbar.astro';
+
+export async function getStaticPaths() {
+  const { data: players } = await supabase.from('players').select('*');
+  const decades = [1950, 1960, 1970, 1980, 1990, 2000, 2010];
+  return decades.map(d => ({
+    params: { decade: String(d) },
+    props: { allPlayers: players ?? [] }
+  }));
+}
+
+const { decade } = Astro.params;
+const { allPlayers } = Astro.props;
+
+const decadeNum = Number(decade);
+const displayName = `All-Time ${decade}s`;
+
+// ─── UTILITY ──────────────────────────────────────────────────────────────
+
+function ovrColor(v) {
+  if (v >= 95) return '#0071e3';
+  if (v >= 90) return '#1a5e1a';
+  if (v >= 80) return '#2e8b2e';
+  if (v >= 70) return '#6aaa2a';
+  if (v >= 60) return '#c8a800';
+  if (v >= 50) return '#e07800';
+  if (v >= 40) return '#cc4400';
+  return '#c0392b';
+}
+
+function skillColor(v) {
+  if (v >= 95) return '#5aabff';
+  if (v >= 90) return '#1a5e1a';
+  if (v >= 80) return '#2e8b2e';
+  if (v >= 70) return '#6aaa2a';
+  if (v >= 60) return '#c8a800';
+  if (v >= 40) return '#e07800';
+  return '#c0392b';
+}
+
+function avg(vals) {
+  const v = vals.filter(x => x != null && !isNaN(Number(x)));
+  return v.length ? Math.round(v.reduce((a, b) => a + Number(b), 0) / v.length) : 0;
+}
+
+function sortByOvr(arr) {
+  return [...arr].sort((a, b) =>
+    (b.overall_rating ?? 0) - (a.overall_rating ?? 0) ||
+    (a.name ?? '').localeCompare(b.name ?? '')
+  );
+}
+
+function pick(pool, n, usedIds) {
+  return sortByOvr(pool.filter(p => !usedIds.has(p.id))).slice(0, n);
+}
+
+function pAtt(p)  { return avg([p.finishing, p.off_the_ball, p.composure, p.anticipation, p.shot_accuracy]); }
+function pPlay(p) { return avg([p.short_passing, p.long_passing, p.vision, p.composure]); }
+function pDef(p)  { return avg([p.marking, p.tackling, p.def_positioning, p.anticipation, p.heading, p.composure]); }
+function pSpd(p)  { return avg([p.pace, p.acceleration]); }
+
+// ─── FILTER ───────────────────────────────────────────────────────────────
+
+const teamPlayers = allPlayers.filter(p => p.decade === decadeNum);
+
+// ─── ROSTER ───────────────────────────────────────────────────────────────
+
+const used = new Set();
+
+const gkR = pick(teamPlayers.filter(p => p.role === 'GK'), 3, used);
+gkR.forEach(p => used.add(p.id));
+
+const rbR = pick(teamPlayers.filter(p => p.role === 'RB'), 2, used);
+rbR.forEach(p => used.add(p.id));
+const lbR = pick(teamPlayers.filter(p => p.role === 'LB'), 2, used);
+lbR.forEach(p => used.add(p.id));
+const swAvail = sortByOvr(teamPlayers.filter(p => p.role === 'SW' && !used.has(p.id)));
+const cbAvail = sortByOvr(teamPlayers.filter(p => p.role === 'CB' && !used.has(p.id)));
+const swSlot  = swAvail.length ? [swAvail[0]] : [];
+swSlot.forEach(p => used.add(p.id));
+const centerPool = sortByOvr([...cbAvail.filter(p => !used.has(p.id)), ...swAvail.filter(p => !used.has(p.id))]);
+const centerR = [...swSlot, ...pick(centerPool, 4 - swSlot.length, used)];
+centerR.forEach(p => used.add(p.id));
+const defR = [...rbR, ...lbR, ...centerR];
+
+const dmR = pick(teamPlayers.filter(p => p.role === 'DM'), 2, used);
+dmR.forEach(p => used.add(p.id));
+const cmamR = pick(teamPlayers.filter(p => ['CM','AM'].includes(p.role)), 4, used);
+cmamR.forEach(p => used.add(p.id));
+const rmlmR = pick(teamPlayers.filter(p => ['RM','LM','CM','AM','DM'].includes(p.role)), 2, used);
+rmlmR.forEach(p => used.add(p.id));
+const midR = [...dmR, ...cmamR, ...rmlmR];
+
+const stR = pick(teamPlayers.filter(p => p.role === 'ST'), 4, used);
+stR.forEach(p => used.add(p.id));
+const fwR = pick(teamPlayers.filter(p => ['FW','RW','LW','ST'].includes(p.role)), 2, used);
+fwR.forEach(p => used.add(p.id));
+const attR = [...stR, ...fwR];
+
+const roster = [...gkR, ...defR, ...midR, ...attR];
+
+// ─── STATS ────────────────────────────────────────────────────────────────
+
+const teamOvr = avg(roster.map(p => p.overall_rating));
+const gkOvr   = avg(gkR.map(p => p.overall_rating));
+const defOvr  = avg(defR.map(p => p.overall_rating));
+const midOvr  = avg(midR.map(p => p.overall_rating));
+const attOvr  = avg(attR.map(p => p.overall_rating));
+
+function sortBy(arr, fn) {
+  return [...arr].sort((a, b) => fn(b) - fn(a) || (a.name ?? '').localeCompare(b.name ?? ''));
+}
+
+const bestPlayer = sortBy(roster, p => p.overall_rating ?? 0)[0];
+const bestTech   = sortBy(roster, p => p['first-touch'] ?? 0)[0];
+const fastestP   = sortBy(roster, p => pSpd(p))[0];
+const strongestP = sortBy(roster, p => p.strength ?? 0)[0];
+const mostAppsP  = sortBy(roster, p => p.nat_apps ?? 0)[0];
+const mostGoalsP = sortBy(roster, p => p.nat_goals ?? 0)[0];
+const bestRatioP = sortBy(roster.filter(p => (p.nat_apps ?? 0) >= 5), p => parseFloat(p.nat_goal_ratio ?? 0))[0];
+
+function hAvg(arr) {
+  const v = arr.map(p => p.height).filter(Boolean);
+  return v.length ? Math.round(v.reduce((a, b) => a + b, 0) / v.length) : null;
+}
+const hGK  = hAvg(gkR);
+const hDEF = hAvg(defR);
+const hMID = hAvg(midR);
+const hATT = hAvg(attR);
+const hTOT = hAvg(roster);
+
+const rosterData = roster.map(p => ({
+  name: p.name ?? '', slug: p.slug ?? '', role: p.role ?? '',
+  section: gkR.some(g => g.id === p.id) ? 'GK' : defR.some(d => d.id === p.id) ? 'DEF' : midR.some(m => m.id === p.id) ? 'MID' : 'ATT',
+  ovr: p.overall_rating ?? 0,
+  def: pDef(p), play: pPlay(p), att: pAtt(p),
+}));
+---
+
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>{displayName} – Legends Database</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style is:global>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, 'SF Pro Text', 'Inter', sans-serif;
+      background: #f2f2f7; color: #1d1d1f;
+      padding-top: 44px; font-size: 13px;
+      -webkit-font-smoothing: antialiased;
+    }
+    .page { max-width: 900px; margin: 0 auto; padding: 40px 40px 80px; }
+    .back {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 13px; color: #6e6e73; text-decoration: none;
+      margin-bottom: 28px; transition: color 0.15s;
+    }
+    .back:hover { color: #0071e3; }
+    .card {
+      background: #ffffff; border-radius: 16px; padding: 24px 28px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.04);
+      margin-bottom: 16px;
+    }
+    .card-title {
+      font-size: 11px; font-weight: 700; color: #aeaeb2;
+      letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 18px;
+    }
+    .hero {
+      background: #ffffff; border-radius: 16px; padding: 28px 32px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.04);
+      display: flex; align-items: center; gap: 28px; margin-bottom: 16px;
+    }
+    .decade-badge {
+      width: 72px; height: 72px; border-radius: 16px;
+      background: linear-gradient(135deg, #0071e3, #5ac8fa);
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(0,113,227,0.25);
+    }
+    .decade-badge-num {
+      font-size: 20px; font-weight: 700; color: #ffffff;
+      letter-spacing: -0.5px; line-height: 1;
+    }
+    .decade-badge-s {
+      font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.8);
+      letter-spacing: 0.05em;
+    }
+    .hero-body { flex: 1; min-width: 0; }
+    .team-name { font-size: 26px; font-weight: 600; letter-spacing: -0.5px; color: #1d1d1f; margin-bottom: 10px; }
+    .hero-tags { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+    .tag { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 6px; letter-spacing: 0.02em; }
+    .tag-blue { background: #eef4ff; color: #0071e3; }
+    .tag-grey { background: #f5f5f7; color: #6e6e73; }
+    .dept-grid { display: flex; align-items: center; }
+    .dept-item { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 0 22px 0 0; }
+    .dept-sep { width: 1px; height: 32px; background: #e5e5ea; margin-right: 22px; }
+    .dept-val { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; line-height: 1; }
+    .dept-label { font-size: 9.5px; font-weight: 700; color: #aeaeb2; letter-spacing: 0.07em; text-transform: uppercase; }
+    .ovr-block { text-align: center; flex-shrink: 0; }
+    .ovr-num { font-size: 40px; font-weight: 700; letter-spacing: -1.5px; line-height: 1; }
+    .ovr-sub { font-size: 10px; font-weight: 600; color: #aeaeb2; letter-spacing: 0.06em; text-transform: uppercase; margin-top: 2px; }
+    .roster-table { width: 100%; border-collapse: collapse; }
+    .roster-table thead th {
+      font-size: 10px; font-weight: 700; color: #aeaeb2; letter-spacing: 0.06em;
+      text-transform: uppercase; padding: 0 12px 12px; text-align: left;
+      border-bottom: 1px solid #f0f0f5; cursor: pointer; user-select: none;
+      white-space: nowrap; transition: color 0.12s;
+    }
+    .roster-table thead th:hover { color: #0071e3; }
+    .roster-table thead th.sorted { color: #0071e3; }
+    .roster-table thead th.col-stat, .roster-table thead th.col-ovr { text-align: right; }
+    .section-row td { font-size: 10px; font-weight: 700; color: #aeaeb2; letter-spacing: 0.07em; text-transform: uppercase; padding: 16px 12px 6px; background: #ffffff; }
+    .player-row td { padding: 10px 12px; border-bottom: 1px solid #f5f5f7; font-size: 12.5px; vertical-align: middle; }
+    .player-row:last-child td { border-bottom: none; }
+    .player-row:hover td { background: #f7f7f9; }
+    .player-link { color: #1d1d1f; text-decoration: none; font-weight: 500; transition: color 0.12s; }
+    .player-link:hover { color: #0071e3; }
+    .role-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 5px; letter-spacing: 0.04em; display: inline-block; }
+    .role-gk  { background: #f5f0e8; color: #b07800; }
+    .role-def { background: #eeffee; color: #1a7a1a; }
+    .role-mid { background: #eef4ff; color: #0071e3; }
+    .role-att { background: #fff0ee; color: #c0392b; }
+    .col-ovr, .col-stat { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .muted { color: #d1d1d6 !important; font-weight: 400 !important; }
+    .highlights-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+    .hl-card { background: #ffffff; border-radius: 14px; padding: 18px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); display: flex; flex-direction: column; gap: 6px; }
+    .hl-label { font-size: 10px; font-weight: 700; color: #aeaeb2; letter-spacing: 0.06em; text-transform: uppercase; }
+    .hl-name a { font-size: 13px; font-weight: 500; color: #1d1d1f; text-decoration: none; line-height: 1.3; }
+    .hl-name a:hover { color: #0071e3; }
+    .hl-val { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; line-height: 1; margin-top: 4px; }
+    .hl-unit { font-size: 11px; font-weight: 600; color: #aeaeb2; }
+    .records-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+    .rec-card { background: #ffffff; border-radius: 14px; padding: 18px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); display: flex; flex-direction: column; gap: 6px; }
+    .rec-label { font-size: 10px; font-weight: 700; color: #aeaeb2; letter-spacing: 0.06em; text-transform: uppercase; }
+    .rec-name a { font-size: 13px; font-weight: 500; color: #1d1d1f; text-decoration: none; }
+    .rec-name a:hover { color: #0071e3; }
+    .rec-val { font-size: 26px; font-weight: 700; color: #1d1d1f; letter-spacing: -0.5px; line-height: 1; margin-top: 4px; }
+    .rec-unit { font-size: 11px; font-weight: 500; color: #aeaeb2; }
+    .height-grid { display: grid; grid-template-columns: repeat(5, 1fr); }
+    .height-item { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 0; border-right: 1px solid #f0f0f5; }
+    .height-item:last-child { border-right: none; }
+    .height-val { font-size: 20px; font-weight: 600; color: #1d1d1f; letter-spacing: -0.3px; }
+    .height-label { font-size: 10px; font-weight: 600; color: #aeaeb2; letter-spacing: 0.05em; text-transform: uppercase; }
+    .height-item.total .height-val, .height-item.total .height-label { color: #0071e3; }
+  </style>
+</head>
+
+<body>
+  <Navbar />
+  <div class="page">
+    <a href="/best" class="back">← The Best</a>
+
+    <div class="hero">
+      <div class="decade-badge">
+        <div class="decade-badge-num">{decade}</div>
+        <div class="decade-badge-s">era</div>
+      </div>
+      <div class="hero-body">
+        <h1 class="team-name">{displayName}</h1>
+        <div class="hero-tags">
+          <span class="tag tag-blue">By Decade</span>
+          <span class="tag tag-grey">{roster.length} Players</span>
+        </div>
+        <div class="dept-grid">
+          <div class="dept-item">
+            <span class="dept-val" style={`color:${ovrColor(gkOvr)}`}>{gkOvr}</span>
+            <span class="dept-label">GK</span>
+          </div>
+          <div class="dept-sep"></div>
+          <div class="dept-item">
+            <span class="dept-val" style={`color:${ovrColor(defOvr)}`}>{defOvr}</span>
+            <span class="dept-label">DEF</span>
+          </div>
+          <div class="dept-sep"></div>
+          <div class="dept-item">
+            <span class="dept-val" style={`color:${ovrColor(midOvr)}`}>{midOvr}</span>
+            <span class="dept-label">MID</span>
+          </div>
+          <div class="dept-sep"></div>
+          <div class="dept-item">
+            <span class="dept-val" style={`color:${ovrColor(attOvr)}`}>{attOvr}</span>
+            <span class="dept-label">ATT</span>
+          </div>
+        </div>
+      </div>
+      <div class="ovr-block">
+        <div class="ovr-num" style={`color:${ovrColor(teamOvr)}`}>{teamOvr}</div>
+        <div class="ovr-sub">Overall</div>
+      </div>
+    </div>
+
+    {roster.length === 0 && (
+      <div class="card" style="text-align:center; color:#aeaeb2; padding: 40px;">
+        No players found for the {decade}s.
+      </div>
+    )}
+
+    {roster.length > 0 && <>
+      <div class="card">
+        <div class="card-title">Roster</div>
+        <table class="roster-table" id="rosterTable">
+          <thead><tr>
+            <th data-col="name">Player <span></span></th>
+            <th data-col="role">Role <span></span></th>
+            <th class="col-ovr" data-col="ovr">OVR <span></span></th>
+            <th class="col-stat" data-col="def">DEF <span></span></th>
+            <th class="col-stat" data-col="play">PLAY <span></span></th>
+            <th class="col-stat" data-col="att">ATT <span></span></th>
+          </tr></thead>
+          <tbody id="rosterBody"></tbody>
+        </table>
+      </div>
+
+      <div class="highlights-grid">
+        {bestPlayer && <div class="hl-card"><div class="hl-label">Best Player</div><div class="hl-name"><a href={`/player/${bestPlayer.slug}`}>{bestPlayer.name}</a></div><div class="hl-val" style={`color:${ovrColor(bestPlayer.overall_rating)}`}>{bestPlayer.overall_rating}</div></div>}
+        {fastestP && <div class="hl-card"><div class="hl-label">Fastest</div><div class="hl-name"><a href={`/player/${fastestP.slug}`}>{fastestP.name}</a></div><div class="hl-val" style={`color:${skillColor(pSpd(fastestP))}`}>{pSpd(fastestP)} <span class="hl-unit">SPD</span></div></div>}
+        {bestTech && <div class="hl-card"><div class="hl-label">Most Technical</div><div class="hl-name"><a href={`/player/${bestTech.slug}`}>{bestTech.name}</a></div><div class="hl-val" style={`color:${skillColor(bestTech['first-touch'] ?? 0)}`}>{bestTech['first-touch']} <span class="hl-unit">1-TCH</span></div></div>}
+        {strongestP && <div class="hl-card"><div class="hl-label">Strongest</div><div class="hl-name"><a href={`/player/${strongestP.slug}`}>{strongestP.name}</a></div><div class="hl-val" style={`color:${skillColor(strongestP.strength ?? 0)}`}>{strongestP.strength} <span class="hl-unit">STR</span></div></div>}
+      </div>
+
+      <div class="records-grid">
+        {mostAppsP && <div class="rec-card"><div class="rec-label">Most Caps</div><div class="rec-name"><a href={`/player/${mostAppsP.slug}`}>{mostAppsP.name}</a></div><div class="rec-val">{mostAppsP.nat_apps} <span class="rec-unit">apps</span></div></div>}
+        {mostGoalsP && <div class="rec-card"><div class="rec-label">Top Scorer</div><div class="rec-name"><a href={`/player/${mostGoalsP.slug}`}>{mostGoalsP.name}</a></div><div class="rec-val">{mostGoalsP.nat_goals} <span class="rec-unit">goals</span></div></div>}
+        {bestRatioP && <div class="rec-card"><div class="rec-label">Best Goal Ratio</div><div class="rec-name"><a href={`/player/${bestRatioP.slug}`}>{bestRatioP.name}</a></div><div class="rec-val">{parseFloat(bestRatioP.nat_goal_ratio).toFixed(2)} <span class="rec-unit">per game</span></div></div>}
+      </div>
+
+      <div class="card">
+        <div class="card-title">Average Height</div>
+        <div class="height-grid">
+          <div class="height-item"><div class="height-val">{hGK ? hGK + ' cm' : '—'}</div><div class="height-label">GK</div></div>
+          <div class="height-item"><div class="height-val">{hDEF ? hDEF + ' cm' : '—'}</div><div class="height-label">DEF</div></div>
+          <div class="height-item"><div class="height-val">{hMID ? hMID + ' cm' : '—'}</div><div class="height-label">MID</div></div>
+          <div class="height-item"><div class="height-val">{hATT ? hATT + ' cm' : '—'}</div><div class="height-label">ATT</div></div>
+          <div class="height-item total"><div class="height-val">{hTOT ? hTOT + ' cm' : '—'}</div><div class="height-label">Squad Avg</div></div>
+        </div>
+      </div>
+    </>}
+  </div>
+
+<script define:vars={{ rosterData }}>
+  function ovrColor(v) {
+    if (v >= 95) return '#0071e3'; if (v >= 90) return '#1a5e1a';
+    if (v >= 80) return '#2e8b2e'; if (v >= 70) return '#6aaa2a';
+    if (v >= 60) return '#c8a800'; if (v >= 50) return '#e07800';
+    if (v >= 40) return '#cc4400'; return '#c0392b';
+  }
+  function skillColor(v) {
+    if (v >= 95) return '#5aabff'; if (v >= 90) return '#1a5e1a';
+    if (v >= 80) return '#2e8b2e'; if (v >= 70) return '#6aaa2a';
+    if (v >= 60) return '#c8a800'; if (v >= 40) return '#e07800';
+    return '#c0392b';
+  }
+  function roleCls(r) {
+    if (r === 'GK') return 'role-gk';
+    if (['CB','SW','RB','LB'].includes(r)) return 'role-def';
+    if (['DM','CM','AM','RM','LM'].includes(r)) return 'role-mid';
+    return 'role-att';
+  }
+  let currentSort = { col: null, dir: 1 };
+  function renderRoster(data) {
+    const tbody = document.getElementById('rosterBody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    const isSorted = currentSort.col !== null;
+    if (isSorted) {
+      [...data].sort((a, b) => {
+        let va = a[currentSort.col], vb = b[currentSort.col];
+        if (typeof va === 'string') return va.localeCompare(vb) * currentSort.dir;
+        return (vb - va) * currentSort.dir;
+      }).forEach(p => tbody.appendChild(makeRow(p)));
+    } else {
+      ['GK','DEF','MID','ATT'].forEach(sec => {
+        const group = data.filter(p => p.section === sec);
+        if (!group.length) return;
+        const labels = { GK: 'Goalkeepers', DEF: 'Defenders', MID: 'Midfielders', ATT: 'Attackers' };
+        const hr = document.createElement('tr'); hr.className = 'section-row';
+        hr.innerHTML = `<td colspan="6">${labels[sec]}</td>`; tbody.appendChild(hr);
+        group.forEach(p => tbody.appendChild(makeRow(p)));
+      });
+    }
+  }
+  function makeRow(p) {
+    const tr = document.createElement('tr'); tr.className = 'player-row';
+    const isGK = p.role === 'GK';
+    tr.innerHTML = `
+      <td><a href="/player/${p.slug}" class="player-link">${p.name}</a></td>
+      <td><span class="role-badge ${roleCls(p.role)}">${p.role}</span></td>
+      <td class="col-ovr" style="color:${ovrColor(p.ovr)}">${p.ovr}</td>
+      <td class="col-stat${isGK?' muted':''}" style="${isGK?'':` color:${skillColor(p.def)}`}">${isGK?'—':p.def}</td>
+      <td class="col-stat${isGK?' muted':''}" style="${isGK?'':` color:${skillColor(p.play)}`}">${isGK?'—':p.play}</td>
+      <td class="col-stat${isGK?' muted':''}" style="${isGK?'':` color:${skillColor(p.att)}`}">${isGK?'—':p.att}</td>
+    `; return tr;
+  }
+  function updateHeaders() {
+    document.querySelectorAll('#rosterTable thead th').forEach(th => {
+      const col = th.getAttribute('data-col');
+      const span = th.querySelector('span');
+      th.classList.remove('sorted');
+      if (span) span.textContent = '';
+      if (col === currentSort.col) { th.classList.add('sorted'); if (span) span.textContent = currentSort.dir === 1 ? ' ↑' : ' ↓'; }
+    });
+  }
+  document.querySelectorAll('#rosterTable thead th').forEach(th => {
+    th.addEventListener('click', () => {
+      const col = th.getAttribute('data-col'); if (!col) return;
+      if (currentSort.col === col) { currentSort.dir === 1 ? currentSort.dir = -1 : (currentSort = { col: null, dir: 1 }); }
+      else { currentSort = { col, dir: 1 }; }
+      updateHeaders(); renderRoster(rosterData);
+    });
+  });
+  renderRoster(rosterData);
+</script>
+</body>
+</html>
