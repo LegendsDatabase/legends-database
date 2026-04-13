@@ -4,13 +4,14 @@ import Navbar from '../../components/Navbar.astro';
 
 export async function getStaticPaths() {
   const { data: players } = await supabase.from('players').select('*');
-  return (players ?? []).map(p => ({
+  const all = players ?? [];
+  return all.map(p => ({
     params: { slug: p.slug },
-    props: { player: p },
+    props: { player: p, allPlayers: all }
   }));
 }
 
-const { player: p } = Astro.props;
+const { player: p, allPlayers } = Astro.props;
 
 // ─── ROLE FULL NAME ───────────────────────────────────────────────────────
 
@@ -38,7 +39,7 @@ const NATION_COLORS = {
   'Belgium':         ['#000000','#fdda24','#ef3340'],
   'Uruguay':         ['#ffffff','#5aaae7'],
   'Croatia':         ['#ff0000','#ffffff','#171796'],
-  'Czech Rep.':  ['#d7141a','#ffffff','#11457e'],
+  'Czech Republic':  ['#d7141a','#ffffff','#11457e'],
   'Czechoslovakia':  ['#d7141a','#ffffff','#11457e'],
   'Denmark':         ['#c60c30','#ffffff'],
   'Sweden':          ['#006aa7','#fecc02'],
@@ -53,7 +54,7 @@ const NATION_COLORS = {
   'Switzerland':     ['#ff0000','#ffffff'],
   'Scotland':        ['#003087','#ffffff'],
   'Wales':           ['#c8102e','#00a651'],
-  'Northern Ireland': ['#169b62','#ffffff','#ff883e'],
+  'Republic of Ireland': ['#169b62','#ffffff','#ff883e'],
   'Ireland':         ['#169b62','#ffffff','#ff883e'],
   'Greece':          ['#0d5eaf','#ffffff'],
   'Turkey':          ['#e30a17','#ffffff'],
@@ -64,10 +65,6 @@ const NATION_COLORS = {
   'Colombia':        ['#fcd116','#003087','#ce1126'],
   'Mexico':          ['#006847','#ffffff','#ce1126'],
   'Chile':           ['#d52b1e','#ffffff','#002868'],
-  'Paraguay':        ['#d52b1e','#ffffff','#009bde'],
-  'Ecuador':         ['#ffda00','#003580','#ee1c25'],
-  'Peru':            ['#d91023','#ffffff','#d91023'],
-  'Colombia':        ['#fcd116','#003087','#ce1126'],
   'Japan':           ['#ffffff','#bc002d'],
   'South Korea':     ['#ffffff','#003478','#cd2e3a'],
   'Australia':       ['#00008b','#ffffff','#ff0000'],
@@ -81,10 +78,10 @@ const NATION_COLORS = {
   'Morocco':         ['#c1272d','#006233'],
 };
 
-const nationColors = NATION_COLORS[p.nation] ?? null;
+const nationColors      = NATION_COLORS[p.nation] ?? null;
 const hasSolidBorder    = nationColors && nationColors.length === 1;
 const hasGradientBorder = nationColors && nationColors.length >= 2;
-const gradientStops = hasGradientBorder
+const gradientStops     = hasGradientBorder
   ? nationColors.map((c, i) => `${c} ${Math.round((i / (nationColors.length - 1)) * 100)}%`).join(', ')
   : '';
 const solidColor = hasSolidBorder ? nationColors[0] : '#e8e8ed';
@@ -132,9 +129,7 @@ function weightedAvg(values, weights) {
   return totalW > 0 ? Math.round(sum / totalW) : 0;
 }
 
-// ─── WEIGHT TABLES ───────────────────────────────────────────────────────
-// Technical: [dribbling, short_passing, long_passing, finishing, shot_accuracy, shot_power, heading, tackling, free_kick, penalties, first-touch]
-// free_kick and penalties = 0 for all roles (situational, excluded from avg)
+// ─── WEIGHT TABLES ────────────────────────────────────────────────────────
 
 const TECH_W = {
   CB: [0.40,0.60,0.60,0.10,0.10,0.10,0.80,1.00,0,0,0.60],
@@ -152,7 +147,6 @@ const TECH_W = {
   ST: [0.70,0.65,0.55,1.00,0.90,0.75,0.65,0.10,0,0,0.75],
 };
 
-// Mental: [composure, aggression, consistency, creativity, work_rate]
 const MEN_W = {
   CB: [0.85,0.70,1.00,0.00,0.70],
   SW: [0.90,0.50,1.00,0.00,0.60],
@@ -169,7 +163,6 @@ const MEN_W = {
   ST: [0.85,0.50,1.00,0.65,0.50],
 };
 
-// Tactical: [vision, off_the_ball, def_positioning, teamwork, anticipation, marking]
 const TACT_W = {
   CB: [0.60,0.35,1.00,0.65,0.90,0.95],
   SW: [0.75,0.65,0.75,0.80,0.75,0.70],
@@ -185,11 +178,6 @@ const TACT_W = {
   FW: [0.80,0.75,0.10,0.45,0.70,0.00],
   ST: [0.60,1.00,0.10,0.45,0.80,0.00],
 };
-
-// Default fallback (CM weights)
-const FALLBACK_TECH = TECH_W['CM'];
-const FALLBACK_MEN  = MEN_W['CM'];
-const FALLBACK_TACT = TACT_W['CM'];
 
 // ─── SKILL DEFINITIONS ────────────────────────────────────────────────────
 
@@ -244,33 +232,18 @@ const gkSkills = [
 
 const isGK = p.role === 'GK';
 
-// ─── CALCULATE AVERAGES ───────────────────────────────────────────────────
+// ─── AVERAGES ─────────────────────────────────────────────────────────────
 
-// Athletic: simple math average (unchanged)
-const athleticAvg = avg(athleticSkills.map(s => p[s.key]));
+const athleticAvg  = avg(athleticSkills.map(s => p[s.key]));
+const technicalAvg = isGK ? avg(technicalSkills.map(s => p[s.key]))
+  : weightedAvg(technicalSkills.map(s => p[s.key]), TECH_W[p.role] ?? TECH_W['CM']);
+const mentalAvg    = isGK ? avg(mentalSkills.map(s => p[s.key]))
+  : weightedAvg(mentalSkills.map(s => p[s.key]), MEN_W[p.role] ?? MEN_W['CM']);
+const tacticalAvg  = isGK ? avg(tacticalSkills.map(s => p[s.key]))
+  : weightedAvg(tacticalSkills.map(s => p[s.key]), TACT_W[p.role] ?? TACT_W['CM']);
+const gkAvg        = avg(gkSkills.map(s => p[s.key]));
 
-// Technical: weighted by role
-const techVals = technicalSkills.map(s => p[s.key]);
-const technicalAvg = isGK
-  ? avg(techVals)
-  : weightedAvg(techVals, TECH_W[p.role] ?? FALLBACK_TECH);
-
-// Mental: weighted by role
-const menVals = mentalSkills.map(s => p[s.key]);
-const mentalAvg = isGK
-  ? avg(menVals)
-  : weightedAvg(menVals, MEN_W[p.role] ?? FALLBACK_MEN);
-
-// Tactical: weighted by role
-const tactVals = tacticalSkills.map(s => p[s.key]);
-const tacticalAvg = isGK
-  ? avg(tactVals)
-  : weightedAvg(tactVals, TACT_W[p.role] ?? FALLBACK_TACT);
-
-// GK: simple math average (NEW)
-const gkAvg = avg(gkSkills.map(s => p[s.key]));
-
-// ─── GAUGE INFOGRAPHICS (unchanged) ──────────────────────────────────────
+// ─── GAUGES ───────────────────────────────────────────────────────────────
 
 const attAvg        = avg([p.finishing, p.off_the_ball, p.composure, p.anticipation, p.shot_accuracy]);
 const playmakingAvg = avg([p.short_passing, p.long_passing, p.vision, p.composure]);
@@ -285,11 +258,9 @@ function gaugeDash(v) {
   return `${filled} ${FULL_CIRC}`;
 }
 
-// ─── INITIALS ─────────────────────────────────────────────────────────────
+// ─── ROLE & INITIALS ──────────────────────────────────────────────────────
 
 const initials = p.name.split(',').map(s => s.trim()[0]).join('').toUpperCase().slice(0, 2);
-
-// ─── ROLE COLOR ───────────────────────────────────────────────────────────
 
 function roleColor(role) {
   const att = ['ST','FW','RW','LW'];
@@ -302,10 +273,9 @@ function roleColor(role) {
 }
 const rc = roleColor(p.role);
 
-// ─── PLAYER TRAITS ────────────────────────────────────────────────────────
+// ─── TRAITS ───────────────────────────────────────────────────────────────
 
 const activeTraits = [];
-
 if (!isGK) {
   if ((p.jumping ?? 0) + (p.heading ?? 0) > 170)
     activeTraits.push({ file: '/traits/aerialthreat.svg',      tooltip: 'Aerial Threat' });
@@ -341,7 +311,51 @@ if (!isGK) {
     activeTraits.push({ file: '/traits/greatpasser.svg',        tooltip: 'Great Passer' });
 }
 
-const logoSrc = `/teams/${p.slug}.svg`;
+// ─── SEE ALSO — related players ───────────────────────────────────────────
+
+// Role compatibility groups — no cross-macro-area
+const ROLE_COMPAT = {
+  GK: ['GK'],
+  CB: ['CB','SW'],
+  SW: ['SW','CB'],
+  RB: ['RB','LB'],
+  LB: ['LB','RB'],
+  DM: ['DM','CM'],
+  CM: ['CM','DM','AM'],
+  RM: ['RM','LM','AM','CM'],
+  LM: ['LM','RM','AM','CM'],
+  AM: ['AM','CM','FW','RW','LW'],
+  FW: ['FW','ST','AM','RW','LW'],
+  RW: ['RW','LW','AM','FW'],
+  LW: ['LW','RW','AM','FW'],
+  ST: ['ST','FW'],
+};
+
+// Parse keywords into a clean set
+function parseKw(str) {
+  if (!str) return new Set();
+  return new Set(str.split(',').map(s => s.trim().toLowerCase()).filter(Boolean));
+}
+
+const myKw        = parseKw(p.keywords);
+const compatRoles = ROLE_COMPAT[p.role] ?? [p.role];
+
+const related = allPlayers
+  .filter(q => q.id !== p.id && q.slug && compatRoles.includes(q.role))
+  .map(q => {
+    let score = 0;
+    // Role score
+    if (q.role === p.role) score += 3;
+    else score += 1;
+    // Keyword overlap
+    const theirKw = parseKw(q.keywords);
+    myKw.forEach(k => { if (theirKw.has(k)) score += 1; });
+    return { q, score };
+  })
+  .filter(x => x.score > 0)
+  .sort((a, b) => b.score - a.score || (b.q.overall_rating ?? 0) - (a.q.overall_rating ?? 0))
+  .slice(0, 5)
+  .map(x => x.q);
 ---
 
 <html>
@@ -443,7 +457,6 @@ const logoSrc = `/teams/${p.slug}.svg`;
     }
 
     .bio-grid { display: flex; gap: 20px; flex-wrap: wrap; }
-
     .bio-item { display: flex; flex-direction: column; gap: 1px; }
 
     .bio-label {
@@ -600,7 +613,6 @@ const logoSrc = `/teams/${p.slug}.svg`;
     }
 
     .trait-icon:hover { transform: scale(1.07); }
-
     .trait-icon img { width: 60px; height: 60px; display: block; object-fit: contain; }
 
     .trait-icon[data-tip]:hover::after {
@@ -633,6 +645,95 @@ const logoSrc = `/teams/${p.slug}.svg`;
       z-index: 20;
     }
 
+    /* SEE ALSO */
+    .see-also {
+      margin-top: 40px;
+    }
+
+    .see-also-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #aeaeb2;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      padding-left: 2px;
+    }
+
+    .see-also-grid {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .see-also-card {
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 14px 18px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      transition: box-shadow 0.15s, transform 0.15s;
+      flex: 1;
+      min-width: 160px;
+      max-width: calc(20% - 8px);
+    }
+
+    .see-also-card:hover {
+      box-shadow: 0 3px 12px rgba(0,0,0,0.10);
+      transform: translateY(-1px);
+    }
+
+    .sa-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #e8e8ed;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: #6e6e73;
+      flex-shrink: 0;
+      letter-spacing: -0.3px;
+    }
+
+    .sa-body { flex: 1; min-width: 0; }
+
+    .sa-name {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #1d1d1f;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.3;
+      margin-bottom: 4px;
+    }
+
+    .sa-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .sa-role {
+      font-size: 9.5px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 4px;
+      letter-spacing: 0.04em;
+    }
+
+    .sa-ovr {
+      font-size: 11px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
     @media (max-width: 600px) {
       .page { padding: 24px 20px 60px; }
       .hero { flex-direction: column; align-items: flex-start; gap: 16px; }
@@ -642,6 +743,7 @@ const logoSrc = `/teams/${p.slug}.svg`;
       .skill-card.full-width { grid-column: auto; }
       .traits-grid { grid-template-columns: repeat(5, 52px); gap: 10px; }
       .trait-icon, .trait-icon img { width: 52px; height: 52px; }
+      .see-also-card { max-width: calc(50% - 5px); }
     }
   </style>
 </head>
@@ -712,7 +814,7 @@ const logoSrc = `/teams/${p.slug}.svg`;
       <div class="stat-card"><div class="sv">{p.nat_goal_ratio}</div><div class="sl">Nat Ratio</div></div>
     </div>
 
-    <!-- GAUGES (non-GK only) -->
+    <!-- GAUGES -->
     {!isGK && (
       <div class="gauge-section">
         <div class="gauge-item">
@@ -722,7 +824,7 @@ const logoSrc = `/teams/${p.slug}.svg`;
             <circle cx="60" cy="62" r={GAUGE_R} fill="none" stroke={skillColor(attAvg)} stroke-width="9"
               stroke-dasharray={gaugeDash(attAvg)} transform="rotate(180 60 62)" stroke-linecap="round" />
             <text x="60" y="57" text-anchor="middle" font-size="22" font-weight="700" fill="#1d1d1f"
-              font-family="-apple-system, 'SF Pro Text', sans-serif">{attAvg}</text>
+              font-family="-apple-system,'SF Pro Text',sans-serif">{attAvg}</text>
           </svg>
           <div class="gauge-label" title="Avg: Finishing, Off the Ball, Composure, Anticipation, Shot Accuracy">Att. Skills</div>
         </div>
@@ -733,7 +835,7 @@ const logoSrc = `/teams/${p.slug}.svg`;
             <circle cx="60" cy="62" r={GAUGE_R} fill="none" stroke={skillColor(playmakingAvg)} stroke-width="9"
               stroke-dasharray={gaugeDash(playmakingAvg)} transform="rotate(180 60 62)" stroke-linecap="round" />
             <text x="60" y="57" text-anchor="middle" font-size="22" font-weight="700" fill="#1d1d1f"
-              font-family="-apple-system, 'SF Pro Text', sans-serif">{playmakingAvg}</text>
+              font-family="-apple-system,'SF Pro Text',sans-serif">{playmakingAvg}</text>
           </svg>
           <div class="gauge-label" title="Avg: Short Passing, Long Passing, Vision, Composure">Playmaking</div>
         </div>
@@ -744,7 +846,7 @@ const logoSrc = `/teams/${p.slug}.svg`;
             <circle cx="60" cy="62" r={GAUGE_R} fill="none" stroke={skillColor(defAvg)} stroke-width="9"
               stroke-dasharray={gaugeDash(defAvg)} transform="rotate(180 60 62)" stroke-linecap="round" />
             <text x="60" y="57" text-anchor="middle" font-size="22" font-weight="700" fill="#1d1d1f"
-              font-family="-apple-system, 'SF Pro Text', sans-serif">{defAvg}</text>
+              font-family="-apple-system,'SF Pro Text',sans-serif">{defAvg}</text>
           </svg>
           <div class="gauge-label" title="Avg: Marking, Tackling, Def. Positioning, Anticipation, Heading, Composure">Def. Skills</div>
         </div>
@@ -755,15 +857,15 @@ const logoSrc = `/teams/${p.slug}.svg`;
     <div class="skills-grid">
 
       <div class="skill-card">
-        <div class="skill-cat" style="display:flex; justify-content:space-between; align-items:center;">
+        <div class="skill-cat" style="display:flex;justify-content:space-between;align-items:center;">
           <span>Athletic</span>
-          <span style={`font-weight:600; font-size:13px; color:${skillColor(athleticAvg)};`}>{athleticAvg}</span>
+          <span style={`font-weight:600;font-size:13px;color:${skillColor(athleticAvg)};`}>{athleticAvg}</span>
         </div>
         {athleticSkills.map(s => (
           <div class="skill-row">
             <span class="skill-abbr" title={s.full}>{s.label}</span>
             <div class="skill-bar-wrap">
-              <div class="skill-bar-fill" style={`width:${p[s.key]}%; background:${skillColor(p[s.key])};`}></div>
+              <div class="skill-bar-fill" style={`width:${p[s.key]}%;background:${skillColor(p[s.key])};`}></div>
             </div>
             <span class="skill-val">{p[s.key]}</span>
           </div>
@@ -771,15 +873,15 @@ const logoSrc = `/teams/${p.slug}.svg`;
       </div>
 
       <div class="skill-card">
-        <div class="skill-cat" style="display:flex; justify-content:space-between; align-items:center;">
+        <div class="skill-cat" style="display:flex;justify-content:space-between;align-items:center;">
           <span>Technical</span>
-          <span style={`font-weight:600; font-size:13px; color:${skillColor(technicalAvg)};`}>{technicalAvg}</span>
+          <span style={`font-weight:600;font-size:13px;color:${skillColor(technicalAvg)};`}>{technicalAvg}</span>
         </div>
         {technicalSkills.map(s => (
           <div class="skill-row">
             <span class="skill-abbr" title={s.full}>{s.label}</span>
             <div class="skill-bar-wrap">
-              <div class="skill-bar-fill" style={`width:${p[s.key]}%; background:${skillColor(p[s.key])};`}></div>
+              <div class="skill-bar-fill" style={`width:${p[s.key]}%;background:${skillColor(p[s.key])};`}></div>
             </div>
             <span class="skill-val">{p[s.key]}</span>
           </div>
@@ -787,15 +889,15 @@ const logoSrc = `/teams/${p.slug}.svg`;
       </div>
 
       <div class="skill-card">
-        <div class="skill-cat" style="display:flex; justify-content:space-between; align-items:center;">
+        <div class="skill-cat" style="display:flex;justify-content:space-between;align-items:center;">
           <span>Mental</span>
-          <span style={`font-weight:600; font-size:13px; color:${skillColor(mentalAvg)};`}>{mentalAvg}</span>
+          <span style={`font-weight:600;font-size:13px;color:${skillColor(mentalAvg)};`}>{mentalAvg}</span>
         </div>
         {mentalSkills.map(s => (
           <div class="skill-row">
             <span class="skill-abbr" title={s.full}>{s.label}</span>
             <div class="skill-bar-wrap">
-              <div class="skill-bar-fill" style={`width:${p[s.key]}%; background:${skillColor(p[s.key])};`}></div>
+              <div class="skill-bar-fill" style={`width:${p[s.key]}%;background:${skillColor(p[s.key])};`}></div>
             </div>
             <span class="skill-val">{p[s.key]}</span>
           </div>
@@ -803,15 +905,15 @@ const logoSrc = `/teams/${p.slug}.svg`;
       </div>
 
       <div class="skill-card">
-        <div class="skill-cat" style="display:flex; justify-content:space-between; align-items:center;">
+        <div class="skill-cat" style="display:flex;justify-content:space-between;align-items:center;">
           <span>Tactical</span>
-          <span style={`font-weight:600; font-size:13px; color:${skillColor(tacticalAvg)};`}>{tacticalAvg}</span>
+          <span style={`font-weight:600;font-size:13px;color:${skillColor(tacticalAvg)};`}>{tacticalAvg}</span>
         </div>
         {tacticalSkills.map(s => (
           <div class="skill-row">
             <span class="skill-abbr" title={s.full}>{s.label}</span>
             <div class="skill-bar-wrap">
-              <div class="skill-bar-fill" style={`width:${p[s.key]}%; background:${skillColor(p[s.key])};`}></div>
+              <div class="skill-bar-fill" style={`width:${p[s.key]}%;background:${skillColor(p[s.key])};`}></div>
             </div>
             <span class="skill-val">{p[s.key]}</span>
           </div>
@@ -820,15 +922,15 @@ const logoSrc = `/teams/${p.slug}.svg`;
 
       {isGK && (
         <div class="skill-card full-width">
-          <div class="skill-cat" style="display:flex; justify-content:space-between; align-items:center;">
+          <div class="skill-cat" style="display:flex;justify-content:space-between;align-items:center;">
             <span>Goalkeeping</span>
-            <span style={`font-weight:600; font-size:13px; color:${skillColor(gkAvg)};`}>{gkAvg}</span>
+            <span style={`font-weight:600;font-size:13px;color:${skillColor(gkAvg)};`}>{gkAvg}</span>
           </div>
           {gkSkills.map(s => (
             <div class="skill-row">
               <span class="skill-abbr" title={s.full}>{s.label}</span>
               <div class="skill-bar-wrap">
-                <div class="skill-bar-fill" style={`width:${p[s.key]}%; background:${skillColor(p[s.key])};`}></div>
+                <div class="skill-bar-fill" style={`width:${p[s.key]}%;background:${skillColor(p[s.key])};`}></div>
               </div>
               <span class="skill-val">{p[s.key]}</span>
             </div>
@@ -848,6 +950,31 @@ const logoSrc = `/teams/${p.slug}.svg`;
               <img src={t.file} alt={t.tooltip} />
             </div>
           ))}
+        </div>
+      </div>
+    )}
+
+    <!-- SEE ALSO -->
+    {related.length > 0 && (
+      <div class="see-also">
+        <div class="see-also-label">See also</div>
+        <div class="see-also-grid">
+          {related.map(q => {
+            const qInitials = q.name.split(',').map(s => s.trim()[0]).join('').toUpperCase().slice(0,2);
+            const qRc = roleColor(q.role);
+            return (
+              <a href={`/player/${q.slug}`} class="see-also-card">
+                <div class="sa-avatar">{qInitials}</div>
+                <div class="sa-body">
+                  <div class="sa-name">{q.name}</div>
+                  <div class="sa-meta">
+                    <span class="sa-role" style={`background:${qRc.bg};color:${qRc.text};`}>{q.role}</span>
+                    <span class="sa-ovr" style={`color:${ovrColor(q.overall_rating)};`}>{q.overall_rating}</span>
+                  </div>
+                </div>
+              </a>
+            );
+          })}
         </div>
       </div>
     )}
