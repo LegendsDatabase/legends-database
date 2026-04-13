@@ -3,11 +3,8 @@ import { supabase } from '../../lib/supabase.js';
 import Navbar from '../../components/Navbar.astro';
 
 export async function getStaticPaths() {
-  const { data: players } = await supabase
-    .from('players')
-    .select('*');
-
-  return players.map((p) => ({
+  const { data: players } = await supabase.from('players').select('*');
+  return (players ?? []).map(p => ({
     params: { slug: p.slug },
     props: { player: p },
   }));
@@ -15,98 +12,84 @@ export async function getStaticPaths() {
 
 const { player: p } = Astro.props;
 
-// ROLE FULL NAME MAP
-const ROLE_NAMES = {
-  GK: 'Goalkeeper',
-  SW: 'Sweeper',
-  CB: 'Centre-back',
-  RB: 'Right Back',
-  LB: 'Left Back',
-  DM: 'Defensive Midfielder',
-  CM: 'Centre Midfielder',
-  LM: 'Left Midfielder',
-  RM: 'Right Midfielder',
-  AM: 'Attacking Midfielder',
-  FW: 'Forward',
-  RW: 'Right Winger',
-  LW: 'Left Winger',
-  ST: 'Striker',
-};
+// ─── ROLE FULL NAME ───────────────────────────────────────────────────────
 
+const ROLE_NAMES = {
+  GK: 'Goalkeeper', SW: 'Sweeper',   CB: 'Centre-back',
+  RB: 'Right Back', LB: 'Left Back', DM: 'Defensive Midfielder',
+  CM: 'Centre Midfielder', LM: 'Left Midfielder', RM: 'Right Midfielder',
+  AM: 'Attacking Midfielder', FW: 'Forward',
+  RW: 'Right Winger', LW: 'Left Winger', ST: 'Striker',
+};
 const fullRoleName = ROLE_NAMES[p.role] ?? p.role;
 
-// NATION COLOR MAP
+// ─── NATIONAL BORDER ──────────────────────────────────────────────────────
+
 const NATION_COLORS = {
-  'Italy':           ['#009246', '#ffffff', '#ce2b37'],
-  'France':          ['#002395', '#ffffff', '#ed2939'],
-  'Germany':         ['#000000', '#dd0000', '#ffce00'],
-  'Spain':           ['#aa151b', '#f1bf00', '#aa151b'],
-  'Brazil':          ['#009c3b', '#ffdf00', '#002776'],
-  'Argentina':       ['#74acdf', '#ffffff', '#74acdf'],
-  'England':         ['#cf142b', '#ffffff'],
-  'Netherlands':     ['#ae1c28', '#ffffff', '#21468b'],
-  'Portugal':        ['#006600', '#ff0000'],
-  'Belgium':         ['#000000', '#fdda24', '#ef3340'],
-  'Uruguay':         ['#ffffff', '#5aaae7'],
-  'Croatia':         ['#ff0000', '#ffffff', '#171796'],
-  'Czech Rep.':  ['#d7141a', '#ffffff', '#11457e'],
-  'Denmark':         ['#c60c30', '#ffffff'],
-  'Sweden':          ['#006aa7', '#fecc02'],
-  'Norway':          ['#ef2b2d', '#ffffff', '#002868'],
-  'Poland':          ['#ffffff', '#dc143c'],
-  'Russia':          ['#ffffff', '#0039a6', '#d52b1e'],
-  'Soviet Union':    ['#cc0000', '#ffcc00'],
-  'Yugoslavia':      ['#003da5', '#de0000'],
-  'Romania':         ['#002b7f', '#fcd116', '#ce1126'],
-  'Hungary':         ['#ce2939', '#ffffff', '#477050'],
-  'Austria':         ['#ed2939', '#ffffff', '#ed2939'],
-  'Switzerland':     ['#ff0000', '#ffffff'],
-  'Scotland':        ['#003087', '#ffffff'],
-  'Wales':           ['#c8102e', '#00a651'],
-  'Ireland':         ['#169b62', '#ffffff', '#ff883e'],
-  'Northern Ireland':         ['#169b62', '#ffffff', '#ff883e'],
-  'Greece':          ['#0d5eaf', '#ffffff'],
-  'Turkey':          ['#e30a17', '#ffffff'],
-  'Serbia':          ['#c6363c', '#0c4076', '#ffffff'],
-  'Ukraine':         ['#005bbb', '#ffd500'],
-  'Slovakia':        ['#ffffff', '#0b4ea2', '#ee1c25'],
-  'Bulgaria':        ['#ffffff', '#00966e', '#d62612'],
-  'Colombia':        ['#fcd116', '#003087', '#ce1126'],
-  'Mexico':          ['#006847', '#ffffff', '#ce1126'],
-  'Chile':           ['#d52b1e', '#ffffff', '#002868'],
-  'Paraguay':        ['#d52b1e', '#ffffff', '#009bde'],
-  'Ecuador':         ['#ffda00', '#003580', '#ee1c25'],
-  'Peru':            ['#d91023', '#ffffff', '#d91023'],
-  'Bolivia':         ['#d52b1e', '#f4e400', '#007934'],
-  'Venezuela':       ['#cf142b', '#00247d', '#f4c300'],
-  'Costa Rica':      ['#002b7f', '#ffffff', '#ce1126'],
-  'United States':   ['#b22234', '#ffffff', '#3c3b6e'],
-  'USA':             ['#b22234', '#ffffff', '#3c3b6e'],
-  'Ghana':           ['#006b3f', '#fcd116', '#ce1126'],
-  'Nigeria':         ['#008751', '#ffffff'],
-  'Ivory Coast':     ['#f77f00', '#ffffff', '#009a00'],
-  'Cameroon':        ['#007a5e', '#ce1126', '#fcd116'],
-  'Senegal':         ['#00853f', '#fdef42', '#e31b23'],
-  'Morocco':         ['#c1272d', '#006233'],
-  'Egypt':           ['#ce1126', '#ffffff', '#000000'],
-  'Algeria':         ['#006233', '#ffffff', '#d21034'],
-  'Japan':           ['#ffffff', '#bc002d'],
-  'South Korea':     ['#ffffff', '#003478', '#cd2e3a'],
-  'Australia':       ['#00008b', '#ffffff', '#ff0000'],
-  'Saudi Arabia':    ['#006c35', '#ffffff'],
-  'Iran':            ['#239f40', '#ffffff', '#da0000'],
+  'Italy':           ['#009246','#ffffff','#ce2b37'],
+  'France':          ['#002395','#ffffff','#ed2939'],
+  'Germany':         ['#000000','#dd0000','#ffce00'],
+  'Spain':           ['#aa151b','#f1bf00','#aa151b'],
+  'Brazil':          ['#009c3b','#ffdf00','#002776'],
+  'Argentina':       ['#74acdf','#ffffff','#74acdf'],
+  'England':         ['#cf142b','#ffffff'],
+  'Netherlands':     ['#ae1c28','#ffffff','#21468b'],
+  'Portugal':        ['#006600','#ff0000'],
+  'Belgium':         ['#000000','#fdda24','#ef3340'],
+  'Uruguay':         ['#ffffff','#5aaae7'],
+  'Croatia':         ['#ff0000','#ffffff','#171796'],
+  'Czech Rep.':  ['#d7141a','#ffffff','#11457e'],
+  'Czechoslovakia':  ['#d7141a','#ffffff','#11457e'],
+  'Denmark':         ['#c60c30','#ffffff'],
+  'Sweden':          ['#006aa7','#fecc02'],
+  'Norway':          ['#ef2b2d','#ffffff','#002868'],
+  'Poland':          ['#ffffff','#dc143c'],
+  'Russia':          ['#ffffff','#0039a6','#d52b1e'],
+  'Soviet Union':    ['#cc0000','#ffcc00'],
+  'Yugoslavia':      ['#003da5','#de0000'],
+  'Romania':         ['#002b7f','#fcd116','#ce1126'],
+  'Hungary':         ['#ce2939','#ffffff','#477050'],
+  'Austria':         ['#ed2939','#ffffff','#ed2939'],
+  'Switzerland':     ['#ff0000','#ffffff'],
+  'Scotland':        ['#003087','#ffffff'],
+  'Wales':           ['#c8102e','#00a651'],
+  'Northern Ireland': ['#169b62','#ffffff','#ff883e'],
+  'Ireland':         ['#169b62','#ffffff','#ff883e'],
+  'Greece':          ['#0d5eaf','#ffffff'],
+  'Turkey':          ['#e30a17','#ffffff'],
+  'Serbia':          ['#c6363c','#0c4076','#ffffff'],
+  'Ukraine':         ['#005bbb','#ffd500'],
+  'Slovakia':        ['#ffffff','#0b4ea2','#ee1c25'],
+  'Bulgaria':        ['#ffffff','#00966e','#d62612'],
+  'Colombia':        ['#fcd116','#003087','#ce1126'],
+  'Mexico':          ['#006847','#ffffff','#ce1126'],
+  'Chile':           ['#d52b1e','#ffffff','#002868'],
+  'Paraguay':        ['#d52b1e','#ffffff','#009bde'],
+  'Ecuador':         ['#ffda00','#003580','#ee1c25'],
+  'Peru':            ['#d91023','#ffffff','#d91023'],
+  'Colombia':        ['#fcd116','#003087','#ce1126'],
+  'Japan':           ['#ffffff','#bc002d'],
+  'South Korea':     ['#ffffff','#003478','#cd2e3a'],
+  'Australia':       ['#00008b','#ffffff','#ff0000'],
+  'Saudi Arabia':    ['#006c35','#ffffff'],
+  'Iran':            ['#239f40','#ffffff','#da0000'],
+  'Ghana':           ['#006b3f','#fcd116','#ce1126'],
+  'Nigeria':         ['#008751','#ffffff'],
+  'Ivory Coast':     ['#f77f00','#ffffff','#009a00'],
+  'Cameroon':        ['#007a5e','#ce1126','#fcd116'],
+  'Senegal':         ['#00853f','#fdef42','#e31b23'],
+  'Morocco':         ['#c1272d','#006233'],
 };
 
 const nationColors = NATION_COLORS[p.nation] ?? null;
-const hasSolidBorder = nationColors && nationColors.length === 1;
+const hasSolidBorder    = nationColors && nationColors.length === 1;
 const hasGradientBorder = nationColors && nationColors.length >= 2;
-
-// Build gradient string for conic-gradient
 const gradientStops = hasGradientBorder
   ? nationColors.map((c, i) => `${c} ${Math.round((i / (nationColors.length - 1)) * 100)}%`).join(', ')
   : '';
-
 const solidColor = hasSolidBorder ? nationColors[0] : '#e8e8ed';
+
+// ─── COLORS ───────────────────────────────────────────────────────────────
 
 function ovrColor(v) {
   if (v >= 95) return '#0071e3';
@@ -129,24 +112,86 @@ function skillColor(v) {
   return '#c0392b';
 }
 
-function avg(arr) {
-  const valid = arr.filter(v => typeof v === 'number' && !isNaN(v));
-  if (valid.length === 0) return 0;
-  return Math.round(valid.reduce((a, b) => a + b, 0) / valid.length);
+// ─── AVERAGES ─────────────────────────────────────────────────────────────
+
+function avg(vals) {
+  const v = vals.filter(x => x != null && !isNaN(Number(x)));
+  return v.length ? Math.round(v.reduce((a, b) => a + Number(b), 0) / v.length) : 0;
 }
 
-function roleColor(role) {
-  const att = ['ST','FW','RW','LW'];
-  const mid = ['AM','CM','DM','RM','LM'];
-  const def = ['CB','SW','RB','LB'];
-  if (att.includes(role)) return { bg: '#fff0ee', text: '#c0392b' };
-  if (mid.includes(role)) return { bg: '#eef4ff', text: '#0071e3' };
-  if (def.includes(role)) return { bg: '#eeffee', text: '#1a7a1a' };
-  return { bg: '#f5f0e8', text: '#b07800' };
+function weightedAvg(values, weights) {
+  let sum = 0, totalW = 0;
+  for (let i = 0; i < values.length; i++) {
+    const v = Number(values[i]);
+    const w = weights[i] ?? 0;
+    if (!isNaN(v) && values[i] != null && w > 0) {
+      sum += v * w;
+      totalW += w;
+    }
+  }
+  return totalW > 0 ? Math.round(sum / totalW) : 0;
 }
 
-const rc = roleColor(p.role);
-const initials = p.name.split(',').map(s => s.trim()[0]).join('').toUpperCase().slice(0, 2);
+// ─── WEIGHT TABLES ───────────────────────────────────────────────────────
+// Technical: [dribbling, short_passing, long_passing, finishing, shot_accuracy, shot_power, heading, tackling, free_kick, penalties, first-touch]
+// free_kick and penalties = 0 for all roles (situational, excluded from avg)
+
+const TECH_W = {
+  CB: [0.40,0.60,0.60,0.10,0.10,0.10,0.80,1.00,0,0,0.60],
+  SW: [0.60,0.75,0.75,0.10,0.20,0.20,0.70,0.75,0,0,0.70],
+  RB: [0.75,0.75,0.80,0.20,0.25,0.40,0.50,0.65,0,0,0.75],
+  LB: [0.75,0.75,0.80,0.20,0.25,0.40,0.50,0.65,0,0,0.75],
+  DM: [0.50,0.70,0.70,0.30,0.40,0.40,0.50,0.70,0,0,0.65],
+  CM: [0.65,0.80,0.80,0.40,0.50,0.60,0.45,0.60,0,0,0.80],
+  LM: [0.70,0.75,0.85,0.50,0.60,0.65,0.40,0.50,0,0,0.80],
+  RM: [0.70,0.75,0.85,0.50,0.60,0.65,0.40,0.50,0,0,0.80],
+  AM: [0.85,0.85,0.80,0.70,0.70,0.70,0.40,0.30,0,0,0.90],
+  RW: [0.85,0.70,0.80,0.65,0.70,0.70,0.40,0.40,0,0,0.85],
+  LW: [0.85,0.70,0.80,0.65,0.70,0.70,0.40,0.40,0,0,0.85],
+  FW: [0.85,0.80,0.70,0.80,0.80,0.70,0.45,0.30,0,0,0.90],
+  ST: [0.70,0.65,0.55,1.00,0.90,0.75,0.65,0.10,0,0,0.75],
+};
+
+// Mental: [composure, aggression, consistency, creativity, work_rate]
+const MEN_W = {
+  CB: [0.85,0.70,1.00,0.00,0.70],
+  SW: [0.90,0.50,1.00,0.00,0.60],
+  RB: [0.70,0.55,1.00,0.20,0.75],
+  LB: [0.70,0.55,1.00,0.20,0.75],
+  DM: [0.75,0.75,1.00,0.20,0.80],
+  CM: [0.85,0.60,1.00,0.50,0.65],
+  LM: [0.70,0.55,1.00,0.50,0.65],
+  RM: [0.70,0.55,1.00,0.50,0.65],
+  AM: [0.85,0.50,1.00,0.75,0.55],
+  RW: [0.75,0.60,1.00,0.75,0.55],
+  LW: [0.75,0.60,1.00,0.75,0.55],
+  FW: [0.80,0.55,1.00,0.80,0.50],
+  ST: [0.85,0.50,1.00,0.65,0.50],
+};
+
+// Tactical: [vision, off_the_ball, def_positioning, teamwork, anticipation, marking]
+const TACT_W = {
+  CB: [0.60,0.35,1.00,0.65,0.90,0.95],
+  SW: [0.75,0.65,0.75,0.80,0.75,0.70],
+  RB: [0.65,0.70,0.70,0.75,0.70,0.60],
+  LB: [0.65,0.70,0.70,0.75,0.70,0.60],
+  DM: [0.75,0.40,0.75,0.65,0.60,0.65],
+  CM: [0.85,0.50,0.50,0.75,0.65,0.30],
+  LM: [0.75,0.65,0.45,0.65,0.65,0.40],
+  RM: [0.75,0.65,0.45,0.65,0.65,0.40],
+  AM: [0.90,0.70,0.30,0.75,0.65,0.00],
+  RW: [0.70,0.70,0.20,0.50,0.65,0.00],
+  LW: [0.70,0.70,0.20,0.50,0.65,0.00],
+  FW: [0.80,0.75,0.10,0.45,0.70,0.00],
+  ST: [0.60,1.00,0.10,0.45,0.80,0.00],
+};
+
+// Default fallback (CM weights)
+const FALLBACK_TECH = TECH_W['CM'];
+const FALLBACK_MEN  = MEN_W['CM'];
+const FALLBACK_TACT = TACT_W['CM'];
+
+// ─── SKILL DEFINITIONS ────────────────────────────────────────────────────
 
 const athleticSkills = [
   { key: 'acceleration', label: 'ACC', full: 'Acceleration' },
@@ -199,23 +244,65 @@ const gkSkills = [
 
 const isGK = p.role === 'GK';
 
-const athleticAvg   = avg(athleticSkills.map(s => p[s.key]));
-const technicalAvg  = avg(technicalSkills.map(s => p[s.key]));
-const mentalAvg     = avg(mentalSkills.map(s => p[s.key]));
-const tacticalAvg   = avg(tacticalSkills.map(s => p[s.key]));
+// ─── CALCULATE AVERAGES ───────────────────────────────────────────────────
+
+// Athletic: simple math average (unchanged)
+const athleticAvg = avg(athleticSkills.map(s => p[s.key]));
+
+// Technical: weighted by role
+const techVals = technicalSkills.map(s => p[s.key]);
+const technicalAvg = isGK
+  ? avg(techVals)
+  : weightedAvg(techVals, TECH_W[p.role] ?? FALLBACK_TECH);
+
+// Mental: weighted by role
+const menVals = mentalSkills.map(s => p[s.key]);
+const mentalAvg = isGK
+  ? avg(menVals)
+  : weightedAvg(menVals, MEN_W[p.role] ?? FALLBACK_MEN);
+
+// Tactical: weighted by role
+const tactVals = tacticalSkills.map(s => p[s.key]);
+const tacticalAvg = isGK
+  ? avg(tactVals)
+  : weightedAvg(tactVals, TACT_W[p.role] ?? FALLBACK_TACT);
+
+// GK: simple math average (NEW)
+const gkAvg = avg(gkSkills.map(s => p[s.key]));
+
+// ─── GAUGE INFOGRAPHICS (unchanged) ──────────────────────────────────────
 
 const attAvg        = avg([p.finishing, p.off_the_ball, p.composure, p.anticipation, p.shot_accuracy]);
 const playmakingAvg = avg([p.short_passing, p.long_passing, p.vision, p.composure]);
 const defAvg        = avg([p.marking, p.tackling, p.def_positioning, p.anticipation, p.heading, p.composure]);
 
-const GAUGE_R    = 45;
-const HALF_CIRC  = Math.PI * GAUGE_R;
-const FULL_CIRC  = 2 * Math.PI * GAUGE_R;
+const GAUGE_R   = 45;
+const HALF_CIRC = Math.PI * GAUGE_R;
+const FULL_CIRC = 2 * Math.PI * GAUGE_R;
 
 function gaugeDash(v) {
   const filled = (Math.max(0, Math.min(v, 99)) / 99) * HALF_CIRC;
   return `${filled} ${FULL_CIRC}`;
 }
+
+// ─── INITIALS ─────────────────────────────────────────────────────────────
+
+const initials = p.name.split(',').map(s => s.trim()[0]).join('').toUpperCase().slice(0, 2);
+
+// ─── ROLE COLOR ───────────────────────────────────────────────────────────
+
+function roleColor(role) {
+  const att = ['ST','FW','RW','LW'];
+  const mid = ['AM','CM','DM','RM','LM'];
+  const def = ['CB','SW','RB','LB'];
+  if (att.includes(role)) return { bg: '#fff0ee', text: '#c0392b' };
+  if (mid.includes(role)) return { bg: '#eef4ff', text: '#0071e3' };
+  if (def.includes(role)) return { bg: '#eeffee', text: '#1a7a1a' };
+  return { bg: '#f5f0e8', text: '#b07800' };
+}
+const rc = roleColor(p.role);
+
+// ─── PLAYER TRAITS ────────────────────────────────────────────────────────
 
 const activeTraits = [];
 
@@ -253,6 +340,8 @@ if (!isGK) {
   if ((p.short_passing ?? 0) > 90 || (p.long_passing ?? 0) > 90)
     activeTraits.push({ file: '/traits/greatpasser.svg',        tooltip: 'Great Passer' });
 }
+
+const logoSrc = `/teams/${p.slug}.svg`;
 ---
 
 <html>
@@ -260,7 +349,7 @@ if (!isGK) {
   <meta charset="UTF-8" />
   <title>{p.name} – Legends Database</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <style>
+  <style is:global>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
@@ -288,7 +377,6 @@ if (!isGK) {
       margin-bottom: 28px;
       transition: color 0.15s;
     }
-
     .back:hover { color: #0071e3; }
 
     /* HERO */
@@ -354,17 +442,9 @@ if (!isGK) {
       letter-spacing: 0.02em;
     }
 
-    .bio-grid {
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
+    .bio-grid { display: flex; gap: 20px; flex-wrap: wrap; }
 
-    .bio-item {
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
-    }
+    .bio-item { display: flex; flex-direction: column; gap: 1px; }
 
     .bio-label {
       font-size: 10px;
@@ -374,19 +454,9 @@ if (!isGK) {
       text-transform: uppercase;
     }
 
-    .bio-value {
-      font-size: 13px;
-      color: #1d1d1f;
-      font-weight: 500;
-    }
+    .bio-value { font-size: 13px; color: #1d1d1f; font-weight: 500; }
 
-    .ovr-badge {
-      font-size: 32px;
-      font-weight: 700;
-      letter-spacing: -1px;
-      line-height: 1;
-      flex-shrink: 0;
-    }
+    .ovr-badge { font-size: 32px; font-weight: 700; letter-spacing: -1px; line-height: 1; flex-shrink: 0; }
 
     .ovr-label {
       font-size: 10px;
@@ -414,23 +484,10 @@ if (!isGK) {
       box-shadow: 0 1px 3px rgba(0,0,0,0.06);
     }
 
-    .stat-card .sv {
-      font-size: 20px;
-      font-weight: 600;
-      color: #1d1d1f;
-      letter-spacing: -0.5px;
-    }
+    .stat-card .sv { font-size: 20px; font-weight: 600; color: #1d1d1f; letter-spacing: -0.5px; }
+    .stat-card .sl { font-size: 9.5px; font-weight: 600; color: #aeaeb2; letter-spacing: 0.05em; text-transform: uppercase; margin-top: 2px; }
 
-    .stat-card .sl {
-      font-size: 9.5px;
-      font-weight: 600;
-      color: #aeaeb2;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      margin-top: 2px;
-    }
-
-    /* GAUGE SECTION */
+    /* GAUGE */
     .gauge-section {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -448,11 +505,7 @@ if (!isGK) {
       align-items: center;
     }
 
-    .gauge-item svg {
-      width: 100%;
-      max-width: 140px;
-      overflow: visible;
-    }
+    .gauge-item svg { width: 100%; max-width: 140px; overflow: visible; }
 
     .gauge-label {
       font-size: 10px;
@@ -466,11 +519,7 @@ if (!isGK) {
     }
 
     /* SKILLS */
-    .skills-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-    }
+    .skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
     .skill-card {
       background: #ffffff;
@@ -490,13 +539,7 @@ if (!isGK) {
       margin-bottom: 14px;
     }
 
-    .skill-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 9px;
-    }
-
+    .skill-row { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; }
     .skill-row:last-child { margin-bottom: 0; }
 
     .skill-abbr {
@@ -508,18 +551,8 @@ if (!isGK) {
       min-width: 38px;
     }
 
-    .skill-bar-wrap {
-      flex: 1;
-      height: 5px;
-      background: #f0f0f5;
-      border-radius: 3px;
-      overflow: hidden;
-    }
-
-    .skill-bar-fill {
-      height: 100%;
-      border-radius: 3px;
-    }
+    .skill-bar-wrap { flex: 1; height: 5px; background: #f0f0f5; border-radius: 3px; overflow: hidden; }
+    .skill-bar-fill { height: 100%; border-radius: 3px; }
 
     .skill-val {
       font-size: 12px;
@@ -530,7 +563,7 @@ if (!isGK) {
       font-variant-numeric: tabular-nums;
     }
 
-    /* PLAYER TRAITS */
+    /* TRAITS */
     .traits-section {
       margin-top: 14px;
       background: #ffffff;
@@ -568,12 +601,7 @@ if (!isGK) {
 
     .trait-icon:hover { transform: scale(1.07); }
 
-    .trait-icon img {
-      width: 60px;
-      height: 60px;
-      display: block;
-      object-fit: contain;
-    }
+    .trait-icon img { width: 60px; height: 60px; display: block; object-fit: contain; }
 
     .trait-icon[data-tip]:hover::after {
       content: attr(data-tip);
@@ -622,14 +650,12 @@ if (!isGK) {
   <Navbar />
 
   <div class="page">
-
     <a href="/" class="back">← Database</a>
 
     <!-- HERO -->
     <div class="hero">
-
       {hasGradientBorder ? (
-        <div class="avatar-ring" style={`background: conic-gradient(${gradientStops});`}>
+        <div class="avatar-ring" style={`background: conic-gradient(${gradientStops}); border-radius: 50%;`}>
           <div class="avatar">{initials}</div>
         </div>
       ) : hasSolidBorder ? (
@@ -692,46 +718,32 @@ if (!isGK) {
         <div class="gauge-item">
           <svg viewBox="0 0 120 66" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <circle cx="60" cy="62" r={GAUGE_R} fill="none" stroke="#f0f0f5" stroke-width="9"
-              stroke-dasharray={`${HALF_CIRC} ${FULL_CIRC}`}
-              transform="rotate(180 60 62)" />
+              stroke-dasharray={`${HALF_CIRC} ${FULL_CIRC}`} transform="rotate(180 60 62)" />
             <circle cx="60" cy="62" r={GAUGE_R} fill="none" stroke={skillColor(attAvg)} stroke-width="9"
-              stroke-dasharray={gaugeDash(attAvg)}
-              transform="rotate(180 60 62)"
-              stroke-linecap="round" />
-            <text x="60" y="57" text-anchor="middle"
-              font-size="22" font-weight="700" fill="#1d1d1f"
+              stroke-dasharray={gaugeDash(attAvg)} transform="rotate(180 60 62)" stroke-linecap="round" />
+            <text x="60" y="57" text-anchor="middle" font-size="22" font-weight="700" fill="#1d1d1f"
               font-family="-apple-system, 'SF Pro Text', sans-serif">{attAvg}</text>
           </svg>
           <div class="gauge-label" title="Avg: Finishing, Off the Ball, Composure, Anticipation, Shot Accuracy">Att. Skills</div>
         </div>
-
         <div class="gauge-item">
           <svg viewBox="0 0 120 66" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <circle cx="60" cy="62" r={GAUGE_R} fill="none" stroke="#f0f0f5" stroke-width="9"
-              stroke-dasharray={`${HALF_CIRC} ${FULL_CIRC}`}
-              transform="rotate(180 60 62)" />
+              stroke-dasharray={`${HALF_CIRC} ${FULL_CIRC}`} transform="rotate(180 60 62)" />
             <circle cx="60" cy="62" r={GAUGE_R} fill="none" stroke={skillColor(playmakingAvg)} stroke-width="9"
-              stroke-dasharray={gaugeDash(playmakingAvg)}
-              transform="rotate(180 60 62)"
-              stroke-linecap="round" />
-            <text x="60" y="57" text-anchor="middle"
-              font-size="22" font-weight="700" fill="#1d1d1f"
+              stroke-dasharray={gaugeDash(playmakingAvg)} transform="rotate(180 60 62)" stroke-linecap="round" />
+            <text x="60" y="57" text-anchor="middle" font-size="22" font-weight="700" fill="#1d1d1f"
               font-family="-apple-system, 'SF Pro Text', sans-serif">{playmakingAvg}</text>
           </svg>
           <div class="gauge-label" title="Avg: Short Passing, Long Passing, Vision, Composure">Playmaking</div>
         </div>
-
         <div class="gauge-item">
           <svg viewBox="0 0 120 66" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <circle cx="60" cy="62" r={GAUGE_R} fill="none" stroke="#f0f0f5" stroke-width="9"
-              stroke-dasharray={`${HALF_CIRC} ${FULL_CIRC}`}
-              transform="rotate(180 60 62)" />
+              stroke-dasharray={`${HALF_CIRC} ${FULL_CIRC}`} transform="rotate(180 60 62)" />
             <circle cx="60" cy="62" r={GAUGE_R} fill="none" stroke={skillColor(defAvg)} stroke-width="9"
-              stroke-dasharray={gaugeDash(defAvg)}
-              transform="rotate(180 60 62)"
-              stroke-linecap="round" />
-            <text x="60" y="57" text-anchor="middle"
-              font-size="22" font-weight="700" fill="#1d1d1f"
+              stroke-dasharray={gaugeDash(defAvg)} transform="rotate(180 60 62)" stroke-linecap="round" />
+            <text x="60" y="57" text-anchor="middle" font-size="22" font-weight="700" fill="#1d1d1f"
               font-family="-apple-system, 'SF Pro Text', sans-serif">{defAvg}</text>
           </svg>
           <div class="gauge-label" title="Avg: Marking, Tackling, Def. Positioning, Anticipation, Heading, Composure">Def. Skills</div>
@@ -808,7 +820,10 @@ if (!isGK) {
 
       {isGK && (
         <div class="skill-card full-width">
-          <div class="skill-cat">Goalkeeping</div>
+          <div class="skill-cat" style="display:flex; justify-content:space-between; align-items:center;">
+            <span>Goalkeeping</span>
+            <span style={`font-weight:600; font-size:13px; color:${skillColor(gkAvg)};`}>{gkAvg}</span>
+          </div>
           {gkSkills.map(s => (
             <div class="skill-row">
               <span class="skill-abbr" title={s.full}>{s.label}</span>
@@ -823,7 +838,7 @@ if (!isGK) {
 
     </div>
 
-    <!-- PLAYER TRAITS -->
+    <!-- TRAITS -->
     {!isGK && activeTraits.length > 0 && (
       <div class="traits-section">
         <div class="traits-title">Player Traits</div>
