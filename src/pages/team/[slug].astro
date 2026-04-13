@@ -13,13 +13,10 @@ export async function getStaticPaths() {
 
 const { team: t, allPlayers } = Astro.props;
 
-// ─── DISPLAY NAME — derived from slug, always "All-Time Italy" style ──────
 const displayName = (t.slug ?? '')
   .split('-')
   .map(w => w.charAt(0).toUpperCase() + w.slice(1))
   .join(' ');
-
-// ─── UTILITY ─────────────────────────────────────────────────────────────
 
 function ovrColor(v) {
   if (v >= 95) return '#0071e3';
@@ -63,9 +60,7 @@ function pPlay(p) { return avg([p.short_passing, p.long_passing, p.vision, p.com
 function pDef(p)  { return avg([p.marking, p.tackling, p.def_positioning, p.anticipation, p.heading, p.composure]); }
 function pSpd(p)  { return avg([p.pace, p.acceleration]); }
 
-// ─── FILTER TEAM PLAYERS ─────────────────────────────────────────────────
-
-const isNational = t.type === 'national' || t.type === 'national team';
+const isNational = t.type === 'national team' || t.type === 'national';
 
 const teamPlayers = allPlayers.filter(p =>
   isNational
@@ -82,10 +77,8 @@ gkR.forEach(p => used.add(p.id));
 
 const rbR = pick(teamPlayers.filter(p => p.role === 'RB'), 2, used);
 rbR.forEach(p => used.add(p.id));
-
 const lbR = pick(teamPlayers.filter(p => p.role === 'LB'), 2, used);
 lbR.forEach(p => used.add(p.id));
-
 const swAvail = sortByOvr(teamPlayers.filter(p => p.role === 'SW' && !used.has(p.id)));
 const cbAvail = sortByOvr(teamPlayers.filter(p => p.role === 'CB' && !used.has(p.id)));
 const swSlot  = swAvail.length ? [swAvail[0]] : [];
@@ -102,15 +95,13 @@ const dmR = pick(teamPlayers.filter(p => p.role === 'DM'), 2, used);
 dmR.forEach(p => used.add(p.id));
 const cmamR = pick(teamPlayers.filter(p => ['CM','AM'].includes(p.role)), 4, used);
 cmamR.forEach(p => used.add(p.id));
-const midFillPool = teamPlayers.filter(p => ['RM','LM','CM','AM','DM'].includes(p.role));
-const rmlmR = pick(midFillPool, 2, used);
+const rmlmR = pick(teamPlayers.filter(p => ['RM','LM','CM','AM','DM'].includes(p.role)), 2, used);
 rmlmR.forEach(p => used.add(p.id));
 const midR = [...dmR, ...cmamR, ...rmlmR];
 
 const stR = pick(teamPlayers.filter(p => p.role === 'ST'), 4, used);
 stR.forEach(p => used.add(p.id));
-const fwFillPool = teamPlayers.filter(p => ['FW','RW','LW','ST'].includes(p.role));
-const fwR = pick(fwFillPool, 2, used);
+const fwR = pick(teamPlayers.filter(p => ['FW','RW','LW','ST'].includes(p.role)), 2, used);
 const attR = [...stR, ...fwR];
 
 const roster = [...gkR, ...defR, ...midR, ...attR];
@@ -123,9 +114,8 @@ const defOvr  = avg(defR.map(p => p.overall_rating));
 const midOvr  = avg(midR.map(p => p.overall_rating));
 const attOvr  = avg(attR.map(p => p.overall_rating));
 
-// ─── RECORDS ─────────────────────────────────────────────────────────────
+// ─── RECORDS — calcolati SOLO sui giocatori in roster ─────────────────────
 
-const src = teamPlayers.length ? teamPlayers : roster;
 const appsKey  = isNational ? 'nat_apps'       : 'club_apps';
 const goalsKey = isNational ? 'nat_goals'      : 'club_goals';
 const ratioKey = isNational ? 'nat_goal_ratio' : 'club_goal_ratio';
@@ -134,14 +124,14 @@ function sortBy(arr, fn) {
   return [...arr].sort((a, b) => fn(b) - fn(a) || (a.name ?? '').localeCompare(b.name ?? ''));
 }
 
-const bestPlayer = sortBy(src, p => p.overall_rating ?? 0)[0];
-const bestTech   = sortBy(src, p => p['first-touch'] ?? 0)[0];
-const fastestP   = sortBy(src, p => pSpd(p))[0];
-const strongestP = sortBy(src, p => p.strength ?? 0)[0];
-const mostAppsP  = sortBy(src, p => p[appsKey] ?? 0)[0];
-const mostGoalsP = sortBy(src, p => p[goalsKey] ?? 0)[0];
+const bestPlayer = sortBy(roster, p => p.overall_rating ?? 0)[0];
+const bestTech   = sortBy(roster, p => p['first-touch'] ?? 0)[0];
+const fastestP   = sortBy(roster, p => pSpd(p))[0];
+const strongestP = sortBy(roster, p => p.strength ?? 0)[0];
+const mostAppsP  = sortBy(roster, p => p[appsKey] ?? 0)[0];
+const mostGoalsP = sortBy(roster, p => p[goalsKey] ?? 0)[0];
 const bestRatioP = sortBy(
-  src.filter(p => (p[appsKey] ?? 0) >= 5),
+  roster.filter(p => (p[appsKey] ?? 0) >= 5),
   p => parseFloat(p[ratioKey] ?? 0)
 )[0];
 
@@ -158,8 +148,6 @@ const hATT = hAvg(attR);
 const hTOT = hAvg(roster);
 
 const logoSrc = `/teams/${t.slug}.svg`;
-
-// ─── ROSTER JSON for client-side sort ────────────────────────────────────
 
 const rosterData = roster.map(p => ({
   name:    p.name ?? '',
@@ -239,7 +227,6 @@ const rosterData = roster.map(p => ({
       margin-bottom: 16px;
     }
 
-    /* logo — no background, no circle */
     .team-logo {
       width: 72px;
       height: 72px;
@@ -290,10 +277,7 @@ const rosterData = roster.map(p => ({
     .tag-type { background: #f5f5f7; color: #6e6e73; }
     .tag-era  { background: #f5f0e8; color: #b07800; }
 
-    .dept-grid {
-      display: flex;
-      align-items: center;
-    }
+    .dept-grid { display: flex; align-items: center; }
 
     .dept-item {
       display: flex;
@@ -366,11 +350,9 @@ const rosterData = roster.map(p => ({
 
     .roster-table thead th:hover { color: #0071e3; }
     .roster-table thead th.sorted { color: #0071e3; }
-
     .roster-table thead th.col-stat,
     .roster-table thead th.col-ovr { text-align: right; }
 
-    /* section header rows */
     .section-row td {
       font-size: 10px;
       font-weight: 700;
@@ -378,6 +360,7 @@ const rosterData = roster.map(p => ({
       letter-spacing: 0.07em;
       text-transform: uppercase;
       padding: 16px 12px 6px;
+      background: #ffffff;
     }
 
     .player-row td {
@@ -404,6 +387,7 @@ const rosterData = roster.map(p => ({
       padding: 2px 7px;
       border-radius: 5px;
       letter-spacing: 0.04em;
+      display: inline-block;
     }
     .role-gk  { background: #f5f0e8; color: #b07800; }
     .role-def { background: #eeffee; color: #1a7a1a; }
@@ -461,11 +445,7 @@ const rosterData = roster.map(p => ({
       margin-top: 4px;
     }
 
-    .hl-unit {
-      font-size: 11px;
-      font-weight: 600;
-      color: #aeaeb2;
-    }
+    .hl-unit { font-size: 11px; font-weight: 600; color: #aeaeb2; }
 
     /* RECORDS */
     .records-grid {
@@ -510,11 +490,7 @@ const rosterData = roster.map(p => ({
       margin-top: 4px;
     }
 
-    .rec-unit {
-      font-size: 11px;
-      font-weight: 500;
-      color: #aeaeb2;
-    }
+    .rec-unit { font-size: 11px; font-weight: 500; color: #aeaeb2; }
 
     /* HEIGHT */
     .height-grid {
@@ -557,6 +533,7 @@ const rosterData = roster.map(p => ({
       .highlights-grid { grid-template-columns: repeat(2, 1fr); }
       .records-grid { grid-template-columns: 1fr; }
       .height-grid { grid-template-columns: repeat(3, 1fr); }
+      .traits-grid { grid-template-columns: repeat(5, 52px); gap: 10px; }
     }
   </style>
 </head>
@@ -565,7 +542,7 @@ const rosterData = roster.map(p => ({
   <Navbar />
 
   <div class="page">
-    <a href="/" class="back">← Database</a>
+    <a href="/teams" class="back">← All-Time Teams</a>
 
     <!-- HERO -->
     <div class="hero">
@@ -723,7 +700,6 @@ const rosterData = roster.map(p => ({
 
 <script define:vars={{ rosterData }}>
 
-  // ── COLOR UTILS ──────────────────────────────────────────────────────────
   function ovrColor(v) {
     if (v >= 95) return '#0071e3';
     if (v >= 90) return '#1a5e1a';
@@ -750,28 +726,20 @@ const rosterData = roster.map(p => ({
     return 'role-att';
   }
 
-  // ── STATE ────────────────────────────────────────────────────────────────
   let currentSort = { col: null, dir: 1 };
-  const SECTION_ORDER = { GK: 0, DEF: 1, MID: 2, ATT: 3 };
 
-  // ── RENDER ───────────────────────────────────────────────────────────────
   function renderRoster(data) {
     const tbody = document.getElementById('rosterBody');
     tbody.innerHTML = '';
-
     const isSorted = currentSort.col !== null;
 
     if (isSorted) {
-      // flat sorted list — no section headers
       [...data].sort((a, b) => {
         let va = a[currentSort.col], vb = b[currentSort.col];
         if (typeof va === 'string') return va.localeCompare(vb) * currentSort.dir;
         return (vb - va) * currentSort.dir;
-      }).forEach(p => {
-        tbody.appendChild(makeRow(p));
-      });
+      }).forEach(p => tbody.appendChild(makeRow(p)));
     } else {
-      // grouped by section
       ['GK','DEF','MID','ATT'].forEach(sec => {
         const group = data.filter(p => p.section === sec);
         if (!group.length) return;
@@ -793,14 +761,13 @@ const rosterData = roster.map(p => ({
       <td><a href="/player/${p.slug}" class="player-link">${p.name}</a></td>
       <td><span class="role-badge ${roleCls(p.role)}">${p.role}</span></td>
       <td class="col-ovr" style="color:${ovrColor(p.ovr)}">${p.ovr}</td>
-      <td class="col-stat ${isGK ? 'muted' : ''}" style="${isGK ? '' : `color:${skillColor(p.def)}`}">${isGK ? '—' : p.def}</td>
-      <td class="col-stat ${isGK ? 'muted' : ''}" style="${isGK ? '' : `color:${skillColor(p.play)}`}">${isGK ? '—' : p.play}</td>
-      <td class="col-stat ${isGK ? 'muted' : ''}" style="${isGK ? '' : `color:${skillColor(p.att)}`}">${isGK ? '—' : p.att}</td>
+      <td class="col-stat${isGK ? ' muted' : ''}" style="${isGK ? '' : `color:${skillColor(p.def)}`}">${isGK ? '—' : p.def}</td>
+      <td class="col-stat${isGK ? ' muted' : ''}" style="${isGK ? '' : `color:${skillColor(p.play)}`}">${isGK ? '—' : p.play}</td>
+      <td class="col-stat${isGK ? ' muted' : ''}" style="${isGK ? '' : `color:${skillColor(p.att)}`}">${isGK ? '—' : p.att}</td>
     `;
     return tr;
   }
 
-  // ── SORT HEADERS ─────────────────────────────────────────────────────────
   function updateHeaders() {
     document.querySelectorAll('#rosterTable thead th').forEach(th => {
       const col = th.getAttribute('data-col');
@@ -819,23 +786,15 @@ const rosterData = roster.map(p => ({
       const col = th.getAttribute('data-col');
       if (!col) return;
       if (currentSort.col === col) {
-        if (currentSort.dir === -1) {
-          // third click: reset to section grouping
-          currentSort = { col: null, dir: 1 };
-        } else {
-          currentSort.dir = -1;
-        }
+        currentSort.dir === 1 ? currentSort.dir = -1 : (currentSort = { col: null, dir: 1 });
       } else {
-        // numeric cols: default desc; name/role: default asc
-        const numCols = ['ovr','def','play','att'];
-        currentSort = { col, dir: numCols.includes(col) ? 1 : 1 };
+        currentSort = { col, dir: 1 };
       }
       updateHeaders();
       renderRoster(rosterData);
     });
   });
 
-  // ── LOGO FALLBACK ────────────────────────────────────────────────────────
   const logo = document.getElementById('team-logo');
   if (logo) {
     logo.addEventListener('error', function () {
@@ -845,9 +804,7 @@ const rosterData = roster.map(p => ({
     });
   }
 
-  // ── INIT ─────────────────────────────────────────────────────────────────
   renderRoster(rosterData);
-
 </script>
 
 </body>
