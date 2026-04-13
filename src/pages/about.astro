@@ -1,0 +1,222 @@
+---
+import Navbar from '../components/Navbar.astro';
+---
+
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>About – Legends Database</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, 'SF Pro Text', 'Inter', sans-serif;
+      background: #f2f2f7;
+      color: #1d1d1f;
+      padding-top: 44px;
+      font-size: 14px;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 64px 40px 100px;
+    }
+
+    /* HEADER */
+    .page-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #aeaeb2;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: 36px;
+      font-weight: 600;
+      letter-spacing: -0.8px;
+      color: #1d1d1f;
+      line-height: 1.15;
+      margin-bottom: 20px;
+    }
+
+    .intro {
+      font-size: 16px;
+      color: #3a3a3c;
+      line-height: 1.75;
+      margin-bottom: 56px;
+      border-bottom: 1px solid #e5e5ea;
+      padding-bottom: 40px;
+    }
+
+    /* SECTIONS */
+    .section {
+      margin-bottom: 48px;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #aeaeb2;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .section h2 {
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+      color: #1d1d1f;
+      margin-bottom: 12px;
+    }
+
+    .section p {
+      font-size: 14px;
+      color: #3a3a3c;
+      line-height: 1.75;
+      margin-bottom: 16px;
+    }
+
+    .section p:last-child { margin-bottom: 0; }
+
+    /* FACTORS LIST */
+    .factors {
+      margin: 20px 0 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .factor {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 18px;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      transition: box-shadow 0.15s;
+    }
+
+    .factor:hover {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.09);
+    }
+
+    .factor-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #0071e3;
+      flex-shrink: 0;
+      margin-top: 7px;
+    }
+
+    .factor-text {
+      font-size: 13.5px;
+      color: #3a3a3c;
+      line-height: 1.5;
+    }
+
+    /* NOTE BOX */
+    .note {
+      margin-top: 40px;
+      padding: 18px 22px;
+      background: #ffffff;
+      border-radius: 12px;
+      border-left: 3px solid #0071e3;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      font-size: 13px;
+      color: #6e6e73;
+      line-height: 1.6;
+    }
+
+    .note strong { color: #1d1d1f; }
+
+    /* DIVIDER */
+    .divider {
+      border: none;
+      border-top: 1px solid #e5e5ea;
+      margin: 48px 0;
+    }
+
+    /* LINK */
+    a {
+      color: #0071e3;
+      text-decoration: none;
+    }
+    a:hover { text-decoration: underline; }
+
+    @media (max-width: 600px) {
+      .page { padding: 40px 24px 80px; }
+      h1 { font-size: 28px; }
+      .intro { font-size: 15px; }
+    }
+  </style>
+</head>
+
+<body>
+  <Navbar />
+
+  <div class="page">
+
+    <div class="page-label">About</div>
+    <h1>Legends<br/>Database</h1>
+
+    <div class="intro">
+      A text-based, ad-free, dynamic database focused on football legends.
+      Fast, lightweight, and designed to be simple, clear, and visually refined.
+      <br/><br/>
+      This is not just another database. It's an evolving project —
+      constantly expanding and being refined over time.
+      <br/><br/>
+      Created by the same mind behind <a href="https://dx84.tech" target="_blank" rel="noopener">dx84.tech</a>.
+    </div>
+
+    <div class="section">
+      <div class="section-label">Methodology</div>
+      <p>
+        The database includes official biographical and statistical data,
+        combined with a custom layer of player evaluation: skills and overall rating.
+      </p>
+      <p>
+        These values are not definitive or absolute. They are designed to provide
+        a structured, yet interpretative view of each player — for consultation
+        and exploration purposes.
+      </p>
+      <p>
+        The overall rating is not a mathematical average of the skills.
+        It is influenced by additional factors not directly visible in the data:
+      </p>
+
+      <div class="factors">
+        <div class="factor">
+          <div class="factor-dot"></div>
+          <div class="factor-text">Impact in high-level contexts</div>
+        </div>
+        <div class="factor">
+          <div class="factor-dot"></div>
+          <div class="factor-text">Historical and competitive environment</div>
+        </div>
+        <div class="factor">
+          <div class="factor-dot"></div>
+          <div class="factor-text">Individual and team achievements</div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <div class="note">
+      <strong>Notice something off?</strong> If you spot inconsistencies or errors,
+      feel free to get in touch. Contact coming soon.
+    </div>
+
+  </div>
+</body>
+</html>
