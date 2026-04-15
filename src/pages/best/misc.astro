@@ -12,6 +12,13 @@ function ovrColor(v) {
   if (v >= 40) return '#cc4400'; return '#c0392b';
 }
 
+function skillColor(v) {
+  if (v >= 95) return '#5aabff'; if (v >= 90) return '#1a5e1a';
+  if (v >= 80) return '#2e8b2e'; if (v >= 70) return '#6aaa2a';
+  if (v >= 60) return '#c8a800'; if (v >= 40) return '#e07800';
+  return '#c0392b';
+}
+
 function roleColor(role) {
   const att = ['ST','FW','RW','LW'];
   const mid = ['AM','CM','DM','RM','LM'];
@@ -26,18 +33,108 @@ function sortDesc(arr, fn) {
   return [...arr].sort((a, b) => fn(b) - fn(a) || (a.name ?? '').localeCompare(b.name ?? ''));
 }
 
+function sortAsc(arr, fn) {
+  return [...arr].sort((a, b) => fn(a) - fn(b) || (a.name ?? '').localeCompare(b.name ?? ''));
+}
+
+// ─── SEZIONI ──────────────────────────────────────────────────────────────
+
 const leftFoot  = sortDesc(all.filter(p => p.preferred_foot === 'Left'),  p => p.overall_rating ?? 0).slice(0, 15);
 const rightFoot = sortDesc(all.filter(p => p.preferred_foot === 'Right'), p => p.overall_rating ?? 0).slice(0, 15);
 const topScorers = sortDesc(all.filter(p => (p.nat_apps ?? 0) >= 10), p => p.nat_goals ?? 0).slice(0, 10);
 const bestRatio  = sortDesc(all.filter(p => (p.nat_apps ?? 0) >= 20), p => parseFloat(p.nat_goal_ratio ?? 0)).slice(0, 10);
-const tallest    = sortDesc(all.filter(p => p.height), p => p.height).slice(0, 10);
+
+// NUOVE
+const goalScoringDef = sortDesc(
+  all.filter(p => ['CB','SW'].includes(p.role) && (p.nat_apps ?? 0) >= 5),
+  p => p.nat_goals ?? 0
+).slice(0, 10);
+
+const technicalGK = sortDesc(
+  all.filter(p => p.role === 'GK'),
+  p => p['first-touch'] ?? 0
+).slice(0, 10);
+
+const tallest  = sortDesc(all.filter(p => p.height), p => p.height).slice(0, 10);
+const shortest = sortAsc(all.filter(p => p.height && p.height <= 169), p => p.height).slice(0, 10);
+
+// ─── CONFIG SEZIONI ────────────────────────────────────────────────────────
 
 const SECTIONS = [
-  { id: 'left',   label: 'Left Foot Legends',   emoji: '🦶', players: leftFoot,   valFn: p => p.overall_rating, valLabel: 'OVR', colorFn: ovrColor },
-  { id: 'right',  label: 'Right Foot Legends',  emoji: '🦶', players: rightFoot,  valFn: p => p.overall_rating, valLabel: 'OVR', colorFn: ovrColor },
-  { id: 'scorer', label: 'International Top Scorers', emoji: '⚽', players: topScorers, valFn: p => p.nat_goals, valLabel: 'Goals', colorFn: () => '#1d1d1f' },
-  { id: 'ratio',  label: 'Best Goal Ratio (min. 20 caps)', emoji: '📊', players: bestRatio, valFn: p => parseFloat(p.nat_goal_ratio ?? 0).toFixed(2), valLabel: 'Ratio', colorFn: () => '#1d1d1f' },
-  { id: 'tall',   label: 'Tallest Players',      emoji: '📏', players: tallest,    valFn: p => p.height, valLabel: 'cm', colorFn: () => '#1d1d1f' },
+  {
+    id: 'left',
+    label: 'Left Foot Legends',
+    emoji: '🦶',
+    players: leftFoot,
+    valFn: p => p.overall_rating,
+    valLabel: 'OVR',
+    colorFn: v => ovrColor(v),
+  },
+  {
+    id: 'right',
+    label: 'Right Foot Legends',
+    emoji: '🦶',
+    players: rightFoot,
+    valFn: p => p.overall_rating,
+    valLabel: 'OVR',
+    colorFn: v => ovrColor(v),
+  },
+  {
+    id: 'scorer',
+    label: 'International Top Scorers',
+    emoji: '⚽',
+    players: topScorers,
+    valFn: p => p.nat_goals,
+    valLabel: 'Goals',
+    colorFn: () => '#1d1d1f',
+  },
+  {
+    id: 'ratio',
+    label: 'Best Goal Ratio (min. 20 caps)',
+    emoji: '📊',
+    players: bestRatio,
+    valFn: p => parseFloat(p.nat_goal_ratio ?? 0).toFixed(2),
+    valLabel: 'Ratio',
+    colorFn: () => '#1d1d1f',
+  },
+  {
+    id: 'defscorer',
+    label: 'Best Goalscoring Defenders',
+    emoji: '🛡',
+    players: goalScoringDef,
+    valFn: p => p.nat_goals,
+    valLabel: 'Goals',
+    colorFn: () => '#1d1d1f',
+    note: 'CB & SW only — min. 5 international caps',
+  },
+  {
+    id: 'techgk',
+    label: 'Most Technical Goalkeepers',
+    emoji: '🧤',
+    players: technicalGK,
+    valFn: p => p['first-touch'],
+    valLabel: '1-TCH',
+    colorFn: v => skillColor(v),
+  },
+  {
+    id: 'tall',
+    label: 'Tallest Players',
+    emoji: '📏',
+    players: tallest,
+    valFn: p => p.height,
+    valLabel: 'cm',
+    colorFn: () => '#1d1d1f',
+  },
+  {
+    id: 'short',
+    label: 'Shortest Players',
+    emoji: '📐',
+    players: shortest,
+    valFn: p => p.height,
+    valLabel: 'cm',
+    colorFn: () => '#1d1d1f',
+    note: 'Max 169 cm',
+  },
 ];
 ---
 
@@ -48,42 +145,177 @@ const SECTIONS = [
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family:-apple-system,'SF Pro Text','Inter',sans-serif; background:#f2f2f7; color:#1d1d1f; padding-top:44px; font-size:13px; -webkit-font-smoothing:antialiased; }
-    .page { max-width:860px; margin:0 auto; padding:40px 40px 80px; }
-    .back { display:inline-flex; align-items:center; gap:4px; font-size:13px; color:#6e6e73; text-decoration:none; margin-bottom:28px; transition:color 0.15s; }
-    .back:hover { color:#0071e3; }
-    .page-title { font-size:26px; font-weight:600; letter-spacing:-0.5px; color:#1d1d1f; margin-bottom:24px; }
 
-    .misc-item { background:#ffffff; border-radius:14px; margin-bottom:12px; box-shadow:0 1px 3px rgba(0,0,0,0.06); overflow:hidden; }
-    .misc-header { display:flex; align-items:center; gap:12px; padding:18px 22px; cursor:pointer; transition:background 0.12s; user-select:none; }
-    .misc-header:hover { background:#f7f7f9; }
-    .misc-emoji { font-size:20px; }
-    .misc-title { font-size:14px; font-weight:600; color:#1d1d1f; flex:1; }
-    .misc-count { font-size:11px; color:#aeaeb2; font-weight:500; }
-    .misc-chevron { font-size:14px; color:#aeaeb2; transition:transform 0.2s; }
-    .misc-item.open .misc-chevron { transform:rotate(90deg); }
+    body {
+      font-family: -apple-system, 'SF Pro Text', 'Inter', sans-serif;
+      background: #f2f2f7;
+      color: #1d1d1f;
+      padding-top: 44px;
+      font-size: 13px;
+      -webkit-font-smoothing: antialiased;
+    }
 
-    .misc-body { display:none; border-top:1px solid #f0f0f5; }
-    .misc-item.open .misc-body { display:block; }
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 40px 40px 80px;
+    }
 
-    .misc-table { width:100%; border-collapse:collapse; }
-    .misc-table tr { border-bottom:1px solid #f5f5f7; }
-    .misc-table tr:last-child { border-bottom:none; }
-    .misc-table tr:hover td { background:#f7f7f9; }
-    .misc-table td { padding:10px 22px; font-size:12.5px; vertical-align:middle; }
+    .back {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 13px;
+      color: #6e6e73;
+      text-decoration: none;
+      margin-bottom: 28px;
+      transition: color 0.15s;
+    }
+    .back:hover { color: #0071e3; }
 
-    .rank-num { font-size:11px; font-weight:700; color:#aeaeb2; width:28px; font-variant-numeric:tabular-nums; }
-    .p-link { color:#1d1d1f; text-decoration:none; font-weight:500; }
-    .p-link:hover { color:#0071e3; }
-    .p-role { font-size:10px; font-weight:700; padding:1px 6px; border-radius:4px; letter-spacing:0.04em; }
-    .p-val { font-size:13px; font-weight:700; text-align:right; font-variant-numeric:tabular-nums; }
-    .p-nation { font-size:11.5px; color:#aeaeb2; }
+    .page-title {
+      font-size: 26px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      color: #1d1d1f;
+      margin-bottom: 24px;
+    }
 
-    @media (max-width:600px) { .page { padding:24px 20px 60px; } }
+    /* ACCORDION */
+    .misc-item {
+      background: #ffffff;
+      border-radius: 14px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      overflow: hidden;
+    }
+
+    .misc-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 18px 22px;
+      cursor: pointer;
+      transition: background 0.12s;
+      user-select: none;
+    }
+
+    .misc-header:hover { background: #f7f7f9; }
+
+    .misc-emoji { font-size: 20px; flex-shrink: 0; }
+
+    .misc-header-body { flex: 1; }
+
+    .misc-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1d1d1f;
+    }
+
+    .misc-note {
+      font-size: 11px;
+      color: #aeaeb2;
+      margin-top: 2px;
+    }
+
+    .misc-count {
+      font-size: 11px;
+      color: #aeaeb2;
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+
+    .misc-chevron {
+      font-size: 14px;
+      color: #aeaeb2;
+      transition: transform 0.2s;
+      flex-shrink: 0;
+    }
+
+    .misc-item.open .misc-chevron { transform: rotate(90deg); }
+
+    .misc-body {
+      display: none;
+      border-top: 1px solid #f0f0f5;
+    }
+
+    .misc-item.open .misc-body { display: block; }
+
+    /* TABLE */
+    .misc-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .misc-table tr { border-bottom: 1px solid #f5f5f7; }
+    .misc-table tr:last-child { border-bottom: none; }
+    .misc-table tr:hover td { background: #f7f7f9; }
+
+    .misc-table td {
+      padding: 10px 22px;
+      font-size: 12.5px;
+      vertical-align: middle;
+    }
+
+    .rank-num {
+      font-size: 11px;
+      font-weight: 700;
+      color: #aeaeb2;
+      width: 28px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .p-link {
+      color: #1d1d1f;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .p-link:hover { color: #0071e3; }
+
+    .p-role {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 4px;
+      letter-spacing: 0.04em;
+    }
+
+    .p-nation {
+      font-size: 11.5px;
+      color: #aeaeb2;
+    }
+
+    .p-val {
+      font-size: 13px;
+      font-weight: 700;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .p-val-unit {
+      font-size: 10px;
+      color: #aeaeb2;
+      font-weight: 500;
+      margin-left: 2px;
+    }
+
+    .empty-note {
+      padding: 20px 22px;
+      font-size: 12.5px;
+      color: #aeaeb2;
+      text-align: center;
+    }
+
+    @media (max-width: 600px) {
+      .page { padding: 24px 20px 60px; }
+      .misc-table td { padding: 10px 14px; }
+    }
   </style>
 </head>
+
 <body>
   <Navbar />
+
   <div class="page">
     <a href="/best" class="back">← The Best</a>
     <h1 class="page-title">Miscellaneous</h1>
@@ -92,30 +324,42 @@ const SECTIONS = [
       <div class={`misc-item${i === 0 ? ' open' : ''}`}>
         <div class="misc-header">
           <span class="misc-emoji">{sec.emoji}</span>
-          <span class="misc-title">{sec.label}</span>
+          <div class="misc-header-body">
+            <div class="misc-title">{sec.label}</div>
+            {sec.note && <div class="misc-note">{sec.note}</div>}
+          </div>
           <span class="misc-count">{sec.players.length} players</span>
           <span class="misc-chevron">›</span>
         </div>
+
         <div class="misc-body">
-          <table class="misc-table">
-            {sec.players.map((p, idx) => {
-              const rc = roleColor(p.role);
-              const val = typeof sec.valFn(p) === 'number' ? sec.valFn(p) : sec.valFn(p);
-              const color = sec.colorFn(val);
-              return (
-                <tr>
-                  <td><span class="rank-num">#{idx + 1}</span></td>
-                  <td><a href={`/player/${p.slug}`} class="p-link">{p.name}</a></td>
-                  <td><span class="p-role" style={`background:${rc.bg};color:${rc.text};`}>{p.role}</span></td>
-                  <td><span class="p-nation">{p.nation}</span></td>
-                  <td class="p-val" style={`color:${color}`}>{val} <span style="font-size:10px;color:#aeaeb2;font-weight:500;">{sec.valLabel}</span></td>
-                </tr>
-              );
-            })}
-          </table>
+          {sec.players.length === 0 ? (
+            <div class="empty-note">No data available.</div>
+          ) : (
+            <table class="misc-table">
+              {sec.players.map((p, idx) => {
+                const rc  = roleColor(p.role);
+                const raw = sec.valFn(p);
+                const val = raw ?? '—';
+                const col = raw != null ? sec.colorFn(raw) : '#aeaeb2';
+                return (
+                  <tr>
+                    <td><span class="rank-num">#{idx + 1}</span></td>
+                    <td><a href={`/player/${p.slug}`} class="p-link">{p.name}</a></td>
+                    <td><span class="p-role" style={`background:${rc.bg};color:${rc.text};`}>{p.role}</span></td>
+                    <td><span class="p-nation">{p.nation}</span></td>
+                    <td class="p-val" style={`color:${col};`}>
+                      {val}<span class="p-val-unit">{sec.valLabel}</span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </table>
+          )}
         </div>
       </div>
     ))}
+
   </div>
 
   <script>
