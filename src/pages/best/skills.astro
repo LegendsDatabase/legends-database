@@ -1,6 +1,7 @@
 ---
 import { supabase } from '../../lib/supabase.js';
 import Navbar from '../../components/Navbar.astro';
+import SpeedInsights from '@vercel/speed-insights/astro';
 
 const { data: players } = await supabase.from('players').select('*');
 const all = players ?? [];
@@ -105,6 +106,7 @@ for (const cat of CATS) {
 <head>
   <meta charset="UTF-8" />
   <title>By Skill – The Best – Legends Database</title>
+  <SpeedInsights />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
