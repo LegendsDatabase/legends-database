@@ -99,10 +99,11 @@ const rmlmR = pick(teamPlayers.filter(p => ['RM','LM','CM','AM','DM'].includes(p
 rmlmR.forEach(p => used.add(p.id));
 const midR = [...dmR, ...cmamR, ...rmlmR];
 
-const stR = pick(teamPlayers.filter(p => p.role === 'ST'), 4, used);
-stR.forEach(p => used.add(p.id));
-const fwR = pick(teamPlayers.filter(p => ['FW','RW','LW','ST'].includes(p.role)), 2, used);
-const attR = [...stR, ...fwR];
+const wingSlot = pick(teamPlayers.filter(p => ['RW','LW'].includes(p.role)), 1, used);
+wingSlot.forEach(p => used.add(p.id));
+const attFill = pick(teamPlayers.filter(p => ['ST','FW','RW','LW'].includes(p.role)), 6 - wingSlot.length, used);
+attFill.forEach(p => used.add(p.id));
+const attR = [...wingSlot, ...attFill];
 
 const roster = [...gkR, ...defR, ...midR, ...attR];
 
