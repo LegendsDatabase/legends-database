@@ -1,6 +1,7 @@
 ---
 import { supabase } from '../lib/supabase.js';
 import Navbar from '../components/Navbar.astro';
+import SpeedInsights from '@vercel/speed-insights/astro';
 
 const { data: teams }   = await supabase.from('teams').select('*');
 const { data: players } = await supabase.from('players').select('*');
@@ -119,6 +120,7 @@ const clubTeams     = enriched.filter(t => t.type === 'club team'     || t.type 
 <head>
   <meta charset="UTF-8" />
   <title>All-Time Teams – Legends Database</title>
+  <SpeedInsights />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style is:global>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }

@@ -1,5 +1,6 @@
 ---
 import Navbar from '../../components/Navbar.astro';
+import SpeedInsights from '@vercel/speed-insights/astro';
 
 const decades = [1950, 1960, 1970, 1980, 1990, 2000, 2010];
 const continents = [
@@ -14,6 +15,7 @@ const continents = [
 <head>
   <meta charset="UTF-8" />
   <title>The Best – Legends Database</title>
+  <SpeedInsights />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
