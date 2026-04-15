@@ -15,1068 +15,878 @@ export async function getStaticPaths() {
 const { player: p, allPlayers, allTeams } = Astro.props;
 
 const ROLE_NAMES = {
-  GK: 'Goalkeeper', SW: 'Sweeper',   CB: 'Centre-back',
-  RB: 'Right Back', LB: 'Left Back', DM: 'Defensive Midfielder',
-  CM: 'Centre Midfielder', LM: 'Left Midfielder', RM: 'Right Midfielder',
-  AM: 'Attacking Midfielder', FW: 'Forward',
-  RW: 'Right Winger', LW: 'Left Winger', ST: 'Striker',
+  GK:'Goalkeeper',SW:'Sweeper',CB:'Centre-back',RB:'Right Back',LB:'Left Back',
+  DM:'Defensive Midfielder',CM:'Centre Midfielder',LM:'Left Midfielder',RM:'Right Midfielder',
+  AM:'Attacking Midfielder',FW:'Forward',RW:'Right Winger',LW:'Left Winger',ST:'Striker',
 };
 const fullRoleName = ROLE_NAMES[p.role] ?? p.role;
 
 const NATION_COLORS = {
-  'Italy':           ['#009246','#ffffff','#ce2b37'],
-  'France':          ['#002395','#ffffff','#ed2939'],
-  'Germany':         ['#000000','#dd0000','#ffce00'],
-  'Spain':           ['#aa151b','#f1bf00','#aa151b'],
-  'Brazil':          ['#009c3b','#ffdf00','#002776'],
-  'Argentina':       ['#74acdf','#ffffff','#74acdf'],
-  'England':         ['#cf142b','#ffffff'],
-  'Netherlands':     ['#ae1c28','#ffffff','#21468b'],
-  'Portugal':        ['#006600','#ff0000'],
-  'Belgium':         ['#000000','#fdda24','#ef3340'],
-  'Uruguay':         ['#ffffff','#5aaae7'],
-  'Croatia':         ['#ff0000','#ffffff','#171796'],
-  'Czech Rep.':  ['#d7141a','#ffffff','#11457e'],
-  'Czechoslovakia':  ['#d7141a','#ffffff','#11457e'],
-  'Denmark':         ['#c60c30','#ffffff'],
-  'Sweden':          ['#006aa7','#fecc02'],
-  'Norway':          ['#ef2b2d','#ffffff','#002868'],
-  'Poland':          ['#ffffff','#dc143c'],
-  'Russia':          ['#ffffff','#0039a6','#d52b1e'],
-  'Soviet Union':    ['#cc0000','#ffcc00'],
-  'Yugoslavia':      ['#003da5','#de0000'],
-  'Romania':         ['#002b7f','#fcd116','#ce1126'],
-  'Hungary':         ['#ce2939','#ffffff','#477050'],
-  'Austria':         ['#ed2939','#ffffff','#ed2939'],
-  'Switzerland':     ['#ff0000','#ffffff'],
-  'Scotland':        ['#003087','#ffffff'],
-  'Wales':           ['#c8102e','#00a651'],
-  'Northern Ireland': ['#169b62','#ffffff','#ff883e'],
-  'Ireland':         ['#169b62','#ffffff','#ff883e'],
-  'Greece':          ['#0d5eaf','#ffffff'],
-  'Turkey':          ['#e30a17','#ffffff'],
-  'Serbia':          ['#c6363c','#0c4076','#ffffff'],
-  'Ukraine':         ['#005bbb','#ffd500'],
-  'Slovakia':        ['#ffffff','#0b4ea2','#ee1c25'],
-  'Bulgaria':        ['#ffffff','#00966e','#d62612'],
-  'Colombia':        ['#fcd116','#003087','#ce1126'],
-  'Mexico':          ['#006847','#ffffff','#ce1126'],
-  'Chile':           ['#d52b1e','#ffffff','#002868'],
-  'Japan':           ['#ffffff','#bc002d'],
-  'South Korea':     ['#ffffff','#003478','#cd2e3a'],
-  'Australia':       ['#00008b','#ffffff','#ff0000'],
-  'Saudi Arabia':    ['#006c35','#ffffff'],
-  'Iran':            ['#239f40','#ffffff','#da0000'],
-  'Ghana':           ['#006b3f','#fcd116','#ce1126'],
-  'Nigeria':         ['#008751','#ffffff'],
-  'Ivory Coast':     ['#f77f00','#ffffff','#009a00'],
-  'Cameroon':        ['#007a5e','#ce1126','#fcd116'],
-  'Senegal':         ['#00853f','#fdef42','#e31b23'],
-  'Morocco':         ['#c1272d','#006233'],
+  'Italy':['#009246','#ffffff','#ce2b37'],'France':['#002395','#ffffff','#ed2939'],
+  'Germany':['#000000','#dd0000','#ffce00'],'Spain':['#aa151b','#f1bf00','#aa151b'],
+  'Brazil':['#009c3b','#ffdf00','#002776'],'Argentina':['#74acdf','#ffffff','#74acdf'],
+  'England':['#cf142b','#ffffff'],'Netherlands':['#ae1c28','#ffffff','#21468b'],
+  'Portugal':['#006600','#ff0000'],'Belgium':['#000000','#fdda24','#ef3340'],
+  'Uruguay':['#ffffff','#5aaae7'],'Croatia':['#ff0000','#ffffff','#171796'],
+  'Czech Republic':['#d7141a','#ffffff','#11457e'],'Czechoslovakia':['#d7141a','#ffffff','#11457e'],
+  'Denmark':['#c60c30','#ffffff'],'Sweden':['#006aa7','#fecc02'],
+  'Norway':['#ef2b2d','#ffffff','#002868'],'Poland':['#ffffff','#dc143c'],
+  'Russia':['#ffffff','#0039a6','#d52b1e'],'Soviet Union':['#cc0000','#ffcc00'],
+  'Yugoslavia':['#003da5','#de0000'],'Romania':['#002b7f','#fcd116','#ce1126'],
+  'Hungary':['#ce2939','#ffffff','#477050'],'Austria':['#ed2939','#ffffff','#ed2939'],
+  'Switzerland':['#ff0000','#ffffff'],'Scotland':['#003087','#ffffff'],
+  'Wales':['#c8102e','#00a651'],'Republic of Ireland':['#169b62','#ffffff','#ff883e'],
+  'Ireland':['#169b62','#ffffff','#ff883e'],'Greece':['#0d5eaf','#ffffff'],
+  'Turkey':['#e30a17','#ffffff'],'Serbia':['#c6363c','#0c4076','#ffffff'],
+  'Ukraine':['#005bbb','#ffd500'],'Slovakia':['#ffffff','#0b4ea2','#ee1c25'],
+  'Bulgaria':['#ffffff','#00966e','#d62612'],'Colombia':['#fcd116','#003087','#ce1126'],
+  'Mexico':['#006847','#ffffff','#ce1126'],'Chile':['#d52b1e','#ffffff','#002868'],
+  'Japan':['#ffffff','#bc002d'],'South Korea':['#ffffff','#003478','#cd2e3a'],
+  'Australia':['#00008b','#ffffff','#ff0000'],'Saudi Arabia':['#006c35','#ffffff'],
+  'Iran':['#239f40','#ffffff','#da0000'],'Ghana':['#006b3f','#fcd116','#ce1126'],
+  'Nigeria':['#008751','#ffffff'],'Ivory Coast':['#f77f00','#ffffff','#009a00'],
+  'Cameroon':['#007a5e','#ce1126','#fcd116'],'Senegal':['#00853f','#fdef42','#e31b23'],
+  'Morocco':['#c1272d','#006233'],
 };
 
 const nationColors      = NATION_COLORS[p.nation] ?? null;
 const hasSolidBorder    = nationColors && nationColors.length === 1;
 const hasGradientBorder = nationColors && nationColors.length >= 2;
 const gradientStops     = hasGradientBorder
-  ? nationColors.map((c, i) => `${c} ${Math.round((i / (nationColors.length - 1)) * 100)}%`).join(', ')
-  : '';
+  ? nationColors.map((c,i) => `${c} ${Math.round((i/(nationColors.length-1))*100)}%`).join(', ') : '';
 const solidColor = hasSolidBorder ? nationColors[0] : '#e8e8ed';
 
 function ovrColor(v) {
-  if (v >= 95) return '#0071e3';
-  if (v >= 90) return '#1a5e1a';
-  if (v >= 80) return '#2e8b2e';
-  if (v >= 70) return '#6aaa2a';
-  if (v >= 60) return '#c8a800';
-  if (v >= 50) return '#e07800';
-  if (v >= 40) return '#cc4400';
-  return '#c0392b';
+  if(v>=95)return'#0071e3';if(v>=90)return'#1a5e1a';if(v>=80)return'#2e8b2e';
+  if(v>=70)return'#6aaa2a';if(v>=60)return'#c8a800';if(v>=50)return'#e07800';
+  if(v>=40)return'#cc4400';return'#c0392b';
 }
-
 function skillColor(v) {
-  if (v >= 95) return '#5aabff';
-  if (v >= 90) return '#1a5e1a';
-  if (v >= 80) return '#2e8b2e';
-  if (v >= 70) return '#6aaa2a';
-  if (v >= 60) return '#c8a800';
-  if (v >= 40) return '#e07800';
-  return '#c0392b';
+  if(v>=95)return'#5aabff';if(v>=90)return'#1a5e1a';if(v>=80)return'#2e8b2e';
+  if(v>=70)return'#6aaa2a';if(v>=60)return'#c8a800';if(v>=40)return'#e07800';
+  return'#c0392b';
 }
-
 function avg(vals) {
-  const v = vals.filter(x => x != null && !isNaN(Number(x)));
-  return v.length ? Math.round(v.reduce((a, b) => a + Number(b), 0) / v.length) : 0;
+  const v=vals.filter(x=>x!=null&&!isNaN(Number(x)));
+  return v.length?Math.round(v.reduce((a,b)=>a+Number(b),0)/v.length):0;
 }
-
-function weightedAvg(values, weights) {
-  let sum = 0, totalW = 0;
-  for (let i = 0; i < values.length; i++) {
-    const v = Number(values[i]);
-    const w = weights[i] ?? 0;
-    if (!isNaN(v) && values[i] != null && w > 0) { sum += v * w; totalW += w; }
+function weightedAvg(values,weights) {
+  let sum=0,totalW=0;
+  for(let i=0;i<values.length;i++){
+    const v=Number(values[i]),w=weights[i]??0;
+    if(!isNaN(v)&&values[i]!=null&&w>0){sum+=v*w;totalW+=w;}
   }
-  return totalW > 0 ? Math.round(sum / totalW) : 0;
+  return totalW>0?Math.round(sum/totalW):0;
 }
 
-const TECH_W = {
-  CB:[0.40,0.60,0.60,0.10,0.10,0.10,0.80,1.00,0,0,0.60],
-  SW:[0.60,0.75,0.75,0.10,0.20,0.20,0.70,0.75,0,0,0.70],
-  RB:[0.75,0.75,0.80,0.20,0.25,0.40,0.50,0.65,0,0,0.75],
-  LB:[0.75,0.75,0.80,0.20,0.25,0.40,0.50,0.65,0,0,0.75],
-  DM:[0.50,0.70,0.70,0.30,0.40,0.40,0.50,0.70,0,0,0.65],
-  CM:[0.65,0.80,0.80,0.40,0.50,0.60,0.45,0.60,0,0,0.80],
-  LM:[0.70,0.75,0.85,0.50,0.60,0.65,0.40,0.50,0,0,0.80],
-  RM:[0.70,0.75,0.85,0.50,0.60,0.65,0.40,0.50,0,0,0.80],
-  AM:[0.85,0.85,0.80,0.70,0.70,0.70,0.40,0.30,0,0,0.90],
-  RW:[0.85,0.70,0.80,0.65,0.70,0.70,0.40,0.40,0,0,0.85],
-  LW:[0.85,0.70,0.80,0.65,0.70,0.70,0.40,0.40,0,0,0.85],
-  FW:[0.85,0.80,0.70,0.80,0.80,0.70,0.45,0.30,0,0,0.90],
+const TECH_W={
+  CB:[0.40,0.60,0.60,0.10,0.10,0.10,0.80,1.00,0,0,0.60],SW:[0.60,0.75,0.75,0.10,0.20,0.20,0.70,0.75,0,0,0.70],
+  RB:[0.75,0.75,0.80,0.20,0.25,0.40,0.50,0.65,0,0,0.75],LB:[0.75,0.75,0.80,0.20,0.25,0.40,0.50,0.65,0,0,0.75],
+  DM:[0.50,0.70,0.70,0.30,0.40,0.40,0.50,0.70,0,0,0.65],CM:[0.65,0.80,0.80,0.40,0.50,0.60,0.45,0.60,0,0,0.80],
+  LM:[0.70,0.75,0.85,0.50,0.60,0.65,0.40,0.50,0,0,0.80],RM:[0.70,0.75,0.85,0.50,0.60,0.65,0.40,0.50,0,0,0.80],
+  AM:[0.85,0.85,0.80,0.70,0.70,0.70,0.40,0.30,0,0,0.90],RW:[0.85,0.70,0.80,0.65,0.70,0.70,0.40,0.40,0,0,0.85],
+  LW:[0.85,0.70,0.80,0.65,0.70,0.70,0.40,0.40,0,0,0.85],FW:[0.85,0.80,0.70,0.80,0.80,0.70,0.45,0.30,0,0,0.90],
   ST:[0.70,0.65,0.55,1.00,0.90,0.75,0.65,0.10,0,0,0.75],
 };
-
-const MEN_W = {
-  CB:[0.85,0.70,1.00,0.00,0.70], SW:[0.90,0.50,1.00,0.00,0.60],
-  RB:[0.70,0.55,1.00,0.20,0.75], LB:[0.70,0.55,1.00,0.20,0.75],
-  DM:[0.75,0.75,1.00,0.20,0.80], CM:[0.85,0.60,1.00,0.50,0.65],
-  LM:[0.70,0.55,1.00,0.50,0.65], RM:[0.70,0.55,1.00,0.50,0.65],
-  AM:[0.85,0.50,1.00,0.75,0.55], RW:[0.75,0.60,1.00,0.75,0.55],
-  LW:[0.75,0.60,1.00,0.75,0.55], FW:[0.80,0.55,1.00,0.80,0.50],
+const MEN_W={
+  CB:[0.85,0.70,1.00,0.00,0.70],SW:[0.90,0.50,1.00,0.00,0.60],RB:[0.70,0.55,1.00,0.20,0.75],
+  LB:[0.70,0.55,1.00,0.20,0.75],DM:[0.75,0.75,1.00,0.20,0.80],CM:[0.85,0.60,1.00,0.50,0.65],
+  LM:[0.70,0.55,1.00,0.50,0.65],RM:[0.70,0.55,1.00,0.50,0.65],AM:[0.85,0.50,1.00,0.75,0.55],
+  RW:[0.75,0.60,1.00,0.75,0.55],LW:[0.75,0.60,1.00,0.75,0.55],FW:[0.80,0.55,1.00,0.80,0.50],
   ST:[0.85,0.50,1.00,0.65,0.50],
 };
-
-const TACT_W = {
-  CB:[0.60,0.35,1.00,0.65,0.90,0.95], SW:[0.75,0.65,0.75,0.80,0.75,0.70],
-  RB:[0.65,0.70,0.70,0.75,0.70,0.60], LB:[0.65,0.70,0.70,0.75,0.70,0.60],
-  DM:[0.75,0.40,0.75,0.65,0.60,0.65], CM:[0.85,0.50,0.50,0.75,0.65,0.30],
-  LM:[0.75,0.65,0.45,0.65,0.65,0.40], RM:[0.75,0.65,0.45,0.65,0.65,0.40],
-  AM:[0.90,0.70,0.30,0.75,0.65,0.00], RW:[0.70,0.70,0.20,0.50,0.65,0.00],
-  LW:[0.70,0.70,0.20,0.50,0.65,0.00], FW:[0.80,0.75,0.10,0.45,0.70,0.00],
+const TACT_W={
+  CB:[0.60,0.35,1.00,0.65,0.90,0.95],SW:[0.75,0.65,0.75,0.80,0.75,0.70],
+  RB:[0.65,0.70,0.70,0.75,0.70,0.60],LB:[0.65,0.70,0.70,0.75,0.70,0.60],
+  DM:[0.75,0.40,0.75,0.65,0.60,0.65],CM:[0.85,0.50,0.50,0.75,0.65,0.30],
+  LM:[0.75,0.65,0.45,0.65,0.65,0.40],RM:[0.75,0.65,0.45,0.65,0.65,0.40],
+  AM:[0.90,0.70,0.30,0.75,0.65,0.00],RW:[0.70,0.70,0.20,0.50,0.65,0.00],
+  LW:[0.70,0.70,0.20,0.50,0.65,0.00],FW:[0.80,0.75,0.10,0.45,0.70,0.00],
   ST:[0.60,1.00,0.10,0.45,0.80,0.00],
 };
 
-const athleticSkills = [
-  { key: 'acceleration', label: 'ACC', full: 'Acceleration' },
-  { key: 'pace',         label: 'PAC', full: 'Pace' },
-  { key: 'agility',      label: 'AGI', full: 'Agility' },
-  { key: 'strength',     label: 'STR', full: 'Strength' },
-  { key: 'balance',      label: 'BAL', full: 'Balance' },
-  { key: 'jumping',      label: 'JMP', full: 'Jumping' },
-  { key: 'stamina',      label: 'STA', full: 'Stamina' },
-  { key: 'fitness',      label: 'FIT', full: 'Fitness' },
+const athleticSkills=[
+  {key:'acceleration',label:'ACC',full:'Acceleration'},{key:'pace',label:'PAC',full:'Pace'},
+  {key:'agility',label:'AGI',full:'Agility'},{key:'strength',label:'STR',full:'Strength'},
+  {key:'balance',label:'BAL',full:'Balance'},{key:'jumping',label:'JMP',full:'Jumping'},
+  {key:'stamina',label:'STA',full:'Stamina'},{key:'fitness',label:'FIT',full:'Fitness'},
 ];
-
-const technicalSkills = [
-  { key: 'dribbling',     label: 'DRI',   full: 'Dribbling' },
-  { key: 'short_passing', label: 'S-PAS', full: 'Short Passing' },
-  { key: 'long_passing',  label: 'L-PAS', full: 'Long Passing' },
-  { key: 'finishing',     label: 'FIN',   full: 'Finishing' },
-  { key: 'shot_accuracy', label: 'SHO-A', full: 'Shot Accuracy' },
-  { key: 'shot_power',    label: 'SHO-P', full: 'Shot Power' },
-  { key: 'heading',       label: 'HEA',   full: 'Heading' },
-  { key: 'tackling',      label: 'TAC',   full: 'Tackling' },
-  { key: 'free_kick',     label: 'FRK',   full: 'Free Kick' },
-  { key: 'penalties',     label: 'PEN',   full: 'Penalties' },
-  { key: 'first-touch',   label: '1-TCH', full: 'First Touch' },
+const technicalSkills=[
+  {key:'dribbling',label:'DRI',full:'Dribbling'},{key:'short_passing',label:'S-PAS',full:'Short Passing'},
+  {key:'long_passing',label:'L-PAS',full:'Long Passing'},{key:'finishing',label:'FIN',full:'Finishing'},
+  {key:'shot_accuracy',label:'SHO-A',full:'Shot Accuracy'},{key:'shot_power',label:'SHO-P',full:'Shot Power'},
+  {key:'heading',label:'HEA',full:'Heading'},{key:'tackling',label:'TAC',full:'Tackling'},
+  {key:'free_kick',label:'FRK',full:'Free Kick'},{key:'penalties',label:'PEN',full:'Penalties'},
+  {key:'first-touch',label:'1-TCH',full:'First Touch'},
 ];
-
-const mentalSkills = [
-  { key: 'composure',   label: 'COM',  full: 'Composure' },
-  { key: 'aggression',  label: 'AGG',  full: 'Aggression' },
-  { key: 'consistency', label: 'CON',  full: 'Consistency' },
-  { key: 'creativity',  label: 'CREA', full: 'Creativity' },
-  { key: 'work_rate',   label: 'WRT',  full: 'Work Rate' },
+const mentalSkills=[
+  {key:'composure',label:'COM',full:'Composure'},{key:'aggression',label:'AGG',full:'Aggression'},
+  {key:'consistency',label:'CON',full:'Consistency'},{key:'creativity',label:'CREA',full:'Creativity'},
+  {key:'work_rate',label:'WRT',full:'Work Rate'},
 ];
-
-const tacticalSkills = [
-  { key: 'vision',          label: 'VIS', full: 'Vision' },
-  { key: 'off_the_ball',    label: 'OFB', full: 'Off the Ball' },
-  { key: 'def_positioning', label: 'DEF', full: 'Def. Positioning' },
-  { key: 'teamwork',        label: 'TMW', full: 'Teamwork' },
-  { key: 'anticipation',    label: 'ANT', full: 'Anticipation' },
-  { key: 'marking',         label: 'MAR', full: 'Marking' },
+const tacticalSkills=[
+  {key:'vision',label:'VIS',full:'Vision'},{key:'off_the_ball',label:'OFB',full:'Off the Ball'},
+  {key:'def_positioning',label:'DEF',full:'Def. Positioning'},{key:'teamwork',label:'TMW',full:'Teamwork'},
+  {key:'anticipation',label:'ANT',full:'Anticipation'},{key:'marking',label:'MAR',full:'Marking'},
 ];
-
-const gkSkills = [
-  { key: 'reflexes',    label: 'REF', full: 'Reflexes' },
-  { key: 'positioning', label: 'POS', full: 'Positioning' },
-  { key: 'handling',    label: 'HAN', full: 'Handling' },
-  { key: 'kicking',     label: 'KIC', full: 'Kicking' },
+const gkSkills=[
+  {key:'reflexes',label:'REF',full:'Reflexes'},{key:'positioning',label:'POS',full:'Positioning'},
+  {key:'handling',label:'HAN',full:'Handling'},{key:'kicking',label:'KIC',full:'Kicking'},
 ];
 
 const isGK = p.role === 'GK';
 
-const athleticAvg  = avg(athleticSkills.map(s => p[s.key]));
-const technicalAvg = isGK ? avg(technicalSkills.map(s => p[s.key]))
-  : weightedAvg(technicalSkills.map(s => p[s.key]), TECH_W[p.role] ?? TECH_W['CM']);
-const mentalAvg    = isGK ? avg(mentalSkills.map(s => p[s.key]))
-  : weightedAvg(mentalSkills.map(s => p[s.key]), MEN_W[p.role] ?? MEN_W['CM']);
-const tacticalAvg  = isGK ? avg(tacticalSkills.map(s => p[s.key]))
-  : weightedAvg(tacticalSkills.map(s => p[s.key]), TACT_W[p.role] ?? TACT_W['CM']);
-const gkAvg        = avg(gkSkills.map(s => p[s.key]));
+const athleticAvg  = avg(athleticSkills.map(s=>p[s.key]));
+const technicalAvg = isGK?avg(technicalSkills.map(s=>p[s.key])):weightedAvg(technicalSkills.map(s=>p[s.key]),TECH_W[p.role]??TECH_W['CM']);
+const mentalAvg    = isGK?avg(mentalSkills.map(s=>p[s.key])):weightedAvg(mentalSkills.map(s=>p[s.key]),MEN_W[p.role]??MEN_W['CM']);
+const tacticalAvg  = isGK?avg(tacticalSkills.map(s=>p[s.key])):weightedAvg(tacticalSkills.map(s=>p[s.key]),TACT_W[p.role]??TACT_W['CM']);
+const gkAvg        = avg(gkSkills.map(s=>p[s.key]));
 
-const attAvg        = avg([p.finishing, p.off_the_ball, p.composure, p.anticipation, p.shot_accuracy]);
-const playmakingAvg = avg([p.short_passing, p.long_passing, p.vision, p.composure]);
-const defAvg        = avg([p.marking, p.tackling, p.def_positioning, p.anticipation, p.heading, p.composure]);
+const attAvg        = avg([p.finishing,p.off_the_ball,p.composure,p.anticipation,p.shot_accuracy]);
+const playmakingAvg = avg([p.short_passing,p.long_passing,p.vision,p.composure]);
+const defAvg        = avg([p.marking,p.tackling,p.def_positioning,p.anticipation,p.heading,p.composure]);
 
-const GAUGE_R   = 45;
-const HALF_CIRC = Math.PI * GAUGE_R;
-const FULL_CIRC = 2 * Math.PI * GAUGE_R;
+const GAUGE_R=45,HALF_CIRC=Math.PI*GAUGE_R,FULL_CIRC=2*Math.PI*GAUGE_R;
+function gaugeDash(v){const f=(Math.max(0,Math.min(v,99))/99)*HALF_CIRC;return`${f} ${FULL_CIRC}`;}
 
-function gaugeDash(v) {
-  const filled = (Math.max(0, Math.min(v, 99)) / 99) * HALF_CIRC;
-  return `${filled} ${FULL_CIRC}`;
+const initials=p.name.split(',').map(s=>s.trim()[0]).join('').toUpperCase().slice(0,2);
+function roleColor(role){
+  const att=['ST','FW','RW','LW'],mid=['AM','CM','DM','RM','LM'],def=['CB','SW','RB','LB'];
+  if(att.includes(role))return{bg:'#fff0ee',text:'#c0392b'};
+  if(mid.includes(role))return{bg:'#eef4ff',text:'#0071e3'};
+  if(def.includes(role))return{bg:'#eeffee',text:'#1a7a1a'};
+  return{bg:'#f5f0e8',text:'#b07800'};
 }
+const rc=roleColor(p.role);
 
-const initials = p.name.split(',').map(s => s.trim()[0]).join('').toUpperCase().slice(0, 2);
-
-function roleColor(role) {
-  const att = ['ST','FW','RW','LW'];
-  const mid = ['AM','CM','DM','RM','LM'];
-  const def = ['CB','SW','RB','LB'];
-  if (att.includes(role)) return { bg: '#fff0ee', text: '#c0392b' };
-  if (mid.includes(role)) return { bg: '#eef4ff', text: '#0071e3' };
-  if (def.includes(role)) return { bg: '#eeffee', text: '#1a7a1a' };
-  return { bg: '#f5f0e8', text: '#b07800' };
-}
-const rc = roleColor(p.role);
-
-const activeTraits = [];
-if (!isGK) {
-  if ((p.jumping ?? 0) + (p.heading ?? 0) > 170)
-    activeTraits.push({ file: '/traits/aerialthreat.svg',      tooltip: 'Aerial Threat' });
-  if ((p.aggression ?? 0) > 85)
-    activeTraits.push({ file: '/traits/aggressor.svg',          tooltip: 'Aggressor' });
-  if ((p.strength ?? 0) > 90)
-    activeTraits.push({ file: '/traits/beast.svg',              tooltip: 'Beast' });
-  if ((p.finishing ?? 0) > 93)
-    activeTraits.push({ file: '/traits/clinicalstriker.svg',    tooltip: 'Clinical Striker' });
-  if ((p.composure ?? 0) > 90)
-    activeTraits.push({ file: '/traits/coldblooded.svg',        tooltip: 'Cold Blooded' });
-  if ((p.fitness ?? 0) > 90)
-    activeTraits.push({ file: '/traits/durable.svg',            tooltip: 'Durable' });
-  if ((p.stamina ?? 0) > 90)
-    activeTraits.push({ file: '/traits/engine.svg',             tooltip: 'Engine' });
-  if ((p.shot_accuracy ?? 0) > 90)
-    activeTraits.push({ file: '/traits/finesseshooter.svg',     tooltip: 'Finesse Shooter' });
-  if ((p.anticipation ?? 0) > 90)
-    activeTraits.push({ file: '/traits/gamereader.svg',         tooltip: 'Game Reader' });
-  if ((p.fitness ?? 0) < 78)
-    activeTraits.push({ file: '/traits/injuryprone.svg',        tooltip: 'Injury Prone' });
-  if ((p.penalties ?? 0) > 90)
-    activeTraits.push({ file: '/traits/penaltyspecialist.svg',  tooltip: 'Penalty Specialist' });
-  if ((p.shot_power ?? 0) > 90)
-    activeTraits.push({ file: '/traits/powershooter.svg',       tooltip: 'Power Shooter' });
-  if ((p.acceleration ?? 0) > 90)
-    activeTraits.push({ file: '/traits/speedster.svg',          tooltip: 'Speedster' });
-  if ((p.dribbling ?? 0) > 91)
-    activeTraits.push({ file: '/traits/trickster.svg',          tooltip: 'Trickster' });
-  if ((p.free_kick ?? 0) > 90)
-    activeTraits.push({ file: '/traits/freekickspecialist.svg', tooltip: 'Free Kick Specialist' });
-  if ((p.short_passing ?? 0) > 90 || (p.long_passing ?? 0) > 90)
-    activeTraits.push({ file: '/traits/greatpasser.svg',        tooltip: 'Great Passer' });
+const activeTraits=[];
+if(!isGK){
+  if((p.jumping??0)+(p.heading??0)>170)activeTraits.push({file:'/traits/aerialthreat.svg',tooltip:'Aerial Threat'});
+  if((p.aggression??0)>85)activeTraits.push({file:'/traits/aggressor.svg',tooltip:'Aggressor'});
+  if((p.strength??0)>90)activeTraits.push({file:'/traits/beast.svg',tooltip:'Beast'});
+  if((p.finishing??0)>93)activeTraits.push({file:'/traits/clinicalstriker.svg',tooltip:'Clinical Striker'});
+  if((p.composure??0)>90)activeTraits.push({file:'/traits/coldblooded.svg',tooltip:'Cold Blooded'});
+  if((p.fitness??0)>90)activeTraits.push({file:'/traits/durable.svg',tooltip:'Durable'});
+  if((p.stamina??0)>90)activeTraits.push({file:'/traits/engine.svg',tooltip:'Engine'});
+  if((p.shot_accuracy??0)>90)activeTraits.push({file:'/traits/finesseshooter.svg',tooltip:'Finesse Shooter'});
+  if((p.anticipation??0)>90)activeTraits.push({file:'/traits/gamereader.svg',tooltip:'Game Reader'});
+  if((p.fitness??0)<78)activeTraits.push({file:'/traits/injuryprone.svg',tooltip:'Injury Prone'});
+  if((p.penalties??0)>90)activeTraits.push({file:'/traits/penaltyspecialist.svg',tooltip:'Penalty Specialist'});
+  if((p.shot_power??0)>90)activeTraits.push({file:'/traits/powershooter.svg',tooltip:'Power Shooter'});
+  if((p.acceleration??0)>90)activeTraits.push({file:'/traits/speedster.svg',tooltip:'Speedster'});
+  if((p.dribbling??0)>91)activeTraits.push({file:'/traits/trickster.svg',tooltip:'Trickster'});
+  if((p.free_kick??0)>90)activeTraits.push({file:'/traits/freekickspecialist.svg',tooltip:'Free Kick Specialist'});
+  if((p.short_passing??0)>90||(p.long_passing??0)>90)activeTraits.push({file:'/traits/greatpasser.svg',tooltip:'Great Passer'});
 }
 
 // ─── ALL-TIME TEAMS MEMBERSHIP ────────────────────────────────────────────
 
-function sortByOvr(arr) {
-  return [...arr].sort((a, b) =>
-    (b.overall_rating ?? 0) - (a.overall_rating ?? 0) ||
-    (a.name ?? '').localeCompare(b.name ?? '')
-  );
-}
+function sortByOvr(arr){return[...arr].sort((a,b)=>(b.overall_rating??0)-(a.overall_rating??0)||(a.name??'').localeCompare(b.name??''));}
+function pickR(pool,n,usedIds){return sortByOvr(pool.filter(q=>!usedIds.has(q.id))).slice(0,n);}
 
-function pickR(pool, n, usedIds) {
-  return sortByOvr(pool.filter(q => !usedIds.has(q.id))).slice(0, n);
-}
+function buildRosterIds(t){
+  const isNat=t.type==='national team'||t.type==='national';
+  const tp=allPlayers.filter(q=>isNat?(q.nation??'').toLowerCase()===(t.name??'').toLowerCase():(q.iconic_club??'').toLowerCase()===(t.name??'').toLowerCase());
+  const used=new Set();
 
-function buildRosterIds(t) {
-  const isNat = t.type === 'national team' || t.type === 'national';
-  const tp = allPlayers.filter(q =>
-    isNat
-      ? (q.nation ?? '').toLowerCase() === (t.name ?? '').toLowerCase()
-      : (q.iconic_club ?? '').toLowerCase() === (t.name ?? '').toLowerCase()
-  );
-  const used = new Set();
+  const gkR=pickR(tp.filter(q=>q.role==='GK'),3,used);gkR.forEach(q=>used.add(q.id));
+  const rbR=pickR(tp.filter(q=>q.role==='RB'),2,used);rbR.forEach(q=>used.add(q.id));
+  const lbR=pickR(tp.filter(q=>q.role==='LB'),2,used);lbR.forEach(q=>used.add(q.id));
+  const swA=sortByOvr(tp.filter(q=>q.role==='SW'&&!used.has(q.id)));
+  const cbA=sortByOvr(tp.filter(q=>q.role==='CB'&&!used.has(q.id)));
+  const swSlot=swA.length?[swA[0]]:[];swSlot.forEach(q=>used.add(q.id));
+  const cPool=sortByOvr([...cbA.filter(q=>!used.has(q.id)),...swA.filter(q=>!used.has(q.id))]);
+  const cR=[...swSlot,...pickR(cPool,4-swSlot.length,used)];cR.forEach(q=>used.add(q.id));
 
-  const gkR = pickR(tp.filter(q => q.role === 'GK'), 3, used);
-  gkR.forEach(q => used.add(q.id));
+  const dmR=pickR(tp.filter(q=>q.role==='DM'),2,used);dmR.forEach(q=>used.add(q.id));
+  const cmamR=pickR(tp.filter(q=>['CM','AM'].includes(q.role)),4,used);cmamR.forEach(q=>used.add(q.id));
+  const rmlmR=pickR(tp.filter(q=>['RM','LM','CM','AM','DM'].includes(q.role)),2,used);rmlmR.forEach(q=>used.add(q.id));
 
-  const rbR = pickR(tp.filter(q => q.role === 'RB'), 2, used);
-  rbR.forEach(q => used.add(q.id));
-  const lbR = pickR(tp.filter(q => q.role === 'LB'), 2, used);
-  lbR.forEach(q => used.add(q.id));
-
-  const swA = sortByOvr(tp.filter(q => q.role === 'SW' && !used.has(q.id)));
-  const cbA = sortByOvr(tp.filter(q => q.role === 'CB' && !used.has(q.id)));
-  const swSlot = swA.length ? [swA[0]] : [];
-  swSlot.forEach(q => used.add(q.id));
-  const cPool = sortByOvr([...cbA.filter(q => !used.has(q.id)), ...swA.filter(q => !used.has(q.id))]);
-  const cR = [...swSlot, ...pickR(cPool, 4 - swSlot.length, used)];
-  cR.forEach(q => used.add(q.id));
-
-  const dmR = pickR(tp.filter(q => q.role === 'DM'), 2, used);
-  dmR.forEach(q => used.add(q.id));
-  const cmamR = pickR(tp.filter(q => ['CM','AM'].includes(q.role)), 4, used);
-  cmamR.forEach(q => used.add(q.id));
-  const rmlmR = pickR(tp.filter(q => ['RM','LM','CM','AM','DM'].includes(q.role)), 2, used);
-  rmlmR.forEach(q => used.add(q.id));
-
-  const stR = pickR(tp.filter(q => q.role === 'ST'), 4, used);
-  stR.forEach(q => used.add(q.id));
-  const fwR = pickR(tp.filter(q => ['FW','RW','LW','ST'].includes(q.role)), 2, used);
-  fwR.forEach(q => used.add(q.id)); // ← FIX: riga mancante nella versione precedente
+  // ATT — guaranteed winger slot (FIX)
+  const wingSlot=pickR(tp.filter(q=>['RW','LW'].includes(q.role)&&!used.has(q.id)),1,used);
+  wingSlot.forEach(q=>used.add(q.id));
+  const attFill=pickR(tp.filter(q=>['ST','FW','RW','LW'].includes(q.role)&&!used.has(q.id)),6-wingSlot.length,used);
+  attFill.forEach(q=>used.add(q.id));
 
   return used;
 }
 
-const playerTeams = allTeams
-  .filter(t => {
-    const isNat = t.type === 'national team' || t.type === 'national';
-    const inPool = isNat
-      ? (p.nation ?? '').toLowerCase() === (t.name ?? '').toLowerCase()
-      : (p.iconic_club ?? '').toLowerCase() === (t.name ?? '').toLowerCase();
-    if (!inPool) return false;
-    const rosterIds = buildRosterIds(t);
-    return rosterIds.has(p.id);
-  })
-  .map(t => ({
-    slug:        t.slug,
-    displayName: t.slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
-    type:        t.type,
-    isNational:  t.type === 'national team' || t.type === 'national',
-  }));
+const playerTeams=allTeams.filter(t=>{
+  const isNat=t.type==='national team'||t.type==='national';
+  const inPool=isNat?(p.nation??'').toLowerCase()===(t.name??'').toLowerCase():(p.iconic_club??'').toLowerCase()===(t.name??'').toLowerCase();
+  if(!inPool)return false;
+  return buildRosterIds(t).has(p.id);
+}).map(t=>({
+  slug:t.slug,
+  displayName:t.slug.split('-').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' '),
+  type:t.type,
+  isNational:t.type==='national team'||t.type==='national',
+}));
 
 // ─── SEE ALSO ─────────────────────────────────────────────────────────────
 
-const ROLE_COMPAT = {
-  GK: ['GK'],
-  CB: ['CB','SW'], SW: ['SW','CB'],
-  RB: ['RB','LB'], LB: ['LB','RB'],
-  DM: ['DM','CM'], CM: ['CM','DM','AM'],
-  RM: ['RM','LM','AM','CM'], LM: ['LM','RM','AM','CM'],
-  AM: ['AM','CM','FW','RW','LW'],
-  FW: ['FW','ST','AM','RW','LW'],
-  RW: ['RW','LW','AM','FW'], LW: ['LW','RW','AM','FW'],
-  ST: ['ST','FW'],
+const ROLE_COMPAT={
+  GK:['GK'],CB:['CB','SW'],SW:['SW','CB'],RB:['RB','LB'],LB:['LB','RB'],
+  DM:['DM','CM'],CM:['CM','DM','AM'],RM:['RM','LM','AM','CM'],LM:['LM','RM','AM','CM'],
+  AM:['AM','CM','FW','RW','LW'],FW:['FW','ST','AM','RW','LW'],
+  RW:['RW','LW','AM','FW'],LW:['LW','RW','AM','FW'],ST:['ST','FW'],
+};
+function parseKw(str){if(!str)return new Set();return new Set(str.split(',').map(s=>s.trim().toLowerCase()).filter(Boolean));}
+const myKw=parseKw(p.keywords),compatRoles=ROLE_COMPAT[p.role]??[p.role];
+const related=allPlayers
+  .filter(q=>q.id!==p.id&&q.slug&&compatRoles.includes(q.role))
+  .map(q=>{let score=q.role===p.role?3:1;const tk=parseKw(q.keywords);myKw.forEach(k=>{if(tk.has(k))score+=1;});return{q,score};})
+  .filter(x=>x.score>0)
+  .sort((a,b)=>b.score-a.score||(b.q.overall_rating??0)-(a.q.overall_rating??0))
+  .slice(0,5).map(x=>x.q);
+
+// ─── COMPARE POOL ─────────────────────────────────────────────────────────
+
+const MACRO={GK:['GK'],DEF:['CB','SW','RB','LB'],MID:['DM','CM','AM','RM','LM'],ATT:['ST','FW','RW','LW']};
+const playerMacro=Object.keys(MACRO).find(k=>MACRO[k].includes(p.role))?? 'ATT';
+const macroRoles=MACRO[playerMacro];
+
+// Current player data for compare
+const currentPlayerData={
+  name:p.name,slug:p.slug,role:p.role,overall_rating:p.overall_rating,
+  acceleration:p.acceleration,pace:p.pace,agility:p.agility,strength:p.strength,
+  balance:p.balance,jumping:p.jumping,stamina:p.stamina,fitness:p.fitness,
+  dribbling:p.dribbling,short_passing:p.short_passing,long_passing:p.long_passing,
+  finishing:p.finishing,shot_accuracy:p.shot_accuracy,shot_power:p.shot_power,
+  heading:p.heading,tackling:p.tackling,free_kick:p.free_kick,penalties:p.penalties,
+  'first-touch':p['first-touch'],composure:p.composure,aggression:p.aggression,
+  consistency:p.consistency,creativity:p.creativity,work_rate:p.work_rate,
+  vision:p.vision,off_the_ball:p.off_the_ball,def_positioning:p.def_positioning,
+  teamwork:p.teamwork,anticipation:p.anticipation,marking:p.marking,
+  reflexes:p.reflexes,positioning:p.positioning,handling:p.handling,kicking:p.kicking,
 };
 
-function parseKw(str) {
-  if (!str) return new Set();
-  return new Set(str.split(',').map(s => s.trim().toLowerCase()).filter(Boolean));
-}
-
-const myKw        = parseKw(p.keywords);
-const compatRoles = ROLE_COMPAT[p.role] ?? [p.role];
-
-const related = allPlayers
-  .filter(q => q.id !== p.id && q.slug && compatRoles.includes(q.role))
-  .map(q => {
-    let score = q.role === p.role ? 3 : 1;
-    const theirKw = parseKw(q.keywords);
-    myKw.forEach(k => { if (theirKw.has(k)) score += 1; });
-    return { q, score };
-  })
-  .filter(x => x.score > 0)
-  .sort((a, b) => b.score - a.score || (b.q.overall_rating ?? 0) - (a.q.overall_rating ?? 0))
-  .slice(0, 5)
-  .map(x => x.q);
+const comparePool=allPlayers
+  .filter(q=>q.id!==p.id&&q.slug&&macroRoles.includes(q.role))
+  .map(q=>({
+    name:q.name,slug:q.slug,role:q.role,overall_rating:q.overall_rating,
+    acceleration:q.acceleration,pace:q.pace,agility:q.agility,strength:q.strength,
+    balance:q.balance,jumping:q.jumping,stamina:q.stamina,fitness:q.fitness,
+    dribbling:q.dribbling,short_passing:q.short_passing,long_passing:q.long_passing,
+    finishing:q.finishing,shot_accuracy:q.shot_accuracy,shot_power:q.shot_power,
+    heading:q.heading,tackling:q.tackling,free_kick:q.free_kick,penalties:q.penalties,
+    'first-touch':q['first-touch'],composure:q.composure,aggression:q.aggression,
+    consistency:q.consistency,creativity:q.creativity,work_rate:q.work_rate,
+    vision:q.vision,off_the_ball:q.off_the_ball,def_positioning:q.def_positioning,
+    teamwork:q.teamwork,anticipation:q.anticipation,marking:q.marking,
+    reflexes:q.reflexes,positioning:q.positioning,handling:q.handling,kicking:q.kicking,
+  }))
+  .sort((a,b)=>(b.overall_rating??0)-(a.overall_rating??0));
 ---
 
 <html>
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <title>{p.name} – Legends Database</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style is:global>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:-apple-system,'SF Pro Text','Inter',sans-serif;background:#f2f2f7;color:#1d1d1f;padding-top:44px;font-size:13px;-webkit-font-smoothing:antialiased;}
+    .page{max-width:860px;margin:0 auto;padding:40px 40px 80px;}
+    .back{display:inline-flex;align-items:center;gap:4px;font-size:13px;color:#6e6e73;text-decoration:none;margin-bottom:28px;transition:color 0.15s;}
+    .back:hover{color:#0071e3;}
 
-    body {
-      font-family: -apple-system, 'SF Pro Text', 'Inter', sans-serif;
-      background: #f2f2f7;
-      color: #1d1d1f;
-      padding-top: 44px;
-      font-size: 13px;
-      -webkit-font-smoothing: antialiased;
-    }
+    /* HERO */
+    .hero{background:#ffffff;border-radius:16px;padding:28px 32px;box-shadow:0 1px 3px rgba(0,0,0,0.07),0 4px 16px rgba(0,0,0,0.04);display:flex;align-items:center;gap:28px;margin-bottom:12px;}
+    .avatar-ring{flex-shrink:0;width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;padding:3px;}
+    .avatar{width:74px;height:74px;border-radius:50%;background:#e8e8ed;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:600;color:#6e6e73;letter-spacing:-0.5px;}
+    .hero-info{flex:1;min-width:0;}
+    .hero-name{font-size:24px;font-weight:600;letter-spacing:-0.4px;color:#1d1d1f;margin-bottom:8px;}
+    .hero-tags{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+    .tag{font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;letter-spacing:0.02em;}
+    .bio-grid{display:flex;gap:20px;flex-wrap:wrap;}
+    .bio-item{display:flex;flex-direction:column;gap:1px;}
+    .bio-label{font-size:10px;font-weight:600;color:#aeaeb2;letter-spacing:0.05em;text-transform:uppercase;}
+    .bio-value{font-size:13px;color:#1d1d1f;font-weight:500;}
+    .ovr-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;}
+    .ovr-badge{font-size:32px;font-weight:700;letter-spacing:-1px;line-height:1;}
+    .ovr-label{font-size:10px;font-weight:600;color:#aeaeb2;letter-spacing:0.06em;text-transform:uppercase;}
 
-    .page {
-      max-width: 860px;
-      margin: 0 auto;
-      padding: 40px 40px 80px;
-    }
+    /* COMPARE BUTTON */
+    .compare-btn{display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-size:11px;font-weight:600;color:#0071e3;background:transparent;border:1px solid #0071e3;border-radius:8px;padding:4px 10px;cursor:pointer;transition:background 0.14s,color 0.14s;letter-spacing:0.02em;}
+    .compare-btn:hover{background:#0071e3;color:#ffffff;}
 
-    .back {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 13px;
-      color: #6e6e73;
-      text-decoration: none;
-      margin-bottom: 28px;
-      transition: color 0.15s;
-    }
-    .back:hover { color: #0071e3; }
-
-    .hero {
-      background: #ffffff;
-      border-radius: 16px;
-      padding: 28px 32px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.04);
-      display: flex;
-      align-items: center;
-      gap: 28px;
-      margin-bottom: 12px;
-    }
-
-    .avatar-ring {
-      flex-shrink: 0;
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 3px;
-    }
-
-    .avatar {
-      width: 74px;
-      height: 74px;
-      border-radius: 50%;
-      background: #e8e8ed;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      font-weight: 600;
-      color: #6e6e73;
-      letter-spacing: -0.5px;
-    }
-
-    .hero-info { flex: 1; min-width: 0; }
-
-    .hero-name {
-      font-size: 24px;
-      font-weight: 600;
-      letter-spacing: -0.4px;
-      color: #1d1d1f;
-      margin-bottom: 8px;
-    }
-
-    .hero-tags {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 14px;
-    }
-
-    .tag {
-      font-size: 11px;
-      font-weight: 600;
-      padding: 3px 9px;
-      border-radius: 6px;
-      letter-spacing: 0.02em;
-    }
-
-    .bio-grid { display: flex; gap: 20px; flex-wrap: wrap; }
-    .bio-item { display: flex; flex-direction: column; gap: 1px; }
-
-    .bio-label {
-      font-size: 10px;
-      font-weight: 600;
-      color: #aeaeb2;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
-
-    .bio-value { font-size: 13px; color: #1d1d1f; font-weight: 500; }
-
-    .ovr-badge { font-size: 32px; font-weight: 700; letter-spacing: -1px; line-height: 1; flex-shrink: 0; }
-
-    .ovr-label {
-      font-size: 10px;
-      font-weight: 600;
-      color: #aeaeb2;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      text-align: center;
-      margin-top: 2px;
-    }
-
-    /* ALL-TIME TEAMS STRIP */
-    .teams-strip {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 12px;
-      flex-wrap: wrap;
-    }
-
-    .teams-strip-label {
-      font-size: 10px;
-      font-weight: 700;
-      color: #aeaeb2;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      white-space: nowrap;
-      margin-right: 2px;
-    }
-
-    .team-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      text-decoration: none;
-      background: #ffffff;
-      border: 1px solid #e5e5ea;
-      border-radius: 20px;
-      padding: 5px 12px 5px 8px;
-      transition: border-color 0.15s, box-shadow 0.15s, transform 0.12s;
-    }
-
-    .team-chip:hover {
-      border-color: #0071e3;
-      box-shadow: 0 0 0 3px rgba(0,113,227,0.08);
-      transform: translateY(-1px);
-    }
-
-    .team-chip-logo {
-      width: 18px;
-      height: 18px;
-      object-fit: contain;
-      flex-shrink: 0;
-    }
-
-    .team-chip-text {
-      font-size: 11.5px;
-      font-weight: 600;
-      color: #1d1d1f;
-      white-space: nowrap;
-    }
-
-    .team-chip-badge {
-      font-size: 9.5px;
-      font-weight: 700;
-      padding: 1px 5px;
-      border-radius: 4px;
-      letter-spacing: 0.04em;
-      margin-left: 2px;
-    }
-
-    .badge-nat  { background: #eef4ff; color: #0071e3; }
-    .badge-club { background: #f5f0e8; color: #b07800; }
+    /* ALL-TIME STRIP */
+    .teams-strip{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+    .teams-strip-label{font-size:10px;font-weight:700;color:#aeaeb2;letter-spacing:0.07em;text-transform:uppercase;white-space:nowrap;margin-right:2px;}
+    .team-chip{display:inline-flex;align-items:center;gap:8px;text-decoration:none;background:#ffffff;border:1px solid #e5e5ea;border-radius:20px;padding:5px 12px 5px 8px;transition:border-color 0.15s,box-shadow 0.15s,transform 0.12s;}
+    .team-chip:hover{border-color:#0071e3;box-shadow:0 0 0 3px rgba(0,113,227,0.08);transform:translateY(-1px);}
+    .team-chip-logo{width:18px;height:18px;object-fit:contain;flex-shrink:0;}
+    .team-chip-text{font-size:11.5px;font-weight:600;color:#1d1d1f;white-space:nowrap;}
+    .team-chip-badge{font-size:9.5px;font-weight:700;padding:1px 5px;border-radius:4px;letter-spacing:0.04em;margin-left:2px;}
+    .badge-nat{background:#eef4ff;color:#0071e3;}
+    .badge-club{background:#f5f0e8;color:#b07800;}
 
     /* STATS */
-    .stats-row {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    .stat-card {
-      background: #ffffff;
-      border-radius: 12px;
-      padding: 14px 12px;
-      text-align: center;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-    }
-
-    .stat-card .sv { font-size: 20px; font-weight: 600; color: #1d1d1f; letter-spacing: -0.5px; }
-    .stat-card .sl { font-size: 9.5px; font-weight: 600; color: #aeaeb2; letter-spacing: 0.05em; text-transform: uppercase; margin-top: 2px; }
+    .stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:20px;}
+    .stat-card{background:#ffffff;border-radius:12px;padding:14px 12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
+    .stat-card .sv{font-size:20px;font-weight:600;color:#1d1d1f;letter-spacing:-0.5px;}
+    .stat-card .sl{font-size:9.5px;font-weight:600;color:#aeaeb2;letter-spacing:0.05em;text-transform:uppercase;margin-top:2px;}
 
     /* GAUGE */
-    .gauge-section {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-      margin-bottom: 20px;
-    }
-
-    .gauge-item {
-      background: #ffffff;
-      border-radius: 14px;
-      padding: 22px 16px 16px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .gauge-item svg { width: 100%; max-width: 140px; overflow: visible; }
-
-    .gauge-label {
-      font-size: 10px;
-      font-weight: 700;
-      color: #aeaeb2;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      margin-top: 6px;
-      text-align: center;
-      cursor: default;
-    }
+    .gauge-section{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
+    .gauge-item{background:#ffffff;border-radius:14px;padding:22px 16px 16px;box-shadow:0 1px 3px rgba(0,0,0,0.06);display:flex;flex-direction:column;align-items:center;}
+    .gauge-item svg{width:100%;max-width:140px;overflow:visible;}
+    .gauge-label{font-size:10px;font-weight:700;color:#aeaeb2;letter-spacing:0.07em;text-transform:uppercase;margin-top:6px;text-align:center;}
 
     /* SKILLS */
-    .skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-
-    .skill-card {
-      background: #ffffff;
-      border-radius: 14px;
-      padding: 20px 20px 16px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-    }
-
-    .skill-card.full-width { grid-column: 1 / -1; }
-
-    .skill-cat {
-      font-size: 11px;
-      font-weight: 700;
-      color: #aeaeb2;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      margin-bottom: 14px;
-    }
-
-    .skill-row { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; }
-    .skill-row:last-child { margin-bottom: 0; }
-
-    .skill-abbr {
-      font-size: 10px;
-      font-weight: 700;
-      color: #6e6e73;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      min-width: 38px;
-    }
-
-    .skill-bar-wrap { flex: 1; height: 5px; background: #f0f0f5; border-radius: 3px; overflow: hidden; }
-    .skill-bar-fill { height: 100%; border-radius: 3px; }
-
-    .skill-val {
-      font-size: 12px;
-      font-weight: 600;
-      color: #1d1d1f;
-      min-width: 24px;
-      text-align: right;
-      font-variant-numeric: tabular-nums;
-    }
+    .skills-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .skill-card{background:#ffffff;border-radius:14px;padding:20px 20px 16px;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
+    .skill-card.full-width{grid-column:1/-1;}
+    .skill-cat{font-size:11px;font-weight:700;color:#aeaeb2;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:14px;}
+    .skill-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+    .skill-row:last-child{margin-bottom:0;}
+    .skill-abbr{font-size:10px;font-weight:700;color:#6e6e73;letter-spacing:0.04em;text-transform:uppercase;min-width:38px;}
+    .skill-bar-wrap{flex:1;height:5px;background:#f0f0f5;border-radius:3px;overflow:hidden;}
+    .skill-bar-fill{height:100%;border-radius:3px;}
+    .skill-val{font-size:12px;font-weight:600;color:#1d1d1f;min-width:24px;text-align:right;font-variant-numeric:tabular-nums;}
 
     /* TRAITS */
-    .traits-section {
-      margin-top: 14px;
-      background: #ffffff;
-      border-radius: 14px;
-      padding: 20px 24px 24px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-    }
-
-    .traits-title {
-      font-size: 11px;
-      font-weight: 700;
-      color: #aeaeb2;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      margin-bottom: 18px;
-    }
-
-    .traits-grid {
-      display: grid;
-      grid-template-columns: repeat(6, 60px);
-      gap: 12px;
-      justify-content: start;
-    }
-
-    .trait-icon {
-      width: 60px;
-      height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      cursor: default;
-      transition: transform 0.18s ease;
-    }
-
-    .trait-icon:hover { transform: scale(1.07); }
-    .trait-icon img { width: 60px; height: 60px; display: block; object-fit: contain; }
-
-    .trait-icon[data-tip]:hover::after {
-      content: attr(data-tip);
-      position: absolute;
-      bottom: calc(100% + 7px);
-      left: 50%;
-      transform: translateX(-50%);
-      background: #1d1d1f;
-      color: #ffffff;
-      font-size: 10px;
-      font-weight: 600;
-      white-space: nowrap;
-      padding: 4px 9px;
-      border-radius: 6px;
-      pointer-events: none;
-      z-index: 20;
-      letter-spacing: 0.02em;
-    }
-
-    .trait-icon[data-tip]:hover::before {
-      content: '';
-      position: absolute;
-      bottom: calc(100% + 2px);
-      left: 50%;
-      transform: translateX(-50%);
-      border: 4px solid transparent;
-      border-top-color: #1d1d1f;
-      pointer-events: none;
-      z-index: 20;
-    }
+    .traits-section{margin-top:14px;background:#ffffff;border-radius:14px;padding:20px 24px 24px;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
+    .traits-title{font-size:11px;font-weight:700;color:#aeaeb2;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:18px;}
+    .traits-grid{display:grid;grid-template-columns:repeat(6,60px);gap:12px;justify-content:start;}
+    .trait-icon{width:60px;height:60px;display:flex;align-items:center;justify-content:center;position:relative;cursor:default;transition:transform 0.18s;}
+    .trait-icon:hover{transform:scale(1.07);}
+    .trait-icon img{width:60px;height:60px;display:block;object-fit:contain;}
+    .trait-icon[data-tip]:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%);background:#1d1d1f;color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:4px 9px;border-radius:6px;pointer-events:none;z-index:20;}
+    .trait-icon[data-tip]:hover::before{content:'';position:absolute;bottom:calc(100% + 2px);left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:#1d1d1f;pointer-events:none;z-index:20;}
 
     /* SEE ALSO */
-    .see-also { margin-top: 40px; }
+    .see-also{margin-top:40px;}
+    .see-also-label{font-size:11px;font-weight:700;color:#aeaeb2;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:14px;padding-left:2px;}
+    .see-also-grid{display:flex;gap:10px;flex-wrap:wrap;}
+    .see-also-card{text-decoration:none;display:flex;align-items:center;gap:12px;background:#ffffff;border-radius:14px;padding:14px 18px;box-shadow:0 1px 3px rgba(0,0,0,0.06);transition:box-shadow 0.15s,transform 0.15s;flex:1;min-width:160px;max-width:calc(20% - 8px);}
+    .see-also-card:hover{box-shadow:0 3px 12px rgba(0,0,0,0.10);transform:translateY(-1px);}
+    .sa-avatar{width:36px;height:36px;border-radius:50%;background:#e8e8ed;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#6e6e73;flex-shrink:0;}
+    .sa-body{flex:1;min-width:0;}
+    .sa-name{font-size:12.5px;font-weight:600;color:#1d1d1f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;margin-bottom:4px;}
+    .sa-meta{display:flex;align-items:center;gap:6px;}
+    .sa-role{font-size:9.5px;font-weight:700;padding:1px 6px;border-radius:4px;letter-spacing:0.04em;}
+    .sa-ovr{font-size:11px;font-weight:700;font-variant-numeric:tabular-nums;}
 
-    .see-also-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: #aeaeb2;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      margin-bottom: 14px;
-      padding-left: 2px;
-    }
+    /* ─── COMPARE MODAL ─── */
+    .cmp-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:200;display:none;align-items:flex-end;justify-content:center;}
+    .cmp-overlay.open{display:flex;}
+    @media(min-width:640px){.cmp-overlay{align-items:center;}}
 
-    .see-also-grid { display: flex; gap: 10px; flex-wrap: wrap; }
+    .cmp-sheet{background:#f2f2f7;border-radius:20px 20px 0 0;width:100%;max-width:720px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 -4px 32px rgba(0,0,0,0.18);}
+    @media(min-width:640px){.cmp-sheet{border-radius:20px;max-height:85vh;}}
 
-    .see-also-card {
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: #ffffff;
-      border-radius: 14px;
-      padding: 14px 18px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-      transition: box-shadow 0.15s, transform 0.15s;
-      flex: 1;
-      min-width: 160px;
-      max-width: calc(20% - 8px);
-    }
+    .cmp-handle{width:36px;height:4px;background:#d1d1d6;border-radius:2px;margin:10px auto 0;}
 
-    .see-also-card:hover {
-      box-shadow: 0 3px 12px rgba(0,0,0,0.10);
-      transform: translateY(-1px);
-    }
+    .cmp-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 12px;border-bottom:1px solid #e5e5ea;}
+    .cmp-title{font-size:15px;font-weight:600;color:#1d1d1f;letter-spacing:-0.2px;}
+    .cmp-close{background:none;border:none;font-size:18px;color:#aeaeb2;cursor:pointer;line-height:1;padding:4px;transition:color 0.12s;}
+    .cmp-close:hover{color:#1d1d1f;}
 
-    .sa-avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: #e8e8ed;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: 700;
-      color: #6e6e73;
-      flex-shrink: 0;
-      letter-spacing: -0.3px;
-    }
+    /* SEARCH PHASE */
+    .cmp-search-phase{display:flex;flex-direction:column;flex:1;overflow:hidden;}
+    .cmp-search-wrap{padding:14px 20px 10px;}
+    .cmp-search-input{width:100%;font-family:inherit;font-size:14px;padding:10px 14px;border:1.5px solid #e5e5ea;border-radius:12px;background:#ffffff;color:#1d1d1f;outline:none;transition:border-color 0.15s;}
+    .cmp-search-input:focus{border-color:#0071e3;}
+    .cmp-search-hint{font-size:11px;color:#aeaeb2;padding:0 20px 8px;}
+    .cmp-list{flex:1;overflow-y:auto;padding:0 12px 16px;}
+    .cmp-player-row{display:flex;align-items:center;gap:12px;padding:10px 10px;border-radius:12px;cursor:pointer;transition:background 0.12s;}
+    .cmp-player-row:hover{background:#ffffff;}
+    .cmp-p-init{width:34px;height:34px;border-radius:50%;background:#e8e8ed;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#6e6e73;flex-shrink:0;}
+    .cmp-p-name{flex:1;font-size:13px;font-weight:500;color:#1d1d1f;}
+    .cmp-p-role{font-size:10px;font-weight:700;padding:2px 6px;border-radius:5px;}
+    .cmp-p-ovr{font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;min-width:28px;text-align:right;}
 
-    .sa-body { flex: 1; min-width: 0; }
+    /* COMPARISON PHASE */
+    .cmp-compare-phase{display:none;flex-direction:column;flex:1;overflow:hidden;}
+    .cmp-compare-phase.active{display:flex;}
 
-    .sa-name {
-      font-size: 12.5px;
-      font-weight: 600;
-      color: #1d1d1f;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      line-height: 1.3;
-      margin-bottom: 4px;
-    }
+    .cmp-players-header{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;padding:14px 20px;border-bottom:1px solid #e5e5ea;background:#ffffff;}
+    .cmp-ph-player{display:flex;flex-direction:column;align-items:center;gap:3px;}
+    .cmp-ph-name{font-size:12px;font-weight:600;color:#1d1d1f;text-align:center;line-height:1.2;}
+    .cmp-ph-role-badge{font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;}
+    .cmp-ph-ovr{font-size:22px;font-weight:700;letter-spacing:-0.5px;font-variant-numeric:tabular-nums;}
+    .cmp-vs{font-size:11px;font-weight:700;color:#aeaeb2;letter-spacing:0.05em;}
 
-    .sa-meta { display: flex; align-items: center; gap: 6px; }
+    .cmp-score-bar{display:flex;align-items:center;justify-content:center;gap:8px;padding:8px 20px;background:#f9f9fb;border-bottom:1px solid #e5e5ea;}
+    .cmp-score-num{font-size:18px;font-weight:700;letter-spacing:-0.3px;}
+    .cmp-score-label{font-size:10px;font-weight:600;color:#aeaeb2;letter-spacing:0.05em;}
+    .cmp-score-sep{font-size:14px;color:#aeaeb2;}
 
-    .sa-role {
-      font-size: 9.5px;
-      font-weight: 700;
-      padding: 1px 6px;
-      border-radius: 4px;
-      letter-spacing: 0.04em;
-    }
+    .cmp-back-btn{background:none;border:none;font-size:11px;font-weight:600;color:#0071e3;cursor:pointer;padding:0;font-family:inherit;display:flex;align-items:center;gap:4px;}
+    .cmp-back-btn:hover{opacity:0.7;}
 
-    .sa-ovr {
-      font-size: 11px;
-      font-weight: 700;
-      font-variant-numeric: tabular-nums;
-    }
+    .cmp-skills-scroll{flex:1;overflow-y:auto;padding:12px 16px 24px;}
+    .cmp-section-title{font-size:10px;font-weight:700;color:#aeaeb2;letter-spacing:0.07em;text-transform:uppercase;margin:14px 4px 8px;}
 
-    @media (max-width: 600px) {
-      .page { padding: 24px 20px 60px; }
-      .hero { flex-direction: column; align-items: flex-start; gap: 16px; }
-      .stats-row { grid-template-columns: repeat(3, 1fr); }
-      .gauge-section { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-      .skills-grid { grid-template-columns: 1fr; }
-      .skill-card.full-width { grid-column: auto; }
-      .traits-grid { grid-template-columns: repeat(5, 52px); gap: 10px; }
-      .trait-icon, .trait-icon img { width: 52px; height: 52px; }
-      .see-also-card { max-width: calc(50% - 5px); }
+    .cmp-skill-row{display:grid;grid-template-columns:1fr 28px 60px 28px 1fr;align-items:center;gap:6px;margin-bottom:6px;}
+    .cmp-bar-left,.cmp-bar-right{height:5px;border-radius:3px;min-width:4px;}
+    .cmp-bar-left{justify-self:end;}
+    .cmp-val-left,.cmp-val-right{font-size:11px;font-weight:700;font-variant-numeric:tabular-nums;}
+    .cmp-val-left{text-align:right;}
+    .cmp-val-right{text-align:left;}
+    .cmp-skill-label{font-size:9.5px;font-weight:600;color:#6e6e73;text-align:center;letter-spacing:0.03em;text-transform:uppercase;}
+    .cmp-win-left{color:#1a7a1a;}
+    .cmp-win-right{color:#1a7a1a;}
+    .cmp-draw{color:#6e6e73;}
+
+    @media(max-width:600px){
+      .page{padding:24px 20px 60px;}
+      .hero{flex-direction:column;align-items:flex-start;gap:16px;}
+      .stats-row{grid-template-columns:repeat(3,1fr);}
+      .gauge-section{gap:8px;}
+      .skills-grid{grid-template-columns:1fr;}
+      .skill-card.full-width{grid-column:auto;}
+      .traits-grid{grid-template-columns:repeat(5,52px);gap:10px;}
+      .trait-icon,.trait-icon img{width:52px;height:52px;}
+      .see-also-card{max-width:calc(50% - 5px);}
     }
   </style>
 </head>
 
 <body>
-  <Navbar />
+<Navbar/>
+<div class="page">
+  <a href="/" class="back">← Database</a>
 
-  <div class="page">
-    <a href="/" class="back">← Database</a>
-
-    <!-- HERO -->
-    <div class="hero">
-      {hasGradientBorder ? (
-        <div class="avatar-ring" style={`background: conic-gradient(${gradientStops}); border-radius: 50%;`}>
-          <div class="avatar">{initials}</div>
-        </div>
-      ) : hasSolidBorder ? (
-        <div class="avatar-ring" style={`background: ${solidColor};`}>
-          <div class="avatar">{initials}</div>
-        </div>
-      ) : (
-        <div class="avatar-ring" style="background: #e8e8ed;">
-          <div class="avatar">{initials}</div>
-        </div>
-      )}
-
-      <div class="hero-info">
-        <div class="hero-name">{p.name}</div>
-        <div class="hero-tags">
-          <span class="tag" style={`background:${rc.bg}; color:${rc.text};`}>{fullRoleName}</span>
-          <span class="tag" style="background:#f5f5f7; color:#6e6e73;">{p.nation}</span>
-          <span class="tag" style="background:#f5f5f7; color:#6e6e73;">{p.iconic_club}</span>
-          <span class="tag" style="background:#f5f5f7; color:#6e6e73;">{p.decade}s</span>
-        </div>
-        <div class="bio-grid">
-          <div class="bio-item">
-            <span class="bio-label">Born</span>
-            <span class="bio-value">{p.birth_year}</span>
-          </div>
-          <div class="bio-item">
-            <span class="bio-label">Height</span>
-            <span class="bio-value">{p.height} cm</span>
-          </div>
-          <div class="bio-item">
-            <span class="bio-label">Weight</span>
-            <span class="bio-value">{p.weight} kg</span>
-          </div>
-          <div class="bio-item">
-            <span class="bio-label">Foot</span>
-            <span class="bio-value">{p.preferred_foot}</span>
-          </div>
-        </div>
+  <!-- HERO -->
+  <div class="hero">
+    {hasGradientBorder?(
+      <div class="avatar-ring" style={`background:conic-gradient(${gradientStops});border-radius:50%;`}>
+        <div class="avatar">{initials}</div>
       </div>
+    ):hasSolidBorder?(
+      <div class="avatar-ring" style={`background:${solidColor};`}>
+        <div class="avatar">{initials}</div>
+      </div>
+    ):(
+      <div class="avatar-ring" style="background:#e8e8ed;">
+        <div class="avatar">{initials}</div>
+      </div>
+    )}
 
-      <div style="text-align:center;">
-        <div class="ovr-badge" style={`color:${ovrColor(p.overall_rating)};`}>{p.overall_rating}</div>
-        <div class="ovr-label">Overall</div>
+    <div class="hero-info">
+      <div class="hero-name">{p.name}</div>
+      <div class="hero-tags">
+        <span class="tag" style={`background:${rc.bg};color:${rc.text};`}>{fullRoleName}</span>
+        <span class="tag" style="background:#f5f5f7;color:#6e6e73;">{p.nation}</span>
+        <span class="tag" style="background:#f5f5f7;color:#6e6e73;">{p.iconic_club}</span>
+        <span class="tag" style="background:#f5f5f7;color:#6e6e73;">{p.decade}s</span>
+      </div>
+      <div class="bio-grid">
+        <div class="bio-item"><span class="bio-label">Born</span><span class="bio-value">{p.birth_year}</span></div>
+        <div class="bio-item"><span class="bio-label">Height</span><span class="bio-value">{p.height} cm</span></div>
+        <div class="bio-item"><span class="bio-label">Weight</span><span class="bio-value">{p.weight} kg</span></div>
+        <div class="bio-item"><span class="bio-label">Foot</span><span class="bio-value">{p.preferred_foot}</span></div>
       </div>
     </div>
 
-    <!-- ALL-TIME TEAMS STRIP -->
-    {playerTeams.length > 0 && (
-      <div class="teams-strip">
-        <span class="teams-strip-label">All-Time</span>
-        {playerTeams.map(t => (
-          <a href={`/team/${t.slug}`} class="team-chip">
-            <img
-              src={`/teams/${t.slug}.svg`}
-              class="team-chip-logo"
-              alt={t.displayName}
-              onerror="this.style.display='none'"
-            />
-            <span class="team-chip-text">{t.displayName}</span>
-            <span class={`team-chip-badge ${t.isNational ? 'badge-nat' : 'badge-club'}`}>
-              {t.isNational ? 'NT' : 'Club'}
-            </span>
-          </a>
-        ))}
-      </div>
-    )}
-
-    <!-- STATS -->
-    <div class="stats-row">
-      <div class="stat-card"><div class="sv">{p.club_apps}</div><div class="sl">Club Apps</div></div>
-      <div class="stat-card"><div class="sv">{p.club_goals}</div><div class="sl">Club Goals</div></div>
-      <div class="stat-card"><div class="sv">{p.club_goal_ratio}</div><div class="sl">Club Ratio</div></div>
-      <div class="stat-card"><div class="sv">{p.nat_apps}</div><div class="sl">Nat Apps</div></div>
-      <div class="stat-card"><div class="sv">{p.nat_goals}</div><div class="sl">Nat Goals</div></div>
-      <div class="stat-card"><div class="sv">{p.nat_goal_ratio}</div><div class="sl">Nat Ratio</div></div>
+    <div class="ovr-col">
+      <div class="ovr-badge" style={`color:${ovrColor(p.overall_rating)};`}>{p.overall_rating}</div>
+      <div class="ovr-label">Overall</div>
+      <button class="compare-btn" id="openCompare" title="Compare with another player">⇄ Compare</button>
     </div>
-
-    <!-- GAUGES -->
-    {!isGK && (
-      <div class="gauge-section">
-        <div class="gauge-item">
-          <svg viewBox="0 0 120 66" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <circle cx="60" cy="62" r={GAUGE_R} fill="none" stroke="#f0f0f5" stroke-width="9"
-              stroke-dasharray={`${HALF_CIRC} ${FULL_CIRC}`} transform="rotate(180 60 62)" />
-            <circle cx="60" cy="62" r={GAUGE_R} fill="none" stroke={skillColor(attAvg)} stroke-width="9"
-              stroke-dasharray={gaugeDash(attAvg)} transform="rotate(180 60 62)" stroke-linecap="round" />
-            <text x="60" y="57" text-anchor="middle" font-size="22" font-weight="700" fill="#1d1d1f"
-              font-family="-apple-system,'SF Pro Text',sans-serif">{attAvg}</text>
-          </svg>
-          <div class="gauge-label" title="Avg: Finishing, Off the Ball, Composure, Anticipation, Shot Accuracy">Att. Skills</div>
-        </div>
-        <div class="gauge-item">
-          <svg viewBox="0 0 120 66" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <circle cx="60" cy="62" r={GAUGE_R} fill="none" stroke="#f0f0f5" stroke-width="9"
-              stroke-dasharray={`${HALF_CIRC} ${FULL_CIRC}`} transform="rotate(180 60 62)" />
-            <circle cx="60" cy="62" r={GAUGE_R} fill="none" stroke={skillColor(playmakingAvg)} stroke-width="9"
-              stroke-dasharray={gaugeDash(playmakingAvg)} transform="rotate(180 60 62)" stroke-linecap="round" />
-            <text x="60" y="57" text-anchor="middle" font-size="22" font-weight="700" fill="#1d1d1f"
-              font-family="-apple-system,'SF Pro Text',sans-serif">{playmakingAvg}</text>
-          </svg>
-          <div class="gauge-label" title="Avg: Short Passing, Long Passing, Vision, Composure">Playmaking</div>
-        </div>
-        <div class="gauge-item">
-          <svg viewBox="0 0 120 66" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <circle cx="60" cy="62" r={GAUGE_R} fill="none" stroke="#f0f0f5" stroke-width="9"
-              stroke-dasharray={`${HALF_CIRC} ${FULL_CIRC}`} transform="rotate(180 60 62)" />
-            <circle cx="60" cy="62" r={GAUGE_R} fill="none" stroke={skillColor(defAvg)} stroke-width="9"
-              stroke-dasharray={gaugeDash(defAvg)} transform="rotate(180 60 62)" stroke-linecap="round" />
-            <text x="60" y="57" text-anchor="middle" font-size="22" font-weight="700" fill="#1d1d1f"
-              font-family="-apple-system,'SF Pro Text',sans-serif">{defAvg}</text>
-          </svg>
-          <div class="gauge-label" title="Avg: Marking, Tackling, Def. Positioning, Anticipation, Heading, Composure">Def. Skills</div>
-        </div>
-      </div>
-    )}
-
-    <!-- SKILLS -->
-    <div class="skills-grid">
-
-      <div class="skill-card">
-        <div class="skill-cat" style="display:flex;justify-content:space-between;align-items:center;">
-          <span>Athletic</span>
-          <span style={`font-weight:600;font-size:13px;color:${skillColor(athleticAvg)};`}>{athleticAvg}</span>
-        </div>
-        {athleticSkills.map(s => (
-          <div class="skill-row">
-            <span class="skill-abbr" title={s.full}>{s.label}</span>
-            <div class="skill-bar-wrap">
-              <div class="skill-bar-fill" style={`width:${p[s.key]}%;background:${skillColor(p[s.key])};`}></div>
-            </div>
-            <span class="skill-val">{p[s.key]}</span>
-          </div>
-        ))}
-      </div>
-
-      <div class="skill-card">
-        <div class="skill-cat" style="display:flex;justify-content:space-between;align-items:center;">
-          <span>Technical</span>
-          <span style={`font-weight:600;font-size:13px;color:${skillColor(technicalAvg)};`}>{technicalAvg}</span>
-        </div>
-        {technicalSkills.map(s => (
-          <div class="skill-row">
-            <span class="skill-abbr" title={s.full}>{s.label}</span>
-            <div class="skill-bar-wrap">
-              <div class="skill-bar-fill" style={`width:${p[s.key]}%;background:${skillColor(p[s.key])};`}></div>
-            </div>
-            <span class="skill-val">{p[s.key]}</span>
-          </div>
-        ))}
-      </div>
-
-      <div class="skill-card">
-        <div class="skill-cat" style="display:flex;justify-content:space-between;align-items:center;">
-          <span>Mental</span>
-          <span style={`font-weight:600;font-size:13px;color:${skillColor(mentalAvg)};`}>{mentalAvg}</span>
-        </div>
-        {mentalSkills.map(s => (
-          <div class="skill-row">
-            <span class="skill-abbr" title={s.full}>{s.label}</span>
-            <div class="skill-bar-wrap">
-              <div class="skill-bar-fill" style={`width:${p[s.key]}%;background:${skillColor(p[s.key])};`}></div>
-            </div>
-            <span class="skill-val">{p[s.key]}</span>
-          </div>
-        ))}
-      </div>
-
-      <div class="skill-card">
-        <div class="skill-cat" style="display:flex;justify-content:space-between;align-items:center;">
-          <span>Tactical</span>
-          <span style={`font-weight:600;font-size:13px;color:${skillColor(tacticalAvg)};`}>{tacticalAvg}</span>
-        </div>
-        {tacticalSkills.map(s => (
-          <div class="skill-row">
-            <span class="skill-abbr" title={s.full}>{s.label}</span>
-            <div class="skill-bar-wrap">
-              <div class="skill-bar-fill" style={`width:${p[s.key]}%;background:${skillColor(p[s.key])};`}></div>
-            </div>
-            <span class="skill-val">{p[s.key]}</span>
-          </div>
-        ))}
-      </div>
-
-      {isGK && (
-        <div class="skill-card full-width">
-          <div class="skill-cat" style="display:flex;justify-content:space-between;align-items:center;">
-            <span>Goalkeeping</span>
-            <span style={`font-weight:600;font-size:13px;color:${skillColor(gkAvg)};`}>{gkAvg}</span>
-          </div>
-          {gkSkills.map(s => (
-            <div class="skill-row">
-              <span class="skill-abbr" title={s.full}>{s.label}</span>
-              <div class="skill-bar-wrap">
-                <div class="skill-bar-fill" style={`width:${p[s.key]}%;background:${skillColor(p[s.key])};`}></div>
-              </div>
-              <span class="skill-val">{p[s.key]}</span>
-            </div>
-          ))}
-        </div>
-      )}
-
-    </div>
-
-    <!-- TRAITS -->
-    {!isGK && activeTraits.length > 0 && (
-      <div class="traits-section">
-        <div class="traits-title">Player Traits</div>
-        <div class="traits-grid">
-          {activeTraits.map(t => (
-            <div class="trait-icon" data-tip={t.tooltip} title={t.tooltip}>
-              <img src={t.file} alt={t.tooltip} />
-            </div>
-          ))}
-        </div>
-      </div>
-    )}
-
-    <!-- SEE ALSO -->
-    {related.length > 0 && (
-      <div class="see-also">
-        <div class="see-also-label">See also</div>
-        <div class="see-also-grid">
-          {related.map(q => {
-            const qInitials = q.name.split(',').map(s => s.trim()[0]).join('').toUpperCase().slice(0,2);
-            const qRc = roleColor(q.role);
-            return (
-              <a href={`/player/${q.slug}`} class="see-also-card">
-                <div class="sa-avatar">{qInitials}</div>
-                <div class="sa-body">
-                  <div class="sa-name">{q.name}</div>
-                  <div class="sa-meta">
-                    <span class="sa-role" style={`background:${qRc.bg};color:${qRc.text};`}>{q.role}</span>
-                    <span class="sa-ovr" style={`color:${ovrColor(q.overall_rating)};`}>{q.overall_rating}</span>
-                  </div>
-                </div>
-              </a>
-            );
-          })}
-        </div>
-      </div>
-    )}
-
   </div>
+
+  <!-- ALL-TIME TEAMS STRIP -->
+  {playerTeams.length>0&&(
+    <div class="teams-strip">
+      <span class="teams-strip-label">All-Time</span>
+      {playerTeams.map(t=>(
+        <a href={`/team/${t.slug}`} class="team-chip">
+          <img src={`/teams/${t.slug}.svg`} class="team-chip-logo" alt={t.displayName} onerror="this.style.display='none'"/>
+          <span class="team-chip-text">{t.displayName}</span>
+          <span class={`team-chip-badge ${t.isNational?'badge-nat':'badge-club'}`}>{t.isNational?'NT':'Club'}</span>
+        </a>
+      ))}
+    </div>
+  )}
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-card"><div class="sv">{p.club_apps}</div><div class="sl">Club Apps</div></div>
+    <div class="stat-card"><div class="sv">{p.club_goals}</div><div class="sl">Club Goals</div></div>
+    <div class="stat-card"><div class="sv">{p.club_goal_ratio}</div><div class="sl">Club Ratio</div></div>
+    <div class="stat-card"><div class="sv">{p.nat_apps}</div><div class="sl">Nat Apps</div></div>
+    <div class="stat-card"><div class="sv">{p.nat_goals}</div><div class="sl">Nat Goals</div></div>
+    <div class="stat-card"><div class="sv">{p.nat_goal_ratio}</div><div class="sl">Nat Ratio</div></div>
+  </div>
+
+  <!-- GAUGES -->
+  {!isGK&&(
+    <div class="gauge-section">
+      <div class="gauge-item">
+        <svg viewBox="0 0 120 66" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="60" cy="62" r={GAUGE_R} fill="none" stroke="#f0f0f5" stroke-width="9" stroke-dasharray={`${HALF_CIRC} ${FULL_CIRC}`} transform="rotate(180 60 62)"/>
+          <circle cx="60" cy="62" r={GAUGE_R} fill="none" stroke={skillColor(attAvg)} stroke-width="9" stroke-dasharray={gaugeDash(attAvg)} transform="rotate(180 60 62)" stroke-linecap="round"/>
+          <text x="60" y="57" text-anchor="middle" font-size="22" font-weight="700" fill="#1d1d1f" font-family="-apple-system,'SF Pro Text',sans-serif">{attAvg}</text>
+        </svg>
+        <div class="gauge-label">Att. Skills</div>
+      </div>
+      <div class="gauge-item">
+        <svg viewBox="0 0 120 66" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="60" cy="62" r={GAUGE_R} fill="none" stroke="#f0f0f5" stroke-width="9" stroke-dasharray={`${HALF_CIRC} ${FULL_CIRC}`} transform="rotate(180 60 62)"/>
+          <circle cx="60" cy="62" r={GAUGE_R} fill="none" stroke={skillColor(playmakingAvg)} stroke-width="9" stroke-dasharray={gaugeDash(playmakingAvg)} transform="rotate(180 60 62)" stroke-linecap="round"/>
+          <text x="60" y="57" text-anchor="middle" font-size="22" font-weight="700" fill="#1d1d1f" font-family="-apple-system,'SF Pro Text',sans-serif">{playmakingAvg}</text>
+        </svg>
+        <div class="gauge-label">Playmaking</div>
+      </div>
+      <div class="gauge-item">
+        <svg viewBox="0 0 120 66" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="60" cy="62" r={GAUGE_R} fill="none" stroke="#f0f0f5" stroke-width="9" stroke-dasharray={`${HALF_CIRC} ${FULL_CIRC}`} transform="rotate(180 60 62)"/>
+          <circle cx="60" cy="62" r={GAUGE_R} fill="none" stroke={skillColor(defAvg)} stroke-width="9" stroke-dasharray={gaugeDash(defAvg)} transform="rotate(180 60 62)" stroke-linecap="round"/>
+          <text x="60" y="57" text-anchor="middle" font-size="22" font-weight="700" fill="#1d1d1f" font-family="-apple-system,'SF Pro Text',sans-serif">{defAvg}</text>
+        </svg>
+        <div class="gauge-label">Def. Skills</div>
+      </div>
+    </div>
+  )}
+
+  <!-- SKILLS -->
+  <div class="skills-grid">
+    <div class="skill-card">
+      <div class="skill-cat" style="display:flex;justify-content:space-between;align-items:center;">
+        <span>Athletic</span><span style={`font-weight:600;font-size:13px;color:${skillColor(athleticAvg)};`}>{athleticAvg}</span>
+      </div>
+      {athleticSkills.map(s=>(
+        <div class="skill-row">
+          <span class="skill-abbr" title={s.full}>{s.label}</span>
+          <div class="skill-bar-wrap"><div class="skill-bar-fill" style={`width:${p[s.key]}%;background:${skillColor(p[s.key])};`}></div></div>
+          <span class="skill-val">{p[s.key]}</span>
+        </div>
+      ))}
+    </div>
+
+    <div class="skill-card">
+      <div class="skill-cat" style="display:flex;justify-content:space-between;align-items:center;">
+        <span>Technical</span><span style={`font-weight:600;font-size:13px;color:${skillColor(technicalAvg)};`}>{technicalAvg}</span>
+      </div>
+      {technicalSkills.map(s=>(
+        <div class="skill-row">
+          <span class="skill-abbr" title={s.full}>{s.label}</span>
+          <div class="skill-bar-wrap"><div class="skill-bar-fill" style={`width:${p[s.key]}%;background:${skillColor(p[s.key])};`}></div></div>
+          <span class="skill-val">{p[s.key]}</span>
+        </div>
+      ))}
+    </div>
+
+    <div class="skill-card">
+      <div class="skill-cat" style="display:flex;justify-content:space-between;align-items:center;">
+        <span>Mental</span><span style={`font-weight:600;font-size:13px;color:${skillColor(mentalAvg)};`}>{mentalAvg}</span>
+      </div>
+      {mentalSkills.map(s=>(
+        <div class="skill-row">
+          <span class="skill-abbr" title={s.full}>{s.label}</span>
+          <div class="skill-bar-wrap"><div class="skill-bar-fill" style={`width:${p[s.key]}%;background:${skillColor(p[s.key])};`}></div></div>
+          <span class="skill-val">{p[s.key]}</span>
+        </div>
+      ))}
+    </div>
+
+    <div class="skill-card">
+      <div class="skill-cat" style="display:flex;justify-content:space-between;align-items:center;">
+        <span>Tactical</span><span style={`font-weight:600;font-size:13px;color:${skillColor(tacticalAvg)};`}>{tacticalAvg}</span>
+      </div>
+      {tacticalSkills.map(s=>(
+        <div class="skill-row">
+          <span class="skill-abbr" title={s.full}>{s.label}</span>
+          <div class="skill-bar-wrap"><div class="skill-bar-fill" style={`width:${p[s.key]}%;background:${skillColor(p[s.key])};`}></div></div>
+          <span class="skill-val">{p[s.key]}</span>
+        </div>
+      ))}
+    </div>
+
+    {isGK&&(
+      <div class="skill-card full-width">
+        <div class="skill-cat" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>Goalkeeping</span><span style={`font-weight:600;font-size:13px;color:${skillColor(gkAvg)};`}>{gkAvg}</span>
+        </div>
+        {gkSkills.map(s=>(
+          <div class="skill-row">
+            <span class="skill-abbr" title={s.full}>{s.label}</span>
+            <div class="skill-bar-wrap"><div class="skill-bar-fill" style={`width:${p[s.key]}%;background:${skillColor(p[s.key])};`}></div></div>
+            <span class="skill-val">{p[s.key]}</span>
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+
+  <!-- TRAITS -->
+  {!isGK&&activeTraits.length>0&&(
+    <div class="traits-section">
+      <div class="traits-title">Player Traits</div>
+      <div class="traits-grid">
+        {activeTraits.map(t=>(
+          <div class="trait-icon" data-tip={t.tooltip} title={t.tooltip}>
+            <img src={t.file} alt={t.tooltip}/>
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
+
+  <!-- SEE ALSO -->
+  {related.length>0&&(
+    <div class="see-also">
+      <div class="see-also-label">See also</div>
+      <div class="see-also-grid">
+        {related.map(q=>{
+          const qi=q.name.split(',').map(s=>s.trim()[0]).join('').toUpperCase().slice(0,2);
+          const qr=roleColor(q.role);
+          return(
+            <a href={`/player/${q.slug}`} class="see-also-card">
+              <div class="sa-avatar">{qi}</div>
+              <div class="sa-body">
+                <div class="sa-name">{q.name}</div>
+                <div class="sa-meta">
+                  <span class="sa-role" style={`background:${qr.bg};color:${qr.text};`}>{q.role}</span>
+                  <span class="sa-ovr" style={`color:${ovrColor(q.overall_rating)};`}>{q.overall_rating}</span>
+                </div>
+              </div>
+            </a>
+          );
+        })}
+      </div>
+    </div>
+  )}
+</div>
+
+<!-- ─── COMPARE MODAL ─── -->
+<div class="cmp-overlay" id="cmpOverlay">
+  <div class="cmp-sheet" id="cmpSheet">
+    <div class="cmp-handle"></div>
+
+    <div class="cmp-header">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button class="cmp-back-btn" id="cmpBack" style="display:none;">← back</button>
+        <span class="cmp-title" id="cmpTitleText">Compare with</span>
+      </div>
+      <button class="cmp-close" id="cmpClose">✕</button>
+    </div>
+
+    <!-- PHASE 1: SEARCH -->
+    <div class="cmp-search-phase" id="cmpSearchPhase">
+      <div class="cmp-search-wrap">
+        <input class="cmp-search-input" id="cmpSearch" type="text" placeholder="Search by name…" autocomplete="off"/>
+      </div>
+      <div class="cmp-search-hint" id="cmpHint"></div>
+      <div class="cmp-list" id="cmpList"></div>
+    </div>
+
+    <!-- PHASE 2: COMPARISON -->
+    <div class="cmp-compare-phase" id="cmpComparePhase">
+      <div class="cmp-players-header" id="cmpPlayersHeader"></div>
+      <div class="cmp-score-bar" id="cmpScoreBar"></div>
+      <div class="cmp-skills-scroll" id="cmpSkillsScroll"></div>
+    </div>
+  </div>
+</div>
+
+<script define:vars={{ currentPlayerData, comparePool, playerMacro }}>
+
+// ─── COLOR UTILS ──────────────────────────────────────────────────────────
+function ovrColor(v){
+  if(v>=95)return'#0071e3';if(v>=90)return'#1a5e1a';if(v>=80)return'#2e8b2e';
+  if(v>=70)return'#6aaa2a';if(v>=60)return'#c8a800';if(v>=50)return'#e07800';
+  if(v>=40)return'#cc4400';return'#c0392b';
+}
+function skillColor(v){
+  if(v>=95)return'#5aabff';if(v>=90)return'#1a5e1a';if(v>=80)return'#2e8b2e';
+  if(v>=70)return'#6aaa2a';if(v>=60)return'#c8a800';if(v>=40)return'#e07800';
+  return'#c0392b';
+}
+function roleColors(role){
+  const att=['ST','FW','RW','LW'],mid=['AM','CM','DM','RM','LM'],def=['CB','SW','RB','LB'];
+  if(att.includes(role))return{bg:'#fff0ee',text:'#c0392b'};
+  if(mid.includes(role))return{bg:'#eef4ff',text:'#0071e3'};
+  if(def.includes(role))return{bg:'#eeffee',text:'#1a7a1a'};
+  return{bg:'#f5f0e8',text:'#b07800'};
+}
+function initials(name){return(name||'').split(',').map(s=>s.trim()[0]).join('').toUpperCase().slice(0,2);}
+
+// ─── SKILL DEFINITIONS ────────────────────────────────────────────────────
+const SKILL_SECTIONS=[
+  {label:'Athletic',skills:[
+    {key:'acceleration',label:'ACC'},{key:'pace',label:'PAC'},{key:'agility',label:'AGI'},
+    {key:'strength',label:'STR'},{key:'balance',label:'BAL'},{key:'jumping',label:'JMP'},
+    {key:'stamina',label:'STA'},{key:'fitness',label:'FIT'},
+  ]},
+  {label:'Technical',skills:[
+    {key:'dribbling',label:'DRI'},{key:'short_passing',label:'S-PAS'},{key:'long_passing',label:'L-PAS'},
+    {key:'finishing',label:'FIN'},{key:'shot_accuracy',label:'SHO-A'},{key:'shot_power',label:'SHO-P'},
+    {key:'heading',label:'HEA'},{key:'tackling',label:'TAC'},{key:'free_kick',label:'FRK'},
+    {key:'penalties',label:'PEN'},{key:'first-touch',label:'1-TCH'},
+  ]},
+  {label:'Mental',skills:[
+    {key:'composure',label:'COM'},{key:'aggression',label:'AGG'},{key:'consistency',label:'CON'},
+    {key:'creativity',label:'CREA'},{key:'work_rate',label:'WRT'},
+  ]},
+  {label:'Tactical',skills:[
+    {key:'vision',label:'VIS'},{key:'off_the_ball',label:'OFB'},{key:'def_positioning',label:'DEF'},
+    {key:'teamwork',label:'TMW'},{key:'anticipation',label:'ANT'},{key:'marking',label:'MAR'},
+  ]},
+  {label:'Goalkeeping',skills:[
+    {key:'reflexes',label:'REF'},{key:'positioning',label:'POS'},
+    {key:'handling',label:'HAN'},{key:'kicking',label:'KIC'},
+  ]},
+];
+
+// ─── DOM REFS ──────────────────────────────────────────────────────────────
+const overlay=document.getElementById('cmpOverlay');
+const searchPhase=document.getElementById('cmpSearchPhase');
+const comparePhase=document.getElementById('cmpComparePhase');
+const searchInput=document.getElementById('cmpSearch');
+const listEl=document.getElementById('cmpList');
+const hintEl=document.getElementById('cmpHint');
+const backBtn=document.getElementById('cmpBack');
+const titleText=document.getElementById('cmpTitleText');
+const playersHeader=document.getElementById('cmpPlayersHeader');
+const scoreBar=document.getElementById('cmpScoreBar');
+const skillsScroll=document.getElementById('cmpSkillsScroll');
+
+// ─── OPEN / CLOSE ─────────────────────────────────────────────────────────
+document.getElementById('openCompare').addEventListener('click',()=>{
+  overlay.classList.add('open');
+  resetToSearch();
+  searchInput.focus();
+});
+document.getElementById('cmpClose').addEventListener('click',closeModal);
+overlay.addEventListener('click',e=>{if(e.target===overlay)closeModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
+function closeModal(){
+  overlay.classList.remove('open');
+  searchInput.value='';
+}
+
+function resetToSearch(){
+  searchPhase.style.display='flex';
+  comparePhase.classList.remove('active');
+  backBtn.style.display='none';
+  titleText.textContent='Compare with';
+  hintEl.textContent=`${comparePool.length} players available in this area`;
+  renderList('');
+  searchInput.value='';
+}
+
+backBtn.addEventListener('click',resetToSearch);
+
+// ─── SEARCH LIST ──────────────────────────────────────────────────────────
+function renderList(query){
+  const q=query.toLowerCase().trim();
+  const filtered=q
+    ? comparePool.filter(pl=>pl.name.toLowerCase().includes(q))
+    : comparePool.slice(0,30);
+  listEl.innerHTML='';
+  if(!filtered.length){
+    listEl.innerHTML='<div style="padding:20px;text-align:center;color:#aeaeb2;font-size:13px;">No players found</div>';
+    return;
+  }
+  filtered.forEach(pl=>{
+    const rc=roleColors(pl.role);
+    const row=document.createElement('div');
+    row.className='cmp-player-row';
+    row.innerHTML=`
+      <div class="cmp-p-init">${initials(pl.name)}</div>
+      <span class="cmp-p-name">${pl.name}</span>
+      <span class="cmp-p-role" style="background:${rc.bg};color:${rc.text};">${pl.role}</span>
+      <span class="cmp-p-ovr" style="color:${ovrColor(pl.overall_rating??0)};">${pl.overall_rating??'—'}</span>
+    `;
+    row.addEventListener('click',()=>showComparison(pl));
+    listEl.appendChild(row);
+  });
+}
+
+searchInput.addEventListener('input',e=>renderList(e.target.value));
+
+// ─── COMPARISON VIEW ──────────────────────────────────────────────────────
+function showComparison(p2){
+  const p1=currentPlayerData;
+  searchPhase.style.display='none';
+  comparePhase.classList.add('active');
+  backBtn.style.display='flex';
+  titleText.textContent='Comparison';
+
+  // Header
+  const rc1=roleColors(p1.role),rc2=roleColors(p2.role);
+  playersHeader.innerHTML=`
+    <div class="cmp-ph-player">
+      <div class="cmp-ph-name">${p1.name}</div>
+      <span class="cmp-ph-role-badge" style="background:${rc1.bg};color:${rc1.text};">${p1.role}</span>
+      <div class="cmp-ph-ovr" style="color:${ovrColor(p1.overall_rating??0)};">${p1.overall_rating??'—'}</div>
+    </div>
+    <div class="cmp-vs">VS</div>
+    <div class="cmp-ph-player">
+      <div class="cmp-ph-name">${p2.name}</div>
+      <span class="cmp-ph-role-badge" style="background:${rc2.bg};color:${rc2.text};">${p2.role}</span>
+      <div class="cmp-ph-ovr" style="color:${ovrColor(p2.overall_rating??0)};">${p2.overall_rating??'—'}</div>
+    </div>
+  `;
+
+  // Count wins
+  let w1=0,w2=0,draws=0;
+  SKILL_SECTIONS.forEach(sec=>sec.skills.forEach(sk=>{
+    const v1=p1[sk.key]??0,v2=p2[sk.key]??0;
+    if(v1>v2)w1++;else if(v2>v1)w2++;else draws++;
+  }));
+
+  scoreBar.innerHTML=`
+    <span class="cmp-score-num" style="color:${w1>w2?'#1a7a1a':w2>w1?'#c0392b':'#6e6e73'};">${w1}</span>
+    <span class="cmp-score-label">wins</span>
+    <span class="cmp-score-sep">·</span>
+    <span class="cmp-score-num" style="color:#6e6e73;">${draws}</span>
+    <span class="cmp-score-label">draws</span>
+    <span class="cmp-score-sep">·</span>
+    <span class="cmp-score-num" style="color:${w2>w1?'#1a7a1a':w1>w2?'#c0392b':'#6e6e73'};">${w2}</span>
+    <span class="cmp-score-label">wins</span>
+  `;
+
+  // Skills
+  skillsScroll.innerHTML='';
+  SKILL_SECTIONS.forEach(sec=>{
+    const hasData=sec.skills.some(sk=>p1[sk.key]!=null||p2[sk.key]!=null);
+    if(!hasData)return;
+
+    const titleEl=document.createElement('div');
+    titleEl.className='cmp-section-title';
+    titleEl.textContent=sec.label;
+    skillsScroll.appendChild(titleEl);
+
+    sec.skills.forEach(sk=>{
+      const v1=p1[sk.key]??0,v2=p2[sk.key]??0;
+      if(p1[sk.key]==null&&p2[sk.key]==null)return;
+      const maxV=Math.max(v1,v2,1);
+      const w1pct=Math.round((v1/100)*100),w2pct=Math.round((v2/100)*100);
+
+      let c1='#6e6e73',c2='#6e6e73';
+      if(v1>v2){c1='#1a7a1a';}
+      else if(v2>v1){c2='#1a7a1a';}
+
+      const row=document.createElement('div');
+      row.className='cmp-skill-row';
+      row.innerHTML=`
+        <div style="display:flex;align-items:center;justify-content:flex-end;gap:6px;">
+          <span style="font-size:11px;font-weight:700;color:${c1};font-variant-numeric:tabular-nums;">${v1||'—'}</span>
+          <div style="width:${w1pct}px;max-width:90px;height:5px;border-radius:3px;background:${skillColor(v1)};min-width:2px;"></div>
+        </div>
+        <span style="font-size:9px;font-weight:700;color:#6e6e73;text-align:center;text-transform:uppercase;letter-spacing:0.03em;white-space:nowrap;">${sk.label}</span>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div style="width:${w2pct}px;max-width:90px;height:5px;border-radius:3px;background:${skillColor(v2)};min-width:2px;"></div>
+          <span style="font-size:11px;font-weight:700;color:${c2};font-variant-numeric:tabular-nums;">${v2||'—'}</span>
+        </div>
+      `;
+      // Fix: make row 3-col grid
+      row.style.cssText='display:grid;grid-template-columns:1fr 40px 1fr;align-items:center;gap:6px;margin-bottom:7px;';
+      skillsScroll.appendChild(row);
+    });
+  });
+}
+
+// initial render
+renderList('');
+</script>
+
 </body>
 </html>
