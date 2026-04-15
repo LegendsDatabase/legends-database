@@ -757,6 +757,20 @@ const { data: players, error } = await supabase
   const pageSize = 50;
   let currentData = [];
 
+ // ─── LEGGI URL PARAMS E APPLICA FILTRI ──────────────────────────────
+  (function() {
+    const params = new URLSearchParams(window.location.search);
+    const role   = params.get('role');
+    const nation = params.get('nation');
+    const club   = params.get('club');
+    const decade = params.get('decade');
+    if (role   && roleFilter)   { roleFilter.value   = role;   roleFilter.dispatchEvent(new Event('change'));   }
+    if (nation && nationFilter) { nationFilter.value  = nation; nationFilter.dispatchEvent(new Event('change')); }
+    if (club   && clubFilter)   { clubFilter.value    = club;   clubFilter.dispatchEvent(new Event('change'));   }
+    if (decade && decadeFilter) { decadeFilter.value  = decade; decadeFilter.dispatchEvent(new Event('change')); }
+  })();
+  // ────────────────────────────────────────────────────────────────────
+
   const SKILL_MAP = [
     ['acceleration',   'acceleration'],
     ['pace',           'pace'],
