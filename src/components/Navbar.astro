@@ -1,4 +1,5 @@
 ---
+import { SpeedInsights } from '@vercel/speed-insights/astro';
 const currentPath = Astro.url.pathname;
 ---
 
@@ -16,6 +17,8 @@ const currentPath = Astro.url.pathname;
     </div>
   </div>
 </nav>
+
+<SpeedInsights />
 
 <style>
   .nav {
