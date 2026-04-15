@@ -37,17 +37,15 @@ function sortAsc(arr, fn) {
   return [...arr].sort((a, b) => fn(a) - fn(b) || (a.name ?? '').localeCompare(b.name ?? ''));
 }
 
-// ─── SEZIONI ──────────────────────────────────────────────────────────────
-
 const leftFoot  = sortDesc(all.filter(p => p.preferred_foot === 'Left'),  p => p.overall_rating ?? 0).slice(0, 15);
 const rightFoot = sortDesc(all.filter(p => p.preferred_foot === 'Right'), p => p.overall_rating ?? 0).slice(0, 15);
 const topScorers = sortDesc(all.filter(p => (p.nat_apps ?? 0) >= 10), p => p.nat_goals ?? 0).slice(0, 10);
 const bestRatio  = sortDesc(all.filter(p => (p.nat_apps ?? 0) >= 20), p => parseFloat(p.nat_goal_ratio ?? 0)).slice(0, 10);
 
-// NUOVE
+// CB e SW — goal segnati con il CLUB (min 50 presenze col club)
 const goalScoringDef = sortDesc(
-  all.filter(p => ['CB','SW'].includes(p.role) && (p.nat_apps ?? 0) >= 5),
-  p => p.nat_goals ?? 0
+  all.filter(p => ['CB','SW'].includes(p.role) && (p.club_apps ?? 0) >= 50),
+  p => p.club_goals ?? 0
 ).slice(0, 10);
 
 const technicalGK = sortDesc(
@@ -57,8 +55,6 @@ const technicalGK = sortDesc(
 
 const tallest  = sortDesc(all.filter(p => p.height), p => p.height).slice(0, 10);
 const shortest = sortAsc(all.filter(p => p.height && p.height <= 169), p => p.height).slice(0, 10);
-
-// ─── CONFIG SEZIONI ────────────────────────────────────────────────────────
 
 const SECTIONS = [
   {
@@ -87,6 +83,7 @@ const SECTIONS = [
     valFn: p => p.nat_goals,
     valLabel: 'Goals',
     colorFn: () => '#1d1d1f',
+    note: 'Min. 10 international caps',
   },
   {
     id: 'ratio',
@@ -96,16 +93,17 @@ const SECTIONS = [
     valFn: p => parseFloat(p.nat_goal_ratio ?? 0).toFixed(2),
     valLabel: 'Ratio',
     colorFn: () => '#1d1d1f',
+    note: 'Min. 20 international caps',
   },
   {
     id: 'defscorer',
     label: 'Best Goalscoring Defenders',
     emoji: '🛡',
     players: goalScoringDef,
-    valFn: p => p.nat_goals,
-    valLabel: 'Goals',
+    valFn: p => p.club_goals,
+    valLabel: 'Club Goals',
     colorFn: () => '#1d1d1f',
-    note: 'CB & SW only — min. 5 international caps',
+    note: 'CB & SW only — club goals — min. 50 club appearances',
   },
   {
     id: 'techgk',
@@ -181,7 +179,6 @@ const SECTIONS = [
       margin-bottom: 24px;
     }
 
-    /* ACCORDION */
     .misc-item {
       background: #ffffff;
       border-radius: 14px;
@@ -241,7 +238,6 @@ const SECTIONS = [
 
     .misc-item.open .misc-body { display: block; }
 
-    /* TABLE */
     .misc-table {
       width: 100%;
       border-collapse: collapse;
@@ -359,7 +355,6 @@ const SECTIONS = [
         </div>
       </div>
     ))}
-
   </div>
 
   <script>
