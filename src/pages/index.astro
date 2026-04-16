@@ -5,6 +5,9 @@ import Navbar from '../components/Navbar.astro';
 const { data: players, error } = await supabase
   .from('players')
   .select('*')
+const recentPlayers = (players ?? [])
+  .sort((a, b) => b.id - a.id)
+  .slice(0, 8);
   .order('name', { ascending: true });
 ---
 
@@ -505,6 +508,60 @@ const { data: players, error } = await supabase
       padding: 0 4px;
       user-select: none;
     }
+.intro-wrap {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.intro-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.intro-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #ffffff;
+  border: 1px solid #e5e5ea;
+  border-radius: 20px;
+  padding: 6px 14px 6px 10px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+.intro-pill-icon { font-size: 13px; line-height: 1; }
+.intro-pill-text { font-size: 12px; font-weight: 500; color: #3a3a3c; white-space: nowrap; }
+
+.recent-wrap {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 14px 18px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.recent-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #aeaeb2;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.recent-list { display: flex; gap: 8px; flex-wrap: wrap; }
+.recent-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  text-decoration: none;
+  background: #f9f9fb;
+  border: 1px solid #f0f0f5;
+  border-radius: 8px;
+  padding: 5px 10px;
+  transition: border-color 0.14s, background 0.14s;
+}
+.recent-item:hover { background: #eef4ff; border-color: #0071e3; }
+.recent-name { font-size: 12px; font-weight: 500; color: #1d1d1f; white-space: nowrap; }
+.recent-role { font-size: 9.5px; font-weight: 700; padding: 1px 6px; border-radius: 4px; letter-spacing: 0.04em; }
+.recent-ovr { font-size: 11px; font-weight: 700; color: #6e6e73; font-variant-numeric: tabular-nums; }
   </style>
 </head>
 
@@ -512,6 +569,47 @@ const { data: players, error } = await supabase
   <Navbar />
 
   <h1>Legends Database</h1>
+<div class="intro-wrap">
+  <div class="intro-pills">
+    <div class="intro-pill">
+      <span class="intro-pill-icon">🗓</span>
+      <span class="intro-pill-text">Legends from 1950 onwards</span>
+    </div>
+    <div class="intro-pill">
+      <span class="intro-pill-icon">✦</span>
+      <span class="intro-pill-text">Retired & end-of-career players only</span>
+    </div>
+    <div class="intro-pill">
+      <span class="intro-pill-icon">⟳</span>
+      <span class="intro-pill-text">Constantly expanding</span>
+    </div>
+  </div>
+
+  <div class="recent-wrap">
+    <div class="recent-label">Recently added</div>
+    <div class="recent-list">
+      {recentPlayers.map(p => {
+        const att = ['ST','FW','RW','LW'];
+        const mid = ['AM','CM','DM','RM','LM'];
+        const def = ['CB','SW','RB','LB'];
+        const rc = att.includes(p.role)
+          ? { bg:'#fff0ee', text:'#c0392b' }
+          : mid.includes(p.role)
+            ? { bg:'#eef4ff', text:'#0071e3' }
+            : def.includes(p.role)
+              ? { bg:'#eeffee', text:'#1a7a1a' }
+              : { bg:'#f5f0e8', text:'#b07800' };
+        return (
+          <a href={`/player/${p.slug}`} class="recent-item">
+            <span class="recent-name">{p.name}</span>
+            <span class="recent-role" style={`background:${rc.bg};color:${rc.text};`}>{p.role}</span>
+            <span class="recent-ovr">{p.overall_rating}</span>
+          </a>
+        );
+      })}
+    </div>
+  </div>
+</div>
 
   <div class="toolbar">
     <input type="text" id="searchInput" placeholder="Search player..." />
