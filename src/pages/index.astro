@@ -507,16 +507,19 @@ const recentPlayers = [...(players ?? [])].sort((a, b) => b.id - a.id).slice(0, 
       user-select: none;
     }
 .intro-wrap {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: start;
   margin-bottom: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
 }
+
 .intro-pills {
   display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 5px;
 }
+
 .intro-pill {
   display: inline-flex;
   align-items: center;
@@ -524,42 +527,56 @@ const recentPlayers = [...(players ?? [])].sort((a, b) => b.id - a.id).slice(0, 
   background: #ffffff;
   border: 1px solid #e5e5ea;
   border-radius: 20px;
-  padding: 6px 14px 6px 10px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  padding: 5px 13px 5px 10px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
 }
-.intro-pill-icon { font-size: 13px; line-height: 1; }
-.intro-pill-text { font-size: 12px; font-weight: 500; color: #3a3a3c; white-space: nowrap; }
+
+.intro-pill-icon { font-size: 12px; line-height: 1; }
+.intro-pill-text { font-size: 11.5px; font-weight: 500; color: #3a3a3c; white-space: nowrap; }
 
 .recent-wrap {
   background: #ffffff;
   border-radius: 12px;
-  padding: 14px 18px;
+  padding: 10px 16px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  min-width: 0;
 }
+
 .recent-label {
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 700;
   color: #aeaeb2;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
-.recent-list { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.recent-list {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
 .recent-item {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
   text-decoration: none;
   background: #f9f9fb;
   border: 1px solid #f0f0f5;
-  border-radius: 8px;
-  padding: 5px 10px;
+  border-radius: 7px;
+  padding: 4px 9px;
   transition: border-color 0.14s, background 0.14s;
 }
+
 .recent-item:hover { background: #eef4ff; border-color: #0071e3; }
-.recent-name { font-size: 12px; font-weight: 500; color: #1d1d1f; white-space: nowrap; }
-.recent-role { font-size: 9.5px; font-weight: 700; padding: 1px 6px; border-radius: 4px; letter-spacing: 0.04em; }
+.recent-name { font-size: 11.5px; font-weight: 500; color: #1d1d1f; white-space: nowrap; }
+.recent-role { font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 4px; letter-spacing: 0.04em; }
 .recent-ovr { font-size: 11px; font-weight: 700; color: #6e6e73; font-variant-numeric: tabular-nums; }
+
+@media (max-width: 768px) {
+  .intro-wrap { grid-template-columns: 1fr; }
+}
   </style>
 </head>
 
@@ -591,12 +608,12 @@ const recentPlayers = [...(players ?? [])].sort((a, b) => b.id - a.id).slice(0, 
         const mid = ['AM','CM','DM','RM','LM'];
         const def = ['CB','SW','RB','LB'];
         const rc = att.includes(p.role)
-          ? { bg:'#fff0ee', text:'#c0392b' }
+          ? {bg:'#fff0ee',text:'#c0392b'}
           : mid.includes(p.role)
-            ? { bg:'#eef4ff', text:'#0071e3' }
+            ? {bg:'#eef4ff',text:'#0071e3'}
             : def.includes(p.role)
-              ? { bg:'#eeffee', text:'#1a7a1a' }
-              : { bg:'#f5f0e8', text:'#b07800' };
+              ? {bg:'#eeffee',text:'#1a7a1a'}
+              : {bg:'#f5f0e8',text:'#b07800'};
         return (
           <a href={`/player/${p.slug}`} class="recent-item">
             <span class="recent-name">{p.name}</span>
