@@ -280,7 +280,40 @@ const FORMATIONS={
   '5-3-2':{slots:[{x:50,y:88,roles:['GK']},{x:8,y:74,roles:['LB']},{x:26,y:74,roles:['CB']},{x:50,y:76,roles:['SW','CB'],sw:true},{x:74,y:74,roles:['CB']},{x:92,y:74,roles:['RB']},{x:50,y:58,roles:['DM']},{x:28,y:52,roles:['CM']},{x:72,y:52,roles:['CM','AM']},{x:34,y:20,roles:['FW','ST']},{x:66,y:20,roles:['FW','ST']}]},
   '5-4-1':{slots:[{x:50,y:88,roles:['GK']},{x:8,y:74,roles:['LB']},{x:26,y:74,roles:['CB']},{x:50,y:76,roles:['SW','CB'],sw:true},{x:74,y:74,roles:['CB']},{x:92,y:74,roles:['RB']},{x:10,y:50,roles:['LM','LW']},{x:34,y:53,roles:['CM','DM']},{x:66,y:53,roles:['CM','DM']},{x:90,y:50,roles:['RM','RW']},{x:50,y:18,roles:['ST','FW']}]},
 };
-function buildLineup(slots,roster){const used=new Set();const result=new Array(slots.length).fill(null);const order=slots.map((s,i)=>[i,s]).sort((a,b)=>a[1].roles.length-b[1].roles.length);for(const[idx,slot]of order){let best=null,bestOvr=-1;for(const p of roster){if(used.has(p.slug))continue;if(p.role==='SW'&&!slot.sw)continue;const acceptable=slot.sw?slot.roles:slot.roles.filter(r=>r!=='SW');const altList=(p.alt_roles||'').split(',').map(r=>r.trim()).filter(Boolean);const allRoles=[p.role,...altList];if(allRoles.some(r=>acceptable.includes(r))&&p.ovr>bestOvr){best=p;bestOvr=p.ovr;}}if(best){used.add(best.slug);result[idx]=best;}}return result;}
+function buildLineup(slots, roster) {
+  const used = new Set();
+  const result = new Array(slots.length).fill(null);
+  const order = slots.map((s,i) => [i,s]).sort((a,b) => a[1].roles.length - b[1].roles.length);
+
+  for (const [idx, slot] of order) {
+    let best = null;
+    let bestOvr = -1;
+    let bestIsPrimary = false;
+
+    for (const p of roster) {
+      if (used.has(p.slug)) continue;
+      if (p.role === 'SW' && !slot.sw) continue;
+      const acceptable = slot.sw ? slot.roles : slot.roles.filter(r => r !== 'SW');
+      const altList = (p.alt_roles || '').split(',').map(r => r.trim()).filter(Boolean);
+      const allRoles = [p.role, ...altList];
+
+      if (allRoles.some(r => acceptable.includes(r))) {
+        const isPrimary = acceptable.includes(p.role);
+        if (
+          (!bestIsPrimary && isPrimary) ||
+          (isPrimary === bestIsPrimary && p.ovr > bestOvr)
+        ) {
+          best = p;
+          bestOvr = p.ovr;
+          bestIsPrimary = isPrimary;
+        }
+      }
+    }
+
+    if (best) { used.add(best.slug); result[idx] = best; }
+  }
+  return result;
+}
 function renderLineup(formKey){const pitch=document.getElementById('lineupPitch');const formation=FORMATIONS[formKey];if(!pitch||!formation)return;const assignment=buildLineup(formation.slots,rosterData);pitch.querySelectorAll('.player-token').forEach(el=>el.remove());formation.slots.forEach((slot,i)=>{const player=assignment[i];const token=document.createElement('div');token.className='player-token';token.style.left=slot.x+'%';token.style.top=slot.y+'%';if(player){const bg=ROLE_BG[getRoleGroup(player.role)];token.innerHTML=`<a href="/player/${player.slug}" class="token-link" title="${player.name} · ${player.ovr}"><div class="token-circle" style="background:${bg};"><span class="token-init">${getInitials(player.name)}</span></div><div class="token-name">${getSurname(player.name)}</div><div class="token-ovr">${player.ovr}</div></a>`;}else{token.innerHTML=`<div class="token-link"><div class="token-circle token-empty-circle"><span class="token-init" style="color:rgba(255,255,255,0.35);">—</span></div><div class="token-name" style="color:rgba(255,255,255,0.3);">${slot.roles[0]}</div></div>`;}pitch.appendChild(token);});}
 let currentSort={col:null,dir:1};
 function renderRoster(data){const tbody=document.getElementById('rosterBody');if(!tbody)return;tbody.innerHTML='';if(currentSort.col){[...data].sort((a,b)=>{let va=a[currentSort.col],vb=b[currentSort.col];if(typeof va==='string')return va.localeCompare(vb)*currentSort.dir;return(vb-va)*currentSort.dir;}).forEach(p=>tbody.appendChild(makeRow(p)));}else{['GK','DEF','MID','ATT'].forEach(sec=>{const group=data.filter(p=>p.section===sec);if(!group.length)return;const labels={GK:'Goalkeepers',DEF:'Defenders',MID:'Midfielders',ATT:'Attackers'};const hr=document.createElement('tr');hr.className='section-row';hr.innerHTML=`<td colspan="6">${labels[sec]}</td>`;tbody.appendChild(hr);group.forEach(p=>tbody.appendChild(makeRow(p)));});}}

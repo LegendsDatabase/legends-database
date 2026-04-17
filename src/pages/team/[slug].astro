@@ -694,39 +694,35 @@ const FORMATIONS = {
 function buildLineup(slots, roster) {
   const used = new Set();
   const result = new Array(slots.length).fill(null);
-
-  // Sort by restrictiveness: fewer accepted roles = fill first
   const order = slots.map((s,i) => [i,s]).sort((a,b) => a[1].roles.length - b[1].roles.length);
 
   for (const [idx, slot] of order) {
     let best = null;
     let bestOvr = -1;
+    let bestIsPrimary = false;
 
     for (const p of roster) {
       if (used.has(p.slug)) continue;
-
-      // SW players can ONLY go in sw:true slots
       if (p.role === 'SW' && !slot.sw) continue;
-
-      // Determine acceptable roles for this slot
       const acceptable = slot.sw ? slot.roles : slot.roles.filter(r => r !== 'SW');
-
-      // Combine primary role + alt_roles
       const altList = (p.alt_roles || '').split(',').map(r => r.trim()).filter(Boolean);
       const allRoles = [p.role, ...altList];
 
-      if (allRoles.some(r => acceptable.includes(r)) && p.ovr > bestOvr) {
-        best = p;
-        bestOvr = p.ovr;
+      if (allRoles.some(r => acceptable.includes(r))) {
+        const isPrimary = acceptable.includes(p.role);
+        if (
+          (!bestIsPrimary && isPrimary) ||
+          (isPrimary === bestIsPrimary && p.ovr > bestOvr)
+        ) {
+          best = p;
+          bestOvr = p.ovr;
+          bestIsPrimary = isPrimary;
+        }
       }
     }
 
-    if (best) {
-      used.add(best.slug);
-      result[idx] = best;
-    }
+    if (best) { used.add(best.slug); result[idx] = best; }
   }
-
   return result;
 }
 
