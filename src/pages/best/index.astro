@@ -17,794 +17,85 @@ const continents = [
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, 'SF Pro Text', 'Inter', sans-serif; background: #f2f2f7; color: #1d1d1f; padding-top: 44px; -webkit-font-smoothing: antialiased; }
+    .page { max-width: 860px; margin: 0 auto; padding: 48px 40px 80px; }
+    .page-eyebrow { font-size: 11px; font-weight: 700; color: #0071e3; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+    .page-title { font-size: 40px; font-weight: 700; letter-spacing: -1px; color: #1d1d1f; line-height: 1.1; margin-bottom: 8px; }
+    .page-sub { font-size: 15px; color: #6e6e73; margin-bottom: 32px; line-height: 1.5; }
 
-    body {
-      font-family: -apple-system, 'SF Pro Text', 'Inter', sans-serif;
-      background: #f2f2f7;
-      color: #1d1d1f;
-      padding-top: 44px;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    .page {
-      max-width: 860px;
-      margin: 0 auto;
-      padding: 48px 40px 80px;
-    }
-
-    .page-eyebrow {
-      font-size: 11px;
-      font-weight: 700;
-      color: #0071e3;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      margin-bottom: 10px;
-    }
-
-    .page-title {
-      font-size: 40px;
-      font-weight: 700;
-      letter-spacing: -1px;
-      color: #1d1d1f;
-      line-height: 1.1;
-      margin-bottom: 8px;
-    }
-
-    .page-sub {
-      font-size: 15px;
-      color: #6e6e73;
-      margin-bottom: 48px;
-      line-height: 1.5;
-    }
+    /* WORLD XI BANNER */
+    .worldxi-banner { display: flex; align-items: center; gap: 20px; background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%); border-radius: 16px; padding: 22px 28px; text-decoration: none; margin-bottom: 32px; transition: transform 0.15s, box-shadow 0.15s; box-shadow: 0 2px 12px rgba(0,0,0,0.14); }
+    .worldxi-banner:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,0,0,0.20); }
+    .worldxi-banner-badge { width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, #ffd700, #ffb300); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: #1a1a2e; flex-shrink: 0; box-shadow: 0 2px 8px rgba(255,183,0,0.4); }
+    .worldxi-banner-body { flex: 1; }
+    .worldxi-banner-title { font-size: 16px; font-weight: 600; color: #ffffff; letter-spacing: -0.2px; margin-bottom: 4px; }
+    .worldxi-banner-sub { font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.4; }
+    .worldxi-banner-arrow { font-size: 20px; color: rgba(255,255,255,0.35); flex-shrink: 0; }
 
     /* SECTION CARDS */
-    .section-card {
-      background: #ffffff;
-      border-radius: 20px;
-      padding: 28px 32px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 20px rgba(0,0,0,0.04);
-      margin-bottom: 16px;
-      transition: box-shadow 0.2s;
-    }
-
+    .section-card { background: #ffffff; border-radius: 20px; padding: 28px 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 20px rgba(0,0,0,0.04); margin-bottom: 16px; transition: box-shadow 0.2s; }
     .section-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 8px 28px rgba(0,0,0,0.06); }
-
-    .section-header {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      margin-bottom: 22px;
-    }
-
-    .section-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      flex-shrink: 0;
-    }
-
+    .section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
+    .section-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
     .icon-blue   { background: #eef4ff; }
     .icon-green  { background: #efffee; }
     .icon-purple { background: #f3eeff; }
     .icon-orange { background: #fff4ee; }
-
-    .section-title {
-      font-size: 17px;
-      font-weight: 600;
-      color: #1d1d1f;
-      letter-spacing: -0.2px;
-    }
-
-    .section-desc {
-      font-size: 12.5px;
-      color: #aeaeb2;
-      margin-top: 1px;
-    }
+    .section-title { font-size: 17px; font-weight: 600; color: #1d1d1f; letter-spacing: -0.2px; }
+    .section-desc { font-size: 12.5px; color: #aeaeb2; margin-top: 1px; }
 
     /* DECADE CHIPS */
-    .chips-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      text-decoration: none;
-      font-size: 13px;
-      font-weight: 600;
-      padding: 8px 18px;
-      border-radius: 20px;
-      border: 1.5px solid #e5e5ea;
-      color: #1d1d1f;
-      background: #f9f9fb;
-      transition: background 0.15s, border-color 0.15s, transform 0.12s, box-shadow 0.15s;
-      letter-spacing: -0.1px;
-    }
-
-    .chip:hover {
-      background: #0071e3;
-      border-color: #0071e3;
-      color: #ffffff;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0,113,227,0.25);
-    }
-
-    .chip-label {
-      font-size: 10px;
-      font-weight: 700;
-      padding: 1px 6px;
-      border-radius: 4px;
-      background: #eef4ff;
-      color: #0071e3;
-      margin-left: 8px;
-      letter-spacing: 0.03em;
-    }
+    .chips-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .chip { display: inline-flex; align-items: center; text-decoration: none; font-size: 13px; font-weight: 600; padding: 8px 18px; border-radius: 20px; border: 1.5px solid #e5e5ea; color: #1d1d1f; background: #f9f9fb; transition: background 0.15s, border-color 0.15s, transform 0.12s, box-shadow 0.15s; letter-spacing: -0.1px; }
+    .chip:hover { background: #0071e3; border-color: #0071e3; color: #ffffff; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,113,227,0.25); }
 
     /* CONTINENT GRID */
-    .continent-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
+    .continent-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .continent-chip { display: flex; align-items: center; gap: 10px; text-decoration: none; background: #f9f9fb; border: 1.5px solid #e5e5ea; border-radius: 14px; padding: 14px 18px; transition: background 0.15s, border-color 0.15s, transform 0.12s, box-shadow 0.15s; }
+    .continent-chip:hover { background: #0071e3; border-color: #0071e3; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,113,227,0.2); }
+    .continent-chip:hover .cc-label, .continent-chip:hover .cc-arrow { color: #ffffff; }
+    .cc-label { font-size: 13.5px; font-weight: 600; color: #1d1d1f; flex: 1; transition: color 0.15s; }
+    .cc-arrow { font-size: 16px; color: #aeaeb2; transition: color 0.15s; }
 
-    .continent-chip {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-      background: #f9f9fb;
-      border: 1.5px solid #e5e5ea;
-      border-radius: 14px;
-      padding: 14px 18px;
-      transition: background 0.15s, border-color 0.15s, transform 0.12s, box-shadow 0.15s;
-    }
-
-    .continent-chip:hover {
-      background: #0071e3;
-      border-color: #0071e3;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0,113,227,0.2);
-    }
-
-    .continent-chip:hover .cc-label,
-    .continent-chip:hover .cc-arrow { color: #ffffff; }
-
-    .cc-emoji { font-size: 22px; flex-shrink: 0; }
-
-    .cc-label {
-      font-size: 13.5px;
-      font-weight: 600;
-      color: #1d1d1f;
-      flex: 1;
-      transition: color 0.15s;
-    }
-
-    .cc-arrow {
-      font-size: 16px;
-      color: #aeaeb2;
-      transition: color 0.15s;
-    }
-
-    /* LINK CARDS (skill, misc) */
-    .link-card {
-      display: flex;
-      align-items: center;
-      text-decoration: none;
-      gap: 16px;
-    }
-
+    /* LINK CARDS */
+    .link-card { display: flex; align-items: center; text-decoration: none; gap: 16px; }
     .link-card-body { flex: 1; }
-
-    .link-card-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: #1d1d1f;
-      margin-bottom: 4px;
-    }
-
-    .link-card-desc {
-      font-size: 12.5px;
-      color: #aeaeb2;
-      line-height: 1.5;
-    }
-
-    .link-card-arrow {
-      font-size: 20px;
-      color: #aeaeb2;
-      transition: color 0.15s, transform 0.15s;
-    }
-
+    .link-card-title { font-size: 15px; font-weight: 600; color: #1d1d1f; margin-bottom: 4px; }
+    .link-card-desc { font-size: 12.5px; color: #aeaeb2; line-height: 1.5; }
+    .link-card-arrow { font-size: 20px; color: #aeaeb2; transition: color 0.15s, transform 0.15s; }
     .section-card.clickable { cursor: pointer; }
-    .section-card.clickable:hover .link-card-arrow {
-      color: #0071e3;
-      transform: translateX(3px);
-    }
+    .section-card.clickable:hover .link-card-arrow { color: #0071e3; transform: translateX(3px); }
 
-    .skill-pills {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      margin-top: 14px;
-    }
+    .skill-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 14px; }
+    .skill-pill { font-size: 10.5px; font-weight: 600; padding: 3px 9px; border-radius: 6px; background: #f0f0f5; color: #6e6e73; letter-spacing: 0.02em; }
+    .misc-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 14px; }
+    .misc-pill { font-size: 10.5px; font-weight: 600; padding: 3px 9px; border-radius: 6px; background: #fff4ee; color: #b07800; letter-spacing: 0.02em; }
 
-    .skill-pill {
-      font-size: 10.5px;
-      font-weight: 600;
-      padding: 3px 9px;
-      border-radius: 6px;
-      background: #f0f0f5;
-      color: #6e6e73;
-      letter-spacing: 0.02em;
-    }
-
-    .misc-pills {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      margin-top: 14px;
-    }
-
-    .misc-pill {
-      font-size: 10.5px;
-      font-weight: 600;
-      padding: 3px 9px;
-      border-radius: 6px;
-      background: #fff4ee;
-      color: #b07800;
-      letter-spacing: 0.02em;
-    }
-.worldxi-banner{display:flex;align-items:center;gap:20px;background:linear-gradient(135deg,#1a1a2e 0%,#0f3460 100%);border-radius:16px;padding:22px 28px;text-decoration:none;margin-bottom:32px;transition:transform 0.15s,box-shadow 0.15s;box-shadow:0 2px 12px rgba(0,0,0,0.14);}
-.worldxi-banner:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,0,0,0.20);}
-.worldxi-banner-badge{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#ffd700,#ffb300);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#1a1a2e;flex-shrink:0;box-shadow:0 2px 8px rgba(255,183,0,0.4);}
-.worldxi-banner-body{flex:1;}
-.worldxi-banner-title{font-size:16px;font-weight:600;color:#ffffff;letter-spacing:-0.2px;margin-bottom:4px;}
-.worldxi-banner-sub{font-size:12px;color:rgba(255,255,255,0.5);line-height:1.4;}
-.worldxi-banner-arrow{font-size:20px;color:rgba(255,255,255,0.35);flex-shrink:0;}
     @media (max-width: 600px) {
       .page { padding: 32px 20px 60px; }
       .page-title { font-size: 30px; }
       .section-card { padding: 20px 20px; }
       .continent-grid { grid-template-columns: 1fr; }
     }
-
   </style>
 </head>
 
 <body>
   <Navbar />
-
   <div class="page">
     <div class="page-eyebrow">Legends Database</div>
     <h1 class="page-title">The Best</h1>
     <p class="page-sub">Football's greatest legends, organized by era, geography, and skill.</p>
-<a href="/best/worldxi" class="worldxi-banner">
-  <div class="worldxi-banner-badge">XI</div>
-  <div class="worldxi-banner-body">
-    <div class="worldxi-banner-title">All-Time World XI</div>
-    <div class="worldxi-banner-sub">The ultimate selection — 25 greatest legends across all eras and nations</div>
-  </div>
-  <div class="worldxi-banner-arrow">→</div>
-</a>
 
----
-import { supabase } from '../../lib/supabase.js';
-import Navbar from '../../components/Navbar.astro';
-
-const { data: players } = await supabase.from('players').select('*');
-const all = (players ?? []).filter(p => p.slug && p.overall_rating != null);
-
-function ovrColor(v){if(v>=95)return'#0071e3';if(v>=90)return'#1a5e1a';if(v>=80)return'#2e8b2e';if(v>=70)return'#6aaa2a';if(v>=60)return'#c8a800';if(v>=50)return'#e07800';if(v>=40)return'#cc4400';return'#c0392b';}
-function skillColor(v){if(v>=95)return'#5aabff';if(v>=90)return'#1a5e1a';if(v>=80)return'#2e8b2e';if(v>=70)return'#6aaa2a';if(v>=60)return'#c8a800';if(v>=40)return'#e07800';return'#c0392b';}
-function avg(vals){const v=vals.filter(x=>x!=null&&!isNaN(Number(x)));return v.length?Math.round(v.reduce((a,b)=>a+Number(b),0)/v.length):0;}
-function sortByOvr(arr){return[...arr].sort((a,b)=>(b.overall_rating??0)-(a.overall_rating??0)||(a.name??'').localeCompare(b.name??''));}
-function pick(pool,n,usedIds){return sortByOvr(pool.filter(p=>!usedIds.has(p.id))).slice(0,n);}
-function sortBy(arr,fn){return[...arr].sort((a,b)=>fn(b)-fn(a)||(a.name??'').localeCompare(b.name??''));}
-function hAvg(arr){const v=arr.map(p=>p.height).filter(Boolean);return v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length):null;}
-function pAtt(p){return avg([p.finishing,p.off_the_ball,p.composure,p.anticipation,p.shot_accuracy]);}
-function pPlay(p){return avg([p.short_passing,p.long_passing,p.vision,p.composure]);}
-function pDef(p){return avg([p.marking,p.tackling,p.def_positioning,p.anticipation,p.heading,p.composure]);}
-function pSpd(p){return avg([p.pace,p.acceleration]);}
-
-// ─── ROSTER ───────────────────────────────────────────────────────────────
-const used = new Set();
-const gkR = pick(all.filter(p=>p.role==='GK'),3,used); gkR.forEach(p=>used.add(p.id));
-const rbR = pick(all.filter(p=>p.role==='RB'),2,used); rbR.forEach(p=>used.add(p.id));
-const lbR = pick(all.filter(p=>p.role==='LB'),2,used); lbR.forEach(p=>used.add(p.id));
-const swAvail = sortByOvr(all.filter(p=>p.role==='SW'&&!used.has(p.id)));
-const cbAvail = sortByOvr(all.filter(p=>p.role==='CB'&&!used.has(p.id)));
-const swSlot = swAvail.length?[swAvail[0]]:[];
-swSlot.forEach(p=>used.add(p.id));
-const centerPool = sortByOvr([...cbAvail.filter(p=>!used.has(p.id)),...swAvail.filter(p=>!used.has(p.id))]);
-const centerR = [...swSlot,...pick(centerPool,4-swSlot.length,used)]; centerR.forEach(p=>used.add(p.id));
-const defR = [...rbR,...lbR,...centerR];
-const dmR = pick(all.filter(p=>p.role==='DM'),2,used); dmR.forEach(p=>used.add(p.id));
-const cmamR = pick(all.filter(p=>['CM','AM'].includes(p.role)),4,used); cmamR.forEach(p=>used.add(p.id));
-const rmlmR = pick(all.filter(p=>['RM','LM','CM','AM','DM'].includes(p.role)),2,used); rmlmR.forEach(p=>used.add(p.id));
-const midR = [...dmR,...cmamR,...rmlmR];
-const stR = pick(all.filter(p=>p.role==='ST'),4,used); stR.forEach(p=>used.add(p.id));
-const wingS = pick(all.filter(p=>['RW','LW'].includes(p.role)&&!used.has(p.id)),1,used); wingS.forEach(p=>used.add(p.id));
-const attFill = pick(all.filter(p=>['ST','FW','RW','LW'].includes(p.role)&&!used.has(p.id)),6-wingS.length,used); attFill.forEach(p=>used.add(p.id));
-const attR = [...stR,...wingS,...attFill];
-const roster = [...gkR,...defR,...midR,...attR];
-
-const teamOvr = avg(roster.map(p=>p.overall_rating));
-const gkOvr   = avg(gkR.map(p=>p.overall_rating));
-const defOvr  = avg(defR.map(p=>p.overall_rating));
-const midOvr  = avg(midR.map(p=>p.overall_rating));
-const attOvr  = avg(attR.map(p=>p.overall_rating));
-
-// ─── TIER 1 AWARDS ────────────────────────────────────────────────────────
-const bestPlayer  = sortBy(roster,p=>p.overall_rating??0)[0];
-const mostAppsP   = sortBy(roster,p=>p.nat_apps??0)[0];
-const mostGoalsP  = sortBy(roster,p=>p.nat_goals??0)[0];
-const bestRatioP  = sortBy(roster.filter(p=>(p.nat_apps??0)>=5),p=>parseFloat(p.nat_goal_ratio??0))[0];
-const fastestP    = sortBy(roster,p=>pSpd(p))[0];
-const strongestP  = sortBy(roster,p=>p.strength??0)[0];
-const bestTech    = sortBy(roster,p=>p['first-touch']??0)[0];
-const bestHeader  = sortBy(roster,p=>p.heading??0)[0];
-
-// ─── TIER 2 AWARDS ────────────────────────────────────────────────────────
-const outfield       = roster.filter(p=>p.role!=='GK');
-const mostComposed   = sortBy(roster,p=>p.composure??0)[0];
-const mostStamina    = sortBy(roster,p=>p.stamina??0)[0];
-const bestShooter    = outfield.length?sortBy(outfield,p=>avg([p.shot_power,p.shot_accuracy]))[0]:null;
-const bestPasser     = sortBy(roster,p=>avg([p.short_passing,p.long_passing]))[0];
-const bestTeamPlayer = sortBy(roster,p=>p.teamwork??0)[0];
-const mostCreative   = outfield.length?sortBy(outfield,p=>p.creativity??0)[0]:null;
-const bestDribbler   = outfield.length?sortBy(outfield,p=>p.dribbling??0)[0]:null;
-const bestVision     = sortBy(roster,p=>p.vision??0)[0];
-const bestAerial     = outfield.length?sortBy(outfield,p=>avg([p.heading,p.jumping]))[0]:null;
-const mostConsistent = sortBy(roster,p=>p.consistency??0)[0];
-const bestFreekick   = outfield.length?sortBy(outfield,p=>p.free_kick??0)[0]:null;
-const bestPenalty    = outfield.length?sortBy(outfield,p=>p.penalties??0)[0]:null;
-
-// Precomputed compound values
-const bestSpeedVal   = fastestP?pSpd(fastestP):0;
-const bestSpeedSub   = fastestP?`PAC ${fastestP.pace} · ACC ${fastestP.acceleration}`:'';
-const bestShooterVal = bestShooter?avg([bestShooter.shot_power,bestShooter.shot_accuracy]):0;
-const bestShooterSub = bestShooter?`SHO-P ${bestShooter.shot_power} · SHO-A ${bestShooter.shot_accuracy}`:'';
-const bestPasserVal  = bestPasser?avg([bestPasser.short_passing,bestPasser.long_passing]):0;
-const bestPasserSub  = bestPasser?`S-PAS ${bestPasser.short_passing} · L-PAS ${bestPasser.long_passing}`:'';
-const bestAerialVal  = bestAerial?avg([bestAerial.heading,bestAerial.jumping]):0;
-const bestAerialSub  = bestAerial?`HEA ${bestAerial.heading} · JMP ${bestAerial.jumping}`:'';
-
-// ─── PHYSICAL ─────────────────────────────────────────────────────────────
-const hGK=hAvg(gkR),hDEF=hAvg(defR),hMID=hAvg(midR),hATT=hAvg(attR),hTOT=hAvg(roster);
-
-// ─── DNA ANALYSIS ─────────────────────────────────────────────────────────
-function countBy(arr,fn){
-  const counts={};
-  arr.forEach(p=>{const k=fn(p);if(k!=null&&k!=='')counts[k]=(counts[k]||0)+1;});
-  return Object.entries(counts).sort((a,b)=>b[1]-a[1]);
-}
-const nationData    = countBy(roster,p=>p.nation).slice(0,8);
-const decadeData    = countBy(roster,p=>p.decade?String(p.decade)+'s':null);
-const continentData = countBy(roster,p=>p['Continent']);
-const leftCount     = roster.filter(p=>p.preferred_foot==='Left').length;
-const rightCount    = roster.filter(p=>p.preferred_foot==='Right').length;
-const totalFoot     = Math.max(leftCount+rightCount,1);
-const leftPct       = Math.round(leftCount/totalFoot*100);
-const rightPct      = Math.round(rightCount/totalFoot*100);
-const maxNation     = nationData.length?nationData[0][1]:1;
-const maxDecade     = decadeData.length?decadeData[0][1]:1;
-const maxContinent  = continentData.length?continentData[0][1]:1;
-
-const CONTINENT_COLORS = {'Europe':'#0071e3','South America':'#30d158','Africa':'#ff9f0a','North America':'#ff6b35','Asia':'#bf5af2','Oceania':'#64d2ff'};
-const DECADE_COLORS    = {'1950s':'#ff9f0a','1960s':'#ff6b35','1970s':'#30d158','1980s':'#0071e3','1990s':'#bf5af2','2000s':'#ff375f','2010s':'#64d2ff','2020s':'#aeaeb2'};
-
-const rosterData = roster.map(p=>({
-  name:p.name??'', slug:p.slug??'', role:p.role??'', alt_roles:p.alt_roles??'',
-  section:gkR.some(g=>g.id===p.id)?'GK':defR.some(d=>d.id===p.id)?'DEF':midR.some(m=>m.id===p.id)?'MID':'ATT',
-  ovr:p.overall_rating??0, def:pDef(p), play:pPlay(p), att:pAtt(p),
-}));
----
-
-<html>
-<head>
-  <meta charset="UTF-8"/>
-  <title>All-Time World XI – Legends Database</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <style is:global>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-    body{font-family:-apple-system,'SF Pro Text','Inter',sans-serif;background:#f2f2f7;color:#1d1d1f;padding-top:44px;font-size:13px;-webkit-font-smoothing:antialiased;}
-    .page{max-width:900px;margin:0 auto;padding:40px 40px 80px;}
-    .back{display:inline-flex;align-items:center;gap:4px;font-size:13px;color:#6e6e73;text-decoration:none;margin-bottom:28px;transition:color 0.15s;}
-    .back:hover{color:#0071e3;}
-    .card{background:#ffffff;border-radius:16px;padding:24px 28px;box-shadow:0 1px 3px rgba(0,0,0,0.07),0 4px 16px rgba(0,0,0,0.04);margin-bottom:16px;}
-    .card-title{font-size:11px;font-weight:700;color:#aeaeb2;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:18px;}
-
-    /* ─── HERO ─── */
-    .hero-xi{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 55%,#0f3460 100%);border-radius:20px;padding:30px 36px;display:flex;align-items:center;gap:28px;margin-bottom:16px;box-shadow:0 4px 28px rgba(0,0,0,0.22);}
-    .xi-badge{width:76px;height:76px;border-radius:20px;background:linear-gradient(135deg,#ffd700,#ffb300);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 16px rgba(255,183,0,0.4);}
-    .xi-badge-text{font-size:24px;font-weight:800;color:#1a1a2e;letter-spacing:-0.5px;line-height:1;}
-    .xi-badge-sub{font-size:9px;font-weight:700;color:rgba(26,26,46,0.65);letter-spacing:0.1em;text-transform:uppercase;}
-    .xi-body{flex:1;min-width:0;}
-    .xi-title{font-size:26px;font-weight:700;color:#ffffff;letter-spacing:-0.5px;margin-bottom:6px;}
-    .xi-subtitle{font-size:11.5px;color:rgba(255,255,255,0.45);margin-bottom:18px;font-weight:400;}
-    .xi-dept-row{display:flex;align-items:center;}
-    .xi-dept-item{display:flex;flex-direction:column;align-items:center;gap:2px;padding:0 20px 0 0;}
-    .xi-dept-sep{width:1px;height:28px;background:rgba(255,255,255,0.12);margin-right:20px;}
-    .xi-dept-val{font-size:20px;font-weight:700;color:rgba(255,255,255,0.9);letter-spacing:-0.5px;line-height:1;}
-    .xi-dept-label{font-size:9px;font-weight:700;color:rgba(255,255,255,0.35);letter-spacing:0.07em;text-transform:uppercase;}
-    .xi-ovr-block{text-align:center;flex-shrink:0;}
-    .xi-ovr{font-size:48px;font-weight:800;color:#ffd700;letter-spacing:-2px;line-height:1;}
-    .xi-ovr-sub{font-size:10px;font-weight:600;color:rgba(255,255,255,0.35);letter-spacing:0.07em;text-transform:uppercase;margin-top:4px;}
-
-    /* ─── SECTION HEADER ─── */
-    .section-header{font-size:11px;font-weight:700;color:#aeaeb2;letter-spacing:0.08em;text-transform:uppercase;margin:28px 0 12px 2px;}
-
-    /* ─── AWARD CARDS ─── */
-    .awards-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:8px;}
-    .aw-card{background:#ffffff;border-radius:14px;padding:16px 16px 14px;box-shadow:0 1px 3px rgba(0,0,0,0.06);display:flex;flex-direction:column;gap:4px;}
-    .aw-label{font-size:9.5px;font-weight:700;color:#aeaeb2;letter-spacing:0.06em;text-transform:uppercase;}
-    .aw-name a{font-size:12px;font-weight:500;color:#1d1d1f;text-decoration:none;line-height:1.3;display:block;margin-top:1px;}
-    .aw-name a:hover{color:#0071e3;}
-    .aw-val{font-size:26px;font-weight:700;letter-spacing:-0.5px;line-height:1;margin-top:6px;}
-    .aw-unit{font-size:11px;font-weight:600;color:#aeaeb2;letter-spacing:0;}
-    .aw-sub{font-size:10px;color:#aeaeb2;margin-top:1px;font-variant-numeric:tabular-nums;}
-
-    /* ─── TACTICAL LINEUP ─── */
-    .lineup-card{padding:22px 24px 20px;}
-    .lineup-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
-    .formation-tabs{display:flex;gap:4px;flex-wrap:wrap;}
-    .form-btn{font-family:inherit;font-size:11px;font-weight:600;padding:4px 11px;border:1.5px solid #e5e5ea;border-radius:7px;background:#f9f9fb;color:#6e6e73;cursor:pointer;transition:all 0.12s;letter-spacing:0.02em;white-space:nowrap;}
-    .form-btn:hover{border-color:#0071e3;color:#0071e3;} .form-btn.active{background:#0071e3;border-color:#0071e3;color:#ffffff;}
-    .lineup-pitch{position:relative;width:100%;height:480px;border-radius:10px;overflow:hidden;}
-    .pitch-svg{position:absolute;inset:0;width:100%;height:100%;}
-    .player-token{position:absolute;transform:translate(-50%,-50%);text-align:center;z-index:10;}
-    .token-link{display:flex;flex-direction:column;align-items:center;gap:3px;text-decoration:none;}
-    .token-circle{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.45);transition:transform 0.15s,box-shadow 0.15s;border:2px solid rgba(255,255,255,0.45);}
-    .token-link:hover .token-circle{transform:scale(1.13);box-shadow:0 4px 10px rgba(0,0,0,0.5);border-color:rgba(255,255,255,0.9);}
-    .token-empty-circle{background:rgba(255,255,255,0.12)!important;border-color:rgba(255,255,255,0.2)!important;}
-    .token-init{font-size:10px;font-weight:700;color:rgba(255,255,255,0.95);letter-spacing:-0.3px;}
-    .token-name{font-size:9px;font-weight:600;color:rgba(255,255,255,0.95);text-shadow:0 1px 3px rgba(0,0,0,0.9);white-space:nowrap;max-width:76px;overflow:hidden;text-overflow:ellipsis;line-height:1.1;}
-    .token-ovr{font-size:8px;font-weight:700;color:rgba(255,255,255,0.65);text-shadow:0 1px 2px rgba(0,0,0,0.8);}
-
-    /* ─── ROSTER ─── */
-    .roster-table{width:100%;border-collapse:collapse;}
-    .roster-table thead th{font-size:10px;font-weight:700;color:#aeaeb2;letter-spacing:0.06em;text-transform:uppercase;padding:0 12px 12px;text-align:left;border-bottom:1px solid #f0f0f5;cursor:pointer;user-select:none;white-space:nowrap;transition:color 0.12s;}
-    .roster-table thead th:hover{color:#0071e3;} .roster-table thead th.sorted{color:#0071e3;}
-    .roster-table thead th.col-stat,.roster-table thead th.col-ovr{text-align:right;}
-    .section-row td{font-size:10px;font-weight:700;color:#aeaeb2;letter-spacing:0.07em;text-transform:uppercase;padding:16px 12px 6px;background:#ffffff;}
-    .player-row td{padding:10px 12px;border-bottom:1px solid #f5f5f7;font-size:12.5px;vertical-align:middle;}
-    .player-row:last-child td{border-bottom:none;} .player-row:hover td{background:#f7f7f9;}
-    .player-link{color:#1d1d1f;text-decoration:none;font-weight:500;transition:color 0.12s;} .player-link:hover{color:#0071e3;}
-    .role-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;letter-spacing:0.04em;display:inline-block;}
-    .role-gk{background:#f5f0e8;color:#b07800;} .role-def{background:#eeffee;color:#1a7a1a;} .role-mid{background:#eef4ff;color:#0071e3;} .role-att{background:#fff0ee;color:#c0392b;}
-    .col-ovr,.col-stat{text-align:right;font-weight:600;font-variant-numeric:tabular-nums;}
-    .muted{color:#d1d1d6!important;font-weight:400!important;}
-
-    /* ─── DNA ─── */
-    .dna-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
-    .dna-card{background:#ffffff;border-radius:14px;padding:20px 20px 16px;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
-    .dna-card-title{font-size:11px;font-weight:700;color:#aeaeb2;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:16px;}
-    .dna-row{display:flex;align-items:center;gap:10px;margin-bottom:7px;}
-    .dna-row:last-child{margin-bottom:0;}
-    .dna-label{font-size:12px;font-weight:500;color:#1d1d1f;min-width:108px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .dna-bar-wrap{flex:1;height:6px;background:#f0f0f5;border-radius:3px;overflow:hidden;}
-    .dna-bar-fill{height:100%;border-radius:3px;transition:width 0.3s;}
-    .dna-count{font-size:11px;font-weight:700;color:#6e6e73;min-width:18px;text-align:right;font-variant-numeric:tabular-nums;}
-
-    /* foot split */
-    .foot-split-wrap{margin-top:8px;}
-    .foot-row{display:flex;align-items:center;gap:10px;margin-bottom:7px;}
-    .foot-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
-    .foot-label{font-size:12px;font-weight:500;color:#1d1d1f;flex:1;}
-    .foot-pct-label{font-size:12px;font-weight:700;color:#1d1d1f;min-width:36px;text-align:right;font-variant-numeric:tabular-nums;}
-    .foot-bar-wrap{width:100%;height:8px;background:#f0f0f5;border-radius:4px;overflow:hidden;margin-top:10px;}
-    .foot-bar-fill{height:100%;background:#0071e3;border-radius:4px;}
-    .foot-labels-row{display:flex;justify-content:space-between;margin-top:5px;}
-    .foot-label-sm{font-size:10px;font-weight:600;color:#aeaeb2;}
-
-    /* dept split in dna */
-    .dept-split{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px;}
-    .dept-split-item{text-align:center;background:#f9f9fb;border-radius:10px;padding:12px 6px;}
-    .dept-split-val{font-size:20px;font-weight:700;color:#1d1d1f;letter-spacing:-0.3px;}
-    .dept-split-label{font-size:9.5px;font-weight:700;color:#aeaeb2;letter-spacing:0.05em;text-transform:uppercase;margin-top:3px;}
-
-    /* ─── HEIGHT ─── */
-    .height-grid{display:grid;grid-template-columns:repeat(5,1fr);}
-    .height-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 0;border-right:1px solid #f0f0f5;}
-    .height-item:last-child{border-right:none;}
-    .height-val{font-size:20px;font-weight:600;color:#1d1d1f;letter-spacing:-0.3px;}
-    .height-label{font-size:10px;font-weight:600;color:#aeaeb2;letter-spacing:0.05em;text-transform:uppercase;}
-    .height-item.total .height-val,.height-item.total .height-label{color:#0071e3;}
-
-    @media(max-width:640px){
-      .page{padding:24px 20px 60px;}
-      .hero-xi{flex-direction:column;align-items:flex-start;gap:16px;padding:24px 24px;}
-      .awards-grid{grid-template-columns:repeat(2,1fr);}
-      .dna-grid{grid-template-columns:1fr;}
-      .height-grid{grid-template-columns:repeat(3,1fr);}
-      .dept-split{grid-template-columns:repeat(2,1fr);}
-      .lineup-pitch{height:380px;}
-      .token-circle{width:28px;height:28px;} .token-init{font-size:8.5px;} .token-name{font-size:8px;max-width:60px;} .token-ovr{font-size:7px;}
-    }
-  </style>
-</head>
-
-<body>
-  <Navbar/>
-  <div class="page">
-    <a href="/best" class="back">← The Best</a>
-
-    <!-- ─── HERO ─── -->
-    <div class="hero-xi">
-      <div class="xi-badge">
-        <div class="xi-badge-text">XI</div>
-        <div class="xi-badge-sub">World</div>
+    <!-- WORLD XI BANNER -->
+    <a href="/best/worldxi" class="worldxi-banner">
+      <div class="worldxi-banner-badge">XI</div>
+      <div class="worldxi-banner-body">
+        <div class="worldxi-banner-title">All-Time World XI</div>
+        <div class="worldxi-banner-sub">The ultimate selection — 25 greatest legends across all eras and nations</div>
       </div>
-      <div class="xi-body">
-        <h1 class="xi-title">All-Time World XI</h1>
-        <div class="xi-subtitle">{all.length} legends evaluated · Top 25 across all eras and nations</div>
-        <div class="xi-dept-row">
-          <div class="xi-dept-item"><span class="xi-dept-val">{gkOvr}</span><span class="xi-dept-label">GK</span></div>
-          <div class="xi-dept-sep"></div>
-          <div class="xi-dept-item"><span class="xi-dept-val">{defOvr}</span><span class="xi-dept-label">DEF</span></div>
-          <div class="xi-dept-sep"></div>
-          <div class="xi-dept-item"><span class="xi-dept-val">{midOvr}</span><span class="xi-dept-label">MID</span></div>
-          <div class="xi-dept-sep"></div>
-          <div class="xi-dept-item"><span class="xi-dept-val">{attOvr}</span><span class="xi-dept-label">ATT</span></div>
-        </div>
-      </div>
-      <div class="xi-ovr-block">
-        <div class="xi-ovr">{teamOvr}</div>
-        <div class="xi-ovr-sub">Overall</div>
-      </div>
-    </div>
-
-    <!-- ─── TACTICAL LINEUP ─── -->
-    {roster.length >= 11 && (
-      <div class="card lineup-card">
-        <div class="lineup-top">
-          <div class="card-title" style="margin-bottom:0;">Tactical Lineup</div>
-          <div class="formation-tabs" id="formTabs">
-            {['4-3-3','4-4-2','4-4-2◆','4-3-2-1','4-3-1-2','4-2-3-1','3-4-3','4-2-4','4-5-1','3-5-2','5-3-2','5-4-1'].map((f,i)=>(
-              <button class={`form-btn${i===0?' active':''}`} data-form={f}>{f}</button>
-            ))}
-          </div>
-        </div>
-        <div class="lineup-pitch" id="lineupPitch">
-          <svg class="pitch-svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-            <rect width="100" height="100" fill="#1e5c38"/>
-            <rect y="0"  width="100" height="10" fill="#1a5434" opacity="0.55"/>
-            <rect y="20" width="100" height="10" fill="#1a5434" opacity="0.55"/>
-            <rect y="40" width="100" height="10" fill="#1a5434" opacity="0.55"/>
-            <rect y="60" width="100" height="10" fill="#1a5434" opacity="0.55"/>
-            <rect y="80" width="100" height="10" fill="#1a5434" opacity="0.55"/>
-            <rect x="3" y="2" width="94" height="96" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="0.4"/>
-            <line x1="3" y1="50" x2="97" y2="50" stroke="rgba(255,255,255,0.28)" stroke-width="0.4"/>
-            <circle cx="50" cy="50" r="10" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="0.4"/>
-            <circle cx="50" cy="50" r="0.8" fill="rgba(255,255,255,0.45)"/>
-            <rect x="25" y="2"  width="50" height="15" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="0.4"/>
-            <rect x="37" y="2"  width="26" height="5.5" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="0.4"/>
-            <circle cx="50" cy="13" r="0.7" fill="rgba(255,255,255,0.35)"/>
-            <rect x="25" y="83" width="50" height="15" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="0.4"/>
-            <rect x="37" y="92.5" width="26" height="5.5" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="0.4"/>
-            <circle cx="50" cy="87" r="0.7" fill="rgba(255,255,255,0.35)"/>
-          </svg>
-        </div>
-      </div>
-    )}
-
-    <!-- ─── ROSTER ─── -->
-    <div class="card">
-      <div class="card-title">Roster</div>
-      <table class="roster-table" id="rosterTable">
-        <thead><tr>
-          <th data-col="name">Player <span></span></th>
-          <th data-col="role">Role <span></span></th>
-          <th class="col-ovr" data-col="ovr">OVR <span></span></th>
-          <th class="col-stat" data-col="def">DEF <span></span></th>
-          <th class="col-stat" data-col="play">PLAY <span></span></th>
-          <th class="col-stat" data-col="att">ATT <span></span></th>
-        </tr></thead>
-        <tbody id="rosterBody"></tbody>
-      </table>
-    </div>
-
-    <!-- ─── TIER 1 AWARDS ─── -->
-    <div class="section-header">Hall of Fame</div>
-    <div class="awards-grid">
-      {bestPlayer&&<div class="aw-card"><div class="aw-label">Best Player</div><div class="aw-name"><a href={`/player/${bestPlayer.slug}`}>{bestPlayer.name}</a></div><div class="aw-val" style={`color:${ovrColor(bestPlayer.overall_rating)}`}>{bestPlayer.overall_rating}<span class="aw-unit"> OVR</span></div></div>}
-      {mostAppsP&&<div class="aw-card"><div class="aw-label">Most Caps</div><div class="aw-name"><a href={`/player/${mostAppsP.slug}`}>{mostAppsP.name}</a></div><div class="aw-val" style="color:#1d1d1f">{mostAppsP.nat_apps}<span class="aw-unit"> apps</span></div></div>}
-      {mostGoalsP&&<div class="aw-card"><div class="aw-label">Top Scorer</div><div class="aw-name"><a href={`/player/${mostGoalsP.slug}`}>{mostGoalsP.name}</a></div><div class="aw-val" style="color:#1d1d1f">{mostGoalsP.nat_goals}<span class="aw-unit"> goals</span></div></div>}
-      {bestRatioP&&<div class="aw-card"><div class="aw-label">Best Ratio (min 5 caps)</div><div class="aw-name"><a href={`/player/${bestRatioP.slug}`}>{bestRatioP.name}</a></div><div class="aw-val" style="color:#1d1d1f">{parseFloat(bestRatioP.nat_goal_ratio).toFixed(2)}<span class="aw-unit"> /game</span></div></div>}
-      {fastestP&&<div class="aw-card"><div class="aw-label">Fastest</div><div class="aw-name"><a href={`/player/${fastestP.slug}`}>{fastestP.name}</a></div><div class="aw-val" style={`color:${skillColor(bestSpeedVal)}`}>{bestSpeedVal}<span class="aw-unit"> SPD</span></div><div class="aw-sub">{bestSpeedSub}</div></div>}
-      {strongestP&&<div class="aw-card"><div class="aw-label">Strongest</div><div class="aw-name"><a href={`/player/${strongestP.slug}`}>{strongestP.name}</a></div><div class="aw-val" style={`color:${skillColor(strongestP.strength??0)}`}>{strongestP.strength}<span class="aw-unit"> STR</span></div></div>}
-      {bestTech&&<div class="aw-card"><div class="aw-label">Most Technical</div><div class="aw-name"><a href={`/player/${bestTech.slug}`}>{bestTech.name}</a></div><div class="aw-val" style={`color:${skillColor(bestTech['first-touch']??0)}`}>{bestTech['first-touch']}<span class="aw-unit"> 1-TCH</span></div></div>}
-      {bestHeader&&<div class="aw-card"><div class="aw-label">Best Header</div><div class="aw-name"><a href={`/player/${bestHeader.slug}`}>{bestHeader.name}</a></div><div class="aw-val" style={`color:${skillColor(bestHeader.heading??0)}`}>{bestHeader.heading}<span class="aw-unit"> HEA</span></div></div>}
-    </div>
-
-    <!-- ─── TIER 2 AWARDS ─── -->
-    <div class="section-header">Individual Excellence</div>
-    <div class="awards-grid">
-      {mostComposed&&<div class="aw-card"><div class="aw-label">Most Composed</div><div class="aw-name"><a href={`/player/${mostComposed.slug}`}>{mostComposed.name}</a></div><div class="aw-val" style={`color:${skillColor(mostComposed.composure??0)}`}>{mostComposed.composure}<span class="aw-unit"> COM</span></div></div>}
-      {mostStamina&&<div class="aw-card"><div class="aw-label">Best Stamina</div><div class="aw-name"><a href={`/player/${mostStamina.slug}`}>{mostStamina.name}</a></div><div class="aw-val" style={`color:${skillColor(mostStamina.stamina??0)}`}>{mostStamina.stamina}<span class="aw-unit"> STA</span></div></div>}
-      {bestShooter&&<div class="aw-card"><div class="aw-label">Best Shooter</div><div class="aw-name"><a href={`/player/${bestShooter.slug}`}>{bestShooter.name}</a></div><div class="aw-val" style={`color:${skillColor(bestShooterVal)}`}>{bestShooterVal}<span class="aw-unit"> avg</span></div><div class="aw-sub">{bestShooterSub}</div></div>}
-      {bestPasser&&<div class="aw-card"><div class="aw-label">Best Passer</div><div class="aw-name"><a href={`/player/${bestPasser.slug}`}>{bestPasser.name}</a></div><div class="aw-val" style={`color:${skillColor(bestPasserVal)}`}>{bestPasserVal}<span class="aw-unit"> avg</span></div><div class="aw-sub">{bestPasserSub}</div></div>}
-      {bestTeamPlayer&&<div class="aw-card"><div class="aw-label">Best Team Player</div><div class="aw-name"><a href={`/player/${bestTeamPlayer.slug}`}>{bestTeamPlayer.name}</a></div><div class="aw-val" style={`color:${skillColor(bestTeamPlayer.teamwork??0)}`}>{bestTeamPlayer.teamwork}<span class="aw-unit"> TMW</span></div></div>}
-      {mostCreative&&<div class="aw-card"><div class="aw-label">Most Creative</div><div class="aw-name"><a href={`/player/${mostCreative.slug}`}>{mostCreative.name}</a></div><div class="aw-val" style={`color:${skillColor(mostCreative.creativity??0)}`}>{mostCreative.creativity}<span class="aw-unit"> CREA</span></div></div>}
-      {bestDribbler&&<div class="aw-card"><div class="aw-label">Best Dribbler</div><div class="aw-name"><a href={`/player/${bestDribbler.slug}`}>{bestDribbler.name}</a></div><div class="aw-val" style={`color:${skillColor(bestDribbler.dribbling??0)}`}>{bestDribbler.dribbling}<span class="aw-unit"> DRI</span></div></div>}
-      {bestVision&&<div class="aw-card"><div class="aw-label">Best Vision</div><div class="aw-name"><a href={`/player/${bestVision.slug}`}>{bestVision.name}</a></div><div class="aw-val" style={`color:${skillColor(bestVision.vision??0)}`}>{bestVision.vision}<span class="aw-unit"> VIS</span></div></div>}
-      {bestAerial&&<div class="aw-card"><div class="aw-label">Best in the Air</div><div class="aw-name"><a href={`/player/${bestAerial.slug}`}>{bestAerial.name}</a></div><div class="aw-val" style={`color:${skillColor(bestAerialVal)}`}>{bestAerialVal}<span class="aw-unit"> avg</span></div><div class="aw-sub">{bestAerialSub}</div></div>}
-      {mostConsistent&&<div class="aw-card"><div class="aw-label">Most Consistent</div><div class="aw-name"><a href={`/player/${mostConsistent.slug}`}>{mostConsistent.name}</a></div><div class="aw-val" style={`color:${skillColor(mostConsistent.consistency??0)}`}>{mostConsistent.consistency}<span class="aw-unit"> CON</span></div></div>}
-      {bestFreekick&&<div class="aw-card"><div class="aw-label">Free Kick Specialist</div><div class="aw-name"><a href={`/player/${bestFreekick.slug}`}>{bestFreekick.name}</a></div><div class="aw-val" style={`color:${skillColor(bestFreekick.free_kick??0)}`}>{bestFreekick.free_kick}<span class="aw-unit"> FRK</span></div></div>}
-      {bestPenalty&&<div class="aw-card"><div class="aw-label">Penalty Specialist</div><div class="aw-name"><a href={`/player/${bestPenalty.slug}`}>{bestPenalty.name}</a></div><div class="aw-val" style={`color:${skillColor(bestPenalty.penalties??0)}`}>{bestPenalty.penalties}<span class="aw-unit"> PEN</span></div></div>}
-    </div>
-
-    <!-- ─── SQUAD DNA ─── -->
-    <div class="section-header">Squad DNA</div>
-    <div class="dna-grid">
-
-      <!-- NATIONS -->
-      <div class="dna-card">
-        <div class="dna-card-title">Top Nations</div>
-        {nationData.map(([nation,count])=>(
-          <div class="dna-row">
-            <div class="dna-label">{nation}</div>
-            <div class="dna-bar-wrap"><div class="dna-bar-fill" style={`width:${Math.round(count/maxNation*100)}%;background:#0071e3;`}></div></div>
-            <div class="dna-count">{count}</div>
-          </div>
-        ))}
-      </div>
-
-      <!-- DECADES -->
-      <div class="dna-card">
-        <div class="dna-card-title">By Decade</div>
-        {decadeData.map(([decade,count])=>(
-          <div class="dna-row">
-            <div class="dna-label">{decade}</div>
-            <div class="dna-bar-wrap"><div class="dna-bar-fill" style={`width:${Math.round(count/maxDecade*100)}%;background:${(DECADE_COLORS as Record<string,string>)[decade]??'#7a3fc0'};`}></div></div>
-            <div class="dna-count">{count}</div>
-          </div>
-        ))}
-      </div>
-
-      <!-- CONTINENTS -->
-      <div class="dna-card">
-        <div class="dna-card-title">By Continent</div>
-        {continentData.map(([continent,count])=>(
-          <div class="dna-row">
-            <div class="dna-label">{continent}</div>
-            <div class="dna-bar-wrap"><div class="dna-bar-fill" style={`width:${Math.round(count/maxContinent*100)}%;background:${(CONTINENT_COLORS as Record<string,string>)[continent]??'#30d158'};`}></div></div>
-            <div class="dna-count">{count}</div>
-          </div>
-        ))}
-      </div>
-
-      <!-- FOOT + POSITIONS -->
-      <div class="dna-card">
-        <div class="dna-card-title">Preferred Foot</div>
-        <div class="foot-split-wrap">
-          <div class="foot-row">
-            <div class="foot-dot" style="background:#0071e3;"></div>
-            <div class="foot-label">Left Foot</div>
-            <div class="foot-pct-label">{leftPct}% ({leftCount})</div>
-          </div>
-          <div class="foot-row">
-            <div class="foot-dot" style="background:#e5e5ea;"></div>
-            <div class="foot-label">Right Foot</div>
-            <div class="foot-pct-label">{rightPct}% ({rightCount})</div>
-          </div>
-          <div class="foot-bar-wrap">
-            <div class="foot-bar-fill" style={`width:${leftPct}%;`}></div>
-          </div>
-          <div class="foot-labels-row">
-            <span class="foot-label-sm">Left</span>
-            <span class="foot-label-sm">Right</span>
-          </div>
-        </div>
-        <div class="dna-card-title" style="margin-top:20px;">Position Breakdown</div>
-        <div class="dept-split">
-          <div class="dept-split-item"><div class="dept-split-val">{gkR.length}</div><div class="dept-split-label">GK</div></div>
-          <div class="dept-split-item"><div class="dept-split-val">{defR.length}</div><div class="dept-split-label">DEF</div></div>
-          <div class="dept-split-item"><div class="dept-split-val">{midR.length}</div><div class="dept-split-label">MID</div></div>
-          <div class="dept-split-item"><div class="dept-split-val">{attR.length}</div><div class="dept-split-label">ATT</div></div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- ─── PHYSICAL PROFILE ─── -->
-    <div class="card">
-      <div class="card-title">Average Height by Department</div>
-      <div class="height-grid">
-        <div class="height-item"><div class="height-val">{hGK?hGK+' cm':'—'}</div><div class="height-label">GK</div></div>
-        <div class="height-item"><div class="height-val">{hDEF?hDEF+' cm':'—'}</div><div class="height-label">DEF</div></div>
-        <div class="height-item"><div class="height-val">{hMID?hMID+' cm':'—'}</div><div class="height-label">MID</div></div>
-        <div class="height-item"><div class="height-val">{hATT?hATT+' cm':'—'}</div><div class="height-label">ATT</div></div>
-        <div class="height-item total"><div class="height-val">{hTOT?hTOT+' cm':'—'}</div><div class="height-label">Squad Avg</div></div>
-      </div>
-    </div>
-
-  </div>
-
-<script define:vars={{ rosterData }}>
-function ovrColor(v){if(v>=95)return'#0071e3';if(v>=90)return'#1a5e1a';if(v>=80)return'#2e8b2e';if(v>=70)return'#6aaa2a';if(v>=60)return'#c8a800';if(v>=50)return'#e07800';if(v>=40)return'#cc4400';return'#c0392b';}
-function skillColor(v){if(v>=95)return'#5aabff';if(v>=90)return'#1a5e1a';if(v>=80)return'#2e8b2e';if(v>=70)return'#6aaa2a';if(v>=60)return'#c8a800';if(v>=40)return'#e07800';return'#c0392b';}
-function roleCls(r){if(r==='GK')return'role-gk';if(['CB','SW','RB','LB'].includes(r))return'role-def';if(['DM','CM','AM','RM','LM'].includes(r))return'role-mid';return'role-att';}
-const ROLE_BG={GK:'rgba(160,90,0,0.92)',DEF:'rgba(22,110,22,0.92)',MID:'rgba(0,90,200,0.92)',ATT:'rgba(175,35,35,0.92)'};
-function getRoleGroup(r){if(r==='GK')return'GK';if(['CB','SW','RB','LB'].includes(r))return'DEF';if(['DM','CM','AM','RM','LM'].includes(r))return'MID';return'ATT';}
-function getSurname(n){if(!n)return'?';const c=n.indexOf(',');return c>-1?n.substring(0,c).trim():n.trim();}
-function getInitials(n){return getSurname(n).slice(0,2).toUpperCase();}
-
-const FORMATIONS={
-  '4-3-3':{slots:[{x:50,y:88,roles:['GK']},{x:14,y:74,roles:['LB']},{x:36,y:74,roles:['CB']},{x:64,y:74,roles:['CB','SW'],sw:true},{x:86,y:74,roles:['RB']},{x:28,y:52,roles:['CM','AM']},{x:50,y:55,roles:['DM','CM']},{x:72,y:52,roles:['CM']},{x:16,y:22,roles:['LW','FW']},{x:50,y:18,roles:['ST','FW']},{x:84,y:22,roles:['RW']}]},
-  '4-4-2':{slots:[{x:50,y:88,roles:['GK']},{x:14,y:74,roles:['LB']},{x:36,y:74,roles:['CB']},{x:64,y:74,roles:['CB','SW'],sw:true},{x:86,y:74,roles:['RB']},{x:10,y:50,roles:['LM','LW']},{x:34,y:50,roles:['CM','DM']},{x:66,y:50,roles:['CM','DM']},{x:90,y:50,roles:['RM','RW']},{x:35,y:20,roles:['ST','FW']},{x:65,y:20,roles:['ST']}]},
-  '4-4-2◆':{slots:[{x:50,y:88,roles:['GK']},{x:14,y:74,roles:['LB']},{x:36,y:74,roles:['CB']},{x:64,y:74,roles:['CB','SW'],sw:true},{x:86,y:74,roles:['RB']},{x:50,y:63,roles:['DM']},{x:26,y:50,roles:['CM']},{x:74,y:50,roles:['CM']},{x:50,y:37,roles:['AM','FW']},{x:34,y:20,roles:['FW','ST']},{x:66,y:20,roles:['ST']}]},
-  '4-3-2-1':{slots:[{x:50,y:88,roles:['GK']},{x:14,y:74,roles:['LB']},{x:36,y:74,roles:['CB']},{x:64,y:74,roles:['CB','SW'],sw:true},{x:86,y:74,roles:['RB']},{x:28,y:57,roles:['CM']},{x:50,y:60,roles:['DM']},{x:72,y:57,roles:['CM']},{x:34,y:40,roles:['AM']},{x:66,y:40,roles:['AM','FW']},{x:50,y:18,roles:['ST']}]},
-  '4-3-1-2':{slots:[{x:50,y:88,roles:['GK']},{x:14,y:74,roles:['LB']},{x:36,y:74,roles:['CB']},{x:64,y:74,roles:['CB','SW'],sw:true},{x:86,y:74,roles:['RB']},{x:28,y:57,roles:['CM']},{x:50,y:60,roles:['DM']},{x:72,y:57,roles:['CM']},{x:50,y:41,roles:['AM']},{x:34,y:20,roles:['FW','ST']},{x:66,y:20,roles:['ST']}]},
-  '4-2-3-1':{slots:[{x:50,y:88,roles:['GK']},{x:14,y:74,roles:['LB']},{x:36,y:74,roles:['CB']},{x:64,y:74,roles:['CB','SW'],sw:true},{x:86,y:74,roles:['RB']},{x:34,y:61,roles:['DM']},{x:66,y:61,roles:['CM','DM']},{x:16,y:42,roles:['LW','LM']},{x:50,y:40,roles:['AM','FW']},{x:84,y:42,roles:['RM','RW']},{x:50,y:18,roles:['ST']}]},
-  '3-4-3':{slots:[{x:50,y:88,roles:['GK']},{x:25,y:74,roles:['CB']},{x:50,y:76,roles:['CB','SW'],sw:true},{x:75,y:74,roles:['CB']},{x:20,y:55,roles:['DM']},{x:40,y:52,roles:['CM']},{x:60,y:52,roles:['CM']},{x:80,y:50,roles:['AM']},{x:16,y:22,roles:['LW']},{x:50,y:16,roles:['ST','FW']},{x:84,y:22,roles:['RW']}]},
-  '4-2-4':{slots:[{x:50,y:88,roles:['GK']},{x:14,y:74,roles:['LB']},{x:36,y:74,roles:['CB']},{x:64,y:74,roles:['CB','SW'],sw:true},{x:86,y:74,roles:['RB']},{x:34,y:56,roles:['DM','CM']},{x:66,y:56,roles:['DM','CM']},{x:10,y:22,roles:['LW','FW']},{x:36,y:18,roles:['FW','ST']},{x:64,y:18,roles:['ST']},{x:90,y:22,roles:['RW']}]},
-  '4-5-1':{slots:[{x:50,y:88,roles:['GK']},{x:14,y:74,roles:['LB']},{x:36,y:74,roles:['CB']},{x:64,y:74,roles:['CB','SW'],sw:true},{x:86,y:74,roles:['RB']},{x:10,y:52,roles:['LM']},{x:32,y:55,roles:['DM','CM']},{x:68,y:55,roles:['CM','DM']},{x:90,y:52,roles:['RM']},{x:50,y:40,roles:['AM','FW']},{x:50,y:18,roles:['ST']}]},
-  '3-5-2':{slots:[{x:50,y:88,roles:['GK']},{x:25,y:74,roles:['CB']},{x:50,y:76,roles:['CB','SW'],sw:true},{x:75,y:74,roles:['CB']},{x:10,y:52,roles:['LM']},{x:30,y:55,roles:['CM']},{x:50,y:58,roles:['DM']},{x:70,y:55,roles:['CM']},{x:90,y:52,roles:['RM']},{x:34,y:20,roles:['FW','ST']},{x:66,y:20,roles:['ST']}]},
-  '5-3-2':{slots:[{x:50,y:88,roles:['GK']},{x:8,y:74,roles:['LB']},{x:26,y:74,roles:['CB']},{x:50,y:76,roles:['SW','CB'],sw:true},{x:74,y:74,roles:['CB']},{x:92,y:74,roles:['RB']},{x:50,y:58,roles:['DM']},{x:28,y:52,roles:['CM']},{x:72,y:52,roles:['CM','AM']},{x:34,y:20,roles:['FW','ST']},{x:66,y:20,roles:['FW','ST']}]},
-  '5-4-1':{slots:[{x:50,y:88,roles:['GK']},{x:8,y:74,roles:['LB']},{x:26,y:74,roles:['CB']},{x:50,y:76,roles:['SW','CB'],sw:true},{x:74,y:74,roles:['CB']},{x:92,y:74,roles:['RB']},{x:10,y:50,roles:['LM','LW']},{x:34,y:53,roles:['CM','DM']},{x:66,y:53,roles:['CM','DM']},{x:90,y:50,roles:['RM','RW']},{x:50,y:18,roles:['ST','FW']}]},
-};
-
-function buildLineup(slots,roster){
-  const used=new Set();const result=new Array(slots.length).fill(null);
-  const order=slots.map((s,i)=>[i,s]).sort((a,b)=>a[1].roles.length-b[1].roles.length);
-  for(const[idx,slot]of order){
-    let best=null,bestOvr=-1,bestIsPrimary=false;
-    for(const p of roster){
-      if(used.has(p.slug))continue;
-      if(p.role==='SW'&&!slot.sw)continue;
-      const acceptable=slot.sw?slot.roles:slot.roles.filter(r=>r!=='SW');
-      const altList=(p.alt_roles||'').split(',').map(r=>r.trim()).filter(Boolean);
-      const allRoles=[p.role,...altList];
-      if(allRoles.some(r=>acceptable.includes(r))){
-        const isPrimary=acceptable.includes(p.role);
-        if((!bestIsPrimary&&isPrimary)||(isPrimary===bestIsPrimary&&p.ovr>bestOvr)){best=p;bestOvr=p.ovr;bestIsPrimary=isPrimary;}
-      }
-    }
-    if(best){used.add(best.slug);result[idx]=best;}
-  }
-  return result;
-}
-
-function renderLineup(formKey){
-  const pitch=document.getElementById('lineupPitch');
-  const formation=FORMATIONS[formKey];
-  if(!pitch||!formation)return;
-  const assignment=buildLineup(formation.slots,rosterData);
-  pitch.querySelectorAll('.player-token').forEach(el=>el.remove());
-  formation.slots.forEach((slot,i)=>{
-    const player=assignment[i];
-    const token=document.createElement('div');token.className='player-token';
-    token.style.left=slot.x+'%';token.style.top=slot.y+'%';
-    if(player){const bg=ROLE_BG[getRoleGroup(player.role)];token.innerHTML=`<a href="/player/${player.slug}" class="token-link" title="${player.name}"><div class="token-circle" style="background:${bg};"><span class="token-init">${getInitials(player.name)}</span></div><div class="token-name">${getSurname(player.name)}</div><div class="token-ovr">${player.ovr}</div></a>`;}
-    else{token.innerHTML=`<div class="token-link"><div class="token-circle token-empty-circle"><span class="token-init" style="color:rgba(255,255,255,0.35);">—</span></div><div class="token-name" style="color:rgba(255,255,255,0.3);">${slot.roles[0]}</div></div>`;}
-    pitch.appendChild(token);
-  });
-}
-
-let currentSort={col:null,dir:1};
-function renderRoster(data){
-  const tbody=document.getElementById('rosterBody');if(!tbody)return;tbody.innerHTML='';
-  if(currentSort.col){[...data].sort((a,b)=>{let va=a[currentSort.col],vb=b[currentSort.col];if(typeof va==='string')return va.localeCompare(vb)*currentSort.dir;return(vb-va)*currentSort.dir;}).forEach(p=>tbody.appendChild(makeRow(p)));}
-  else{['GK','DEF','MID','ATT'].forEach(sec=>{const group=data.filter(p=>p.section===sec);if(!group.length)return;const labels={GK:'Goalkeepers',DEF:'Defenders',MID:'Midfielders',ATT:'Attackers'};const hr=document.createElement('tr');hr.className='section-row';hr.innerHTML=`<td colspan="6">${labels[sec]}</td>`;tbody.appendChild(hr);group.forEach(p=>tbody.appendChild(makeRow(p)));});}
-}
-function makeRow(p){
-  const tr=document.createElement('tr');tr.className='player-row';const isGK=p.role==='GK';
-  tr.innerHTML=`<td><a href="/player/${p.slug}" class="player-link">${p.name}</a></td><td><span class="role-badge ${roleCls(p.role)}">${p.role}</span></td><td class="col-ovr" style="color:${ovrColor(p.ovr)}">${p.ovr}</td><td class="col-stat${isGK?' muted':''}" style="${isGK?'':` color:${skillColor(p.def)}`}">${isGK?'—':p.def}</td><td class="col-stat${isGK?' muted':''}" style="${isGK?'':` color:${skillColor(p.play)}`}">${isGK?'—':p.play}</td><td class="col-stat${isGK?' muted':''}" style="${isGK?'':` color:${skillColor(p.att)}`}">${isGK?'—':p.att}</td>`;
-  return tr;
-}
-document.querySelectorAll('#rosterTable thead th').forEach(th=>{th.addEventListener('click',()=>{const col=th.getAttribute('data-col');if(!col)return;if(currentSort.col===col){currentSort.dir===1?currentSort.dir=-1:(currentSort={col:null,dir:1});}else{currentSort={col,dir:1};}document.querySelectorAll('#rosterTable thead th').forEach(h=>{const c=h.getAttribute('data-col');const s=h.querySelector('span');h.classList.remove('sorted');if(s)s.textContent='';if(c===currentSort.col){h.classList.add('sorted');if(s)s.textContent=currentSort.dir===1?' ↑':' ↓';}});renderRoster(rosterData);});});
-document.querySelectorAll('.form-btn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.form-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderLineup(btn.getAttribute('data-form'));});});
-renderRoster(rosterData);
-if(document.getElementById('lineupPitch'))renderLineup('4-3-3');
-</script>
-</body>
-</html>
+      <div class="worldxi-banner-arrow">→</div>
+    </a>
 
     <!-- BY DECADE -->
     <div class="section-card">
