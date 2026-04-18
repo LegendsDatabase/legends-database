@@ -8,24 +8,22 @@ const all = (players ?? []).filter(p => p.slug && p.overall_rating != null && p.
 const DECADES = [1950, 1960, 1970, 1980, 1990, 2000, 2010];
 
 const DECADE_COLORS = {
-  1950: { from: '#ff9500', to: '#ff6b00', text: '#ff9500', glow: 'rgba(255,149,0,0.4)' },
-  1960: { from: '#ff2d55', to: '#c0002a', text: '#ff2d55', glow: 'rgba(255,45,85,0.4)' },
-  1970: { from: '#30d158', to: '#1a8a3a', text: '#30d158', glow: 'rgba(48,209,88,0.4)' },
-  1980: { from: '#0071e3', to: '#004aad', text: '#0071e3', glow: 'rgba(0,113,227,0.4)' },
-  1990: { from: '#bf5af2', to: '#8944c8', text: '#bf5af2', glow: 'rgba(191,90,242,0.4)' },
-  2000: { from: '#64d2ff', to: '#0099cc', text: '#64d2ff', glow: 'rgba(100,210,255,0.4)' },
-  2010: { from: '#ffd700', to: '#cc9900', text: '#ffd700', glow: 'rgba(255,215,0,0.4)' },
+  1950: { from: '#ff9500', to: '#ff6b00', glow: 'rgba(255,149,0,0.4)' },
+  1960: { from: '#ff2d55', to: '#c0002a', glow: 'rgba(255,45,85,0.4)' },
+  1970: { from: '#30d158', to: '#1a8a3a', glow: 'rgba(48,209,88,0.4)' },
+  1980: { from: '#0071e3', to: '#004aad', glow: 'rgba(0,113,227,0.4)' },
+  1990: { from: '#bf5af2', to: '#8944c8', glow: 'rgba(191,90,242,0.4)' },
+  2000: { from: '#64d2ff', to: '#0099cc', glow: 'rgba(100,210,255,0.4)' },
+  2010: { from: '#ffd700', to: '#cc9900', glow: 'rgba(255,215,0,0.4)' },
 };
 
 function sortByOvr(arr) {
   return [...arr].sort((a, b) => (b.overall_rating ?? 0) - (a.overall_rating ?? 0));
 }
-
 function avg(vals) {
   const v = vals.filter(x => x != null && !isNaN(Number(x)));
   return v.length ? Math.round(v.reduce((a, b) => a + Number(b), 0) / v.length) : 0;
 }
-
 function topNation(arr) {
   const counts = {};
   arr.forEach(p => { if (p.nation) counts[p.nation] = (counts[p.nation] || 0) + 1; });
@@ -34,19 +32,15 @@ function topNation(arr) {
 
 const decadeData = DECADES.map(d => {
   const pool = sortByOvr(all.filter(p => p.decade === d));
-  const top3 = pool.slice(0, 3);
-  const nation = topNation(pool);
   return {
     decade: d,
     count: pool.length,
     avgOvr: avg(pool.map(p => p.overall_rating)),
     maxOvr: pool[0]?.overall_rating ?? 0,
-    topNation: nation,
-    top3: top3.map(p => ({
-      name: p.name ?? '',
-      slug: p.slug ?? '',
-      role: p.role ?? '',
-      ovr: p.overall_rating ?? 0,
+    topNation: topNation(pool),
+    top3: pool.slice(0, 3).map(p => ({
+      name: p.name ?? '', slug: p.slug ?? '',
+      role: p.role ?? '', ovr: p.overall_rating ?? 0,
       nation: p.nation ?? '',
     })),
   };
@@ -58,9 +52,8 @@ const decadeData = DECADES.map(d => {
   <meta charset="UTF-8"/>
   <title>Legends Timeline – Legends Database</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
+  <style is:global>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
       font-family: -apple-system, 'SF Pro Text', 'Inter', sans-serif;
       background: #0a0a0f;
@@ -68,600 +61,567 @@ const decadeData = DECADES.map(d => {
       padding-top: 44px;
       min-height: 100vh;
       -webkit-font-smoothing: antialiased;
-      overflow-x: hidden;
     }
-
-    .page {
-      max-width: 900px;
+    .tl-page {
+      max-width: 860px;
       margin: 0 auto;
       padding: 48px 40px 80px;
     }
-
-    .back {
+    .tl-back {
       display: inline-flex;
       align-items: center;
       gap: 4px;
       font-size: 13px;
-      color: rgba(255,255,255,0.4);
+      color: rgba(255,255,255,0.35);
       text-decoration: none;
       margin-bottom: 40px;
       transition: color 0.15s;
     }
-    .back:hover { color: rgba(255,255,255,0.9); }
+    .tl-back:hover { color: rgba(255,255,255,0.8); }
 
-    /* ─── HEADER ─── */
-    .page-header {
+    .tl-header {
       text-align: center;
-      margin-bottom: 56px;
+      margin-bottom: 52px;
     }
-    .page-eyebrow {
+    .tl-eyebrow {
       font-size: 11px;
       font-weight: 700;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.3);
+      color: rgba(255,255,255,0.28);
       margin-bottom: 12px;
     }
-    .page-title {
+    .tl-title {
       font-size: 42px;
       font-weight: 700;
       letter-spacing: -1.5px;
-      background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.6) 100%);
+      background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.55) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
       margin-bottom: 10px;
       line-height: 1.1;
     }
-    .page-sub {
+    .tl-sub {
       font-size: 15px;
-      color: rgba(255,255,255,0.35);
+      color: rgba(255,255,255,0.3);
       line-height: 1.5;
     }
 
-    /* ─── DIAL ─── */
-    .dial-wrap {
+    /* DIAL */
+    .tl-dial-wrap {
       display: flex;
-      justify-content: center;
-      margin-bottom: 56px;
-      position: relative;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 52px;
     }
-
-    .dial-svg-wrap {
+    .tl-svg-container {
       position: relative;
-      width: 400px;
-      height: 400px;
+      width: 380px;
+      height: 380px;
     }
-
-    .dial-svg {
+    .tl-svg {
       width: 100%;
       height: 100%;
-      transform: rotate(-90deg);
       overflow: visible;
     }
-
-    .dial-segment {
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
-    .dial-segment:hover { opacity: 0.85; }
-    .dial-segment.active .seg-arc { filter: brightness(1.2); }
-
-    .dial-center {
+    .tl-dial-center {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       text-align: center;
       pointer-events: none;
-      transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      width: 140px;
     }
-
-    .dial-center-decade {
-      font-size: 36px;
+    .tl-center-decade {
+      font-size: 32px;
       font-weight: 800;
       letter-spacing: -1px;
       line-height: 1;
-      transition: all 0.3s ease;
+      transition: color 0.3s ease, text-shadow 0.3s ease;
     }
-    .dial-center-label {
+    .tl-center-sub {
       font-size: 10px;
       font-weight: 700;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.35);
-      margin-top: 4px;
+      color: rgba(255,255,255,0.3);
+      margin-top: 5px;
     }
-    .dial-center-ovr {
-      font-size: 13px;
+    .tl-center-avg {
+      font-size: 12px;
       font-weight: 600;
-      margin-top: 8px;
-      color: rgba(255,255,255,0.5);
-      transition: all 0.3s ease;
+      margin-top: 6px;
+      transition: color 0.3s ease;
     }
 
-    /* segment labels */
-    .seg-label {
-      font-family: -apple-system, 'SF Pro Text', 'Inter', sans-serif;
-      font-size: 13px;
-      font-weight: 700;
-      fill: rgba(255,255,255,0.75);
-      pointer-events: none;
-      transform-origin: center;
+    /* CONTENT */
+    .tl-content {
+      min-height: 380px;
+    }
+    .tl-empty {
+      text-align: center;
+      padding: 60px 0;
+      color: rgba(255,255,255,0.2);
+    }
+    .tl-empty-icon { font-size: 40px; margin-bottom: 12px; }
+    .tl-empty-text { font-size: 14px; }
+
+    .tl-panel {
+      animation: tlPanelIn 0.4s cubic-bezier(0.34, 1.2, 0.64, 1) both;
+    }
+    @keyframes tlPanelIn {
+      from { opacity: 0; transform: translateY(20px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
     }
 
-    /* ─── CONTENT AREA ─── */
-    .content-area {
-      min-height: 320px;
-      position: relative;
-    }
-
-    .decade-panel {
-      display: none;
-      animation: panelIn 0.45s cubic-bezier(0.34, 1.2, 0.64, 1) both;
-    }
-    .decade-panel.visible {
-      display: block;
-    }
-
-    @keyframes panelIn {
-      from { opacity: 0; transform: translateY(24px) scale(0.97); }
-      to   { opacity: 1; transform: translateY(0)   scale(1);    }
-    }
-
-    /* ─── PODIUM ─── */
-    .podium-section {
-      margin-bottom: 32px;
-    }
-
-    .podium-title {
+    /* PODIUM TITLE */
+    .tl-podium-title {
       text-align: center;
       font-size: 11px;
       font-weight: 700;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.3);
+      color: rgba(255,255,255,0.28);
       margin-bottom: 28px;
     }
 
-    .podium {
+    /* PODIUM */
+    .tl-podium {
       display: flex;
       align-items: flex-end;
       justify-content: center;
-      gap: 12px;
+      gap: 14px;
+      margin-bottom: 32px;
     }
-
-    .podium-slot {
+    .tl-podium-slot {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
-    /* player card above podium */
-    .podium-card {
-      background: rgba(255,255,255,0.06);
+    /* PLAYER CARD */
+    .tl-pcard {
+      display: block;
+      text-decoration: none;
+      background: rgba(255,255,255,0.05);
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 16px;
-      padding: 18px 16px;
+      padding: 18px 14px;
       text-align: center;
-      width: 180px;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
-      text-decoration: none;
-      display: block;
+      width: 170px;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s, background 0.2s;
+      backdrop-filter: blur(12px);
     }
-    .podium-card:hover {
-      transform: translateY(-4px);
-      border-color: rgba(255,255,255,0.25);
-      box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+    .tl-pcard:hover {
+      transform: translateY(-5px);
+      border-color: rgba(255,255,255,0.22);
+      background: rgba(255,255,255,0.08);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.5);
     }
+    .tl-pcard.is-first { width: 190px; }
 
-    .podium-card.rank-1 {
-      width: 200px;
-    }
-
-    .podium-avatar {
-      width: 52px;
-      height: 52px;
+    .tl-avatar {
+      width: 50px;
+      height: 50px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 800;
       color: #0a0a0f;
       margin: 0 auto 10px;
-      letter-spacing: -0.5px;
+      letter-spacing: -0.3px;
     }
+    .tl-pcard.is-first .tl-avatar { width: 58px; height: 58px; font-size: 17px; }
 
-    .podium-card.rank-1 .podium-avatar { width: 60px; height: 60px; font-size: 18px; }
-
-    .podium-name {
+    .tl-pname {
       font-size: 12px;
       font-weight: 600;
-      color: rgba(255,255,255,0.9);
+      color: rgba(255,255,255,0.88);
       margin-bottom: 6px;
       line-height: 1.3;
     }
+    .tl-pcard.is-first .tl-pname { font-size: 13px; }
 
-    .podium-card.rank-1 .podium-name { font-size: 13px; }
-
-    .podium-role {
-      font-size: 10px;
+    .tl-prole {
+      font-size: 9.5px;
       font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 5px;
+      padding: 2px 7px;
+      border-radius: 4px;
       letter-spacing: 0.04em;
       display: inline-block;
       margin-bottom: 8px;
     }
+    .tl-role-gk  { background: rgba(176,120,0,0.3); color: #ffcc44; }
+    .tl-role-def { background: rgba(26,122,26,0.3);  color: #4cd964; }
+    .tl-role-mid { background: rgba(0,113,227,0.3);  color: #64a8ff; }
+    .tl-role-att { background: rgba(192,57,43,0.3);  color: #ff6b6b; }
 
-    .podium-ovr {
-      font-size: 28px;
+    .tl-povr {
+      font-size: 30px;
       font-weight: 800;
       letter-spacing: -1px;
       line-height: 1;
     }
-
-    .podium-card.rank-1 .podium-ovr { font-size: 34px; }
-
-    .podium-ovr-label {
+    .tl-pcard.is-first .tl-povr { font-size: 36px; }
+    .tl-povr-label {
       font-size: 9px;
       font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.3);
-      margin-top: 2px;
+      color: rgba(255,255,255,0.28);
+      margin-top: 3px;
     }
 
-    /* podium base */
-    .podium-base {
+    /* PODIUM BASE */
+    .tl-base {
       border-radius: 8px 8px 0 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 22px;
-      font-weight: 800;
-      color: rgba(255,255,255,0.6);
+      font-size: 20px;
     }
 
-    .podium-slot:nth-child(1) .podium-base { width: 100px; height: 60px; background: rgba(255,255,255,0.08); }
-    .podium-slot:nth-child(2) .podium-base { width: 110px; height: 88px; background: rgba(255,255,255,0.13); }
-    .podium-slot:nth-child(3) .podium-base { width: 100px; height: 44px; background: rgba(255,255,255,0.06); }
-
-    /* ─── DECADE STATS ─── */
-    .decade-stats {
+    /* STATS ROW */
+    .tl-stats {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 10px;
     }
-
-    .stat-pill {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.08);
+    .tl-stat {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
       border-radius: 14px;
-      padding: 16px 14px;
+      padding: 16px 12px;
       text-align: center;
     }
-
-    .stat-pill-val {
+    .tl-stat-val {
       font-size: 22px;
       font-weight: 700;
-      color: #ffffff;
+      color: #fff;
       letter-spacing: -0.5px;
       line-height: 1;
       margin-bottom: 4px;
     }
-
-    .stat-pill-label {
+    .tl-stat-label {
       font-size: 10px;
       font-weight: 600;
       letter-spacing: 0.06em;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.3);
+      color: rgba(255,255,255,0.28);
     }
-
-    /* ─── EMPTY STATE ─── */
-    .empty-state {
-      text-align: center;
-      padding: 80px 40px;
-      color: rgba(255,255,255,0.2);
-    }
-    .empty-state-icon { font-size: 48px; margin-bottom: 16px; }
-    .empty-state-text { font-size: 15px; font-weight: 500; }
-
-    /* ─── ROLE COLORS ─── */
-    .role-gk  { background: rgba(176,120,0,0.3);   color: #ffcc44; }
-    .role-def { background: rgba(26,122,26,0.3);   color: #4cd964; }
-    .role-mid { background: rgba(0,113,227,0.3);   color: #64a8ff; }
-    .role-att { background: rgba(192,57,43,0.3);   color: #ff6b6b; }
 
     @media (max-width: 640px) {
-      .page { padding: 32px 20px 60px; }
-      .page-title { font-size: 30px; }
-      .dial-svg-wrap { width: 300px; height: 300px; }
-      .podium { gap: 8px; }
-      .podium-card { width: 130px; padding: 14px 10px; }
-      .podium-card.rank-1 { width: 150px; }
-      .podium-avatar { width: 42px; height: 42px; font-size: 13px; }
-      .decade-stats { grid-template-columns: repeat(2, 1fr); }
+      .tl-page { padding: 28px 20px 60px; }
+      .tl-title { font-size: 30px; }
+      .tl-svg-container { width: 300px; height: 300px; }
+      .tl-pcard { width: 120px; padding: 14px 10px; }
+      .tl-pcard.is-first { width: 140px; }
+      .tl-stats { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
 </head>
-
 <body>
   <Navbar/>
-  <div class="page">
-    <a href="/" class="back">← Database</a>
+  <div class="tl-page">
+    <a href="/" class="tl-back">← Database</a>
 
-    <div class="page-header">
-      <div class="page-eyebrow">Legends Database</div>
-      <h1 class="page-title">Legends Timeline</h1>
-      <p class="page-sub">Seven decades. One era at a time. Select a decade to explore its greatest players.</p>
+    <div class="tl-header">
+      <div class="tl-eyebrow">Legends Database</div>
+      <h1 class="tl-title">Legends Timeline</h1>
+      <p class="tl-sub">Seven decades. One era at a time.</p>
     </div>
 
     <!-- DIAL -->
-    <div class="dial-wrap">
-      <div class="dial-svg-wrap" id="dialWrap">
-        <svg class="dial-svg" viewBox="0 0 400 400" id="dialSvg">
+    <div class="tl-dial-wrap">
+      <div class="tl-svg-container">
+        <svg class="tl-svg" viewBox="0 0 380 380" id="tlSvg">
           <defs>
-            {decadeData.map(d => (
-              <radialGradient id={'grad' + d.decade} cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stop-color={(DECADE_COLORS as any)[d.decade].from} stop-opacity="1"/>
-                <stop offset="100%" stop-color={(DECADE_COLORS as any)[d.decade].to} stop-opacity="0.7"/>
-              </radialGradient>
-            ))}
-            <filter id="glow">
-              <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-              <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            <filter id="tlGlow">
+              <feGaussianBlur stdDeviation="4" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
             </filter>
           </defs>
-          <!-- segments rendered by JS -->
+          <!-- rendered by JS -->
         </svg>
-
-        <div class="dial-center" id="dialCenter">
-          <div class="dial-center-decade" id="centerDecade" style="color:rgba(255,255,255,0.2);">
-            ◉
-          </div>
-          <div class="dial-center-label">select</div>
-          <div class="dial-center-ovr" id="centerOvr">a decade</div>
+        <div class="tl-dial-center">
+          <div class="tl-center-decade" id="tlCenterDecade" style="color:rgba(255,255,255,0.18);">◉</div>
+          <div class="tl-center-sub" id="tlCenterSub">select</div>
+          <div class="tl-center-avg" id="tlCenterAvg" style="color:rgba(255,255,255,0.3);">a decade</div>
         </div>
       </div>
     </div>
 
     <!-- CONTENT -->
-    <div class="content-area" id="contentArea">
-      <div class="empty-state" id="emptyState">
-        <div class="empty-state-icon">🕰</div>
-        <div class="empty-state-text">Select a decade from the dial above</div>
+    <div class="tl-content" id="tlContent">
+      <div class="tl-empty" id="tlEmpty">
+        <div class="tl-empty-icon">🕰</div>
+        <div class="tl-empty-text">Select a decade from the dial above</div>
       </div>
     </div>
-
   </div>
 
 <script define:vars={{ decadeData, DECADE_COLORS }}>
 
-// ─── HELPERS ──────────────────────────────────────────────────────────────
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const CX = 190, CY = 190, R_OUT = 172, R_IN = 88;
+const N = 7, GAP = 3;
+const SEG = (360 / N) - GAP;
 
+function toRad(deg) { return deg * Math.PI / 180; }
+function polar(r, deg) {
+  return { x: CX + r * Math.cos(toRad(deg - 90)), y: CY + r * Math.sin(toRad(deg - 90)) };
+}
+function arcPath(r1, r2, a1, a2) {
+  const p1 = polar(r1, a1), p2 = polar(r1, a2);
+  const p3 = polar(r2, a2), p4 = polar(r2, a1);
+  const lg = (a2 - a1) > 180 ? 1 : 0;
+  return `M${p1.x},${p1.y} A${r1},${r1} 0 ${lg} 1 ${p2.x},${p2.y} L${p3.x},${p3.y} A${r2},${r2} 0 ${lg} 0 ${p4.x},${p4.y} Z`;
+}
+
+// helpers
 function getSurname(name) {
   if (!name) return '?';
   const c = name.indexOf(',');
   return c > -1 ? name.substring(0, c).trim() : name.split(' ').pop();
 }
-
 function getInitials(name) {
   if (!name) return '?';
   const c = name.indexOf(',');
   if (c > -1) return name.substring(0, c).trim().slice(0, 2).toUpperCase();
   return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 }
-
 function roleCls(r) {
-  if (r === 'GK') return 'role-gk';
-  if (['CB','SW','RB','LB'].includes(r)) return 'role-def';
-  if (['DM','CM','AM','RM','LM'].includes(r)) return 'role-mid';
-  return 'role-att';
+  if (r === 'GK') return 'tl-role-gk';
+  if (['CB','SW','RB','LB'].includes(r)) return 'tl-role-def';
+  if (['DM','CM','AM','RM','LM'].includes(r)) return 'tl-role-mid';
+  return 'tl-role-att';
+}
+function hexToRgb(hex) {
+  return [parseInt(hex.slice(1,3),16), parseInt(hex.slice(3,5),16), parseInt(hex.slice(5,7),16)].join(',');
 }
 
-// ─── DIAL RENDERING ───────────────────────────────────────────────────────
-
-const SVG_NS = 'http://www.w3.org/2000/svg';
-const CX = 200, CY = 200;
-const R_OUTER = 175, R_INNER = 90;
-const N = 7;
-const GAP_DEG = 3;
-const SEG_DEG = (360 / N) - GAP_DEG;
-
-function polarToXY(cx, cy, r, angleDeg) {
-  const rad = (angleDeg * Math.PI) / 180;
-  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
-}
-
-function makeArcPath(cx, cy, rOuter, rInner, startDeg, endDeg) {
-  const s1 = polarToXY(cx, cy, rOuter, startDeg);
-  const e1 = polarToXY(cx, cy, rOuter, endDeg);
-  const s2 = polarToXY(cx, cy, rInner, endDeg);
-  const e2 = polarToXY(cx, cy, rInner, startDeg);
-  const large = endDeg - startDeg > 180 ? 1 : 0;
-  return [
-    `M ${s1.x} ${s1.y}`,
-    `A ${rOuter} ${rOuter} 0 ${large} 1 ${e1.x} ${e1.y}`,
-    `L ${s2.x} ${s2.y}`,
-    `A ${rInner} ${rInner} 0 ${large} 0 ${e2.x} ${e2.y}`,
-    'Z'
-  ].join(' ');
-}
-
-const svg = document.getElementById('dialSvg');
+// build dial
+const svg = document.getElementById('tlSvg');
 let activeDecade = null;
 
-decadeData.forEach((d, i) => {
-  const startDeg = i * (360 / N) + GAP_DEG / 2;
-  const endDeg   = startDeg + SEG_DEG;
-  const midDeg   = (startDeg + endDeg) / 2;
-  const col      = DECADE_COLORS[d.decade];
+// gradients
+const defs = svg.querySelector('defs');
+decadeData.forEach(d => {
+  const lg = document.createElementNS(SVG_NS, 'linearGradient');
+  lg.setAttribute('id', 'tlg' + d.decade);
+  lg.setAttribute('x1', '0%'); lg.setAttribute('y1', '0%');
+  lg.setAttribute('x2', '100%'); lg.setAttribute('y2', '100%');
+  const col = DECADE_COLORS[d.decade];
+  const s1 = document.createElementNS(SVG_NS, 'stop');
+  s1.setAttribute('offset', '0%'); s1.setAttribute('stop-color', col.from);
+  const s2 = document.createElementNS(SVG_NS, 'stop');
+  s2.setAttribute('offset', '100%'); s2.setAttribute('stop-color', col.to);
+  lg.appendChild(s1); lg.appendChild(s2);
+  defs.appendChild(lg);
+});
 
-  // Group
+decadeData.forEach((d, i) => {
+  const a1 = i * (360 / N) + GAP / 2;
+  const a2 = a1 + SEG;
+  const mid = (a1 + a2) / 2;
+  const col = DECADE_COLORS[d.decade];
+
   const g = document.createElementNS(SVG_NS, 'g');
-  g.setAttribute('class', 'dial-segment');
-  g.setAttribute('data-decade', String(d.decade));
   g.style.cursor = 'pointer';
 
-  // Arc path
   const path = document.createElementNS(SVG_NS, 'path');
-  path.setAttribute('d', makeArcPath(CX, CY, R_OUTER, R_INNER, startDeg, endDeg));
-  path.setAttribute('fill', 'url(#grad' + d.decade + ')');
-  path.setAttribute('class', 'seg-arc');
-  path.style.transition = 'all 0.25s ease';
-  path.style.strokeWidth = '0';
+  path.setAttribute('d', arcPath(R_OUT, R_IN, a1, a2));
+  path.setAttribute('fill', 'url(#tlg' + d.decade + ')');
+  path.setAttribute('id', 'seg' + d.decade);
+  path.style.transition = 'filter 0.25s, opacity 0.25s';
+  path.style.opacity = '0.85';
   g.appendChild(path);
 
-  // Label
-  const labelR = (R_OUTER + R_INNER) / 2;
-  const labelPos = polarToXY(CX, CY, labelR, midDeg);
+  // label
+  const lp = polar((R_OUT + R_IN) / 2, mid);
+  const txt = document.createElementNS(SVG_NS, 'text');
+  txt.setAttribute('x', String(lp.x));
+  txt.setAttribute('y', String(lp.y));
+  txt.setAttribute('text-anchor', 'middle');
+  txt.setAttribute('dominant-baseline', 'middle');
+  txt.setAttribute('transform', `rotate(${mid}, ${lp.x}, ${lp.y})`);
+  txt.setAttribute('font-family', "-apple-system, 'SF Pro Text', 'Inter', sans-serif");
+  txt.setAttribute('font-size', '13');
+  txt.setAttribute('font-weight', '700');
+  txt.setAttribute('fill', 'rgba(255,255,255,0.85)');
+  txt.setAttribute('pointer-events', 'none');
+  txt.textContent = String(d.decade).slice(2) + 's';
+  g.appendChild(txt);
 
-  const text = document.createElementNS(SVG_NS, 'text');
-  text.setAttribute('x', String(labelPos.x));
-  text.setAttribute('y', String(labelPos.y));
-  text.setAttribute('text-anchor', 'middle');
-  text.setAttribute('dominant-baseline', 'middle');
-  text.setAttribute('class', 'seg-label');
-  text.style.transform = 'rotate(' + (midDeg + 90) + 'deg)';
-  text.style.transformBox = 'fill-box';
-  text.style.transformOrigin = 'center';
-  text.textContent = String(d.decade).slice(2) + 's';
-  g.appendChild(text);
-
-  // Click
   g.addEventListener('click', () => selectDecade(d.decade));
+  g.addEventListener('mouseenter', () => {
+    if (d.decade !== activeDecade) {
+      path.style.opacity = '1';
+      path.style.filter = 'brightness(1.15)';
+    }
+  });
+  g.addEventListener('mouseleave', () => {
+    if (d.decade !== activeDecade) {
+      path.style.opacity = '0.85';
+      path.style.filter = '';
+    }
+  });
   svg.appendChild(g);
 });
 
-// ─── SELECT DECADE ────────────────────────────────────────────────────────
-
 function selectDecade(decade) {
-  if (activeDecade === decade) return;
   activeDecade = decade;
-
   const col = DECADE_COLORS[decade];
   const data = decadeData.find(d => d.decade === decade);
 
-  // Update center
-  const centerDecadeEl = document.getElementById('centerDecade');
-  const centerOvrEl = document.getElementById('centerOvr');
-  centerDecadeEl.textContent = String(decade) + 's';
-  centerDecadeEl.style.color = col.from;
-  centerDecadeEl.style.textShadow = '0 0 24px ' + col.glow;
-  centerOvrEl.textContent = 'avg ' + data.avgOvr + ' OVR';
-  centerOvrEl.style.color = col.from;
+  // center
+  const cd = document.getElementById('tlCenterDecade');
+  const cs = document.getElementById('tlCenterSub');
+  const ca = document.getElementById('tlCenterAvg');
+  cd.textContent = String(decade) + 's';
+  cd.style.color = col.from;
+  cd.style.textShadow = '0 0 20px ' + col.glow;
+  cs.textContent = 'era';
+  ca.textContent = 'avg ' + data.avgOvr + ' OVR';
+  ca.style.color = col.from;
 
-  // Highlight segments
-  document.querySelectorAll('.dial-segment').forEach(g => {
-    const d = Number(g.getAttribute('data-decade'));
-    const arc = g.querySelector('.seg-arc');
-    if (d === decade) {
-      arc.style.filter = 'brightness(1.3) drop-shadow(0 0 8px ' + col.glow + ')';
-      arc.style.transform = 'scale(1.04)';
-      arc.style.transformBox = 'fill-box';
-      arc.style.transformOrigin = 'center';
+  // segments
+  decadeData.forEach(d => {
+    const p = document.getElementById('seg' + d.decade);
+    if (!p) return;
+    if (d.decade === decade) {
+      p.style.filter = 'brightness(1.3) drop-shadow(0 0 10px ' + col.glow + ')';
+      p.style.opacity = '1';
     } else {
-      arc.style.filter = 'brightness(0.55)';
-      arc.style.transform = 'scale(1)';
+      p.style.filter = 'brightness(0.4)';
+      p.style.opacity = '0.6';
     }
   });
 
-  // Render content
-  renderContent(data, col);
+  renderPanel(data, col);
 }
 
-// ─── RENDER CONTENT ───────────────────────────────────────────────────────
-
-function renderContent(data, col) {
-  const area = document.getElementById('contentArea');
-  const empty = document.getElementById('emptyState');
+function renderPanel(data, col) {
+  const content = document.getElementById('tlContent');
+  const empty = document.getElementById('tlEmpty');
   if (empty) empty.style.display = 'none';
 
-  // Remove old panel
-  const old = area.querySelector('.decade-panel');
+  const old = content.querySelector('.tl-panel');
   if (old) old.remove();
 
   const panel = document.createElement('div');
-  panel.className = 'decade-panel visible';
+  panel.className = 'tl-panel';
 
-  // Podium
-  const podiumRanks = [2, 1, 3]; // order: 2nd left, 1st center, 3rd right
-  const podiumHeights = { 1: 88, 2: 60, 3: 44 };
+  // podium title
+  const pt = document.createElement('div');
+  pt.className = 'tl-podium-title';
+  pt.style.color = col.from;
+  pt.textContent = 'Top Players — ' + data.decade + 's';
+  panel.appendChild(pt);
 
-  let podiumHTML = `
-    <div class="podium-section">
-      <div class="podium-title" style="color:${col.from};">Top Players — ${data.decade}s</div>
-      <div class="podium">`;
+  // podium: order 2nd-left, 1st-center, 3rd-right
+  const podium = document.createElement('div');
+  podium.className = 'tl-podium';
 
-  podiumRanks.forEach(rank => {
-    const player = data.top3[rank - 1];
-    if (!player) return;
+  const order = [1, 0, 2]; // indices in top3 array
+  const ranks = [2, 1, 3];
+  const medals = ['🥈', '🥇', '🥉'];
+  const baseH = [60, 90, 44];
 
-    const initials = getInitials(player.name);
-    const surname  = getSurname(player.name);
-    const rc       = roleCls(player.role);
-    const isFirst  = rank === 1;
+  order.forEach((idx, pos) => {
+    const player = data.top3[idx];
+    const rank = ranks[pos];
+    const isFirst = rank === 1;
 
-    podiumHTML += `
-      <div class="podium-slot">
-        <a href="/player/${player.slug}" class="podium-card ${isFirst ? 'rank-1' : ''}">
-          <div class="podium-avatar" style="background:${col.from};box-shadow:0 0 20px ${col.glow};">
-            ${initials}
-          </div>
-          <div class="podium-name">${surname}</div>
-          <div class="podium-role ${rc}">${player.role}</div>
-          <div class="podium-ovr" style="color:${col.from};">${player.ovr}</div>
-          <div class="podium-ovr-label">Overall</div>
-        </a>
-        <div class="podium-base" style="background:rgba(${hexToRgb(col.from)},0.15);width:${isFirst?110:100}px;height:${podiumHeights[rank]}px;">
-          ${rank === 1 ? '🥇' : rank === 2 ? '🥈' : '🥉'}
-        </div>
-      </div>`;
+    const slot = document.createElement('div');
+    slot.className = 'tl-podium-slot';
+
+    if (player) {
+      // card
+      const card = document.createElement('a');
+      card.href = '/player/' + player.slug;
+      card.className = 'tl-pcard' + (isFirst ? ' is-first' : '');
+
+      const avatar = document.createElement('div');
+      avatar.className = 'tl-avatar';
+      avatar.style.background = col.from;
+      avatar.style.boxShadow = '0 0 18px ' + col.glow;
+      avatar.textContent = getInitials(player.name);
+      card.appendChild(avatar);
+
+      const name = document.createElement('div');
+      name.className = 'tl-pname';
+      name.textContent = getSurname(player.name);
+      card.appendChild(name);
+
+      const role = document.createElement('div');
+      role.className = 'tl-prole ' + roleCls(player.role);
+      role.textContent = player.role;
+      card.appendChild(role);
+
+      const ovr = document.createElement('div');
+      ovr.className = 'tl-povr';
+      ovr.style.color = col.from;
+      ovr.textContent = player.ovr;
+      card.appendChild(ovr);
+
+      const ovrLabel = document.createElement('div');
+      ovrLabel.className = 'tl-povr-label';
+      ovrLabel.textContent = 'Overall';
+      card.appendChild(ovrLabel);
+
+      slot.appendChild(card);
+    }
+
+    // base
+    const base = document.createElement('div');
+    base.className = 'tl-base';
+    base.style.width = (isFirst ? 110 : 96) + 'px';
+    base.style.height = baseH[pos] + 'px';
+    base.style.background = 'rgba(' + hexToRgb(col.from) + ',0.12)';
+    base.style.border = '1px solid rgba(' + hexToRgb(col.from) + ',0.2)';
+    base.textContent = medals[pos];
+    slot.appendChild(base);
+
+    podium.appendChild(slot);
   });
+  panel.appendChild(podium);
 
-  podiumHTML += `</div></div>`;
+  // stats
+  const stats = document.createElement('div');
+  stats.className = 'tl-stats';
+  [
+    { val: data.count, label: 'Legends' },
+    { val: data.avgOvr, label: 'Avg OVR' },
+    { val: data.maxOvr, label: 'Peak OVR' },
+    { val: data.topNation, label: 'Top Nation', small: true },
+  ].forEach(s => {
+    const pill = document.createElement('div');
+    pill.className = 'tl-stat';
+    const val = document.createElement('div');
+    val.className = 'tl-stat-val';
+    val.style.color = col.from;
+    if (s.small) val.style.fontSize = '14px';
+    val.textContent = s.val;
+    const label = document.createElement('div');
+    label.className = 'tl-stat-label';
+    label.textContent = s.label;
+    pill.appendChild(val);
+    pill.appendChild(label);
+    stats.appendChild(pill);
+  });
+  panel.appendChild(stats);
 
-  // Stats
-  podiumHTML += `
-    <div class="decade-stats">
-      <div class="stat-pill">
-        <div class="stat-pill-val" style="color:${col.from};">${data.count}</div>
-        <div class="stat-pill-label">Legends</div>
-      </div>
-      <div class="stat-pill">
-        <div class="stat-pill-val" style="color:${col.from};">${data.avgOvr}</div>
-        <div class="stat-pill-label">Avg OVR</div>
-      </div>
-      <div class="stat-pill">
-        <div class="stat-pill-val" style="color:${col.from};">${data.maxOvr}</div>
-        <div class="stat-pill-label">Peak OVR</div>
-      </div>
-      <div class="stat-pill">
-        <div class="stat-pill-val" style="color:${col.from};font-size:14px;padding-top:4px;">${data.topNation}</div>
-        <div class="stat-pill-label">Top Nation</div>
-      </div>
-    </div>`;
-
-  panel.innerHTML = podiumHTML;
-  area.appendChild(panel);
+  content.appendChild(panel);
 }
 
-function hexToRgb(hex) {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  return `${r},${g},${b}`;
-}
-
-// Auto-select first decade on load with a small delay for visual effect
-setTimeout(() => selectDecade(1980), 400);
-
+// auto-select 1980 on load
+setTimeout(() => selectDecade(1980), 350);
 </script>
 </body>
 </html>
