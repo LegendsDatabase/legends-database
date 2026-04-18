@@ -14,6 +14,7 @@ export async function getStaticPaths() {
 const { decade } = Astro.params;
 const { allPlayers } = Astro.props;
 const decadeNum = Number(decade);
+const ALL_DECADES = [1950, 1960, 1970, 1980, 1990, 2000, 2010];
 const displayName = `All-Time ${decade}s`;
 
 function ovrColor(v){if(v>=95)return'#0071e3';if(v>=90)return'#1a5e1a';if(v>=80)return'#2e8b2e';if(v>=70)return'#6aaa2a';if(v>=60)return'#c8a800';if(v>=50)return'#e07800';if(v>=40)return'#cc4400';return'#c0392b';}
@@ -151,13 +152,25 @@ const rosterData = roster.map(p=>({
     .height-val{font-size:20px;font-weight:600;color:#1d1d1f;letter-spacing:-0.3px;}
     .height-label{font-size:10px;font-weight:600;color:#aeaeb2;letter-spacing:0.05em;text-transform:uppercase;}
     .height-item.total .height-val,.height-item.total .height-label{color:#0071e3;}
+.decade-nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;}
+.decade-nav-btn{display:inline-flex;align-items:center;text-decoration:none;font-size:12px;font-weight:600;padding:6px 14px;border-radius:20px;border:1.5px solid #e5e5ea;color:#6e6e73;background:#ffffff;transition:all 0.12s;letter-spacing:0.02em;white-space:nowrap;}
+.decade-nav-btn:hover{border-color:#0071e3;color:#0071e3;}
+.decade-nav-btn.active{background:#0071e3;border-color:#0071e3;color:#ffffff;}
     @media(max-width:640px){.page{padding:24px 20px 60px;}.hero{flex-direction:column;align-items:flex-start;gap:16px;}.highlights-grid{grid-template-columns:repeat(2,1fr);}.records-grid{grid-template-columns:1fr;}.height-grid{grid-template-columns:repeat(3,1fr);}.lineup-pitch{height:380px;}.token-circle{width:28px;height:28px;}.token-init{font-size:8.5px;}.token-name{font-size:8px;max-width:60px;}.token-ovr{font-size:7px;}}
   </style>
 </head>
 <body>
   <Navbar/>
   <div class="page">
-    <a href="/best" class="back">← The Best</a>
+<a href="/best" class="back">← The Best</a>
+<div class="decade-nav">
+  {ALL_DECADES.map(d => (
+    
+      href={`/best/decade/${d}`}
+      class={`decade-nav-btn${d === decadeNum ? ' active' : ''}`}
+    >{d}s</a>
+  ))}
+</div>
 
     <div class="hero">
       <div class="decade-badge">
