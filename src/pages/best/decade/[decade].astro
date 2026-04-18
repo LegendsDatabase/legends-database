@@ -165,11 +165,9 @@ const rosterData = roster.map(p=>({
 <a href="/best" class="back">← The Best</a>
 <div class="decade-nav">
   {ALL_DECADES.map(d => (
-    
-      href={'/best/decade/' + String(d)}
-      class={d === decadeNum ? 'decade-nav-btn active' : 'decade-nav-btn'}
-    >{d}s</a>
+    <a href={'/best/decade/' + String(d)} class={d === decadeNum ? 'decade-nav-btn active' : 'decade-nav-btn'}>{d}s</a>
   ))}
+</div>
 </div>
     <div class="hero">
       <div class="decade-badge">
