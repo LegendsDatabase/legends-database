@@ -17,6 +17,13 @@ const { allPlayers } = Astro.props;
 const CONTINENT_MAP = {'Europe':'Europe','South-America':'South America','North-America':'North America','Africa':'Africa','Asia':'Asia'};
 const CONTINENT_EMOJI = {'Europe':'🌍','South-America':'🌎','North-America':'🌎','Africa':'🌍'};
 const continentName = CONTINENT_MAP[continent] ?? continent;
+const ALL_CONTINENTS = [
+  { label: 'Europe',        slug: 'Europe' },
+  { label: 'South America', slug: 'South-America' },
+  { label: 'Africa',        slug: 'Africa' },
+  { label: 'North America', slug: 'North-America' },
+  { label: 'Asia',          slug: 'Asia' },
+];
 const displayName   = `All-Time ${continentName}`;
 const emoji         = CONTINENT_EMOJI[continent] ?? '🌐';
 
@@ -151,6 +158,10 @@ const rosterData = roster.map(p=>({
     .height-val{font-size:20px;font-weight:600;color:#1d1d1f;letter-spacing:-0.3px;}
     .height-label{font-size:10px;font-weight:600;color:#aeaeb2;letter-spacing:0.05em;text-transform:uppercase;}
     .height-item.total .height-val,.height-item.total .height-label{color:#0071e3;}
+.continent-nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;}
+.continent-nav-btn{display:inline-flex;align-items:center;text-decoration:none;font-size:12px;font-weight:600;padding:6px 14px;border-radius:20px;border:1.5px solid #e5e5ea;color:#6e6e73;background:#ffffff;transition:all 0.12s;letter-spacing:0.02em;white-space:nowrap;}
+.continent-nav-btn:hover{border-color:#0071e3;color:#0071e3;}
+.continent-nav-btn.active{background:#0071e3;border-color:#0071e3;color:#ffffff;}
     @media(max-width:640px){.page{padding:24px 20px 60px;}.hero{flex-direction:column;align-items:flex-start;gap:16px;}.highlights-grid{grid-template-columns:repeat(2,1fr);}.records-grid{grid-template-columns:1fr;}.height-grid{grid-template-columns:repeat(3,1fr);}.lineup-pitch{height:380px;}.token-circle{width:28px;height:28px;}.token-init{font-size:8.5px;}.token-name{font-size:8px;max-width:60px;}.token-ovr{font-size:7px;}}
   </style>
 </head>
@@ -158,6 +169,11 @@ const rosterData = roster.map(p=>({
   <Navbar/>
   <div class="page">
     <a href="/best" class="back">← The Best</a>
+<div class="continent-nav">
+  {ALL_CONTINENTS.map(c => (
+    <a href={'/best/continent/' + c.slug} class={c.slug === continent ? 'continent-nav-btn active' : 'continent-nav-btn'}>{c.label}</a>
+  ))}
+</div>
 
     <div class="hero">
       <div class="continent-badge"><div class="continent-badge-emoji">{emoji}</div></div>
