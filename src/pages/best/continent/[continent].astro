@@ -4,7 +4,7 @@ import Navbar from '../../../components/Navbar.astro';
 
 export async function getStaticPaths() {
   const { data: players } = await supabase.from('players').select('*');
-  const continentSlugs = ['Europe','South-America','Africa','North-America'];
+  const continentSlugs = ['Europe','South-America','Africa','North-America', 'Asia'];
   return continentSlugs.map(c => ({
     params: { continent: c },
     props: { allPlayers: players ?? [] }
@@ -14,7 +14,7 @@ export async function getStaticPaths() {
 const { continent } = Astro.params;
 const { allPlayers } = Astro.props;
 
-const CONTINENT_MAP = {'Europe':'Europe','South-America':'South America','North-America':'North America','Africa':'Africa'};
+const CONTINENT_MAP = {'Europe':'Europe','South-America':'South America','North-America':'North America','Africa':'Africa','Asia':'Asia'};
 const CONTINENT_EMOJI = {'Europe':'🌍','South-America':'🌎','North-America':'🌎','Africa':'🌍'};
 const continentName = CONTINENT_MAP[continent] ?? continent;
 const displayName   = `All-Time ${continentName}`;
