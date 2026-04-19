@@ -163,12 +163,11 @@ const coldScore     = isGK ? avg([p.composure, p.positioning]) : 0;
 const reactiveScore = isGK ? avg([p.reflexes, p.agility]) : 0;
 const spectrumTotal = coldScore + reactiveScore;
 // 0 = fully reactive, 100 = fully cold
-const gkSpectrum    = isGK && spectrumTotal > 0
-  ? Math.round((coldScore / spectrumTotal) * 100)
-  : 50;
-const gkType        = gkSpectrum >= 58
+const gkDiff        = coldScore - reactiveScore;
+const gkSpectrum    = Math.max(0, Math.min(100, 50 + gkDiff * 2.5));
+const gkType        = gkSpectrum >= 63
   ? 'Cold GK'
-  : gkSpectrum <= 42
+  : gkSpectrum <= 37
     ? 'Reactive GK'
     : 'Balanced GK';
 const gkTypeColor   = gkType === 'Cold GK'
