@@ -342,6 +342,16 @@ function radarGrid(i,r){
 }
 const radarShape=radarAxes.map((ax,i)=>radarPoint(i,ax.value)).map(pt=>`${pt.x},${pt.y}`).join(' ');
 const gridLevels=[0.25,0.5,0.75,1.0];
+
+const radarLabelData = radarAxes.map((ax, i) => {
+  const labelR = RADAR_R + 14;
+  const angle = (Math.PI * 2 / N_AXES) * i - Math.PI / 2;
+  const lx = RADAR_CX + labelR * Math.cos(angle);
+  const ly = RADAR_CY + labelR * Math.sin(angle);
+  const anchor = lx < RADAR_CX - 4 ? 'end' : lx > RADAR_CX + 4 ? 'start' : 'middle';
+  const pt = radarPoint(i, ax.value);
+  return { lx, ly, anchor, label: ax.label, value: ax.value, color: ovrColor(ax.value), ptx: pt.x, pty: pt.y };
+});
 ---
 
 <html>
@@ -694,8 +704,7 @@ const gridLevels=[0.25,0.5,0.75,1.0];
             const outer=radarGrid(i,RADAR_R);
             return <line x1={RADAR_CX} y1={RADAR_CY} x2={outer.x} y2={outer.y} stroke="#e5e5ea" stroke-width="0.5"/>;
           })}
-
-          <!-- filled shape -->
+        <!-- filled shape -->
           <polygon
             points={radarShape}
             fill="url(#radarFill)"
@@ -703,42 +712,18 @@ const gridLevels=[0.25,0.5,0.75,1.0];
             stroke-width="1.8"
             stroke-linejoin="round"
           />
-
-          <!-- dots on vertices -->
-          {radarAxes.map((ax,i)=>{
-            const pt=radarPoint(i,ax.value);
-            return <circle cx={pt.x} cy={pt.y} r="2.5" fill={ovrColor(p.overall_rating)} stroke="#ffffff" stroke-width="1.2"/>;
-          })}
-
-          <!-- labels -->
-          {radarAxes.map((ax,i)=>{
-            const labelR=RADAR_R+14;
-            const angle=(Math.PI*2/N_AXES)*i-Math.PI/2;
-            const lx=RADAR_CX+labelR*Math.cos(angle);
-            const ly=RADAR_CY+labelR*Math.sin(angle);
-            const anchor=lx<RADAR_CX-4?'end':lx>RADAR_CX+4?'start':'middle';
-            const valPt=radarPoint(i,ax.value);
-          return(
-  <g>
-    <text
-      x={lx} y={ly+1}
-      text-anchor={anchor}
-      dominant-baseline="middle"
-      font-family="-apple-system,'SF Pro Text',sans-serif"
-      font-size="8.5" font-weight="700"
-      fill="#6e6e73" letter-spacing="0.04em"
-    >{ax.label}</text>
-    <text
-      x={lx} y={ly+10}
-      text-anchor={anchor}
-      dominant-baseline="middle"
-      font-family="-apple-system,'SF Pro Text',sans-serif"
-      font-size="8" font-weight="700"
-      fill={ovrColor(ax.value)}
-    >{ax.value}</text>
-  </g>
-);
-          })}
+          <!-- dots -->
+          {radarLabelData.map(d => (
+            <circle cx={d.ptx} cy={d.pty} r="2.5" fill={ovrColor(p.overall_rating)} stroke="#ffffff" stroke-width="1.2"/>
+          ))}
+          <!-- label names -->
+          {radarLabelData.map(d => (
+            <text x={d.lx} y={d.ly+1} text-anchor={d.anchor} dominant-baseline="middle" font-family="-apple-system,'SF Pro Text',sans-serif" font-size="8.5" font-weight="700" fill="#6e6e73" letter-spacing="0.04em">{d.label}</text>
+          ))}
+          <!-- label values -->
+          {radarLabelData.map(d => (
+            <text x={d.lx} y={d.ly+10} text-anchor={d.anchor} dominant-baseline="middle" font-family="-apple-system,'SF Pro Text',sans-serif" font-size="8" font-weight="700" fill={d.color}>{d.value}</text>
+          ))}
 
           <!-- center OVR -->
           <text x={RADAR_CX} y={RADAR_CY-4}
