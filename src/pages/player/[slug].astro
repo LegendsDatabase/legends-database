@@ -238,11 +238,11 @@ if (isGK) {
 }
 
 // Blob principale
-const mainBlob = getHeatBlob(p.role, primaryShift, 0.82);
+const mainBlob = getHeatBlob(p.role, primaryShift, 1.0);
 
 // Blob secondari da alt_roles
 const altList = (p.alt_roles ?? '').split(',').map(s=>s.trim()).filter(Boolean);
-const altWeights = [0.45, 0.28, 0.16];
+const altWeights = [0.65, 0.42, 0.24];
 const altBlobs = altList.slice(0, 3).map((role, i) => {
   const r = role.trim();
   const pos = ROLE_POS[r];
@@ -677,17 +677,18 @@ const tagDecadeUrl= `/?decade=${p.decade}`;
         <stop offset="100%" stop-color="#1a5c32"/>
       </linearGradient>
       <!-- Heat gradient radial -->
-      <radialGradient id="heatMain" cx="50%" cy="50%" r="50%">
-        <stop offset="0%"   stop-color="#ff3b30" stop-opacity="1"/>
-        <stop offset="30%"  stop-color="#ff9500" stop-opacity="0.85"/>
-        <stop offset="65%"  stop-color="#ffcc00" stop-opacity="0.45"/>
-        <stop offset="100%" stop-color="#ffcc00" stop-opacity="0"/>
-      </radialGradient>
-      <radialGradient id="heatAlt" cx="50%" cy="50%" r="50%">
-        <stop offset="0%"   stop-color="#ff9500" stop-opacity="1"/>
-        <stop offset="50%"  stop-color="#ffcc00" stop-opacity="0.5"/>
-        <stop offset="100%" stop-color="#ffcc00" stop-opacity="0"/>
-      </radialGradient>
+    <radialGradient id="heatMain" cx="50%" cy="50%" r="50%">
+  <stop offset="0%"   stop-color="#ff2200" stop-opacity="1"/>
+  <stop offset="25%"  stop-color="#ff6600" stop-opacity="1"/>
+  <stop offset="50%"  stop-color="#ffaa00" stop-opacity="0.85"/>
+  <stop offset="75%"  stop-color="#ffdd00" stop-opacity="0.55"/>
+  <stop offset="100%" stop-color="#ffee00" stop-opacity="0"/>
+</radialGradient>
+<radialGradient id="heatAlt" cx="50%" cy="50%" r="50%">
+  <stop offset="0%"   stop-color="#ff6600" stop-opacity="0.9"/>
+  <stop offset="45%"  stop-color="#ffbb00" stop-opacity="0.65"/>
+  <stop offset="100%" stop-color="#ffdd00" stop-opacity="0"/>
+</radialGradient>
       <!-- Blur filters per blob -->
       {heatBlobs.map((b, i) => (
         <filter id={'hf' + i} x="-80%" y="-80%" width="260%" height="260%">
