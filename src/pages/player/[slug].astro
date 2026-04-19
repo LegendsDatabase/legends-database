@@ -401,19 +401,15 @@ const radarLabelData = radarAxes.map((ax, i) => {
     .stat-card .sl{font-size:9.5px;font-weight:600;color:#aeaeb2;letter-spacing:0.05em;text-transform:uppercase;margin-top:2px;}
 
     /* ─── HEATMAP + RADAR ─── */
-    .viz-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;align-items:start;}
-
-    .heatmap-card{background:#ffffff;border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06);display:flex;flex-direction:column;max-height:320px;}
-    .viz-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px 10px;}
-    .viz-title{font-size:10px;font-weight:700;color:#aeaeb2;letter-spacing:0.07em;text-transform:uppercase;}
-    .viz-note{font-size:9px;color:#c7c7cc;font-weight:500;font-style:italic;}
-    .heatmap-svg{width:100%;height:auto;display:block;max-height:292px;object-fit:contain;}
-
-    .radar-card{background:#ffffff;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.06);display:flex;flex-direction:column;max-height:320px;}
-
-.radar-svg-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:0 8px 12px;}
-
-.radar-svg{width:100%;max-width:240px;height:auto;}
+    .viz-row{display:grid;grid-template-columns:220px 1fr;gap:12px;margin-bottom:20px;align-items:start;}
+.heatmap-card{background:#ffffff;border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
+.viz-header{display:flex;align-items:center;justify-content:space-between;padding:10px 12px 8px;}
+.viz-title{font-size:10px;font-weight:700;color:#aeaeb2;letter-spacing:0.07em;text-transform:uppercase;}
+.viz-note{font-size:9px;color:#c7c7cc;font-weight:500;font-style:italic;}
+.heatmap-svg{width:100%;height:auto;display:block;}
+.radar-card{background:#ffffff;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.06);display:flex;flex-direction:column;}
+.radar-svg-wrap{display:flex;align-items:center;justify-content:center;padding:0 8px 12px;}
+.radar-svg{width:100%;max-width:260px;height:auto;}
 
     /* GAUGES */
     .gauge-section{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
@@ -607,77 +603,78 @@ const radarLabelData = radarAxes.map((ax, i) => {
         <span class="viz-title">Positional Heatmap</span>
         <span class="viz-note">Illustrative · role & skills data</span>
       </div>
-      <svg class="heatmap-svg" viewBox="0 0 68 105" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" style="flex:1;min-height:0;">
+      <svg class="heatmap-svg" viewBox="0 0 105 68" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="pitchG" x1="0" y1="0" x2="0" y2="1">
+    <linearGradient id="pitchG" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0%"   stop-color="#185c2e"/>
       <stop offset="50%"  stop-color="#1e6e36"/>
       <stop offset="100%" stop-color="#185c2e"/>
     </linearGradient>
     <radialGradient id="hmMain" cx="50%" cy="50%" r="50%">
       <stop offset="0%"   stop-color="#ff0000" stop-opacity="1"/>
-      <stop offset="15%"  stop-color="#ff3300" stop-opacity="1"/>
-      <stop offset="35%"  stop-color="#ff7700" stop-opacity="0.95"/>
-      <stop offset="55%"  stop-color="#ffbb00" stop-opacity="0.80"/>
-      <stop offset="75%"  stop-color="#ffee00" stop-opacity="0.45"/>
+      <stop offset="18%"  stop-color="#ff3300" stop-opacity="1"/>
+      <stop offset="38%"  stop-color="#ff7700" stop-opacity="0.95"/>
+      <stop offset="58%"  stop-color="#ffbb00" stop-opacity="0.78"/>
+      <stop offset="78%"  stop-color="#ffee00" stop-opacity="0.40"/>
       <stop offset="100%" stop-color="#ffff55" stop-opacity="0"/>
     </radialGradient>
     <radialGradient id="hmAlt" cx="50%" cy="50%" r="50%">
-      <stop offset="0%"   stop-color="#ff5500" stop-opacity="0.88"/>
-      <stop offset="40%"  stop-color="#ffaa00" stop-opacity="0.60"/>
-      <stop offset="75%"  stop-color="#ffdd00" stop-opacity="0.25"/>
+      <stop offset="0%"   stop-color="#ff5500" stop-opacity="0.85"/>
+      <stop offset="42%"  stop-color="#ffaa00" stop-opacity="0.55"/>
+      <stop offset="78%"  stop-color="#ffdd00" stop-opacity="0.22"/>
       <stop offset="100%" stop-color="#ffee88" stop-opacity="0"/>
     </radialGradient>
     {heatBlobs.map((b,i)=>(
       <filter id={'hf'+i} x="-80%" y="-80%" width="260%" height="260%">
-        <feGaussianBlur stdDeviation={b.blur * 0.28}/>
+        <feGaussianBlur stdDeviation={b.blur * 0.22}/>
       </filter>
     ))}
   </defs>
 
-  <!-- pitch -->
-  <rect width="68" height="105" fill="url(#pitchG)"/>
-  <rect y="0"  width="68" height="10.5" fill="#164f28" opacity="0.45"/>
-  <rect y="21" width="68" height="10.5" fill="#164f28" opacity="0.45"/>
-  <rect y="42" width="68" height="10.5" fill="#164f28" opacity="0.45"/>
-  <rect y="63" width="68" height="10.5" fill="#164f28" opacity="0.45"/>
-  <rect y="84" width="68" height="10.5" fill="#164f28" opacity="0.45"/>
-  <!-- lines -->
-  <rect x="2" y="2" width="64" height="101" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="0.4"/>
-  <line x1="2" y1="52.5" x2="66" y2="52.5" stroke="rgba(255,255,255,0.28)" stroke-width="0.35"/>
-  <circle cx="34" cy="52.5" r="9.15" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="0.32"/>
-  <circle cx="34" cy="52.5" r="0.55" fill="rgba(255,255,255,0.45)"/>
-  <!-- top penalty area -->
-  <rect x="13.84" y="2" width="40.32" height="16.5" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.32"/>
-  <rect x="22.56" y="2" width="22.88" height="5.5"  fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="0.32"/>
-  <!-- bottom penalty area -->
-  <rect x="13.84" y="86.5" width="40.32" height="16.5" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.32"/>
-  <rect x="22.56" y="99.5" width="22.88" height="3.5"  fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="0.32"/>
+  <!-- pitch background -->
+  <rect width="105" height="68" fill="url(#pitchG)"/>
+  <!-- vertical stripes -->
+  <rect x="0"  y="0" width="21" height="68" fill="#164f28" opacity="0.4"/>
+  <rect x="42" y="0" width="21" height="68" fill="#164f28" opacity="0.4"/>
+  <rect x="84" y="0" width="21" height="68" fill="#164f28" opacity="0.4"/>
+  <!-- border -->
+  <rect x="2" y="2" width="101" height="64" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="0.35"/>
+  <!-- halfway line -->
+  <line x1="52.5" y1="2" x2="52.5" y2="66" stroke="rgba(255,255,255,0.28)" stroke-width="0.32"/>
+  <!-- center circle -->
+  <circle cx="52.5" cy="34" r="9.15" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="0.3"/>
+  <circle cx="52.5" cy="34" r="0.55" fill="rgba(255,255,255,0.45)"/>
+  <!-- left penalty area (own goal) -->
+  <rect x="2"    y="13.84" width="16.5"  height="40.32" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.3"/>
+  <rect x="2"    y="24.84" width="5.5"   height="18.32" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="0.3"/>
+  <!-- right penalty area (opponent) -->
+  <rect x="86.5" y="13.84" width="16.5"  height="40.32" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.3"/>
+  <rect x="97.5" y="24.84" width="5.5"   height="18.32" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="0.3"/>
 
-  <!-- blobs: alt first, main on top -->
+  <!-- BLOBS: alt first, main on top -->
   {[...heatBlobs].reverse().map((b,i)=>{
-    const ri=heatBlobs.length-1-i;
-    const isMain=ri===0;
-    const svgX = b.cx / 100 * 68;
-    const svgY = 105 - (b.cy / 100 * 105);
-    const rx   = b.rx * 0.68;
-    const ry   = b.ry * 0.68;
-    return(
+    const ri   = heatBlobs.length - 1 - i;
+    const isMain = ri === 0;
+    const svgX = (b.cy / 100) * 105;
+    const svgY = (b.cx / 100) * 68;
+    const svgRx = b.ry * 1.05;
+    const svgRy = b.rx * 0.68;
+    return (
       <ellipse
         cx={svgX} cy={svgY}
-        rx={rx} ry={ry}
-        fill={isMain?'url(#hmMain)':'url(#hmAlt)'}
+        rx={svgRx} ry={svgRy}
+        fill={isMain ? 'url(#hmMain)' : 'url(#hmAlt)'}
         opacity={b.opacity}
-        filter={'url(#hf'+ri+')'}
+        filter={'url(#hf' + ri + ')'}
       />
     );
   })}
 
-  <text x="65" y="103" text-anchor="end"
+  <text x="103" y="66" text-anchor="end"
     font-family="-apple-system,'SF Pro Text',sans-serif"
-    font-size="3.5" font-weight="700"
-    fill="rgba(255,255,255,0.55)" letter-spacing="0.05em">
-    {p.role}{altList.length>0?' · '+altList.slice(0,2).join(' · '):''}
+    font-size="3.2" font-weight="700"
+    fill="rgba(255,255,255,0.5)" letter-spacing="0.05em">
+    {p.role}{altList.length > 0 ? ' · ' + altList.slice(0,2).join(' · ') : ''}
   </text>
 </svg>
     </div>
