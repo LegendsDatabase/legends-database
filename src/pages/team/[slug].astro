@@ -7,11 +7,11 @@ export async function getStaticPaths() {
   const { data: players } = await supabase.from('players').select('*');
   return (teams ?? []).map(t => ({
     params: { slug: t.slug },
-    props: { team: t, allPlayers: players ?? [] }
+    props: { team: t, allPlayers: players ?? [], allTeams: teams ?? [] }
   }));
 }
 
-const { team: t, allPlayers } = Astro.props;
+const { team: t, allPlayers, allTeams } = Astro.props;
 
 const displayName = (t.slug ?? '')
   .split('-')
