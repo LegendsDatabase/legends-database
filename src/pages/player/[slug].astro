@@ -28,14 +28,14 @@ const NATION_COLORS = {
   'England':['#cf142b','#ffffff'],'Netherlands':['#ae1c28','#ffffff','#21468b'],
   'Portugal':['#006600','#ff0000'],'Belgium':['#000000','#fdda24','#ef3340'],
   'Uruguay':['#ffffff','#5aaae7'],'Croatia':['#ff0000','#ffffff','#171796'],
-  'Czech Rep.':['#d7141a','#ffffff','#11457e'],'Czechoslovakia':['#d7141a','#ffffff','#11457e'],
+  'Czech Republic':['#d7141a','#ffffff','#11457e'],'Czechoslovakia':['#d7141a','#ffffff','#11457e'],
   'Denmark':['#c60c30','#ffffff'],'Sweden':['#006aa7','#fecc02'],
   'Norway':['#ef2b2d','#ffffff','#002868'],'Poland':['#ffffff','#dc143c'],
   'Russia':['#ffffff','#0039a6','#d52b1e'],'Soviet Union':['#cc0000','#ffcc00'],
   'Yugoslavia':['#003da5','#de0000'],'Romania':['#002b7f','#fcd116','#ce1126'],
   'Hungary':['#ce2939','#ffffff','#477050'],'Austria':['#ed2939','#ffffff','#ed2939'],
   'Switzerland':['#ff0000','#ffffff'],'Scotland':['#003087','#ffffff'],
-  'Wales':['#c8102e','#00a651'],'Northern Ireland':['#169b62','#ffffff','#ff883e'],
+  'Wales':['#c8102e','#00a651'],'Republic of Ireland':['#169b62','#ffffff','#ff883e'],
   'Ireland':['#169b62','#ffffff','#ff883e'],'Greece':['#0d5eaf','#ffffff'],
   'Turkey':['#e30a17','#ffffff'],'Serbia':['#c6363c','#0c4076','#ffffff'],
   'Ukraine':['#005bbb','#ffd500'],'Slovakia':['#ffffff','#0b4ea2','#ee1c25'],
@@ -46,7 +46,11 @@ const NATION_COLORS = {
   'Iran':['#239f40','#ffffff','#da0000'],'Ghana':['#006b3f','#fcd116','#ce1126'],
   'Nigeria':['#008751','#ffffff'],'Ivory Coast':['#f77f00','#ffffff','#009a00'],
   'Cameroon':['#007a5e','#ce1126','#fcd116'],'Senegal':['#00853f','#fdef42','#e31b23'],
-  'Morocco':['#c1272d','#006233'],'Peru':['#c8102e','#da121a'],
+  'Morocco':['#c1272d','#006233'],
+  'Peru':['#c8102e','#da121a'],
+  'Bosnia and Herzegovina':['#002395','#fcd116'],
+  'Montenegro':['#d4af37','#0a3161'],
+  'Zimbabwe':['#006400','#ffd200','#d40000'],
 };
 
 const nationColors      = NATION_COLORS[p.nation] ?? null;
@@ -142,9 +146,47 @@ const mentalAvg    = isGK?avg(mentalSkills.map(s=>p[s.key])):weightedAvg(mentalS
 const tacticalAvg  = isGK?avg(tacticalSkills.map(s=>p[s.key])):weightedAvg(tacticalSkills.map(s=>p[s.key]),TACT_W[p.role]??TACT_W['CM']);
 const gkAvg        = avg(gkSkills.map(s=>p[s.key]));
 
+// ─── OUTFIELD GAUGES ─────────────────────────────────────────────────────
 const attAvg        = avg([p.finishing,p.off_the_ball,p.composure,p.anticipation,p.shot_accuracy]);
 const playmakingAvg = avg([p.short_passing,p.long_passing,p.vision,p.composure]);
 const defAvg        = avg([p.marking,p.tackling,p.def_positioning,p.anticipation,p.heading,p.composure]);
+
+// ─── GK GAUGES ───────────────────────────────────────────────────────────
+// Gauge 1: GK Skills (weighted)
+const gkSkillsAvg = isGK ? weightedAvg(
+  [p.reflexes, p.positioning, p.composure, p.handling, p.kicking],
+  [1.0, 1.0, 0.9, 0.70, 0.20]
+) : 0;
+
+// Gauge 2: Reactive vs Cold spectrum
+const coldScore     = isGK ? avg([p.composure, p.positioning]) : 0;
+const reactiveScore = isGK ? avg([p.reflexes, p.agility]) : 0;
+const spectrumTotal = coldScore + reactiveScore;
+// 0 = fully reactive, 100 = fully cold
+const gkSpectrum    = isGK && spectrumTotal > 0
+  ? Math.round((coldScore / spectrumTotal) * 100)
+  : 50;
+const gkType        = gkSpectrum >= 58
+  ? 'Cold GK'
+  : gkSpectrum <= 42
+    ? 'Reactive GK'
+    : 'Balanced GK';
+const gkTypeColor   = gkType === 'Cold GK'
+  ? '#0071e3'
+  : gkType === 'Reactive GK'
+    ? '#c0392b'
+    : '#7a3fc0';
+const gkTypeDesc    = gkType === 'Cold GK'
+  ? 'Composed · Positional'
+  : gkType === 'Reactive GK'
+    ? 'Explosive · Shot-stopper'
+    : 'Versatile · Balanced';
+
+// Gauge 3: Tech Skills (weighted)
+const gkTechAvg = isGK ? weightedAvg(
+  [p['first-touch'], p.kicking, p.free_kick, p.dribbling],
+  [1.0, 0.85, 0.75, 0.40]
+) : 0;
 
 const GAUGE_R=45,HALF_CIRC=Math.PI*GAUGE_R,FULL_CIRC=2*Math.PI*GAUGE_R;
 function gaugeDash(v){const f=(Math.max(0,Math.min(v,99))/99)*HALF_CIRC;return`${f} ${FULL_CIRC}`;}
@@ -180,14 +222,12 @@ if(!isGK){
 }
 
 // ─── ROSTER HELPERS ───────────────────────────────────────────────────────
-
 function sortByOvr(arr){
   return[...arr].sort((a,b)=>(b.overall_rating??0)-(a.overall_rating??0)||(a.name??'').localeCompare(b.name??''));
 }
 function pickR(pool,n,usedIds){
   return sortByOvr(pool.filter(q=>!usedIds.has(q.id))).slice(0,n);
 }
-
 function buildRoster(pool) {
   const used = new Set();
   const gkR   = pickR(pool.filter(q=>q.role==='GK'),3,used); gkR.forEach(q=>used.add(q.id));
@@ -211,7 +251,6 @@ function buildRoster(pool) {
 }
 
 // ─── ALL-TIME TEAMS ───────────────────────────────────────────────────────
-
 const playerTeams = allTeams.filter(t => {
   const isNat = t.type==='national team'||t.type==='national';
   const inPool = isNat
@@ -231,7 +270,6 @@ const playerTeams = allTeams.filter(t => {
 }));
 
 // ─── DECADE MEMBERSHIP ───────────────────────────────────────────────────
-
 const DECADES = [1950,1960,1970,1980,1990,2000,2010];
 const playerDecades = DECADES.filter(d => {
   if(p.decade !== d) return false;
@@ -244,12 +282,12 @@ const playerDecades = DECADES.filter(d => {
 }));
 
 // ─── CONTINENT MEMBERSHIP ─────────────────────────────────────────────────
-
 const CONTINENT_SLUGS = [
   { slug:'Europe',        name:'Europe'        },
   { slug:'South-America', name:'South America' },
   { slug:'Africa',        name:'Africa'        },
   { slug:'North-America', name:'North America' },
+  { slug:'Asia',          name:'Asia'          },
 ];
 const playerContinent = (p['Continent']??'').trim();
 const playerContinents = CONTINENT_SLUGS.filter(c => {
@@ -263,7 +301,6 @@ const playerContinents = CONTINENT_SLUGS.filter(c => {
 }));
 
 // ─── SEE ALSO ─────────────────────────────────────────────────────────────
-
 const ROLE_COMPAT={
   GK:['GK'],CB:['CB','SW'],SW:['SW','CB'],RB:['RB','LB'],LB:['LB','RB'],
   DM:['DM','CM'],CM:['CM','DM','AM'],RM:['RM','LM','AM','CM'],LM:['LM','RM','AM','CM'],
@@ -280,7 +317,6 @@ const related=allPlayers
   .slice(0,5).map(x=>x.q);
 
 // ─── COMPARE POOL ─────────────────────────────────────────────────────────
-
 const MACRO={GK:['GK'],DEF:['CB','SW','RB','LB'],MID:['DM','CM','AM','RM','LM'],ATT:['ST','FW','RW','LW']};
 const playerMacro=Object.keys(MACRO).find(k=>MACRO[k].includes(p.role))?? 'ATT';
 const macroRoles=MACRO[playerMacro];
@@ -326,16 +362,8 @@ const tagDecadeUrl= `/?decade=${p.decade}`;
     .hero-info{flex:1;min-width:0;}
     .hero-name{font-size:24px;font-weight:600;letter-spacing:-0.4px;color:#1d1d1f;margin-bottom:8px;}
     .hero-tags{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
-
-    /* TAG — base */
-    .tag{
-      font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;letter-spacing:0.02em;
-      text-decoration:none;display:inline-flex;align-items:center;
-      transition:opacity 0.15s, transform 0.12s;
-      cursor:pointer;
-    }
+    .tag{font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;letter-spacing:0.02em;text-decoration:none;display:inline-flex;align-items:center;transition:opacity 0.15s,transform 0.12s;cursor:pointer;}
     .tag:hover{opacity:0.75;transform:translateY(-1px);}
-
     .bio-grid{display:flex;gap:20px;flex-wrap:wrap;}
     .bio-item{display:flex;flex-direction:column;gap:1px;}
     .bio-label{font-size:10px;font-weight:600;color:#aeaeb2;letter-spacing:0.05em;text-transform:uppercase;}
@@ -365,11 +393,33 @@ const tagDecadeUrl= `/?decade=${p.decade}`;
     .stat-card .sv{font-size:20px;font-weight:600;color:#1d1d1f;letter-spacing:-0.5px;}
     .stat-card .sl{font-size:9.5px;font-weight:600;color:#aeaeb2;letter-spacing:0.05em;text-transform:uppercase;margin-top:2px;}
 
-    /* GAUGE */
+    /* GAUGE — outfield */
     .gauge-section{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
     .gauge-item{background:#ffffff;border-radius:14px;padding:22px 16px 16px;box-shadow:0 1px 3px rgba(0,0,0,0.06);display:flex;flex-direction:column;align-items:center;}
     .gauge-item svg{width:100%;max-width:140px;overflow:visible;}
     .gauge-label{font-size:10px;font-weight:700;color:#aeaeb2;letter-spacing:0.07em;text-transform:uppercase;margin-top:6px;text-align:center;}
+
+    /* GK GAUGE SECTION */
+    .gk-gauge-section{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px;}
+
+    /* GK side gauges (same as outfield) */
+    .gk-gauge-item{background:#ffffff;border-radius:14px;padding:22px 16px 16px;box-shadow:0 1px 3px rgba(0,0,0,0.06);display:flex;flex-direction:column;align-items:center;}
+    .gk-gauge-item svg{width:100%;max-width:140px;overflow:visible;}
+    .gk-gauge-label{font-size:10px;font-weight:700;color:#aeaeb2;letter-spacing:0.07em;text-transform:uppercase;margin-top:6px;text-align:center;}
+
+    /* GK center — spectrum gauge */
+    .gk-spectrum-item{background:#ffffff;border-radius:14px;padding:22px 18px 18px;box-shadow:0 1px 3px rgba(0,0,0,0.06);display:flex;flex-direction:column;align-items:center;justify-content:center;}
+    .gk-type-label{font-size:15px;font-weight:700;letter-spacing:-0.3px;margin-bottom:4px;}
+    .gk-type-desc{font-size:10px;font-weight:600;color:#aeaeb2;letter-spacing:0.04em;margin-bottom:16px;text-align:center;}
+    .gk-spectrum-track{width:100%;height:8px;border-radius:4px;background:#f0f0f5;position:relative;overflow:visible;margin-bottom:10px;}
+    .gk-spectrum-fill{height:100%;border-radius:4px;position:absolute;left:0;top:0;}
+    .gk-spectrum-dot{width:16px;height:16px;border-radius:50%;border:2px solid #ffffff;box-shadow:0 1px 4px rgba(0,0,0,0.18);position:absolute;top:50%;transform:translate(-50%,-50%);transition:left 0.4s ease;}
+    .gk-spectrum-ends{display:flex;justify-content:space-between;width:100%;}
+    .gk-spectrum-end{font-size:9px;font-weight:700;color:#aeaeb2;letter-spacing:0.04em;text-transform:uppercase;}
+    .gk-scores-row{display:flex;justify-content:space-between;width:100%;margin-top:10px;}
+    .gk-score-item{text-align:center;}
+    .gk-score-val{font-size:18px;font-weight:700;letter-spacing:-0.5px;}
+    .gk-score-sub{font-size:9px;font-weight:600;color:#aeaeb2;letter-spacing:0.05em;text-transform:uppercase;margin-top:1px;}
 
     /* SKILLS */
     .skills-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
@@ -450,7 +500,7 @@ const tagDecadeUrl= `/?decade=${p.decade}`;
       .page{padding:24px 20px 60px;}
       .hero{flex-direction:column;align-items:flex-start;gap:16px;}
       .stats-row{grid-template-columns:repeat(3,1fr);}
-      .gauge-section{gap:8px;}
+      .gauge-section,.gk-gauge-section{gap:8px;}
       .skills-grid{grid-template-columns:1fr;}
       .skill-card.full-width{grid-column:auto;}
       .traits-grid{grid-template-columns:repeat(5,52px);gap:10px;}
@@ -483,15 +533,12 @@ const tagDecadeUrl= `/?decade=${p.decade}`;
 
     <div class="hero-info">
       <div class="hero-name">{p.name}</div>
-
-      <!-- TAG CLICCABILI -->
       <div class="hero-tags">
         <a href={tagRoleUrl} class="tag" style={`background:${rc.bg};color:${rc.text};`}>{fullRoleName}</a>
         <a href={tagNatUrl}  class="tag" style="background:#f5f5f7;color:#6e6e73;">{p.nation}</a>
         <a href={tagClubUrl} class="tag" style="background:#f5f5f7;color:#6e6e73;">{p.iconic_club}</a>
         <a href={tagDecadeUrl} class="tag" style="background:#f5f5f7;color:#6e6e73;">{p.decade}s</a>
       </div>
-
       <div class="bio-grid">
         <div class="bio-item"><span class="bio-label">Born</span><span class="bio-value">{p.birth_year}</span></div>
         <div class="bio-item"><span class="bio-label">Height</span><span class="bio-value">{p.height} cm</span></div>
@@ -543,7 +590,7 @@ const tagDecadeUrl= `/?decade=${p.decade}`;
     <div class="stat-card"><div class="sv">{p.nat_goal_ratio}</div><div class="sl">Nat Ratio</div></div>
   </div>
 
-  <!-- GAUGES -->
+  <!-- GAUGES — OUTFIELD -->
   {!isGK&&(
     <div class="gauge-section">
       <div class="gauge-item">
@@ -570,6 +617,63 @@ const tagDecadeUrl= `/?decade=${p.decade}`;
         </svg>
         <div class="gauge-label">Def. Skills</div>
       </div>
+    </div>
+  )}
+
+  <!-- GAUGES — GK -->
+  {isGK&&(
+    <div class="gk-gauge-section">
+
+      <!-- Gauge 1: GK Skills -->
+      <div class="gk-gauge-item">
+        <svg viewBox="0 0 120 66" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="60" cy="62" r={GAUGE_R} fill="none" stroke="#f0f0f5" stroke-width="9" stroke-dasharray={`${HALF_CIRC} ${FULL_CIRC}`} transform="rotate(180 60 62)"/>
+          <circle cx="60" cy="62" r={GAUGE_R} fill="none" stroke={skillColor(gkSkillsAvg)} stroke-width="9" stroke-dasharray={gaugeDash(gkSkillsAvg)} transform="rotate(180 60 62)" stroke-linecap="round"/>
+          <text x="60" y="57" text-anchor="middle" font-size="22" font-weight="700" fill="#1d1d1f" font-family="-apple-system,'SF Pro Text',sans-serif">{gkSkillsAvg}</text>
+        </svg>
+        <div class="gk-gauge-label">GK Skills</div>
+      </div>
+
+      <!-- Gauge 2: Reactive vs Cold spectrum -->
+      <div class="gk-spectrum-item">
+        <div class="gk-type-label" style={`color:${gkTypeColor};`}>{gkType}</div>
+        <div class="gk-type-desc">{gkTypeDesc}</div>
+
+        <!-- spectrum bar -->
+        <div class="gk-spectrum-track" style="width:100%;">
+          <!-- gradient fill: left=reactive(red), right=cold(blue) -->
+          <div class="gk-spectrum-fill" style={`width:100%;background:linear-gradient(to right,#fee2e2,#dbeafe);`}></div>
+          <!-- needle -->
+          <div class="gk-spectrum-dot" style={`left:${gkSpectrum}%;background:${gkTypeColor};`}></div>
+        </div>
+
+        <div class="gk-spectrum-ends">
+          <span class="gk-spectrum-end" style="color:#c0392b;">Reactive</span>
+          <span class="gk-spectrum-end" style="color:#0071e3;">Cold</span>
+        </div>
+
+        <div class="gk-scores-row">
+          <div class="gk-score-item">
+            <div class="gk-score-val" style="color:#c0392b;">{reactiveScore}</div>
+            <div class="gk-score-sub">REF+AGI</div>
+          </div>
+          <div class="gk-score-item">
+            <div class="gk-score-val" style="color:#0071e3;">{coldScore}</div>
+            <div class="gk-score-sub">COM+POS</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gauge 3: Tech Skills -->
+      <div class="gk-gauge-item">
+        <svg viewBox="0 0 120 66" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="60" cy="62" r={GAUGE_R} fill="none" stroke="#f0f0f5" stroke-width="9" stroke-dasharray={`${HALF_CIRC} ${FULL_CIRC}`} transform="rotate(180 60 62)"/>
+          <circle cx="60" cy="62" r={GAUGE_R} fill="none" stroke={skillColor(gkTechAvg)} stroke-width="9" stroke-dasharray={gaugeDash(gkTechAvg)} transform="rotate(180 60 62)" stroke-linecap="round"/>
+          <text x="60" y="57" text-anchor="middle" font-size="22" font-weight="700" fill="#1d1d1f" font-family="-apple-system,'SF Pro Text',sans-serif">{gkTechAvg}</text>
+        </svg>
+        <div class="gk-gauge-label">Tech. Skills</div>
+      </div>
+
     </div>
   )}
 
@@ -743,7 +847,6 @@ function resetToSearch(){
   renderList('');searchInput.value='';
 }
 backBtn.addEventListener('click',resetToSearch);
-
 function renderList(query){
   const q=query.toLowerCase().trim();
   const filtered=q?comparePool.filter(pl=>pl.name.toLowerCase().includes(q)):comparePool.slice(0,30);
@@ -758,7 +861,6 @@ function renderList(query){
   });
 }
 searchInput.addEventListener('input',e=>renderList(e.target.value));
-
 function showComparison(p2){
   const p1=currentPlayerData;
   searchPhase.style.display='none';comparePhase.classList.add('active');
