@@ -401,17 +401,19 @@ const radarLabelData = radarAxes.map((ax, i) => {
     .stat-card .sl{font-size:9.5px;font-weight:600;color:#aeaeb2;letter-spacing:0.05em;text-transform:uppercase;margin-top:2px;}
 
     /* ─── HEATMAP + RADAR ─── */
-    .viz-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+    .viz-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;align-items:start;}
 
-    .heatmap-card{background:#ffffff;border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06);display:flex;flex-direction:column;}
+    .heatmap-card{background:#ffffff;border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06);display:flex;flex-direction:column;max-height:320px;}
     .viz-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px 10px;}
     .viz-title{font-size:10px;font-weight:700;color:#aeaeb2;letter-spacing:0.07em;text-transform:uppercase;}
     .viz-note{font-size:9px;color:#c7c7cc;font-weight:500;font-style:italic;}
-    .heatmap-svg{width:100%;height:auto;display:block;flex:1;}
+    .heatmap-svg{width:100%;height:auto;display:block;max-height:292px;object-fit:contain;}
 
-    .radar-card{background:#ffffff;border-radius:14px;padding:0;box-shadow:0 1px 3px rgba(0,0,0,0.06);display:flex;flex-direction:column;}
-    .radar-svg-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:0 8px 12px;}
-    .radar-svg{width:100%;height:auto;}
+    .radar-card{background:#ffffff;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.06);display:flex;flex-direction:column;max-height:320px;}
+
+.radar-svg-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:0 8px 12px;}
+
+.radar-svg{width:100%;max-width:240px;height:auto;}
 
     /* GAUGES */
     .gauge-section{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
