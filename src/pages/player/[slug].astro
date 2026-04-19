@@ -718,26 +718,26 @@ const gridLevels=[0.25,0.5,0.75,1.0];
             const ly=RADAR_CY+labelR*Math.sin(angle);
             const anchor=lx<RADAR_CX-4?'end':lx>RADAR_CX+4?'start':'middle';
             const valPt=radarPoint(i,ax.value);
-            return(
-              <>
-                <text
-                  x={lx} y={ly+1}
-                  text-anchor={anchor}
-                  dominant-baseline="middle"
-                  font-family="-apple-system,'SF Pro Text',sans-serif"
-                  font-size="8.5" font-weight="700"
-                  fill="#6e6e73" letter-spacing="0.04em"
-                >{ax.label}</text>
-                <text
-                  x={lx} y={ly+10}
-                  text-anchor={anchor}
-                  dominant-baseline="middle"
-                  font-family="-apple-system,'SF Pro Text',sans-serif"
-                  font-size="8" font-weight="700"
-                  fill={ovrColor(ax.value)}
-                >{ax.value}</text>
-              </>
-            );
+          return(
+  <g>
+    <text
+      x={lx} y={ly+1}
+      text-anchor={anchor}
+      dominant-baseline="middle"
+      font-family="-apple-system,'SF Pro Text',sans-serif"
+      font-size="8.5" font-weight="700"
+      fill="#6e6e73" letter-spacing="0.04em"
+    >{ax.label}</text>
+    <text
+      x={lx} y={ly+10}
+      text-anchor={anchor}
+      dominant-baseline="middle"
+      font-family="-apple-system,'SF Pro Text',sans-serif"
+      font-size="8" font-weight="700"
+      fill={ovrColor(ax.value)}
+    >{ax.value}</text>
+  </g>
+);
           })}
 
           <!-- center OVR -->
