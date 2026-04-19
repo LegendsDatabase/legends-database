@@ -121,6 +121,15 @@ const rosterData = roster.map(p => ({
   play:     pPlay(p),
   att:      pAtt(p),
 }));
+const sameType = allTeams
+  .filter(x => x.type === t.type)
+  .sort((a, b) => (a.name ?? '').localeCompare(b.name ?? ''));
+const currentIdx = sameType.findIndex(x => x.slug === t.slug);
+const prevTeam = currentIdx > 0 ? sameType[currentIdx - 1] : sameType[sameType.length - 1];
+const nextTeam = currentIdx < sameType.length - 1 ? sameType[currentIdx + 1] : sameType[0];
+function teamDisplayName(slug) {
+  return (slug ?? '').split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+}
 ---
 
 <html>
@@ -320,6 +329,11 @@ const rosterData = roster.map(p => ({
     .height-val{font-size:20px;font-weight:600;color:#1d1d1f;letter-spacing:-0.3px;}
     .height-label{font-size:10px;font-weight:600;color:#aeaeb2;letter-spacing:0.05em;text-transform:uppercase;}
     .height-item.total .height-val,.height-item.total .height-label{color:#0071e3;}
+.team-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:20px;}
+.team-nav-btn{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-size:12px;font-weight:600;padding:6px 14px;border-radius:20px;border:1.5px solid #e5e5ea;color:#6e6e73;background:#ffffff;transition:all 0.12s;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,0.05);}
+.team-nav-btn:hover{border-color:#0071e3;color:#0071e3;}
+.team-nav-btn.prev::before{content:'←';margin-right:2px;}
+.team-nav-btn.next::after{content:'→';margin-left:2px;}
 
     @media(max-width:640px){
       .page{padding:24px 20px 60px;}
@@ -339,7 +353,15 @@ const rosterData = roster.map(p => ({
 <body>
   <Navbar/>
   <div class="page">
-    <a href="/teams" class="back">← All-Time Teams</a>
+<div class="team-nav">
+  <a href={'/team/' + prevTeam.slug} class="team-nav-btn prev">
+    {teamDisplayName(prevTeam.slug)}
+  </a>
+  <a href="/teams" style="font-size:12px;color:#aeaeb2;text-decoration:none;font-weight:500;">All-Time Teams</a>
+  <a href={'/team/' + nextTeam.slug} class="team-nav-btn next">
+    {teamDisplayName(nextTeam.slug)}
+  </a>
+</div>
 
     <!-- HERO -->
     <div class="hero">
