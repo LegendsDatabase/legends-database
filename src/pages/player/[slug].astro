@@ -403,11 +403,11 @@ const radarLabelData = radarAxes.map((ax, i) => {
     /* ─── HEATMAP + RADAR ─── */
     .viz-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
 
-    .heatmap-card{background:#ffffff;border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06);display:flex;flex-direction:column;aspect-ratio:2/3;}
+    .heatmap-card{background:#ffffff;border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06);display:flex;flex-direction:column;}
     .viz-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px 10px;}
     .viz-title{font-size:10px;font-weight:700;color:#aeaeb2;letter-spacing:0.07em;text-transform:uppercase;}
     .viz-note{font-size:9px;color:#c7c7cc;font-weight:500;font-style:italic;}
-    .heatmap-svg{width:100%;height:auto;display:block;}
+    .heatmap-svg{width:100%;height:auto;display:block;flex:1;}
 
     .radar-card{background:#ffffff;border-radius:14px;padding:0;box-shadow:0 1px 3px rgba(0,0,0,0.06);display:flex;flex-direction:column;}
     .radar-svg-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:0 8px 12px;}
