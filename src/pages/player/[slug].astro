@@ -46,10 +46,8 @@ const NATION_COLORS = {
   'Iran':['#239f40','#ffffff','#da0000'],'Ghana':['#006b3f','#fcd116','#ce1126'],
   'Nigeria':['#008751','#ffffff'],'Ivory Coast':['#f77f00','#ffffff','#009a00'],
   'Cameroon':['#007a5e','#ce1126','#fcd116'],'Senegal':['#00853f','#fdef42','#e31b23'],
-  'Morocco':['#c1272d','#006233'],
-  'Peru':['#c8102e','#da121a'],
-  'Bosnia and Herzegovina':['#002395','#fcd116'],
-  'Montenegro':['#d4af37','#0a3161'],
+  'Morocco':['#c1272d','#006233'],'Peru':['#c8102e','#da121a'],
+  'Bosnia and Herzegovina':['#002395','#fcd116'],'Montenegro':['#d4af37','#0a3161'],
   'Zimbabwe':['#006400','#ffd200','#d40000'],
 };
 
@@ -146,113 +144,26 @@ const mentalAvg    = isGK?avg(mentalSkills.map(s=>p[s.key])):weightedAvg(mentalS
 const tacticalAvg  = isGK?avg(tacticalSkills.map(s=>p[s.key])):weightedAvg(tacticalSkills.map(s=>p[s.key]),TACT_W[p.role]??TACT_W['CM']);
 const gkAvg        = avg(gkSkills.map(s=>p[s.key]));
 
-// ─── OUTFIELD GAUGES ─────────────────────────────────────────────────────
 const attAvg        = avg([p.finishing,p.off_the_ball,p.composure,p.anticipation,p.shot_accuracy]);
 const playmakingAvg = avg([p.short_passing,p.long_passing,p.vision,p.composure]);
 const defAvg        = avg([p.marking,p.tackling,p.def_positioning,p.anticipation,p.heading,p.composure]);
 
-// ─── GK GAUGES ───────────────────────────────────────────────────────────
-// Gauge 1: GK Skills (weighted)
+// GK gauges
 const gkSkillsAvg = isGK ? weightedAvg(
-  [p.reflexes, p.positioning, p.composure, p.handling, p.kicking],
-  [1.0, 1.0, 0.9, 0.70, 0.20]
+  [p.reflexes,p.positioning,p.composure,p.handling,p.kicking],
+  [1.0,1.0,0.9,0.70,0.20]
 ) : 0;
-
-// Gauge 2: Reactive vs Cold spectrum
-const coldScore     = isGK ? avg([p.composure, p.positioning]) : 0;
-const reactiveScore = isGK ? avg([p.reflexes, p.agility]) : 0;
-const spectrumTotal = coldScore + reactiveScore;
-// 0 = fully reactive, 100 = fully cold
+const coldScore     = isGK ? avg([p.composure,p.positioning]) : 0;
+const reactiveScore = isGK ? avg([p.reflexes,p.agility]) : 0;
 const gkDiff        = coldScore - reactiveScore;
-const gkSpectrum    = Math.max(0, Math.min(100, 50 + gkDiff * 2.5));
-const gkType        = gkSpectrum >= 63
-  ? 'Cold GK'
-  : gkSpectrum <= 37
-    ? 'Reactive GK'
-    : 'Balanced GK';
-const gkTypeColor   = gkType === 'Cold GK'
-  ? '#0071e3'
-  : gkType === 'Reactive GK'
-    ? '#c0392b'
-    : '#7a3fc0';
-const gkTypeDesc    = gkType === 'Cold GK'
-  ? 'Composed · Positional'
-  : gkType === 'Reactive GK'
-    ? 'Explosive · Shot-stopper'
-    : 'Versatile · Balanced';
-
-// Gauge 3: Tech Skills (weighted)
+const gkSpectrum    = Math.max(0,Math.min(100,50+gkDiff*2.5));
+const gkType        = gkSpectrum>=63?'Cold GK':gkSpectrum<=37?'Reactive GK':'Balanced GK';
+const gkTypeColor   = gkType==='Cold GK'?'#0071e3':gkType==='Reactive GK'?'#c0392b':'#7a3fc0';
+const gkTypeDesc    = gkType==='Cold GK'?'Composed · Positional':gkType==='Reactive GK'?'Explosive · Shot-stopper':'Versatile · Balanced';
 const gkTechAvg = isGK ? weightedAvg(
-  [p['first-touch'], p.kicking, p.free_kick, p.dribbling],
-  [1.0, 0.85, 0.75, 0.40]
+  [p['first-touch'],p.kicking,p.free_kick,p.dribbling],
+  [1.0,0.85,0.75,0.40]
 ) : 0;
-
-// ─── HEATMAP ──────────────────────────────────────────────────────────────
-
-const ROLE_POS = {
-  GK: {x:50,y:8,  spread:14,sx:18,sy:10},
-  SW: {x:50,y:18, spread:18,sx:22,sy:14},
-  CB: {x:50,y:22, spread:16,sx:20,sy:13},
-  RB: {x:78,y:28, spread:18,sx:14,sy:22},
-  LB: {x:22,y:28, spread:18,sx:14,sy:22},
-  DM: {x:50,y:38, spread:20,sx:24,sy:16},
-  CM: {x:50,y:50, spread:22,sx:26,sy:18},
-  LM: {x:22,y:50, spread:20,sx:14,sy:22},
-  RM: {x:78,y:50, spread:20,sx:14,sy:22},
-  AM: {x:50,y:62, spread:20,sx:24,sy:16},
-  LW: {x:18,y:70, spread:18,sx:14,sy:22},
-  RW: {x:82,y:70, spread:18,sx:14,sy:22},
-  FW: {x:50,y:72, spread:20,sx:24,sy:16},
-  ST: {x:50,y:82, spread:16,sx:20,sy:13},
-};
-
-function getHeatBlob(role, skillShift, opacityFactor) {
-  const base = ROLE_POS[role] ?? ROLE_POS['CM'];
-  const shifted = Math.max(5, Math.min(95, base.y + skillShift));
-  return {
-    cx: base.x,
-    cy: shifted,
-    rx: base.sx,
-    ry: base.sy + Math.abs(skillShift) * 0.4,
-    blur: base.spread,
-    opacity: opacityFactor,
-  };
-}
-
-// Skill shift: positive = più avanti, negative = più indietro
-// Range circa -10 / +10
-const offSkill  = p.off_the_ball  ?? 70;
-const defSkill  = p.def_positioning ?? 70;
-const paceVal   = avg([p.pace ?? 70, p.acceleration ?? 70]);
-
-let primaryShift = 0;
-if (isGK) {
-  // GK: portieri tecnici si spostano leggermente avanti
-  const gkTech = avg([p.kicking ?? 60, p['first-touch'] ?? 60]);
-  primaryShift = (gkTech - 60) / 100 * 6;
-} else {
-  // Net offensive/defensive bias
-  const netBias = (offSkill - defSkill) / 100;
-  const speedBonus = (paceVal - 70) / 100 * 3;
-  primaryShift = netBias * 10 + speedBonus;
-}
-
-// Blob principale
-const mainBlob = getHeatBlob(p.role, primaryShift, 1.0);
-
-// Blob secondari da alt_roles
-const altList = (p.alt_roles ?? '').split(',').map(s=>s.trim()).filter(Boolean);
-const altWeights = [0.65, 0.42, 0.24];
-const altBlobs = altList.slice(0, 3).map((role, i) => {
-  const r = role.trim();
-  const pos = ROLE_POS[r];
-  if (!pos) return null;
-  // shift ridotto per i ruoli secondari
-  return getHeatBlob(r, primaryShift * 0.5, altWeights[i]);
-}).filter(Boolean);
-
-// Tutti i blob
-const heatBlobs = [mainBlob, ...altBlobs];
 
 const GAUGE_R=45,HALF_CIRC=Math.PI*GAUGE_R,FULL_CIRC=2*Math.PI*GAUGE_R;
 function gaugeDash(v){const f=(Math.max(0,Math.min(v,99))/99)*HALF_CIRC;return`${f} ${FULL_CIRC}`;}
@@ -288,85 +199,51 @@ if(!isGK){
 }
 
 // ─── ROSTER HELPERS ───────────────────────────────────────────────────────
-function sortByOvr(arr){
-  return[...arr].sort((a,b)=>(b.overall_rating??0)-(a.overall_rating??0)||(a.name??'').localeCompare(b.name??''));
-}
-function pickR(pool,n,usedIds){
-  return sortByOvr(pool.filter(q=>!usedIds.has(q.id))).slice(0,n);
-}
-function buildRoster(pool) {
-  const used = new Set();
-  const gkR   = pickR(pool.filter(q=>q.role==='GK'),3,used); gkR.forEach(q=>used.add(q.id));
-  const rbR   = pickR(pool.filter(q=>q.role==='RB'),2,used); rbR.forEach(q=>used.add(q.id));
-  const lbR   = pickR(pool.filter(q=>q.role==='LB'),2,used); lbR.forEach(q=>used.add(q.id));
-  const swA   = sortByOvr(pool.filter(q=>q.role==='SW'&&!used.has(q.id)));
-  const cbA   = sortByOvr(pool.filter(q=>q.role==='CB'&&!used.has(q.id)));
-  const swSlot= swA.length?[swA[0]]:[];
-  swSlot.forEach(q=>used.add(q.id));
-  const cPool = sortByOvr([...cbA.filter(q=>!used.has(q.id)),...swA.filter(q=>!used.has(q.id))]);
-  const cR    = [...swSlot,...pickR(cPool,4-swSlot.length,used)]; cR.forEach(q=>used.add(q.id));
-  const dmR   = pickR(pool.filter(q=>q.role==='DM'),2,used); dmR.forEach(q=>used.add(q.id));
-  const cmamR = pickR(pool.filter(q=>['CM','AM'].includes(q.role)),4,used); cmamR.forEach(q=>used.add(q.id));
-  const rmlmR = pickR(pool.filter(q=>['RM','LM','CM','AM','DM'].includes(q.role)),2,used); rmlmR.forEach(q=>used.add(q.id));
-  const stR   = pickR(pool.filter(q=>q.role==='ST'),4,used); stR.forEach(q=>used.add(q.id));
-  const wingS = pickR(pool.filter(q=>['RW','LW'].includes(q.role)&&!used.has(q.id)),1,used);
-  wingS.forEach(q=>used.add(q.id));
-  const attFill = pickR(pool.filter(q=>['ST','FW','RW','LW'].includes(q.role)&&!used.has(q.id)),6-wingS.length,used);
-  attFill.forEach(q=>used.add(q.id));
+function sortByOvr(arr){return[...arr].sort((a,b)=>(b.overall_rating??0)-(a.overall_rating??0)||(a.name??'').localeCompare(b.name??''));}
+function pickR(pool,n,usedIds){return sortByOvr(pool.filter(q=>!usedIds.has(q.id))).slice(0,n);}
+function buildRoster(pool){
+  const used=new Set();
+  const gkR=pickR(pool.filter(q=>q.role==='GK'),3,used);gkR.forEach(q=>used.add(q.id));
+  const rbR=pickR(pool.filter(q=>q.role==='RB'),2,used);rbR.forEach(q=>used.add(q.id));
+  const lbR=pickR(pool.filter(q=>q.role==='LB'),2,used);lbR.forEach(q=>used.add(q.id));
+  const swA=sortByOvr(pool.filter(q=>q.role==='SW'&&!used.has(q.id)));
+  const cbA=sortByOvr(pool.filter(q=>q.role==='CB'&&!used.has(q.id)));
+  const swSlot=swA.length?[swA[0]]:[];swSlot.forEach(q=>used.add(q.id));
+  const cPool=sortByOvr([...cbA.filter(q=>!used.has(q.id)),...swA.filter(q=>!used.has(q.id))]);
+  const cR=[...swSlot,...pickR(cPool,4-swSlot.length,used)];cR.forEach(q=>used.add(q.id));
+  const dmR=pickR(pool.filter(q=>q.role==='DM'),2,used);dmR.forEach(q=>used.add(q.id));
+  const cmamR=pickR(pool.filter(q=>['CM','AM'].includes(q.role)),4,used);cmamR.forEach(q=>used.add(q.id));
+  const rmlmR=pickR(pool.filter(q=>['RM','LM','CM','AM','DM'].includes(q.role)),2,used);rmlmR.forEach(q=>used.add(q.id));
+  const stR=pickR(pool.filter(q=>q.role==='ST'),4,used);stR.forEach(q=>used.add(q.id));
+  const wingS=pickR(pool.filter(q=>['RW','LW'].includes(q.role)&&!used.has(q.id)),1,used);wingS.forEach(q=>used.add(q.id));
+  const attFill=pickR(pool.filter(q=>['ST','FW','RW','LW'].includes(q.role)&&!used.has(q.id)),6-wingS.length,used);attFill.forEach(q=>used.add(q.id));
   return used;
 }
 
-// ─── ALL-TIME TEAMS ───────────────────────────────────────────────────────
-const playerTeams = allTeams.filter(t => {
-  const isNat = t.type==='national team'||t.type==='national';
-  const inPool = isNat
-    ? (p.nation??'').toLowerCase()===(t.name??'').toLowerCase()
-    : (p.iconic_club??'').toLowerCase()===(t.name??'').toLowerCase();
-  if(!inPool) return false;
-  const pool = allPlayers.filter(q => isNat
-    ? (q.nation??'').toLowerCase()===(t.name??'').toLowerCase()
-    : (q.iconic_club??'').toLowerCase()===(t.name??'').toLowerCase()
-  );
+const playerTeams=allTeams.filter(t=>{
+  const isNat=t.type==='national team'||t.type==='national';
+  const inPool=isNat?(p.nation??'').toLowerCase()===(t.name??'').toLowerCase():(p.iconic_club??'').toLowerCase()===(t.name??'').toLowerCase();
+  if(!inPool)return false;
+  const pool=allPlayers.filter(q=>isNat?(q.nation??'').toLowerCase()===(t.name??'').toLowerCase():(q.iconic_club??'').toLowerCase()===(t.name??'').toLowerCase());
   return buildRoster(pool).has(p.id);
-}).map(t => ({
-  slug: t.slug,
-  displayName: t.slug.split('-').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' '),
-  type: t.type,
-  isNational: t.type==='national team'||t.type==='national',
-}));
+}).map(t=>({slug:t.slug,displayName:t.slug.split('-').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' '),type:t.type,isNational:t.type==='national team'||t.type==='national'}));
 
-// ─── DECADE MEMBERSHIP ───────────────────────────────────────────────────
-const DECADES = [1950,1960,1970,1980,1990,2000,2010];
-const playerDecades = DECADES.filter(d => {
-  if(p.decade !== d) return false;
-  const pool = allPlayers.filter(q => q.decade === d);
-  return buildRoster(pool).has(p.id);
-}).map(d => ({
-  href: `/best/decade/${d}`,
-  displayName: `All-Time ${d}s`,
-  badge: `${d}s`,
-}));
+const DECADES=[1950,1960,1970,1980,1990,2000,2010];
+const playerDecades=DECADES.filter(d=>{
+  if(p.decade!==d)return false;
+  return buildRoster(allPlayers.filter(q=>q.decade===d)).has(p.id);
+}).map(d=>({href:`/best/decade/${d}`,displayName:`All-Time ${d}s`,badge:`${d}s`}));
 
-// ─── CONTINENT MEMBERSHIP ─────────────────────────────────────────────────
-const CONTINENT_SLUGS = [
-  { slug:'Europe',        name:'Europe'        },
-  { slug:'South-America', name:'South America' },
-  { slug:'Africa',        name:'Africa'        },
-  { slug:'North-America', name:'North America' },
-  { slug:'Asia',          name:'Asia'          },
+const CONTINENT_SLUGS=[
+  {slug:'Europe',name:'Europe'},{slug:'South-America',name:'South America'},
+  {slug:'Africa',name:'Africa'},{slug:'North-America',name:'North America'},{slug:'Asia',name:'Asia'},
 ];
-const playerContinent = (p['Continent']??'').trim();
-const playerContinents = CONTINENT_SLUGS.filter(c => {
-  if(playerContinent !== c.name) return false;
-  const pool = allPlayers.filter(q => (q['Continent']??'').trim() === c.name);
-  return buildRoster(pool).has(p.id);
-}).map(c => ({
-  href: `/best/continent/${c.slug}`,
-  displayName: `All-Time ${c.name}`,
-  badge: c.name,
-}));
+const playerContinent=(p['Continent']??'').trim();
+const playerContinents=CONTINENT_SLUGS.filter(c=>{
+  if(playerContinent!==c.name)return false;
+  return buildRoster(allPlayers.filter(q=>(q['Continent']??'').trim()===c.name)).has(p.id);
+}).map(c=>({href:`/best/continent/${c.slug}`,displayName:`All-Time ${c.name}`,badge:c.name}));
 
-// ─── SEE ALSO ─────────────────────────────────────────────────────────────
 const ROLE_COMPAT={
   GK:['GK'],CB:['CB','SW'],SW:['SW','CB'],RB:['RB','LB'],LB:['LB','RB'],
   DM:['DM','CM'],CM:['CM','DM','AM'],RM:['RM','LM','AM','CM'],LM:['LM','RM','AM','CM'],
@@ -382,7 +259,6 @@ const related=allPlayers
   .sort((a,b)=>b.score-a.score||(b.q.overall_rating??0)-(a.q.overall_rating??0))
   .slice(0,5).map(x=>x.q);
 
-// ─── COMPARE POOL ─────────────────────────────────────────────────────────
 const MACRO={GK:['GK'],DEF:['CB','SW','RB','LB'],MID:['DM','CM','AM','RM','LM'],ATT:['ST','FW','RW','LW']};
 const playerMacro=Object.keys(MACRO).find(k=>MACRO[k].includes(p.role))?? 'ATT';
 const macroRoles=MACRO[playerMacro];
@@ -391,22 +267,81 @@ const SKILL_KEYS=['acceleration','pace','agility','strength','balance','jumping'
   'heading','tackling','free_kick','penalties','first-touch','composure','aggression',
   'consistency','creativity','work_rate','vision','off_the_ball','def_positioning',
   'teamwork','anticipation','marking','reflexes','positioning','handling','kicking'];
-function playerSnapshot(pl) {
-  const snap={name:pl.name,slug:pl.slug,role:pl.role,overall_rating:pl.overall_rating};
-  SKILL_KEYS.forEach(k=>snap[k]=pl[k]);
-  return snap;
-}
+function playerSnapshot(pl){const snap={name:pl.name,slug:pl.slug,role:pl.role,overall_rating:pl.overall_rating};SKILL_KEYS.forEach(k=>snap[k]=pl[k]);return snap;}
 const currentPlayerData=playerSnapshot(p);
-const comparePool=allPlayers
-  .filter(q=>q.id!==p.id&&q.slug&&macroRoles.includes(q.role))
-  .map(playerSnapshot)
-  .sort((a,b)=>(b.overall_rating??0)-(a.overall_rating??0));
+const comparePool=allPlayers.filter(q=>q.id!==p.id&&q.slug&&macroRoles.includes(q.role)).map(playerSnapshot).sort((a,b)=>(b.overall_rating??0)-(a.overall_rating??0));
 
-// ─── TAG URLS ─────────────────────────────────────────────────────────────
-const tagRoleUrl  = `/?role=${encodeURIComponent(p.role)}`;
-const tagNatUrl   = `/?nation=${encodeURIComponent(p.nation ?? '')}`;
-const tagClubUrl  = `/?club=${encodeURIComponent(p.iconic_club ?? '')}`;
-const tagDecadeUrl= `/?decade=${p.decade}`;
+const tagRoleUrl=`/?role=${encodeURIComponent(p.role)}`;
+const tagNatUrl=`/?nation=${encodeURIComponent(p.nation??'')}`;
+const tagClubUrl=`/?club=${encodeURIComponent(p.iconic_club??'')}`;
+const tagDecadeUrl=`/?decade=${p.decade}`;
+
+// ─── HEATMAP ──────────────────────────────────────────────────────────────
+const ROLE_POS={
+  GK: {x:50,y:7, sx:20,sy:10},SW:{x:50,y:17,sx:24,sy:13},
+  CB: {x:50,y:21,sx:22,sy:12},RB:{x:80,y:27,sx:13,sy:20},LB:{x:20,y:27,sx:13,sy:20},
+  DM: {x:50,y:37,sx:26,sy:15},CM:{x:50,y:50,sx:28,sy:17},
+  LM: {x:18,y:50,sx:13,sy:22},RM:{x:82,y:50,sx:13,sy:22},
+  AM: {x:50,y:63,sx:26,sy:15},LW:{x:15,y:72,sx:13,sy:20},RW:{x:85,y:72,sx:13,sy:20},
+  FW: {x:50,y:73,sx:26,sy:15},ST:{x:50,y:83,sx:22,sy:12},
+};
+const offSkill=p.off_the_ball??70,defSkill=p.def_positioning??70;
+const paceVal=avg([p.pace??70,p.acceleration??70]);
+let primaryShift=0;
+if(isGK){
+  const gkTech2=avg([p.kicking??60,p['first-touch']??60]);
+  primaryShift=(gkTech2-60)/100*6;
+}else{
+  const netBias=(offSkill-defSkill)/100;
+  const speedBonus=(paceVal-70)/100*3;
+  primaryShift=netBias*10+speedBonus;
+}
+function getBlob(role,shift,opacity){
+  const base=ROLE_POS[role]??ROLE_POS['CM'];
+  const cy=Math.max(5,Math.min(95,base.y+shift));
+  return{cx:base.x,cy,rx:base.sx,ry:base.sy+Math.abs(shift)*0.4,blur:base.sx*0.55,opacity};
+}
+const mainBlob=getBlob(p.role,primaryShift,1.0);
+const altList=(p.alt_roles??'').split(',').map(s=>s.trim()).filter(Boolean);
+const altWeights=[0.60,0.38,0.20];
+const altBlobs=altList.slice(0,3).map((role,i)=>{
+  if(!ROLE_POS[role.trim()])return null;
+  return getBlob(role.trim(),primaryShift*0.5,altWeights[i]);
+}).filter(Boolean);
+const heatBlobs=[mainBlob,...altBlobs];
+
+// ─── RADAR CHART ─────────────────────────────────────────────────────────
+const radarAxes=isGK
+  ? [
+      {label:'REF',value:p.reflexes??0},
+      {label:'POS',value:p.positioning??0},
+      {label:'HAN',value:p.handling??0},
+      {label:'TEC',value:gkTechAvg},
+      {label:'MEN',value:mentalAvg},
+      {label:'ATH',value:athleticAvg},
+    ]
+  : [
+      {label:'ATH',value:athleticAvg},
+      {label:'TEC',value:technicalAvg},
+      {label:'MEN',value:mentalAvg},
+      {label:'TAC',value:tacticalAvg},
+      {label:'DEF',value:defAvg},
+      {label:'ATT',value:attAvg},
+    ];
+
+const RADAR_CX=110,RADAR_CY=105,RADAR_R=72;
+const N_AXES=6;
+function radarPoint(i,val,maxVal=99){
+  const angle=(Math.PI*2/N_AXES)*i-Math.PI/2;
+  const r=(val/maxVal)*RADAR_R;
+  return{x:RADAR_CX+r*Math.cos(angle),y:RADAR_CY+r*Math.sin(angle)};
+}
+function radarGrid(i,r){
+  const angle=(Math.PI*2/N_AXES)*i-Math.PI/2;
+  return{x:RADAR_CX+r*Math.cos(angle),y:RADAR_CY+r*Math.sin(angle)};
+}
+const radarShape=radarAxes.map((ax,i)=>radarPoint(i,ax.value)).map(pt=>`${pt.x},${pt.y}`).join(' ');
+const gridLevels=[0.25,0.5,0.75,1.0];
 ---
 
 <html>
@@ -420,8 +355,6 @@ const tagDecadeUrl= `/?decade=${p.decade}`;
     .page{max-width:860px;margin:0 auto;padding:40px 40px 80px;}
     .back{display:inline-flex;align-items:center;gap:4px;font-size:13px;color:#6e6e73;text-decoration:none;margin-bottom:28px;transition:color 0.15s;}
     .back:hover{color:#0071e3;}
-
-    /* HERO */
     .hero{background:#ffffff;border-radius:16px;padding:28px 32px;box-shadow:0 1px 3px rgba(0,0,0,0.07),0 4px 16px rgba(0,0,0,0.04);display:flex;align-items:center;gap:28px;margin-bottom:12px;}
     .avatar-ring{flex-shrink:0;width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;padding:3px;}
     .avatar{width:74px;height:74px;border-radius:50%;background:#e8e8ed;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:600;color:#6e6e73;letter-spacing:-0.5px;}
@@ -440,7 +373,6 @@ const tagDecadeUrl= `/?decade=${p.decade}`;
     .compare-btn{display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-size:11px;font-weight:600;color:#0071e3;background:transparent;border:1px solid #0071e3;border-radius:8px;padding:4px 10px;cursor:pointer;transition:background 0.14s,color 0.14s;letter-spacing:0.02em;white-space:nowrap;}
     .compare-btn:hover{background:#0071e3;color:#ffffff;}
 
-    /* ALL-TIME STRIP */
     .teams-strip{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
     .teams-strip-label{font-size:10px;font-weight:700;color:#aeaeb2;letter-spacing:0.07em;text-transform:uppercase;white-space:nowrap;margin-right:2px;}
     .team-chip{display:inline-flex;align-items:center;gap:7px;text-decoration:none;background:#ffffff;border:1px solid #e5e5ea;border-radius:20px;padding:5px 12px 5px 8px;transition:border-color 0.15s,box-shadow 0.15s,transform 0.12s;}
@@ -453,33 +385,39 @@ const tagDecadeUrl= `/?decade=${p.decade}`;
     .badge-decade{background:#f3eeff;color:#7a3fc0;}
     .badge-continent{background:#efffee;color:#1a7a1a;}
 
-    /* STATS */
-    .stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:20px;}
+    .stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:16px;}
     .stat-card{background:#ffffff;border-radius:12px;padding:14px 12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
     .stat-card .sv{font-size:20px;font-weight:600;color:#1d1d1f;letter-spacing:-0.5px;}
     .stat-card .sl{font-size:9.5px;font-weight:600;color:#aeaeb2;letter-spacing:0.05em;text-transform:uppercase;margin-top:2px;}
 
-    /* GAUGE — outfield */
+    /* ─── HEATMAP + RADAR ─── */
+    .viz-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+
+    .heatmap-card{background:#ffffff;border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06);display:flex;flex-direction:column;}
+    .viz-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px 10px;}
+    .viz-title{font-size:10px;font-weight:700;color:#aeaeb2;letter-spacing:0.07em;text-transform:uppercase;}
+    .viz-note{font-size:9px;color:#c7c7cc;font-weight:500;font-style:italic;}
+    .heatmap-svg{width:100%;height:auto;display:block;}
+
+    .radar-card{background:#ffffff;border-radius:14px;padding:0;box-shadow:0 1px 3px rgba(0,0,0,0.06);display:flex;flex-direction:column;}
+    .radar-svg-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:0 8px 12px;}
+    .radar-svg{width:100%;height:auto;}
+
+    /* GAUGES */
     .gauge-section{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
     .gauge-item{background:#ffffff;border-radius:14px;padding:22px 16px 16px;box-shadow:0 1px 3px rgba(0,0,0,0.06);display:flex;flex-direction:column;align-items:center;}
     .gauge-item svg{width:100%;max-width:140px;overflow:visible;}
     .gauge-label{font-size:10px;font-weight:700;color:#aeaeb2;letter-spacing:0.07em;text-transform:uppercase;margin-top:6px;text-align:center;}
 
-    /* GK GAUGE SECTION */
     .gk-gauge-section{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px;}
-
-    /* GK side gauges (same as outfield) */
     .gk-gauge-item{background:#ffffff;border-radius:14px;padding:22px 16px 16px;box-shadow:0 1px 3px rgba(0,0,0,0.06);display:flex;flex-direction:column;align-items:center;}
     .gk-gauge-item svg{width:100%;max-width:140px;overflow:visible;}
     .gk-gauge-label{font-size:10px;font-weight:700;color:#aeaeb2;letter-spacing:0.07em;text-transform:uppercase;margin-top:6px;text-align:center;}
-
-    /* GK center — spectrum gauge */
-    .gk-spectrum-item{background:#ffffff;border-radius:14px;padding:22px 18px 18px;box-shadow:0 1px 3px rgba(0,0,0,0.06);display:flex;flex-direction:column;align-items:center;justify-content:center;}
+    .gk-spectrum-item{background:#ffffff;border-radius:14px;padding:20px 18px 18px;box-shadow:0 1px 3px rgba(0,0,0,0.06);display:flex;flex-direction:column;align-items:center;justify-content:center;}
     .gk-type-label{font-size:15px;font-weight:700;letter-spacing:-0.3px;margin-bottom:4px;}
     .gk-type-desc{font-size:10px;font-weight:600;color:#aeaeb2;letter-spacing:0.04em;margin-bottom:16px;text-align:center;}
-    .gk-spectrum-track{width:100%;height:8px;border-radius:4px;background:#f0f0f5;position:relative;overflow:visible;margin-bottom:10px;}
-    .gk-spectrum-fill{height:100%;border-radius:4px;position:absolute;left:0;top:0;}
-    .gk-spectrum-dot{width:16px;height:16px;border-radius:50%;border:2px solid #ffffff;box-shadow:0 1px 4px rgba(0,0,0,0.18);position:absolute;top:50%;transform:translate(-50%,-50%);transition:left 0.4s ease;}
+    .gk-spectrum-track{width:100%;height:8px;border-radius:4px;background:linear-gradient(to right,#fee2e2,#dbeafe);position:relative;margin-bottom:10px;}
+    .gk-spectrum-dot{width:16px;height:16px;border-radius:50%;border:2px solid #ffffff;box-shadow:0 1px 4px rgba(0,0,0,0.18);position:absolute;top:50%;transform:translate(-50%,-50%);}
     .gk-spectrum-ends{display:flex;justify-content:space-between;width:100%;}
     .gk-spectrum-end{font-size:9px;font-weight:700;color:#aeaeb2;letter-spacing:0.04em;text-transform:uppercase;}
     .gk-scores-row{display:flex;justify-content:space-between;width:100%;margin-top:10px;}
@@ -487,7 +425,6 @@ const tagDecadeUrl= `/?decade=${p.decade}`;
     .gk-score-val{font-size:18px;font-weight:700;letter-spacing:-0.5px;}
     .gk-score-sub{font-size:9px;font-weight:600;color:#aeaeb2;letter-spacing:0.05em;text-transform:uppercase;margin-top:1px;}
 
-    /* SKILLS */
     .skills-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
     .skill-card{background:#ffffff;border-radius:14px;padding:20px 20px 16px;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
     .skill-card.full-width{grid-column:1/-1;}
@@ -499,7 +436,6 @@ const tagDecadeUrl= `/?decade=${p.decade}`;
     .skill-bar-fill{height:100%;border-radius:3px;}
     .skill-val{font-size:12px;font-weight:600;color:#1d1d1f;min-width:24px;text-align:right;font-variant-numeric:tabular-nums;}
 
-    /* TRAITS */
     .traits-section{margin-top:14px;background:#ffffff;border-radius:14px;padding:20px 24px 24px;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
     .traits-title{font-size:11px;font-weight:700;color:#aeaeb2;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:18px;}
     .traits-grid{display:grid;grid-template-columns:repeat(6,60px);gap:12px;justify-content:start;}
@@ -509,7 +445,6 @@ const tagDecadeUrl= `/?decade=${p.decade}`;
     .trait-icon[data-tip]:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%);background:#1d1d1f;color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:4px 9px;border-radius:6px;pointer-events:none;z-index:20;}
     .trait-icon[data-tip]:hover::before{content:'';position:absolute;bottom:calc(100% + 2px);left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:#1d1d1f;pointer-events:none;z-index:20;}
 
-    /* SEE ALSO */
     .see-also{margin-top:40px;}
     .see-also-label{font-size:11px;font-weight:700;color:#aeaeb2;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:14px;padding-left:2px;}
     .see-also-grid{display:flex;gap:10px;flex-wrap:wrap;}
@@ -522,7 +457,6 @@ const tagDecadeUrl= `/?decade=${p.decade}`;
     .sa-role{font-size:9.5px;font-weight:700;padding:1px 6px;border-radius:4px;letter-spacing:0.04em;}
     .sa-ovr{font-size:11px;font-weight:700;font-variant-numeric:tabular-nums;}
 
-    /* COMPARE MODAL */
     .cmp-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:200;display:none;align-items:flex-end;justify-content:center;}
     .cmp-overlay.open{display:flex;}
     @media(min-width:640px){.cmp-overlay{align-items:center;}}
@@ -561,17 +495,12 @@ const tagDecadeUrl= `/?decade=${p.decade}`;
     .cmp-back-btn:hover{opacity:0.7;}
     .cmp-skills-scroll{flex:1;overflow-y:auto;padding:12px 16px 24px;}
     .cmp-section-title{font-size:10px;font-weight:700;color:#aeaeb2;letter-spacing:0.07em;text-transform:uppercase;margin:14px 4px 8px;}
-/* HEATMAP */
-.heatmap-wrap{background:#ffffff;border-radius:14px;padding:16px 16px 12px;box-shadow:0 1px 3px rgba(0,0,0,0.06);margin-bottom:20px;position:relative;}
-.heatmap-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-.heatmap-title{font-size:11px;font-weight:700;color:#aeaeb2;letter-spacing:0.07em;text-transform:uppercase;}
-.heatmap-note{font-size:9.5px;color:#c7c7cc;font-weight:500;font-style:italic;}
-.heatmap-svg{width:100%;height:auto;display:block;border-radius:8px;overflow:hidden;}
 
     @media(max-width:600px){
       .page{padding:24px 20px 60px;}
       .hero{flex-direction:column;align-items:flex-start;gap:16px;}
       .stats-row{grid-template-columns:repeat(3,1fr);}
+      .viz-row{grid-template-columns:1fr;}
       .gauge-section,.gk-gauge-section{gap:8px;}
       .skills-grid{grid-template-columns:1fr;}
       .skill-card.full-width{grid-column:auto;}
@@ -587,7 +516,6 @@ const tagDecadeUrl= `/?decade=${p.decade}`;
 <div class="page">
   <a href="/" class="back">← Database</a>
 
-  <!-- HERO -->
   <div class="hero">
     {hasGradientBorder?(
       <div class="avatar-ring" style={`background:conic-gradient(${gradientStops});border-radius:50%;`}>
@@ -602,7 +530,6 @@ const tagDecadeUrl= `/?decade=${p.decade}`;
         <div class="avatar">{initials}</div>
       </div>
     )}
-
     <div class="hero-info">
       <div class="hero-name">{p.name}</div>
       <div class="hero-tags">
@@ -618,7 +545,6 @@ const tagDecadeUrl= `/?decade=${p.decade}`;
         <div class="bio-item"><span class="bio-label">Foot</span><span class="bio-value">{p.preferred_foot}</span></div>
       </div>
     </div>
-
     <div class="ovr-col">
       <div class="ovr-badge" style={`color:${ovrColor(p.overall_rating)};`}>{p.overall_rating}</div>
       <div class="ovr-label">Overall</div>
@@ -626,24 +552,23 @@ const tagDecadeUrl= `/?decade=${p.decade}`;
     </div>
   </div>
 
-  <!-- ALL-TIME STRIP -->
-  {(playerTeams.length > 0 || playerDecades.length > 0 || playerContinents.length > 0) && (
+  {(playerTeams.length>0||playerDecades.length>0||playerContinents.length>0)&&(
     <div class="teams-strip">
       <span class="teams-strip-label">All-Time</span>
-      {playerTeams.map(t => (
+      {playerTeams.map(t=>(
         <a href={`/team/${t.slug}`} class="team-chip">
           <img src={`/teams/${t.slug}.svg`} class="team-chip-logo" alt={t.displayName} onerror="this.style.display='none'"/>
           <span class="team-chip-text">{t.displayName}</span>
           <span class={`team-chip-badge ${t.isNational?'badge-nat':'badge-club'}`}>{t.isNational?'NT':'Club'}</span>
         </a>
       ))}
-      {playerDecades.map(d => (
+      {playerDecades.map(d=>(
         <a href={d.href} class="team-chip">
           <span class="team-chip-text">{d.displayName}</span>
           <span class="team-chip-badge badge-decade">{d.badge}</span>
         </a>
       ))}
-      {playerContinents.map(c => (
+      {playerContinents.map(c=>(
         <a href={c.href} class="team-chip">
           <span class="team-chip-text">{c.displayName}</span>
           <span class="team-chip-badge badge-continent">{c.badge}</span>
@@ -652,7 +577,6 @@ const tagDecadeUrl= `/?decade=${p.decade}`;
     </div>
   )}
 
-  <!-- STATS -->
   <div class="stats-row">
     <div class="stat-card"><div class="sv">{p.club_apps}</div><div class="sl">Club Apps</div></div>
     <div class="stat-card"><div class="sv">{p.club_goals}</div><div class="sl">Club Goals</div></div>
@@ -662,95 +586,180 @@ const tagDecadeUrl= `/?decade=${p.decade}`;
     <div class="stat-card"><div class="sv">{p.nat_goal_ratio}</div><div class="sl">Nat Ratio</div></div>
   </div>
 
-<!-- HEATMAP -->
-<div class="heatmap-wrap">
-  <div class="heatmap-header">
-    <span class="heatmap-title">Positional Heatmap</span>
-    <span class="heatmap-note">Illustrative · generated from role & skills data</span>
+  <!-- ─── HEATMAP + RADAR ─── -->
+  <div class="viz-row">
+
+    <!-- HEATMAP -->
+    <div class="heatmap-card">
+      <div class="viz-header">
+        <span class="viz-title">Positional Heatmap</span>
+        <span class="viz-note">Illustrative · role & skills data</span>
+      </div>
+      <svg class="heatmap-svg" viewBox="0 0 100 65" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="pitchG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stop-color="#185c2e"/>
+            <stop offset="50%"  stop-color="#1e6e36"/>
+            <stop offset="100%" stop-color="#185c2e"/>
+          </linearGradient>
+          <radialGradient id="hmMain" cx="50%" cy="50%" r="50%">
+            <stop offset="0%"   stop-color="#ff1500" stop-opacity="1"/>
+            <stop offset="18%"  stop-color="#ff4400" stop-opacity="1"/>
+            <stop offset="38%"  stop-color="#ff8800" stop-opacity="0.92"/>
+            <stop offset="60%"  stop-color="#ffcc00" stop-opacity="0.70"/>
+            <stop offset="80%"  stop-color="#ffee44" stop-opacity="0.32"/>
+            <stop offset="100%" stop-color="#ffff88" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="hmAlt" cx="50%" cy="50%" r="50%">
+            <stop offset="0%"   stop-color="#ff6600" stop-opacity="0.85"/>
+            <stop offset="40%"  stop-color="#ffaa00" stop-opacity="0.55"/>
+            <stop offset="75%"  stop-color="#ffdd44" stop-opacity="0.22"/>
+            <stop offset="100%" stop-color="#ffee88" stop-opacity="0"/>
+          </radialGradient>
+          {heatBlobs.map((b,i)=>(
+            <filter id={'hf'+i} x="-100%" y="-100%" width="300%" height="300%">
+              <feGaussianBlur stdDeviation={b.blur}/>
+            </filter>
+          ))}
+        </defs>
+
+        <!-- pitch -->
+        <rect width="100" height="65" fill="url(#pitchG)"/>
+        <rect y="0"  width="100" height="6.5" fill="#164f28" opacity="0.5"/>
+        <rect y="13" width="100" height="6.5" fill="#164f28" opacity="0.5"/>
+        <rect y="26" width="100" height="6.5" fill="#164f28" opacity="0.5"/>
+        <rect y="39" width="100" height="6.5" fill="#164f28" opacity="0.5"/>
+        <rect y="52" width="100" height="6.5" fill="#164f28" opacity="0.5"/>
+        <rect x="2" y="1.5" width="96" height="62" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="0.3"/>
+        <line x1="2" y1="32.5" x2="98" y2="32.5" stroke="rgba(255,255,255,0.28)" stroke-width="0.3"/>
+        <circle cx="50" cy="32.5" r="8" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="0.28"/>
+        <circle cx="50" cy="32.5" r="0.55" fill="rgba(255,255,255,0.4)"/>
+        <rect x="28" y="1.5" width="44" height="10.5" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.28"/>
+        <rect x="38" y="1.5" width="24" height="4.5"  fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="0.28"/>
+        <rect x="28" y="53"  width="44" height="10.5" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.28"/>
+        <rect x="38" y="59"  width="24" height="4.5"  fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="0.28"/>
+
+        <!-- blobs: alt first, main on top -->
+        {[...heatBlobs].reverse().map((b,i)=>{
+          const ri=heatBlobs.length-1-i;
+          const isMain=ri===0;
+          const svgY=65-(b.cy/100*65);
+          return(
+            <ellipse
+              cx={b.cx} cy={svgY}
+              rx={b.rx} ry={b.ry}
+              fill={isMain?'url(#hmMain)':'url(#hmAlt)'}
+              opacity={b.opacity}
+              filter={'url(#hf'+ri+')'}
+            />
+          );
+        })}
+
+        <text x="97" y="63" text-anchor="end"
+          font-family="-apple-system,'SF Pro Text',sans-serif"
+          font-size="3" font-weight="700"
+          fill="rgba(255,255,255,0.5)" letter-spacing="0.05em">
+          {p.role}{altList.length>0?' · '+altList.slice(0,2).join(' · '):''}
+        </text>
+      </svg>
+    </div>
+
+    <!-- RADAR -->
+    <div class="radar-card">
+      <div class="viz-header">
+        <span class="viz-title">Skill Radar</span>
+        <span class="viz-note">{isGK?'GK profile':'Weighted by role'}</span>
+      </div>
+      <div class="radar-svg-wrap">
+        <svg class="radar-svg" viewBox="0 0 220 210" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="radarFill" cx="50%" cy="50%" r="50%">
+              <stop offset="0%"   stop-color={ovrColor(p.overall_rating)} stop-opacity="0.18"/>
+              <stop offset="100%" stop-color={ovrColor(p.overall_rating)} stop-opacity="0.06"/>
+            </radialGradient>
+          </defs>
+
+          <!-- grid rings -->
+          {gridLevels.map(level=>(
+            <polygon
+              points={Array.from({length:N_AXES},(_,i)=>{const g=radarGrid(i,RADAR_R*level);return`${g.x},${g.y}`;}).join(' ')}
+              fill="none"
+              stroke="#e5e5ea"
+              stroke-width={level===1.0?"0.8":"0.5"}
+            />
+          ))}
+
+          <!-- axis lines -->
+          {radarAxes.map((_,i)=>{
+            const outer=radarGrid(i,RADAR_R);
+            return <line x1={RADAR_CX} y1={RADAR_CY} x2={outer.x} y2={outer.y} stroke="#e5e5ea" stroke-width="0.5"/>;
+          })}
+
+          <!-- filled shape -->
+          <polygon
+            points={radarShape}
+            fill="url(#radarFill)"
+            stroke={ovrColor(p.overall_rating)}
+            stroke-width="1.8"
+            stroke-linejoin="round"
+          />
+
+          <!-- dots on vertices -->
+          {radarAxes.map((ax,i)=>{
+            const pt=radarPoint(i,ax.value);
+            return <circle cx={pt.x} cy={pt.y} r="2.5" fill={ovrColor(p.overall_rating)} stroke="#ffffff" stroke-width="1.2"/>;
+          })}
+
+          <!-- labels -->
+          {radarAxes.map((ax,i)=>{
+            const labelR=RADAR_R+14;
+            const angle=(Math.PI*2/N_AXES)*i-Math.PI/2;
+            const lx=RADAR_CX+labelR*Math.cos(angle);
+            const ly=RADAR_CY+labelR*Math.sin(angle);
+            const anchor=lx<RADAR_CX-4?'end':lx>RADAR_CX+4?'start':'middle';
+            const valPt=radarPoint(i,ax.value);
+            return(
+              <>
+                <text
+                  x={lx} y={ly+1}
+                  text-anchor={anchor}
+                  dominant-baseline="middle"
+                  font-family="-apple-system,'SF Pro Text',sans-serif"
+                  font-size="8.5" font-weight="700"
+                  fill="#6e6e73" letter-spacing="0.04em"
+                >{ax.label}</text>
+                <text
+                  x={lx} y={ly+10}
+                  text-anchor={anchor}
+                  dominant-baseline="middle"
+                  font-family="-apple-system,'SF Pro Text',sans-serif"
+                  font-size="8" font-weight="700"
+                  fill={ovrColor(ax.value)}
+                >{ax.value}</text>
+              </>
+            );
+          })}
+
+          <!-- center OVR -->
+          <text x={RADAR_CX} y={RADAR_CY-4}
+            text-anchor="middle" dominant-baseline="middle"
+            font-family="-apple-system,'SF Pro Text',sans-serif"
+            font-size="18" font-weight="800" letter-spacing="-0.5"
+            fill={ovrColor(p.overall_rating)}
+          >{p.overall_rating}</text>
+          <text x={RADAR_CX} y={RADAR_CY+11}
+            text-anchor="middle" dominant-baseline="middle"
+            font-family="-apple-system,'SF Pro Text',sans-serif"
+            font-size="6.5" font-weight="700" letter-spacing="0.08em"
+            fill="#aeaeb2"
+          >OVERALL</text>
+        </svg>
+      </div>
+    </div>
+
   </div>
-  <svg class="heatmap-svg" viewBox="0 0 100 65" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <!-- Pitch gradient -->
-      <linearGradient id="pitchGrad" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#1a5c32"/>
-        <stop offset="50%" stop-color="#1e6438"/>
-        <stop offset="100%" stop-color="#1a5c32"/>
-      </linearGradient>
-      <!-- Heat gradient radial -->
-    <radialGradient id="heatMain" cx="50%" cy="50%" r="50%">
-  <stop offset="0%"   stop-color="#ff2200" stop-opacity="1"/>
-  <stop offset="25%"  stop-color="#ff6600" stop-opacity="1"/>
-  <stop offset="50%"  stop-color="#ffaa00" stop-opacity="0.85"/>
-  <stop offset="75%"  stop-color="#ffdd00" stop-opacity="0.55"/>
-  <stop offset="100%" stop-color="#ffee00" stop-opacity="0"/>
-</radialGradient>
-<radialGradient id="heatAlt" cx="50%" cy="50%" r="50%">
-  <stop offset="0%"   stop-color="#ff6600" stop-opacity="0.9"/>
-  <stop offset="45%"  stop-color="#ffbb00" stop-opacity="0.65"/>
-  <stop offset="100%" stop-color="#ffdd00" stop-opacity="0"/>
-</radialGradient>
-      <!-- Blur filters per blob -->
-      {heatBlobs.map((b, i) => (
-        <filter id={'hf' + i} x="-80%" y="-80%" width="260%" height="260%">
-          <feGaussianBlur stdDeviation={b.blur * 0.38}/>
-        </filter>
-      ))}
-    </defs>
 
-    <!-- Pitch -->
-    <rect width="100" height="65" fill="url(#pitchGrad)"/>
-    <!-- Stripes -->
-    <rect y="0"  width="100" height="6.5" fill="#1a5434" opacity="0.4"/>
-    <rect y="13" width="100" height="6.5" fill="#1a5434" opacity="0.4"/>
-    <rect y="26" width="100" height="6.5" fill="#1a5434" opacity="0.4"/>
-    <rect y="39" width="100" height="6.5" fill="#1a5434" opacity="0.4"/>
-    <rect y="52" width="100" height="6.5" fill="#1a5434" opacity="0.4"/>
-    <!-- Lines -->
-    <rect x="2" y="1.5" width="96" height="62" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="0.35"/>
-    <line x1="2" y1="32.5" x2="98" y2="32.5" stroke="rgba(255,255,255,0.25)" stroke-width="0.35"/>
-    <circle cx="50" cy="32.5" r="8" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.3"/>
-    <circle cx="50" cy="32.5" r="0.6" fill="rgba(255,255,255,0.4)"/>
-    <!-- Penalty areas -->
-    <rect x="28" y="1.5" width="44" height="11" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.3"/>
-    <rect x="38" y="1.5" width="24" height="4.5" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.3"/>
-    <rect x="28" y="52.5" width="44" height="11" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.3"/>
-    <rect x="38" y="60.5" width="24" height="3" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.3"/>
-
-    <!-- HEAT BLOBS — render dal meno opaco al più opaco -->
-    {[...heatBlobs].reverse().map((b, i) => {
-      const ri = heatBlobs.length - 1 - i;
-      const isMain = ri === 0;
-      // convert y: 0=own goal bottom, 100=top of field
-      // SVG: y=0 is top, y=65 is bottom. Field goes bottom→top for attacker
-      const svgY = 65 - (b.cy / 100 * 65);
-      return (
-        <ellipse
-          cx={b.cx}
-          cy={svgY}
-          rx={b.rx}
-          ry={b.ry}
-          fill={isMain ? 'url(#heatMain)' : 'url(#heatAlt)'}
-          opacity={b.opacity}
-          filter={'url(#hf' + ri + ')'}
-        />
-      );
-    })}
-
-    <!-- Role label -->
-    <text
-      x="97"
-      y="63"
-      text-anchor="end"
-      font-family="-apple-system,'SF Pro Text',sans-serif"
-      font-size="3.2"
-      font-weight="700"
-      fill="rgba(255,255,255,0.45)"
-      letter-spacing="0.04em"
-    >{p.role}{altList.length > 0 ? ' · ' + altList.slice(0,2).join(' · ') : ''}</text>
-  </svg>
-</div>
-
-  <!-- GAUGES — OUTFIELD -->
+  <!-- GAUGES OUTFIELD -->
   {!isGK&&(
     <div class="gauge-section">
       <div class="gauge-item">
@@ -780,11 +789,9 @@ const tagDecadeUrl= `/?decade=${p.decade}`;
     </div>
   )}
 
-  <!-- GAUGES — GK -->
+  <!-- GAUGES GK -->
   {isGK&&(
     <div class="gk-gauge-section">
-
-      <!-- Gauge 1: GK Skills -->
       <div class="gk-gauge-item">
         <svg viewBox="0 0 120 66" xmlns="http://www.w3.org/2000/svg">
           <circle cx="60" cy="62" r={GAUGE_R} fill="none" stroke="#f0f0f5" stroke-width="9" stroke-dasharray={`${HALF_CIRC} ${FULL_CIRC}`} transform="rotate(180 60 62)"/>
@@ -793,25 +800,16 @@ const tagDecadeUrl= `/?decade=${p.decade}`;
         </svg>
         <div class="gk-gauge-label">GK Skills</div>
       </div>
-
-      <!-- Gauge 2: Reactive vs Cold spectrum -->
       <div class="gk-spectrum-item">
         <div class="gk-type-label" style={`color:${gkTypeColor};`}>{gkType}</div>
         <div class="gk-type-desc">{gkTypeDesc}</div>
-
-        <!-- spectrum bar -->
-        <div class="gk-spectrum-track" style="width:100%;">
-          <!-- gradient fill: left=reactive(red), right=cold(blue) -->
-          <div class="gk-spectrum-fill" style={`width:100%;background:linear-gradient(to right,#fee2e2,#dbeafe);`}></div>
-          <!-- needle -->
+        <div class="gk-spectrum-track">
           <div class="gk-spectrum-dot" style={`left:${gkSpectrum}%;background:${gkTypeColor};`}></div>
         </div>
-
         <div class="gk-spectrum-ends">
           <span class="gk-spectrum-end" style="color:#c0392b;">Reactive</span>
           <span class="gk-spectrum-end" style="color:#0071e3;">Cold</span>
         </div>
-
         <div class="gk-scores-row">
           <div class="gk-score-item">
             <div class="gk-score-val" style="color:#c0392b;">{reactiveScore}</div>
@@ -823,8 +821,6 @@ const tagDecadeUrl= `/?decade=${p.decade}`;
           </div>
         </div>
       </div>
-
-      <!-- Gauge 3: Tech Skills -->
       <div class="gk-gauge-item">
         <svg viewBox="0 0 120 66" xmlns="http://www.w3.org/2000/svg">
           <circle cx="60" cy="62" r={GAUGE_R} fill="none" stroke="#f0f0f5" stroke-width="9" stroke-dasharray={`${HALF_CIRC} ${FULL_CIRC}`} transform="rotate(180 60 62)"/>
@@ -833,7 +829,6 @@ const tagDecadeUrl= `/?decade=${p.decade}`;
         </svg>
         <div class="gk-gauge-label">Tech. Skills</div>
       </div>
-
     </div>
   )}
 
@@ -903,7 +898,6 @@ const tagDecadeUrl= `/?decade=${p.decade}`;
     )}
   </div>
 
-  <!-- TRAITS -->
   {!isGK&&activeTraits.length>0&&(
     <div class="traits-section">
       <div class="traits-title">Player Traits</div>
@@ -917,7 +911,6 @@ const tagDecadeUrl= `/?decade=${p.decade}`;
     </div>
   )}
 
-  <!-- SEE ALSO -->
   {related.length>0&&(
     <div class="see-also">
       <div class="see-also-label">See also</div>
@@ -943,7 +936,6 @@ const tagDecadeUrl= `/?decade=${p.decade}`;
   )}
 </div>
 
-<!-- COMPARE MODAL -->
 <div class="cmp-overlay" id="cmpOverlay">
   <div class="cmp-sheet">
     <div class="cmp-handle"></div>
@@ -974,7 +966,6 @@ function ovrColor(v){if(v>=95)return'#0071e3';if(v>=90)return'#1a5e1a';if(v>=80)
 function skillColor(v){if(v>=95)return'#5aabff';if(v>=90)return'#1a5e1a';if(v>=80)return'#2e8b2e';if(v>=70)return'#6aaa2a';if(v>=60)return'#c8a800';if(v>=40)return'#e07800';return'#c0392b';}
 function rcFor(role){const att=['ST','FW','RW','LW'],mid=['AM','CM','DM','RM','LM'],def=['CB','SW','RB','LB'];if(att.includes(role))return{bg:'#fff0ee',text:'#c0392b'};if(mid.includes(role))return{bg:'#eef4ff',text:'#0071e3'};if(def.includes(role))return{bg:'#eeffee',text:'#1a7a1a'};return{bg:'#f5f0e8',text:'#b07800'};}
 function inits(name){return(name||'').split(',').map(s=>s.trim()[0]).join('').toUpperCase().slice(0,2);}
-
 const SKILL_SECTIONS=[
   {label:'Athletic',skills:[{key:'acceleration',label:'ACC'},{key:'pace',label:'PAC'},{key:'agility',label:'AGI'},{key:'strength',label:'STR'},{key:'balance',label:'BAL'},{key:'jumping',label:'JMP'},{key:'stamina',label:'STA'},{key:'fitness',label:'FIT'}]},
   {label:'Technical',skills:[{key:'dribbling',label:'DRI'},{key:'short_passing',label:'S-PAS'},{key:'long_passing',label:'L-PAS'},{key:'finishing',label:'FIN'},{key:'shot_accuracy',label:'SHO-A'},{key:'shot_power',label:'SHO-P'},{key:'heading',label:'HEA'},{key:'tackling',label:'TAC'},{key:'free_kick',label:'FRK'},{key:'penalties',label:'PEN'},{key:'first-touch',label:'1-TCH'}]},
@@ -982,7 +973,6 @@ const SKILL_SECTIONS=[
   {label:'Tactical',skills:[{key:'vision',label:'VIS'},{key:'off_the_ball',label:'OFB'},{key:'def_positioning',label:'DEF'},{key:'teamwork',label:'TMW'},{key:'anticipation',label:'ANT'},{key:'marking',label:'MAR'}]},
   {label:'Goalkeeping',skills:[{key:'reflexes',label:'REF'},{key:'positioning',label:'POS'},{key:'handling',label:'HAN'},{key:'kicking',label:'KIC'}]},
 ];
-
 const overlay=document.getElementById('cmpOverlay');
 const searchPhase=document.getElementById('cmpSearchPhase');
 const comparePhase=document.getElementById('cmpComparePhase');
@@ -994,7 +984,6 @@ const titleText=document.getElementById('cmpTitleText');
 const playersHeader=document.getElementById('cmpPlayersHeader');
 const scoreBar=document.getElementById('cmpScoreBar');
 const skillsScroll=document.getElementById('cmpSkillsScroll');
-
 document.getElementById('openCompare').addEventListener('click',()=>{overlay.classList.add('open');resetToSearch();searchInput.focus();});
 document.getElementById('cmpClose').addEventListener('click',closeModal);
 overlay.addEventListener('click',e=>{if(e.target===overlay)closeModal();});
@@ -1026,30 +1015,10 @@ function showComparison(p2){
   searchPhase.style.display='none';comparePhase.classList.add('active');
   backBtn.style.display='flex';titleText.textContent='Comparison';
   const rc1=rcFor(p1.role),rc2=rcFor(p2.role);
-  playersHeader.innerHTML=`
-    <div class="cmp-ph-player">
-      <div class="cmp-ph-name">${p1.name}</div>
-      <span class="cmp-ph-role-badge" style="background:${rc1.bg};color:${rc1.text};">${p1.role}</span>
-      <div class="cmp-ph-ovr" style="color:${ovrColor(p1.overall_rating??0)};">${p1.overall_rating??'—'}</div>
-    </div>
-    <div class="cmp-vs">VS</div>
-    <div class="cmp-ph-player">
-      <div class="cmp-ph-name">${p2.name}</div>
-      <span class="cmp-ph-role-badge" style="background:${rc2.bg};color:${rc2.text};">${p2.role}</span>
-      <div class="cmp-ph-ovr" style="color:${ovrColor(p2.overall_rating??0)};">${p2.overall_rating??'—'}</div>
-    </div>`;
+  playersHeader.innerHTML=`<div class="cmp-ph-player"><div class="cmp-ph-name">${p1.name}</div><span class="cmp-ph-role-badge" style="background:${rc1.bg};color:${rc1.text};">${p1.role}</span><div class="cmp-ph-ovr" style="color:${ovrColor(p1.overall_rating??0)};">${p1.overall_rating??'—'}</div></div><div class="cmp-vs">VS</div><div class="cmp-ph-player"><div class="cmp-ph-name">${p2.name}</div><span class="cmp-ph-role-badge" style="background:${rc2.bg};color:${rc2.text};">${p2.role}</span><div class="cmp-ph-ovr" style="color:${ovrColor(p2.overall_rating??0)};">${p2.overall_rating??'—'}</div></div>`;
   let w1=0,w2=0,draws=0;
-  SKILL_SECTIONS.forEach(sec=>sec.skills.forEach(sk=>{
-    const v1=p1[sk.key]??0,v2=p2[sk.key]??0;
-    if(v1>v2)w1++;else if(v2>v1)w2++;else draws++;
-  }));
-  scoreBar.innerHTML=`
-    <span class="cmp-score-num" style="color:${w1>w2?'#1a7a1a':w2>w1?'#c0392b':'#6e6e73'};">${w1}</span>
-    <span class="cmp-score-label">wins</span><span class="cmp-score-sep">·</span>
-    <span class="cmp-score-num" style="color:#6e6e73;">${draws}</span>
-    <span class="cmp-score-label">draws</span><span class="cmp-score-sep">·</span>
-    <span class="cmp-score-num" style="color:${w2>w1?'#1a7a1a':w1>w2?'#c0392b':'#6e6e73'};">${w2}</span>
-    <span class="cmp-score-label">wins</span>`;
+  SKILL_SECTIONS.forEach(sec=>sec.skills.forEach(sk=>{const v1=p1[sk.key]??0,v2=p2[sk.key]??0;if(v1>v2)w1++;else if(v2>v1)w2++;else draws++;}));
+  scoreBar.innerHTML=`<span class="cmp-score-num" style="color:${w1>w2?'#1a7a1a':w2>w1?'#c0392b':'#6e6e73'};">${w1}</span><span class="cmp-score-label">wins</span><span class="cmp-score-sep">·</span><span class="cmp-score-num" style="color:#6e6e73;">${draws}</span><span class="cmp-score-label">draws</span><span class="cmp-score-sep">·</span><span class="cmp-score-num" style="color:${w2>w1?'#1a7a1a':w1>w2?'#c0392b':'#6e6e73'};">${w2}</span><span class="cmp-score-label">wins</span>`;
   skillsScroll.innerHTML='';
   SKILL_SECTIONS.forEach(sec=>{
     const hasData=sec.skills.some(sk=>p1[sk.key]!=null||p2[sk.key]!=null);
@@ -1062,16 +1031,7 @@ function showComparison(p2){
       const c2=v2>v1?'#1a7a1a':v2<v1?'#c0392b':'#6e6e73';
       const row=document.createElement('div');
       row.style.cssText='display:grid;grid-template-columns:1fr 44px 1fr;align-items:center;gap:6px;margin-bottom:7px;';
-      row.innerHTML=`
-        <div style="display:flex;align-items:center;justify-content:flex-end;gap:6px;">
-          <span style="font-size:11px;font-weight:700;color:${c1};font-variant-numeric:tabular-nums;min-width:22px;text-align:right;">${v1||'—'}</span>
-          <div style="width:${v1}px;max-width:90px;min-width:2px;height:5px;border-radius:3px;background:${skillColor(v1)};"></div>
-        </div>
-        <span style="font-size:9px;font-weight:700;color:#6e6e73;text-align:center;text-transform:uppercase;letter-spacing:0.03em;">${sk.label}</span>
-        <div style="display:flex;align-items:center;gap:6px;">
-          <div style="width:${v2}px;max-width:90px;min-width:2px;height:5px;border-radius:3px;background:${skillColor(v2)};"></div>
-          <span style="font-size:11px;font-weight:700;color:${c2};font-variant-numeric:tabular-nums;min-width:22px;">${v2||'—'}</span>
-        </div>`;
+      row.innerHTML=`<div style="display:flex;align-items:center;justify-content:flex-end;gap:6px;"><span style="font-size:11px;font-weight:700;color:${c1};font-variant-numeric:tabular-nums;min-width:22px;text-align:right;">${v1||'—'}</span><div style="width:${v1}px;max-width:90px;min-width:2px;height:5px;border-radius:3px;background:${skillColor(v1)};"></div></div><span style="font-size:9px;font-weight:700;color:#6e6e73;text-align:center;text-transform:uppercase;letter-spacing:0.03em;">${sk.label}</span><div style="display:flex;align-items:center;gap:6px;"><div style="width:${v2}px;max-width:90px;min-width:2px;height:5px;border-radius:3px;background:${skillColor(v2)};"></div><span style="font-size:11px;font-weight:700;color:${c2};font-variant-numeric:tabular-nums;min-width:22px;">${v2||'—'}</span></div>`;
       skillsScroll.appendChild(row);
     });
   });
