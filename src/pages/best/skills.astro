@@ -70,17 +70,17 @@ for (const cat of CATS) {
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style is:global>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; }
     body {
       font-family: -apple-system,'SF Pro Text','Inter',sans-serif;
       background: #f2f2f7; color: #1d1d1f;
       padding-top: 44px; font-size: 13px;
       -webkit-font-smoothing: antialiased;
-      display: flex; flex-direction: column; min-height: 100vh;
     }
     .page {
-      max-width: 860px; margin: 0 auto;
-      padding: 40px 40px 80px; flex: 1;
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 40px 40px 80px;
+      min-height: calc(100vh - 105px);
     }
     .back {
       display: inline-flex; align-items: center; gap: 4px;
