@@ -1,16 +1,14 @@
+---
+const year = new Date().getFullYear();
+---
+
 <footer class="site-footer">
   <div class="footer-inner">
-    <span class="footer-brand">
-      <span class="footer-logo">⚽</span>
-      <span class="footer-name">Legends Database</span>
-    </span>
+    <span class="footer-brand">Legends Database</span>
     <span class="footer-sep">·</span>
-    <span class="footer-copy">© 2025</span>
+    <span class="footer-copy">© {year}</span>
     <nav class="footer-nav">
       <a href="/sources">Sources</a>
-      <a href="/about">About</a>
-      <a href="/legenda">Legend</a>
-      <a href="/privacy">Privacy</a>
     </nav>
   </div>
 </footer>
@@ -20,7 +18,7 @@
     border-top: 1px solid #e5e5ea;
     background: #f9f9fb;
     padding: 20px 40px;
-    margin-top: 0;
+    width: 100%;
   }
   .footer-inner {
     max-width: 900px;
@@ -28,17 +26,8 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    flex-wrap: wrap;
   }
   .footer-brand {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .footer-logo {
-    font-size: 13px;
-  }
-  .footer-name {
     font-size: 12.5px;
     font-weight: 600;
     color: #1d1d1f;
@@ -51,7 +40,6 @@
   .footer-copy {
     font-size: 12px;
     color: #aeaeb2;
-    font-weight: 400;
   }
   .footer-nav {
     display: flex;
@@ -65,15 +53,10 @@
     color: #6e6e73;
     text-decoration: none;
     transition: color 0.14s;
-    letter-spacing: 0.01em;
   }
-  .footer-nav a:hover {
-    color: #0071e3;
-  }
+  .footer-nav a:hover { color: #0071e3; }
 
   @media (max-width: 600px) {
     .site-footer { padding: 18px 20px; }
-    .footer-nav { margin-left: 0; gap: 14px; }
-    .footer-inner { gap: 8px; }
   }
 </style>
