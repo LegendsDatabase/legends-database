@@ -5,7 +5,7 @@ import Footer from '../../../components/Footer.astro';
 
 export async function getStaticPaths() {
   const { data: players } = await supabase.from('players').select('*');
-  const continentSlugs = ['Europe','South-America','Africa','North-America', 'Asia'];
+  const continentSlugs = ['Europe','South-America','Africa','North-America','Asia'];
   return continentSlugs.map(c => ({
     params: { continent: c },
     props: { allPlayers: players ?? [] }
@@ -16,7 +16,7 @@ const { continent } = Astro.params;
 const { allPlayers } = Astro.props;
 
 const CONTINENT_MAP = {'Europe':'Europe','South-America':'South America','North-America':'North America','Africa':'Africa','Asia':'Asia'};
-const CONTINENT_EMOJI = {'Europe':'🌍','South-America':'🌎','North-America':'🌎','Africa':'🌍'};
+const CONTINENT_EMOJI = {'Europe':'🌍','South-America':'🌎','North-America':'🌎','Africa':'🌍','Asia':'🌏'};
 const continentName = CONTINENT_MAP[continent] ?? continent;
 const ALL_CONTINENTS = [
   { label: 'Europe',        slug: 'Europe' },
@@ -25,18 +25,20 @@ const ALL_CONTINENTS = [
   { label: 'North America', slug: 'North-America' },
   { label: 'Asia',          slug: 'Asia' },
 ];
-const displayName   = `All-Time ${continentName}`;
-const emoji         = CONTINENT_EMOJI[continent] ?? '🌐';
+const displayName = `All-Time ${continentName}`;
+const emoji       = CONTINENT_EMOJI[continent] ?? '🌐';
 
 function ovrColor(v){if(v>=95)return'#0071e3';if(v>=90)return'#1a5e1a';if(v>=80)return'#2e8b2e';if(v>=70)return'#6aaa2a';if(v>=60)return'#c8a800';if(v>=50)return'#e07800';if(v>=40)return'#cc4400';return'#c0392b';}
 function skillColor(v){if(v>=95)return'#5aabff';if(v>=90)return'#1a5e1a';if(v>=80)return'#2e8b2e';if(v>=70)return'#6aaa2a';if(v>=60)return'#c8a800';if(v>=40)return'#e07800';return'#c0392b';}
 function avg(vals){const v=vals.filter(x=>x!=null&&!isNaN(Number(x)));return v.length?Math.round(v.reduce((a,b)=>a+Number(b),0)/v.length):0;}
+function avgF(vals){const v=vals.filter(x=>x!=null&&!isNaN(Number(x)));return v.length?Math.round(v.reduce((a,b)=>a+Number(b),0)/v.length*10)/10:0;}
 function sortByOvr(arr){return[...arr].sort((a,b)=>(b.overall_rating??0)-(a.overall_rating??0)||(a.name??'').localeCompare(b.name??''));}
 function pick(pool,n,usedIds){return sortByOvr(pool.filter(p=>!usedIds.has(p.id))).slice(0,n);}
 function pAtt(p){return avg([p.finishing,p.off_the_ball,p.composure,p.anticipation,p.shot_accuracy]);}
 function pPlay(p){return avg([p.short_passing,p.long_passing,p.vision,p.composure]);}
 function pDef(p){return avg([p.marking,p.tackling,p.def_positioning,p.anticipation,p.heading,p.composure]);}
 function pSpd(p){return avg([p.pace,p.acceleration]);}
+function topNation(arr){const c={};arr.forEach(p=>{if(p.nation)c[p.nation]=(c[p.nation]||0)+1;});return Object.entries(c).sort((a,b)=>b[1]-a[1])[0]?.[0]??'—';}
 
 const teamPlayers = allPlayers.filter(p=>(p['Continent']??'').trim()===continentName);
 const used = new Set();
@@ -83,6 +85,36 @@ const rosterData = roster.map(p=>({
   section:gkR.some(g=>g.id===p.id)?'GK':defR.some(d=>d.id===p.id)?'DEF':midR.some(m=>m.id===p.id)?'MID':'ATT',
   ovr:p.overall_rating??0, def:pDef(p), play:pPlay(p), att:pAtt(p),
 }));
+
+// ─── CONTINENT CLASH DATA ─────────────────────────────────────────────────
+function buildContinentStats(name: string) {
+  const pool = allPlayers.filter(p=>(p['Continent']??'').trim()===name&&p.overall_rating!=null);
+  if(!pool.length) return null;
+  const best = sortByOvr(pool)[0];
+  return {
+    name,
+    total: pool.length,
+    avgOvr: avgF(pool.map(p=>p.overall_rating)),
+    peakOvr: pool[0]?.overall_rating??0,
+    avgSpd: avgF(pool.map(p=>avg([p.pace,p.acceleration]))),
+    avgStr: avgF(pool.map(p=>p.strength).filter(Boolean)),
+    avgTch: avgF(pool.map(p=>p['first-touch']).filter(Boolean)),
+    avgPas: avgF(pool.map(p=>avg([p.short_passing,p.long_passing]))),
+    avgFin: avgF(pool.map(p=>p.finishing).filter(Boolean)),
+    avgCom: avgF(pool.map(p=>p.composure).filter(Boolean)),
+    avgVis: avgF(pool.map(p=>p.vision).filter(Boolean)),
+    avgDef: avgF(pool.map(p=>avg([p.marking,p.tackling,p.def_positioning]))),
+    avgSta: avgF(pool.map(p=>p.stamina).filter(Boolean)),
+    topNation: topNation(pool),
+    bestName: best?.name??'—',
+    bestSlug: best?.slug??'',
+    bestOvr: best?.overall_rating??0,
+  };
+}
+
+const VALID_CONTINENTS = ['Europe','South America','Africa','North America','Asia'];
+const allContinentStats = VALID_CONTINENTS.map(n=>buildContinentStats(n)).filter(Boolean);
+const currentStats = buildContinentStats(continentName);
 ---
 
 <html>
@@ -93,7 +125,7 @@ const rosterData = roster.map(p=>({
   <style is:global>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     body{font-family:-apple-system,'SF Pro Text','Inter',sans-serif;background:#f2f2f7;color:#1d1d1f;padding-top:44px;font-size:13px;-webkit-font-smoothing:antialiased;}
-    .page{max-width:900px;margin:0 auto;padding:40px 40px 80px;}
+    .page{max-width:900px;margin:0 auto;padding:40px 40px 80px;min-height:calc(100vh - 61px);}
     .back{display:inline-flex;align-items:center;gap:4px;font-size:13px;color:#6e6e73;text-decoration:none;margin-bottom:28px;transition:color 0.15s;}
     .back:hover{color:#0071e3;}
     .card{background:#ffffff;border-radius:16px;padding:24px 28px;box-shadow:0 1px 3px rgba(0,0,0,0.07),0 4px 16px rgba(0,0,0,0.04);margin-bottom:16px;}
@@ -159,22 +191,72 @@ const rosterData = roster.map(p=>({
     .height-val{font-size:20px;font-weight:600;color:#1d1d1f;letter-spacing:-0.3px;}
     .height-label{font-size:10px;font-weight:600;color:#aeaeb2;letter-spacing:0.05em;text-transform:uppercase;}
     .height-item.total .height-val,.height-item.total .height-label{color:#0071e3;}
-.continent-nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;}
-.continent-nav-btn{display:inline-flex;align-items:center;text-decoration:none;font-size:12px;font-weight:600;padding:6px 14px;border-radius:20px;border:1.5px solid #e5e5ea;color:#6e6e73;background:#ffffff;transition:all 0.12s;letter-spacing:0.02em;white-space:nowrap;}
-.continent-nav-btn:hover{border-color:#0071e3;color:#0071e3;}
-.continent-nav-btn.active{background:#0071e3;border-color:#0071e3;color:#ffffff;}
-    @media(max-width:640px){.page{padding:24px 20px 60px;}.hero{flex-direction:column;align-items:flex-start;gap:16px;}.highlights-grid{grid-template-columns:repeat(2,1fr);}.records-grid{grid-template-columns:1fr;}.height-grid{grid-template-columns:repeat(3,1fr);}.lineup-pitch{height:380px;}.token-circle{width:28px;height:28px;}.token-init{font-size:8.5px;}.token-name{font-size:8px;max-width:60px;}.token-ovr{font-size:7px;}}
+    .continent-nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;}
+    .continent-nav-btn{display:inline-flex;align-items:center;text-decoration:none;font-size:12px;font-weight:600;padding:6px 14px;border-radius:20px;border:1.5px solid #e5e5ea;color:#6e6e73;background:#ffffff;transition:all 0.12s;letter-spacing:0.02em;white-space:nowrap;}
+    .continent-nav-btn:hover{border-color:#0071e3;color:#0071e3;}
+    .continent-nav-btn.active{background:#0071e3;border-color:#0071e3;color:#ffffff;}
+
+    /* ─── CONTINENT CLASH ─── */
+    .clash-section{margin-top:8px;}
+    .clash-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+    .clash-title-block{display:flex;align-items:center;gap:10px;}
+    .clash-title{font-size:18px;font-weight:700;letter-spacing:-0.3px;color:#1d1d1f;}
+    .clash-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px;background:#fff0ee;color:#c0392b;letter-spacing:0.04em;text-transform:uppercase;}
+    .clash-deck-select{display:flex;gap:6px;flex-wrap:wrap;}
+    .clash-chip{font-family:inherit;font-size:11.5px;font-weight:600;padding:5px 13px;border:1.5px solid #e5e5ea;border-radius:16px;background:#ffffff;color:#6e6e73;cursor:pointer;transition:all 0.14s;white-space:nowrap;}
+    .clash-chip:hover{border-color:#c0392b;color:#c0392b;}
+    .clash-chip.selected{background:#c0392b;border-color:#c0392b;color:#ffffff;}
+    .clash-vs-banner{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;margin-bottom:24px;padding:20px 24px;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.15);}
+    .clash-vs-side{display:flex;flex-direction:column;align-items:center;gap:6px;}
+    .clash-vs-name{font-size:22px;font-weight:800;letter-spacing:-0.5px;line-height:1;}
+    .clash-vs-emoji{font-size:26px;line-height:1;}
+    .clash-vs-label{font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;opacity:0.45;color:#fff;}
+    .clash-vs-sub{font-size:13px;font-weight:700;opacity:0.6;color:#fff;}
+    .clash-vs-mid{display:flex;flex-direction:column;align-items:center;gap:4px;}
+    .clash-vs-text{font-size:22px;font-weight:900;color:rgba(255,255,255,0.25);letter-spacing:0.05em;}
+    .clash-score{display:flex;gap:8px;align-items:center;}
+    .clash-score-num{font-size:28px;font-weight:800;letter-spacing:-0.5px;font-variant-numeric:tabular-nums;}
+    .clash-score-sep{font-size:16px;color:rgba(255,255,255,0.3);}
+    .clash-metrics{display:flex;flex-direction:column;gap:10px;}
+    .clash-metric{display:grid;grid-template-columns:1fr 60px 1fr;align-items:center;gap:8px;}
+    .clash-metric-label{font-size:10px;font-weight:700;color:#6e6e73;letter-spacing:0.05em;text-transform:uppercase;text-align:center;grid-column:2;}
+    .clash-bar-left{display:flex;align-items:center;justify-content:flex-end;gap:8px;}
+    .clash-bar-right{display:flex;align-items:center;justify-content:flex-start;gap:8px;}
+    .clash-val{font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;min-width:30px;}
+    .clash-val-left{text-align:right;}
+    .clash-val-right{text-align:left;}
+    .clash-track{flex:1;height:7px;background:#f0f0f5;border-radius:4px;overflow:hidden;position:relative;}
+    .clash-fill{height:100%;border-radius:4px;transition:width 0.6s cubic-bezier(0.34,1.2,0.64,1);}
+    .clash-fill-left{float:right;}
+    .clash-win{font-weight:800;}
+    .clash-empty{text-align:center;padding:40px;color:#aeaeb2;font-size:14px;}
+
+    @media(max-width:640px){
+      .page{padding:24px 20px 60px;}
+      .hero{flex-direction:column;align-items:flex-start;gap:16px;}
+      .highlights-grid{grid-template-columns:repeat(2,1fr);}
+      .records-grid{grid-template-columns:1fr;}
+      .height-grid{grid-template-columns:repeat(3,1fr);}
+      .lineup-pitch{height:380px;}
+      .token-circle{width:28px;height:28px;}
+      .token-init{font-size:8.5px;}
+      .token-name{font-size:8px;max-width:60px;}
+      .token-ovr{font-size:7px;}
+      .clash-vs-banner{gap:8px;padding:14px 12px;}
+      .clash-vs-name{font-size:16px;}
+      .clash-metric{grid-template-columns:1fr 50px 1fr;}
+    }
   </style>
 </head>
 <body>
   <Navbar/>
   <div class="page">
     <a href="/best" class="back">← The Best</a>
-<div class="continent-nav">
-  {ALL_CONTINENTS.map(c => (
-    <a href={'/best/continent/' + c.slug} class={c.slug === continent ? 'continent-nav-btn active' : 'continent-nav-btn'}>{c.label}</a>
-  ))}
-</div>
+    <div class="continent-nav">
+      {ALL_CONTINENTS.map(c => (
+        <a href={'/best/continent/' + c.slug} class={c.slug === continent ? 'continent-nav-btn active' : 'continent-nav-btn'}>{c.label}</a>
+      ))}
+    </div>
 
     <div class="hero">
       <div class="continent-badge"><div class="continent-badge-emoji">{emoji}</div></div>
@@ -273,9 +355,31 @@ const rosterData = roster.map(p=>({
         </div>
       </div>
     </>}
+
+    <!-- ─── CONTINENT CLASH ─── -->
+    <div class="card clash-section">
+      <div class="clash-header">
+        <div class="clash-title-block">
+          <span class="clash-title">Continent Clash</span>
+          <span class="clash-badge">⚡ New</span>
+        </div>
+        <div class="clash-deck-select" id="clashChips">
+          {ALL_CONTINENTS.filter(c=>c.slug!==continent).map(c=>(
+            <button class="clash-chip" data-continent={CONTINENT_MAP[c.slug]??c.slug} data-emoji={CONTINENT_EMOJI[c.slug]??'🌐'}>{c.label}</button>
+          ))}
+        </div>
+      </div>
+      <div id="clashEmpty" class="clash-empty">Select a continent above to start the clash</div>
+      <div id="clashContent" style="display:none;">
+        <div class="clash-vs-banner" id="clashBanner"></div>
+        <div class="clash-metrics" id="clashMetrics"></div>
+      </div>
+    </div>
+
   </div>
 
-<script define:vars={{ rosterData }}>
+<script define:vars={{ rosterData, allContinentStats, currentStats, continentName, CONTINENT_EMOJI }}>
+
 function ovrColor(v){if(v>=95)return'#0071e3';if(v>=90)return'#1a5e1a';if(v>=80)return'#2e8b2e';if(v>=70)return'#6aaa2a';if(v>=60)return'#c8a800';if(v>=50)return'#e07800';if(v>=40)return'#cc4400';return'#c0392b';}
 function skillColor(v){if(v>=95)return'#5aabff';if(v>=90)return'#1a5e1a';if(v>=80)return'#2e8b2e';if(v>=70)return'#6aaa2a';if(v>=60)return'#c8a800';if(v>=40)return'#e07800';return'#c0392b';}
 function roleCls(r){if(r==='GK')return'role-gk';if(['CB','SW','RB','LB'].includes(r))return'role-def';if(['DM','CM','AM','RM','LM'].includes(r))return'role-mid';return'role-att';}
@@ -283,6 +387,31 @@ const ROLE_BG={GK:'rgba(160,90,0,0.92)',DEF:'rgba(22,110,22,0.92)',MID:'rgba(0,9
 function getRoleGroup(r){if(r==='GK')return'GK';if(['CB','SW','RB','LB'].includes(r))return'DEF';if(['DM','CM','AM','RM','LM'].includes(r))return'MID';return'ATT';}
 function getSurname(n){if(!n)return'?';const c=n.indexOf(',');return c>-1?n.substring(0,c).trim():n.trim();}
 function getInitials(n){return getSurname(n).slice(0,2).toUpperCase();}
+
+const CONTINENT_COLORS = {
+  'Europe':'#0071e3','South America':'#30d158',
+  'Africa':'#ff9f0a','North America':'#ff6b35','Asia':'#bf5af2'
+};
+const CONTINENT_EMOJIS = {
+  'Europe':'🌍','South America':'🌎','Africa':'🌍','North America':'🌎','Asia':'🌏'
+};
+
+const METRICS = [
+  {key:'avgOvr', label:'Avg OVR'},
+  {key:'avgSpd', label:'Speed'},
+  {key:'avgStr', label:'Strength'},
+  {key:'avgTch', label:'First Touch'},
+  {key:'avgPas', label:'Passing'},
+  {key:'avgFin', label:'Finishing'},
+  {key:'avgCom', label:'Composure'},
+  {key:'avgVis', label:'Vision'},
+  {key:'avgDef', label:'Defending'},
+  {key:'avgSta', label:'Stamina'},
+];
+
+const statsMap = {};
+allContinentStats.forEach(s => { statsMap[s.name] = s; });
+
 const FORMATIONS={
   '4-3-3':{slots:[{x:50,y:88,roles:['GK']},{x:14,y:74,roles:['LB']},{x:36,y:74,roles:['CB']},{x:64,y:74,roles:['CB','SW'],sw:true},{x:86,y:74,roles:['RB']},{x:28,y:52,roles:['CM','AM']},{x:50,y:55,roles:['DM','CM']},{x:72,y:52,roles:['CM']},{x:16,y:22,roles:['LW','FW']},{x:50,y:18,roles:['ST','FW']},{x:84,y:22,roles:['RW']}]},
   '4-4-2':{slots:[{x:50,y:88,roles:['GK']},{x:14,y:74,roles:['LB']},{x:36,y:74,roles:['CB']},{x:64,y:74,roles:['CB','SW'],sw:true},{x:86,y:74,roles:['RB']},{x:10,y:50,roles:['LM','LW']},{x:34,y:50,roles:['CM','DM']},{x:66,y:50,roles:['CM','DM']},{x:90,y:50,roles:['RM','RW']},{x:35,y:20,roles:['ST','FW']},{x:65,y:20,roles:['ST']}]},
@@ -297,49 +426,163 @@ const FORMATIONS={
   '5-3-2':{slots:[{x:50,y:88,roles:['GK']},{x:8,y:74,roles:['LB']},{x:26,y:74,roles:['CB']},{x:50,y:76,roles:['SW','CB'],sw:true},{x:74,y:74,roles:['CB']},{x:92,y:74,roles:['RB']},{x:50,y:58,roles:['DM']},{x:28,y:52,roles:['CM']},{x:72,y:52,roles:['CM','AM']},{x:34,y:20,roles:['FW','ST']},{x:66,y:20,roles:['FW','ST']}]},
   '5-4-1':{slots:[{x:50,y:88,roles:['GK']},{x:8,y:74,roles:['LB']},{x:26,y:74,roles:['CB']},{x:50,y:76,roles:['SW','CB'],sw:true},{x:74,y:74,roles:['CB']},{x:92,y:74,roles:['RB']},{x:10,y:50,roles:['LM','LW']},{x:34,y:53,roles:['CM','DM']},{x:66,y:53,roles:['CM','DM']},{x:90,y:50,roles:['RM','RW']},{x:50,y:18,roles:['ST','FW']}]},
 };
+
 function buildLineup(slots, roster) {
   const used = new Set();
   const result = new Array(slots.length).fill(null);
   const order = slots.map((s,i) => [i,s]).sort((a,b) => a[1].roles.length - b[1].roles.length);
-
   for (const [idx, slot] of order) {
-    let best = null;
-    let bestOvr = -1;
-    let bestIsPrimary = false;
-
+    let best = null, bestOvr = -1, bestIsPrimary = false;
     for (const p of roster) {
       if (used.has(p.slug)) continue;
       if (p.role === 'SW' && !slot.sw) continue;
       const acceptable = slot.sw ? slot.roles : slot.roles.filter(r => r !== 'SW');
       const altList = (p.alt_roles || '').split(',').map(r => r.trim()).filter(Boolean);
       const allRoles = [p.role, ...altList];
-
       if (allRoles.some(r => acceptable.includes(r))) {
         const isPrimary = acceptable.includes(p.role);
-        if (
-          (!bestIsPrimary && isPrimary) ||
-          (isPrimary === bestIsPrimary && p.ovr > bestOvr)
-        ) {
-          best = p;
-          bestOvr = p.ovr;
-          bestIsPrimary = isPrimary;
+        if ((!bestIsPrimary && isPrimary)||(isPrimary===bestIsPrimary && p.ovr > bestOvr)) {
+          best = p; bestOvr = p.ovr; bestIsPrimary = isPrimary;
         }
       }
     }
-
     if (best) { used.add(best.slug); result[idx] = best; }
   }
   return result;
 }
-function renderLineup(formKey){const pitch=document.getElementById('lineupPitch');const formation=FORMATIONS[formKey];if(!pitch||!formation)return;const assignment=buildLineup(formation.slots,rosterData);pitch.querySelectorAll('.player-token').forEach(el=>el.remove());formation.slots.forEach((slot,i)=>{const player=assignment[i];const token=document.createElement('div');token.className='player-token';token.style.left=slot.x+'%';token.style.top=slot.y+'%';if(player){const bg=ROLE_BG[getRoleGroup(player.role)];token.innerHTML=`<a href="/player/${player.slug}" class="token-link" title="${player.name} · ${player.ovr}"><div class="token-circle" style="background:${bg};"><span class="token-init">${getInitials(player.name)}</span></div><div class="token-name">${getSurname(player.name)}</div><div class="token-ovr">${player.ovr}</div></a>`;}else{token.innerHTML=`<div class="token-link"><div class="token-circle token-empty-circle"><span class="token-init" style="color:rgba(255,255,255,0.35);">—</span></div><div class="token-name" style="color:rgba(255,255,255,0.3);">${slot.roles[0]}</div></div>`;}pitch.appendChild(token);});}
+
+function renderLineup(formKey){
+  const pitch=document.getElementById('lineupPitch');
+  const formation=FORMATIONS[formKey];
+  if(!pitch||!formation)return;
+  const assignment=buildLineup(formation.slots,rosterData);
+  pitch.querySelectorAll('.player-token').forEach(el=>el.remove());
+  formation.slots.forEach((slot,i)=>{
+    const player=assignment[i];
+    const token=document.createElement('div');
+    token.className='player-token';
+    token.style.left=slot.x+'%';token.style.top=slot.y+'%';
+    if(player){
+      const bg=ROLE_BG[getRoleGroup(player.role)];
+      token.innerHTML=`<a href="/player/${player.slug}" class="token-link" title="${player.name}"><div class="token-circle" style="background:${bg};"><span class="token-init">${getInitials(player.name)}</span></div><div class="token-name">${getSurname(player.name)}</div><div class="token-ovr">${player.ovr}</div></a>`;
+    } else {
+      token.innerHTML=`<div class="token-link"><div class="token-circle token-empty-circle"><span class="token-init" style="color:rgba(255,255,255,0.35);">—</span></div><div class="token-name" style="color:rgba(255,255,255,0.3);">${slot.roles[0]}</div></div>`;
+    }
+    pitch.appendChild(token);
+  });
+}
+
 let currentSort={col:null,dir:1};
-function renderRoster(data){const tbody=document.getElementById('rosterBody');if(!tbody)return;tbody.innerHTML='';if(currentSort.col){[...data].sort((a,b)=>{let va=a[currentSort.col],vb=b[currentSort.col];if(typeof va==='string')return va.localeCompare(vb)*currentSort.dir;return(vb-va)*currentSort.dir;}).forEach(p=>tbody.appendChild(makeRow(p)));}else{['GK','DEF','MID','ATT'].forEach(sec=>{const group=data.filter(p=>p.section===sec);if(!group.length)return;const labels={GK:'Goalkeepers',DEF:'Defenders',MID:'Midfielders',ATT:'Attackers'};const hr=document.createElement('tr');hr.className='section-row';hr.innerHTML=`<td colspan="6">${labels[sec]}</td>`;tbody.appendChild(hr);group.forEach(p=>tbody.appendChild(makeRow(p)));});}}
-function makeRow(p){const tr=document.createElement('tr');tr.className='player-row';const isGK=p.role==='GK';tr.innerHTML=`<td><a href="/player/${p.slug}" class="player-link">${p.name}</a></td><td><span class="role-badge ${roleCls(p.role)}">${p.role}</span></td><td class="col-ovr" style="color:${ovrColor(p.ovr)}">${p.ovr}</td><td class="col-stat${isGK?' muted':''}" style="${isGK?'':` color:${skillColor(p.def)}`}">${isGK?'—':p.def}</td><td class="col-stat${isGK?' muted':''}" style="${isGK?'':` color:${skillColor(p.play)}`}">${isGK?'—':p.play}</td><td class="col-stat${isGK?' muted':''}" style="${isGK?'':` color:${skillColor(p.att)}`}">${isGK?'—':p.att}</td>`;return tr;}
+function renderRoster(data){
+  const tbody=document.getElementById('rosterBody');if(!tbody)return;tbody.innerHTML='';
+  if(currentSort.col){[...data].sort((a,b)=>{let va=a[currentSort.col],vb=b[currentSort.col];if(typeof va==='string')return va.localeCompare(vb)*currentSort.dir;return(vb-va)*currentSort.dir;}).forEach(p=>tbody.appendChild(makeRow(p)));}
+  else{['GK','DEF','MID','ATT'].forEach(sec=>{const group=data.filter(p=>p.section===sec);if(!group.length)return;const labels={GK:'Goalkeepers',DEF:'Defenders',MID:'Midfielders',ATT:'Attackers'};const hr=document.createElement('tr');hr.className='section-row';hr.innerHTML=`<td colspan="6">${labels[sec]}</td>`;tbody.appendChild(hr);group.forEach(p=>tbody.appendChild(makeRow(p)));});}
+}
+function makeRow(p){
+  const tr=document.createElement('tr');tr.className='player-row';const isGK=p.role==='GK';
+  tr.innerHTML=`<td><a href="/player/${p.slug}" class="player-link">${p.name}</a></td><td><span class="role-badge ${roleCls(p.role)}">${p.role}</span></td><td class="col-ovr" style="color:${ovrColor(p.ovr)}">${p.ovr}</td><td class="col-stat${isGK?' muted':''}" style="${isGK?'':` color:${skillColor(p.def)}`}">${isGK?'—':p.def}</td><td class="col-stat${isGK?' muted':''}" style="${isGK?'':` color:${skillColor(p.play)}`}">${isGK?'—':p.play}</td><td class="col-stat${isGK?' muted':''}" style="${isGK?'':` color:${skillColor(p.att)}`}">${isGK?'—':p.att}</td>`;
+  return tr;
+}
 document.querySelectorAll('#rosterTable thead th').forEach(th=>{th.addEventListener('click',()=>{const col=th.getAttribute('data-col');if(!col)return;if(currentSort.col===col){currentSort.dir===1?currentSort.dir=-1:(currentSort={col:null,dir:1});}else{currentSort={col,dir:1};}document.querySelectorAll('#rosterTable thead th').forEach(h=>{const c=h.getAttribute('data-col');const s=h.querySelector('span');h.classList.remove('sorted');if(s)s.textContent='';if(c===currentSort.col){h.classList.add('sorted');if(s)s.textContent=currentSort.dir===1?' ↑':' ↓';}});renderRoster(rosterData);});});
 document.querySelectorAll('.form-btn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.form-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderLineup(btn.getAttribute('data-form'));});});
 renderRoster(rosterData);
 if(document.getElementById('lineupPitch'))renderLineup('4-3-3');
+
+// ─── CONTINENT CLASH ─────────────────────────────────────────────────────
+document.getElementById('clashChips').addEventListener('click', e => {
+  const btn = e.target.closest('.clash-chip');
+  if (!btn) return;
+  document.querySelectorAll('.clash-chip').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  renderClash(btn.getAttribute('data-continent'));
+});
+
+function renderClash(rivalName) {
+  const A = currentStats;
+  const B = statsMap[rivalName];
+  if (!A || !B) return;
+
+  document.getElementById('clashEmpty').style.display = 'none';
+  document.getElementById('clashContent').style.display = 'block';
+
+  const colorA = CONTINENT_COLORS[A.name] || '#0071e3';
+  const colorB = CONTINENT_COLORS[B.name] || '#c0392b';
+  const emojiA = CONTINENT_EMOJIS[A.name] || '🌐';
+  const emojiB = CONTINENT_EMOJIS[B.name] || '🌐';
+
+  let winsA = 0, winsB = 0;
+  METRICS.forEach(m => {
+    const va = A[m.key]??0, vb = B[m.key]??0;
+    if (va > vb) winsA++;
+    else if (vb > va) winsB++;
+  });
+  if (A.total > B.total) winsA++;
+  else if (B.total > A.total) winsB++;
+  if (A.peakOvr > B.peakOvr) winsA++;
+  else if (B.peakOvr > A.peakOvr) winsB++;
+
+  const aWinner = winsA > winsB, bWinner = winsB > winsA;
+
+  document.getElementById('clashBanner').innerHTML = `
+    <div class="clash-vs-side">
+      <div class="clash-vs-emoji">${emojiA}</div>
+      <div class="clash-vs-name" style="color:${colorA};">${A.name}</div>
+      <div class="clash-vs-label">This continent</div>
+      <div class="clash-vs-sub">avg ${A.avgOvr} · ${A.total} legends</div>
+    </div>
+    <div class="clash-vs-mid">
+      <div class="clash-vs-text">VS</div>
+      <div class="clash-score">
+        <span class="clash-score-num" style="color:${aWinner?colorA:'rgba(255,255,255,0.4)'};">${winsA}</span>
+        <span class="clash-score-sep">—</span>
+        <span class="clash-score-num" style="color:${bWinner?colorB:'rgba(255,255,255,0.4)'};">${winsB}</span>
+      </div>
+    </div>
+    <div class="clash-vs-side">
+      <div class="clash-vs-emoji">${emojiB}</div>
+      <div class="clash-vs-name" style="color:${colorB};">${B.name}</div>
+      <div class="clash-vs-label">Rival continent</div>
+      <div class="clash-vs-sub">avg ${B.avgOvr} · ${B.total} legends</div>
+    </div>
+  `;
+
+  const metricsEl = document.getElementById('clashMetrics');
+  metricsEl.innerHTML = '';
+  METRICS.forEach(m => {
+    const va = A[m.key]??0, vb = B[m.key]??0;
+    const maxVal = Math.max(va, vb, 1);
+    const pctA = Math.round((va/maxVal)*100);
+    const pctB = Math.round((vb/maxVal)*100);
+    const aWins = va > vb, bWins = vb > va;
+    const row = document.createElement('div');
+    row.className = 'clash-metric';
+    row.innerHTML = `
+      <div class="clash-bar-left">
+        <span class="clash-val clash-val-left${aWins?' clash-win':''}" style="color:${aWins?colorA:'#6e6e73'};">${va}</span>
+        <div class="clash-track">
+          <div class="clash-fill clash-fill-left" style="width:0%;background:${colorA};" data-pct="${pctA}"></div>
+        </div>
+      </div>
+      <span class="clash-metric-label">${m.label}</span>
+      <div class="clash-bar-right">
+        <div class="clash-track">
+          <div class="clash-fill" style="width:0%;background:${colorB};" data-pct="${pctB}"></div>
+        </div>
+        <span class="clash-val clash-val-right${bWins?' clash-win':''}" style="color:${bWins?colorB:'#6e6e73'};">${vb}</span>
+      </div>
+    `;
+    metricsEl.appendChild(row);
+  });
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      metricsEl.querySelectorAll('.clash-fill').forEach(el => {
+        el.style.width = el.getAttribute('data-pct') + '%';
+      });
+    });
+  });
+}
 </script>
-<Footer/>
+  <Footer/>
 </body>
 </html>
