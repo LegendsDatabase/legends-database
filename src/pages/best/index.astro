@@ -17,8 +17,10 @@ const continents = [
   <meta charset="UTF-8" />
   <title>The Best – Legends Database</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <style>
+<style is:global>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body { display: flex; flex-direction: column; min-height: 100vh; }
     body { font-family: -apple-system, 'SF Pro Text', 'Inter', sans-serif; background: #f2f2f7; color: #1d1d1f; padding-top: 44px; -webkit-font-smoothing: antialiased; }
     .page { max-width: 860px; margin: 0 auto; padding: 48px 40px 80px; }
     .page-eyebrow { font-size: 11px; font-weight: 700; color: #0071e3; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }

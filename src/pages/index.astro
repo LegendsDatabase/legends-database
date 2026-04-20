@@ -15,8 +15,10 @@ const recentPlayers = [...(players ?? [])].sort((a, b) => b.id - a.id).slice(0, 
   <meta charset="UTF-8" />
   <title>Legends Database</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <style is:global>
+<style is:global>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body { display: flex; flex-direction: column; min-height: 100vh; }
 
     body {
       font-family: -apple-system, 'SF Pro Text', 'Inter', sans-serif;
