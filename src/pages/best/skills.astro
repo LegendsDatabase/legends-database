@@ -1,6 +1,7 @@
 ---
 import { supabase } from '../../lib/supabase.js';
 import Navbar from '../../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
 
 const { data: players } = await supabase.from('players').select('*');
 const all = players ?? [];
