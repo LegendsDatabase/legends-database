@@ -1,0 +1,270 @@
+---
+import Navbar from '../components/Navbar.astro';
+
+const printedSources = [
+  { name: 'La Gazzetta dello Sport', country: 'Italy', type: 'Daily', note: 'Historical Archive' },
+  { name: 'Corriere dello Sport',    country: 'Italy', type: 'Daily', note: 'Historical Archive' },
+  { name: 'Guerin Sportivo',         country: 'Italy', type: 'Weekly', note: '' },
+  { name: 'Calcio 2000',             country: 'Italy', type: 'Monthly', note: '' },
+  { name: 'SuperGol',                country: 'Italy', type: 'Weekly', note: '' },
+  { name: 'Intrepido',               country: 'Italy', type: 'Weekly', note: '' },
+  { name: 'Hurrà Juventus',          country: 'Italy', type: 'Club Magazine', note: '' },
+  { name: 'Shoot!',                  country: 'England', type: 'Weekly', note: '' },
+  { name: 'Match!',                  country: 'England', type: 'Weekly', note: '' },
+  { name: 'World Soccer',            country: 'England', type: 'Monthly', note: '' },
+  { name: 'FourFourTwo',             country: 'England', type: 'Monthly', note: '' },
+  { name: 'When Saturday Comes',     country: 'England', type: 'Monthly', note: '' },
+  { name: 'El Gráfico',              country: 'Argentina', type: 'Weekly', note: '' },
+  { name: 'Placar',                  country: 'Brazil', type: 'Weekly', note: '' },
+  { name: 'Don Balón',               country: 'Spain', type: 'Weekly', note: '' },
+  { name: 'France Football',         country: 'France', type: 'Weekly', note: '' },
+  { name: 'Kicker',                  country: 'Germany', type: 'Weekly', note: '' },
+];
+
+const digitalSources = [
+  { name: 'Dx84tech.com', icon: '🌐', note: 'Twin site — parallel research & data cross-reference' },
+  { name: 'VHS Recordings', icon: '📼', note: 'Historical matches and highlights (1970s–1990s)' },
+  { name: 'DVD Collections', icon: '💿', note: 'World Cups, club competitions, player retrospectives' },
+  { name: 'Original TV Broadcasts', icon: '📺', note: 'RAI, BBC, and other international networks' },
+  { name: 'YouTube', icon: '▶️', note: 'Archival matches, highlights, restored footage' },
+  { name: 'RSSSF', icon: '📊', note: 'Rec.Sport.Soccer Statistics Foundation' },
+  { name: 'Transfermarkt', icon: '📈', note: 'Career data, transfer history, club statistics' },
+  { name: 'Digital Newspaper Archives', icon: '📰', note: 'Scanned historical publications and press collections' },
+  { name: 'Online Football Databases', icon: '🗄️', note: 'Statistical repositories and historical records' },
+  { name: 'Historical Web Forums', icon: '💬', note: 'Community-driven archives, early 2000s web sources' },
+];
+
+const countryFlags: Record<string, string> = {
+  'Italy': '🇮🇹',
+  'England': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+  'Argentina': '🇦🇷',
+  'Brazil': '🇧🇷',
+  'Spain': '🇪🇸',
+  'France': '🇫🇷',
+  'Germany': '🇩🇪',
+};
+---
+
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <title>Sources – Legends Database</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, 'SF Pro Text', 'Inter', sans-serif;
+      background: #f2f2f7;
+      color: #1d1d1f;
+      padding-top: 44px;
+      -webkit-font-smoothing: antialiased;
+    }
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 48px 40px 80px;
+    }
+
+    /* HEADER */
+    .page-eyebrow {
+      font-size: 11px; font-weight: 700; color: #0071e3;
+      letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px;
+    }
+    .page-title {
+      font-size: 40px; font-weight: 700; letter-spacing: -1px;
+      color: #1d1d1f; margin-bottom: 10px; line-height: 1.1;
+    }
+    .page-sub {
+      font-size: 15px; color: #6e6e73; line-height: 1.6;
+      max-width: 580px; margin-bottom: 48px;
+    }
+
+    /* SECTION HEADER */
+    .section-eyebrow {
+      font-size: 11px; font-weight: 700; color: #aeaeb2;
+      letter-spacing: 0.09em; text-transform: uppercase;
+      margin-bottom: 14px; padding-left: 2px;
+    }
+
+    /* PRINTED SOURCES */
+    .print-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 10px;
+      margin-bottom: 40px;
+    }
+    .print-card {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 16px 18px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 2px 10px rgba(0,0,0,0.03);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: transform 0.15s, box-shadow 0.15s;
+      cursor: default;
+    }
+    .print-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.09);
+    }
+    .print-flag {
+      font-size: 24px;
+      flex-shrink: 0;
+      width: 36px;
+      text-align: center;
+    }
+    .print-body { flex: 1; min-width: 0; }
+    .print-name {
+      font-size: 13px; font-weight: 600; color: #1d1d1f;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      margin-bottom: 3px;
+    }
+    .print-meta {
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    }
+    .print-country {
+      font-size: 10px; font-weight: 600; color: #6e6e73;
+    }
+    .print-dot { font-size: 10px; color: #d1d1d6; }
+    .print-type {
+      font-size: 10px; font-weight: 600;
+      color: #0071e3; background: #eef4ff;
+      padding: 1px 6px; border-radius: 4px;
+      letter-spacing: 0.03em;
+    }
+    .print-note {
+      font-size: 10px; color: #aeaeb2;
+      margin-top: 2px; font-style: italic;
+    }
+
+    /* DIVIDER */
+    .section-divider {
+      height: 1px;
+      background: #e5e5ea;
+      margin: 8px 0 36px;
+    }
+
+    /* DIGITAL SOURCES */
+    .digital-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 48px;
+    }
+    .digital-card {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 16px 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: transform 0.15s, box-shadow 0.15s;
+      cursor: default;
+    }
+    .digital-card:hover {
+      transform: translateX(3px);
+      box-shadow: 0 3px 14px rgba(0,0,0,0.08);
+    }
+    .digital-icon {
+      font-size: 22px;
+      width: 40px;
+      height: 40px;
+      background: #f5f5f7;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .digital-body { flex: 1; }
+    .digital-name {
+      font-size: 14px; font-weight: 600; color: #1d1d1f; margin-bottom: 3px;
+    }
+    .digital-note { font-size: 12px; color: #6e6e73; line-height: 1.4; }
+
+    /* DISCLAIMER */
+    .disclaimer {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 24px 28px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      border-left: 3px solid #0071e3;
+    }
+    .disclaimer-title {
+      font-size: 13px; font-weight: 600; color: #1d1d1f; margin-bottom: 8px;
+    }
+    .disclaimer-text {
+      font-size: 12.5px; color: #6e6e73; line-height: 1.7;
+    }
+
+    @media (max-width: 600px) {
+      .page { padding: 32px 20px 60px; }
+      .page-title { font-size: 30px; }
+      .print-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <Navbar/>
+  <div class="page">
+
+    <div class="page-eyebrow">Legends Database</div>
+    <h1 class="page-title">Sources</h1>
+    <p class="page-sub">
+      Player ratings, statistics and profiles on this database are the result of years of research
+      across printed publications, audiovisual archives, and digital sources.
+      Below is a full account of the references consulted.
+    </p>
+
+    <!-- PRINTED -->
+    <div class="section-eyebrow">📖 Printed Publications</div>
+    <div class="section-divider"></div>
+    <div class="print-grid">
+      {printedSources.map(s => (
+        <div class="print-card">
+          <div class="print-flag">{countryFlags[s.country] ?? '🏳️'}</div>
+          <div class="print-body">
+            <div class="print-name">{s.name}</div>
+            <div class="print-meta">
+              <span class="print-country">{s.country}</span>
+              <span class="print-dot">·</span>
+              <span class="print-type">{s.type}</span>
+            </div>
+            {s.note && <div class="print-note">{s.note}</div>}
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- DIGITAL -->
+    <div class="section-eyebrow">💻 Audiovisual & Digital Sources</div>
+    <div class="section-divider"></div>
+    <div class="digital-list">
+      {digitalSources.map(s => (
+        <div class="digital-card">
+          <div class="digital-icon">{s.icon}</div>
+          <div class="digital-body">
+            <div class="digital-name">{s.name}</div>
+            <div class="digital-note">{s.note}</div>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- DISCLAIMER -->
+    <div class="disclaimer">
+      <div class="disclaimer-title">A note on methodology</div>
+      <div class="disclaimer-text">
+        All ratings on Legends Database are editorial in nature — they represent a synthesis of
+        research, expert opinion, statistical data, and direct observation of archival footage.
+        No single source is treated as definitive. Where sources conflict, multiple references
+        were cross-checked and a consensus position adopted. Ratings reflect peak performance
+        levels during a player's career, not career averages.
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
