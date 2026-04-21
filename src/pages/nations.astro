@@ -6,7 +6,6 @@ import Footer from '../components/Footer.astro';
 const { data: nations }  = await supabase.from('nations').select('*');
 const { data: players }  = await supabase.from('players').select('nation, overall_rating');
 
-// Count legends per nation + avg OVR
 const nationStats: Record<string, { count: number; avgOvr: number }> = {};
 (players ?? []).forEach(p => {
   if (!p.nation || p.overall_rating == null) return;
@@ -56,7 +55,7 @@ const FLAG_SVGS: Record<string,string> = {
   'Finland':        `<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#fff"/><rect x="10" width="4" height="20" fill="#003580"/><rect y="8" width="30" height="4" fill="#003580"/></svg>`,
   'Slovakia':       `<svg viewBox="0 0 30 20"><rect width="30" height="7" fill="#fff"/><rect y="7" width="30" height="6" fill="#0b4ea2"/><rect y="13" width="30" height="7" fill="#ee1c25"/></svg>`,
   'Georgia':        `<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#fff"/><rect x="13" width="4" height="20" fill="#ff0000"/><rect y="8" width="30" height="4" fill="#ff0000"/></svg>`,
-  'Bosnia and Herzegovina':`<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#002395"/><polygon points="8,0 22,0 22,20" fill="#fcd116"/></svg>`,
+  'Bosnia and Herzegovina': `<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#002395"/><polygon points="8,0 22,0 22,20" fill="#fcd116"/></svg>`,
   'Montenegro':     `<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#d4af37"/><rect x="2" y="2" width="26" height="16" fill="#c1272d"/></svg>`,
   'Albania':        `<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#e41e20"/></svg>`,
   'Iceland':        `<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#0048e0"/><rect x="10" width="4" height="20" fill="#fff"/><rect y="8" width="30" height="4" fill="#fff"/><rect x="11" width="2" height="20" fill="#c1272d"/><rect y="9" width="30" height="2" fill="#c1272d"/></svg>`,
@@ -74,14 +73,12 @@ const FLAG_SVGS: Record<string,string> = {
   'Tunisia':        `<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#e70013"/><circle cx="15" cy="10" r="6" fill="#fff"/><circle cx="16" cy="10" r="5" fill="#e70013"/></svg>`,
   'Egypt':          `<svg viewBox="0 0 30 20"><rect width="30" height="7" fill="#ce1126"/><rect y="7" width="30" height="6" fill="#fff"/><rect y="13" width="30" height="7" fill="#000"/></svg>`,
   'Niger':          `<svg viewBox="0 0 30 20"><rect width="30" height="7" fill="#E05206"/><rect y="7" width="30" height="6" fill="#fff"/><rect y="13" width="30" height="7" fill="#009A00"/></svg>`,
-  'Togo':           `<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#006A4E"/><rect y="4" width="30" height="4" fill="#FFCE00"/><rect y="12" width="30" height="4" fill="#FFCE00"/><rect width="12" height="20" fill="#D21034"/><polygon points="6,6 7.5,10 11,10 8.5,12 9.5,16 6,14 2.5,16 3.5,12 1,10 4.5,10" fill="#fff"/></svg>`,
+  'Togo':           `<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#006A4E"/><rect y="4" width="30" height="4" fill="#FFCE00"/><rect y="12" width="30" height="4" fill="#FFCE00"/><rect width="12" height="20" fill="#D21034"/></svg>`,
   'USA':            `<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#bf0a30"/><rect y="2.2" width="30" height="2.2" fill="#fff"/><rect y="6.6" width="30" height="2.2" fill="#fff"/><rect y="11" width="30" height="2.2" fill="#fff"/><rect y="15.4" width="30" height="2.2" fill="#fff"/><rect width="12" height="10" fill="#002868"/></svg>`,
   'Mexico':         `<svg viewBox="0 0 30 20"><rect width="10" height="20" fill="#006847"/><rect x="10" width="10" height="20" fill="#fff"/><rect x="20" width="10" height="20" fill="#ce1126"/></svg>`,
   'Honduras':       `<svg viewBox="0 0 30 20"><rect width="30" height="7" fill="#0073CF"/><rect y="7" width="30" height="6" fill="#fff"/><rect y="13" width="30" height="7" fill="#0073CF"/></svg>`,
   'El Salvador':    `<svg viewBox="0 0 30 20"><rect width="30" height="7" fill="#0F47AF"/><rect y="7" width="30" height="6" fill="#fff"/><rect y="13" width="30" height="7" fill="#0F47AF"/></svg>`,
   'Australia':      `<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#00008B"/><rect width="15" height="10" fill="#012169"/><line x1="0" y1="0" x2="15" y2="10" stroke="#fff" stroke-width="2.5"/><line x1="15" y1="0" x2="0" y2="10" stroke="#fff" stroke-width="2.5"/><line x1="0" y1="0" x2="15" y2="10" stroke="#cf142b" stroke-width="1.2"/><line x1="15" y1="0" x2="0" y2="10" stroke="#cf142b" stroke-width="1.2"/></svg>`,
-  'Japan':          `<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#fff"/><circle cx="15" cy="10" r="6" fill="#bc002d"/></svg>`,
-  'South Korea':    `<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#fff"/><circle cx="15" cy="10" r="5" fill="#cd2e3a" fill-opacity="0.85"/></svg>`,
   'Iran':           `<svg viewBox="0 0 30 20"><rect width="30" height="7" fill="#239f40"/><rect y="7" width="30" height="6" fill="#fff"/><rect y="13" width="30" height="7" fill="#da0000"/></svg>`,
   'Chile':          `<svg viewBox="0 0 30 20"><rect width="30" height="10" fill="#fff"/><rect y="10" width="30" height="10" fill="#d52b1e"/><rect width="12" height="10" fill="#002868"/></svg>`,
   'Peru':           `<svg viewBox="0 0 30 20"><rect width="10" height="20" fill="#d91023"/><rect x="10" width="10" height="20" fill="#fff"/><rect x="20" width="10" height="20" fill="#d91023"/></svg>`,
@@ -89,13 +86,13 @@ const FLAG_SVGS: Record<string,string> = {
 };
 
 const tableData = (nations ?? []).map(n => {
-  const slug = n.name.toLowerCase().replace(/\s+/g,'-');
+  const slug  = n.name.toLowerCase().replace(/\s+/g, '-');
   const stats = nationStats[n.name] ?? { count: 0, avgOvr: 0 };
   const flag  = FLAG_SVGS[n.name] ?? `<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#e5e5ea"/></svg>`;
   return { ...n, slug, legendCount: stats.count, avgOvr: stats.avgOvr, flag };
-}).sort((a,b) => b.legendCount - a.legendCount);
+}).sort((a, b) => b.legendCount - a.legendCount);
 
-const continents = [...new Set((nations ?? []).map(n=>n.continent).filter(Boolean))].sort();
+const continents = [...new Set((nations ?? []).map(n => n.continent).filter(Boolean))].sort();
 ---
 
 <html>
@@ -104,81 +101,89 @@ const continents = [...new Set((nations ?? []).map(n=>n.continent).filter(Boolea
   <title>Nations – Legends Database</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style is:global>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-    body{font-family:-apple-system,'SF Pro Text','Inter',sans-serif;background:#f2f2f7;color:#1d1d1f;padding-top:44px;font-size:13px;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;min-height:100vh;}
-
-    .page{max-width:1040px;margin:0 auto;padding:48px 40px 80px;flex:1;width:100%;}
-
-    .page-eyebrow{font-size:11px;font-weight:700;color:#0071e3;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;}
-    .page-title{font-size:36px;font-weight:700;letter-spacing:-1px;color:#1d1d1f;margin-bottom:8px;line-height:1.1;}
-    .page-sub{font-size:14px;color:#6e6e73;margin-bottom:32px;line-height:1.5;}
+    *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system,'SF Pro Text','Inter',sans-serif;
+      background: #f2f2f7; color: #1d1d1f; padding-top: 44px;
+      font-size: 13px; -webkit-font-smoothing: antialiased;
+      display: flex; flex-direction: column; min-height: 100vh;
+    }
+    .page {
+      max-width: 1040px; margin: 0 auto;
+      padding: 48px 40px 80px; flex: 1; width: 100%;
+    }
+    .page-eyebrow { font-size: 11px; font-weight: 700; color: #0071e3; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+    .page-title   { font-size: 36px; font-weight: 700; letter-spacing: -1px; color: #1d1d1f; margin-bottom: 8px; line-height: 1.1; }
+    .page-sub     { font-size: 14px; color: #6e6e73; margin-bottom: 32px; line-height: 1.5; }
 
     /* CONTROLS */
-    .controls{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
-    .search-wrap{position:relative;flex:1;min-width:200px;}
-    .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;color:#aeaeb2;pointer-events:none;}
-    .search-input{width:100%;font-family:inherit;font-size:13px;padding:9px 14px 9px 34px;border:1.5px solid #e5e5ea;border-radius:12px;background:#fff;color:#1d1d1f;outline:none;transition:border-color 0.15s;}
-    .search-input:focus{border-color:#0071e3;box-shadow:0 0 0 3px rgba(0,113,227,0.1);}
-    .filter-select{font-family:inherit;font-size:12px;font-weight:600;padding:8px 14px;border:1.5px solid #e5e5ea;border-radius:12px;background:#fff;color:#6e6e73;cursor:pointer;outline:none;transition:border-color 0.15s;}
-    .filter-select:focus{border-color:#0071e3;}
-    .meta-count{font-size:12px;color:#aeaeb2;white-space:nowrap;}
+    .controls       { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+    .search-wrap    { position: relative; flex: 1; min-width: 200px; }
+    .search-icon    { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 14px; color: #aeaeb2; pointer-events: none; }
+    .search-input   { width: 100%; font-family: inherit; font-size: 13px; padding: 9px 14px 9px 34px; border: 1.5px solid #e5e5ea; border-radius: 12px; background: #fff; color: #1d1d1f; outline: none; transition: border-color 0.15s; }
+    .search-input:focus { border-color: #0071e3; box-shadow: 0 0 0 3px rgba(0,113,227,0.1); }
+    .filter-select  { font-family: inherit; font-size: 12px; font-weight: 600; padding: 8px 14px; border: 1.5px solid #e5e5ea; border-radius: 12px; background: #fff; color: #6e6e73; cursor: pointer; outline: none; transition: border-color 0.15s; }
+    .filter-select:focus { border-color: #0071e3; }
+    .meta-count     { font-size: 12px; color: #aeaeb2; white-space: nowrap; }
 
-    /* TABLE WRAP */
-    .table-wrap{border-radius:16px;overflow-x:auto;box-shadow:0 1px 3px rgba(0,0,0,0.07),0 4px 20px rgba(0,0,0,0.05);background:#fff;}
-table{width:100%;min-width:860px;border-collapse:collapse;font-size:12.5px;}
-
-    table{width:100%;border-collapse:collapse;font-size:12.5px;}
-    thead tr{border-bottom:1.5px solid #e5e5ea;}
-    thead th{
-      padding:11px 14px;text-align:left;font-size:10.5px;font-weight:700;
-      color:#6e6e73;letter-spacing:0.05em;text-transform:uppercase;
-      white-space:nowrap;cursor:pointer;user-select:none;
-      background:rgba(249,249,251,0.9);
-      transition:color 0.12s,background 0.12s;
-      border-right:1px solid #f0f0f5;
+    /* TABLE — unica regola, con min-width */
+    .table-wrap {
+      border-radius: 16px;
+      overflow-x: auto;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 20px rgba(0,0,0,0.05);
+      background: #fff;
     }
-    thead th:last-child{border-right:none;}
-    thead th:hover{color:#1d1d1f;background:rgba(240,240,245,0.9);}
-    thead th.sorted{color:#0071e3;}
-    thead th.num-col{text-align:right;}
+    table {
+      width: 100%;
+      min-width: 900px;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+    thead tr   { border-bottom: 1.5px solid #e5e5ea; }
+    thead th   {
+      padding: 11px 14px; text-align: left; font-size: 10.5px; font-weight: 700;
+      color: #6e6e73; letter-spacing: 0.05em; text-transform: uppercase;
+      white-space: nowrap; cursor: pointer; user-select: none;
+      background: rgba(249,249,251,0.9);
+      transition: color 0.12s, background 0.12s;
+      border-right: 1px solid #f0f0f5;
+    }
+    thead th:last-child  { border-right: none; }
+    thead th:hover       { color: #1d1d1f; background: rgba(240,240,245,0.9); }
+    thead th.sorted      { color: #0071e3; }
+    thead th.num-col     { text-align: right; }
+    tbody tr             { border-bottom: 1px solid #f2f2f7; cursor: pointer; transition: background 0.1s; }
+    tbody tr:last-child  { border-bottom: none; }
+    tbody tr:hover td    { background: #f7f7f9; }
+    tbody td             { padding: 11px 14px; vertical-align: middle; border-right: 1px solid #f5f5f7; color: #1d1d1f; }
+    tbody td:last-child  { border-right: none; }
 
-    tbody tr{border-bottom:1px solid #f2f2f7;cursor:pointer;transition:background 0.1s;}
-    tbody tr:last-child{border-bottom:none;}
-    tbody tr:hover td{background:#f7f7f9;}
-    tbody td{padding:11px 14px;vertical-align:middle;border-right:1px solid #f5f5f7;color:#1d1d1f;}
-    tbody td:last-child{border-right:none;}
-    tbody tr:hover td:first-child{background:#f7f7f9;}
+    .nation-cell  { display: flex; align-items: center; gap: 10px; }
+    .flag-sm      { width: 28px; height: 19px; border-radius: 3px; overflow: hidden; flex-shrink: 0; box-shadow: 0 1px 4px rgba(0,0,0,0.14); }
+    .flag-sm svg  { width: 100%; height: 100%; }
+    .nation-name  { font-weight: 600; color: #1d1d1f; transition: color 0.12s; }
+    tbody tr:hover .nation-name { color: #0071e3; }
 
-    /* NATION CELL */
-    .nation-cell{display:flex;align-items:center;gap:10px;}
-    .flag-sm{width:28px;height:19px;border-radius:3px;overflow:hidden;flex-shrink:0;box-shadow:0 1px 4px rgba(0,0,0,0.14);}
-    .flag-sm svg{width:100%;height:100%;}
-    .nation-name{font-weight:600;color:#1d1d1f;transition:color 0.12s;}
-    tbody tr:hover .nation-name{color:#0071e3;}
+    .conf-badge    { font-size: 9.5px; font-weight: 700; padding: 2px 7px; border-radius: 5px; letter-spacing: 0.04em; white-space: nowrap; }
+    .conf-UEFA     { background: #eef4ff; color: #0071e3; }
+    .conf-CONMEBOL { background: #efffee; color: #1a7a1a; }
+    .conf-CAF      { background: #fff4ee; color: #b07800; }
+    .conf-AFC      { background: #f3eeff; color: #7a3fc0; }
+    .conf-CONCACAF { background: #fff0ee; color: #c0392b; }
+    .conf-other    { background: #f5f5f7; color: #6e6e73; }
 
-    /* BADGES */
-    .conf-badge{font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:5px;letter-spacing:0.04em;white-space:nowrap;}
-    .conf-UEFA{background:#eef4ff;color:#0071e3;}
-    .conf-CONMEBOL{background:#efffee;color:#1a7a1a;}
-    .conf-CAF{background:#fff4ee;color:#b07800;}
-    .conf-AFC{background:#f3eeff;color:#7a3fc0;}
-    .conf-CONCACAF{background:#fff0ee;color:#c0392b;}
-    .conf-other{background:#f5f5f7;color:#6e6e73;}
+    .num-col       { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+    .wc-badge      { font-size: 11px; font-weight: 700; }
 
-    .wc-badge{font-size:11px;font-weight:700;}
-    .num-col{text-align:right;font-variant-numeric:tabular-nums;font-weight:600;}
+    .ovr-95 { color: #0071e3; } .ovr-90 { color: #1a5e1a; } .ovr-80 { color: #2e8b2e; }
+    .ovr-70 { color: #6aaa2a; } .ovr-60 { color: #c8a800; } .ovr-low { color: #aeaeb2; }
 
-    /* OVR color */
-    .ovr-95{color:#0071e3;} .ovr-90{color:#1a5e1a;} .ovr-80{color:#2e8b2e;}
-    .ovr-70{color:#6aaa2a;} .ovr-60{color:#c8a800;} .ovr-low{color:#aeaeb2;}
+    .empty-row td { text-align: center; padding: 48px; color: #aeaeb2; font-size: 14px; }
 
-    /* EMPTY */
-    .empty-row td{text-align:center;padding:48px;color:#aeaeb2;font-size:14px;}
-
-    @media(max-width:700px){
-      .page{padding:28px 16px 60px;}
-      .page-title{font-size:26px;}
-      .controls{gap:8px;}
+    @media (max-width: 700px) {
+      .page       { padding: 28px 16px 60px; }
+      .page-title { font-size: 26px; }
+      .controls   { gap: 8px; }
     }
   </style>
 </head>
@@ -205,16 +210,16 @@ table{width:100%;min-width:860px;border-collapse:collapse;font-size:12.5px;}
       <table id="nationsTable">
         <thead>
           <tr>
-            <th data-col="name"      data-type="str">Nation <span></span></th>
-            <th data-col="confederation" data-type="str">Conf. <span></span></th>
-            <th data-col="continent" data-type="str">Continent <span></span></th>
-            <th data-col="population" data-type="num" class="num-col">Population <span></span></th>
-            <th data-col="legendCount" data-type="num" class="num-col">Legends <span></span></th>
-            <th data-col="avgOvr"    data-type="num" class="num-col">Avg OVR <span></span></th>
-            <th data-col="world_cups_won" data-type="num" class="num-col">🏆 WC <span></span></th>
-            <th data-col="win_percentage_num" data-type="num" class="num-col">Win % <span></span></th>
-            <th data-col="famous_coach" data-type="str">Famous Coach <span></span></th>
-            <th data-col="largest_stadium" data-type="str">Largest Stadium <span></span></th>
+            <th data-col="name"               data-type="str">Nation <span></span></th>
+            <th data-col="confederation"       data-type="str">Conf. <span></span></th>
+            <th data-col="continent"           data-type="str">Continent <span></span></th>
+            <th data-col="population"          data-type="num" class="num-col">Population <span></span></th>
+            <th data-col="legendCount"         data-type="num" class="num-col">Legends <span></span></th>
+            <th data-col="avgOvr"              data-type="num" class="num-col">Avg OVR <span></span></th>
+            <th data-col="world_cups_won"      data-type="num" class="num-col">🏆 WC <span></span></th>
+            <th data-col="win_percentage_num"  data-type="num" class="num-col">Win % <span></span></th>
+            <th data-col="famous_coach"        data-type="str">Famous Coach <span></span></th>
+            <th data-col="largest_stadium"     data-type="str">Largest Stadium <span></span></th>
           </tr>
         </thead>
         <tbody id="tableBody"></tbody>
@@ -224,7 +229,6 @@ table{width:100%;min-width:860px;border-collapse:collapse;font-size:12.5px;}
   <Footer/>
 
 <script define:vars={{ tableData }}>
-
 function ovrClass(v) {
   if (v >= 95) return 'ovr-95';
   if (v >= 90) return 'ovr-90';
@@ -235,10 +239,10 @@ function ovrClass(v) {
 }
 function confClass(c) {
   if (!c) return 'conf-other';
-  if (c === 'UEFA') return 'conf-UEFA';
+  if (c === 'UEFA')     return 'conf-UEFA';
   if (c === 'CONMEBOL') return 'conf-CONMEBOL';
-  if (c === 'CAF') return 'conf-CAF';
-  if (c === 'AFC') return 'conf-AFC';
+  if (c === 'CAF')      return 'conf-CAF';
+  if (c === 'AFC')      return 'conf-AFC';
   if (c === 'CONCACAF') return 'conf-CONCACAF';
   return 'conf-other';
 }
@@ -249,62 +253,50 @@ function fmtPop(n) {
   if (n >= 1e3) return (n/1e3).toFixed(0) + 'K';
   return String(n);
 }
-function winPctNum(s) {
-  return s ? parseFloat(s) : 0;
-}
 
-// Enrich with numeric win pct
 const rows = tableData.map(n => ({
   ...n,
-  win_percentage_num: winPctNum(n.win_percentage)
+  win_percentage_num: n.win_percentage ? parseFloat(n.win_percentage) : 0
 }));
 
-let filtered = [...rows];
-let sortState = { col: null, dir: 1 };
+let filtered   = [...rows];
+let sortState  = { col: null, dir: 1 };
 
 function render() {
   const tbody = document.getElementById('tableBody');
   tbody.innerHTML = '';
+  document.getElementById('metaCount').textContent = filtered.length + ' nations';
+
   if (!filtered.length) {
     const tr = document.createElement('tr');
     tr.className = 'empty-row';
     tr.innerHTML = '<td colspan="10">No nations found</td>';
     tbody.appendChild(tr);
-    document.getElementById('metaCount').textContent = '0 nations';
     return;
   }
-  document.getElementById('metaCount').textContent = filtered.length + ' nations';
+
   filtered.forEach(n => {
     const tr = document.createElement('tr');
     tr.addEventListener('click', () => window.location = '/nation/' + n.slug);
 
-    const wcStars = n.world_cups_won > 0
-      ? `<span class="wc-badge" style="color:#b07800;">${'★'.repeat(Math.min(n.world_cups_won, 5))} ${n.world_cups_won}</span>`
+    const wcStars    = n.world_cups_won > 0
+      ? `<span class="wc-badge" style="color:#b07800;">${'★'.repeat(Math.min(n.world_cups_won,5))} ${n.world_cups_won}</span>`
       : `<span style="color:#d1d1d6;">0</span>`;
-
     const avgOvrHtml = n.avgOvr > 0
       ? `<span class="${ovrClass(n.avgOvr)}">${n.avgOvr}</span>`
       : `<span style="color:#d1d1d6;">—</span>`;
-
     const legendHtml = n.legendCount > 0
       ? `<span style="color:#0071e3;font-weight:700;">${n.legendCount}</span>`
       : `<span style="color:#d1d1d6;">—</span>`;
-
-    const winHtml = n.win_percentage
+    const winHtml    = n.win_percentage
       ? `<span style="color:${n.win_percentage_num>=50?'#1a7a1a':n.win_percentage_num>=35?'#c8a800':'#c0392b'};font-weight:600;">${n.win_percentage}</span>`
       : '—';
-
     const stadiumShort = (n.largest_stadium ?? '—').length > 30
-      ? (n.largest_stadium ?? '—').substring(0, 28) + '…'
+      ? (n.largest_stadium ?? '—').substring(0,28) + '…'
       : (n.largest_stadium ?? '—');
 
     tr.innerHTML = `
-      <td>
-        <div class="nation-cell">
-          <div class="flag-sm">${n.flag}</div>
-          <span class="nation-name">${n.name}</span>
-        </div>
-      </td>
+      <td><div class="nation-cell"><div class="flag-sm">${n.flag}</div><span class="nation-name">${n.name}</span></div></td>
       <td><span class="conf-badge ${confClass(n.confederation)}">${n.confederation ?? '—'}</span></td>
       <td style="color:#6e6e73;">${n.continent ?? '—'}</td>
       <td class="num-col" style="color:#6e6e73;">${fmtPop(n.population)}</td>
@@ -322,11 +314,10 @@ function render() {
 function applyFilters() {
   const q    = document.getElementById('searchInput').value.toLowerCase().trim();
   const cont = document.getElementById('contFilter').value;
-  filtered = rows.filter(n => {
-    const matchQ    = !q || n.name.toLowerCase().includes(q);
-    const matchCont = !cont || n.continent === cont;
-    return matchQ && matchCont;
-  });
+  filtered = rows.filter(n =>
+    (!q    || n.name.toLowerCase().includes(q)) &&
+    (!cont || n.continent === cont)
+  );
   if (sortState.col) applySort();
   else render();
 }
@@ -335,28 +326,23 @@ function applySort() {
   filtered.sort((a, b) => {
     const va = a[sortState.col] ?? '';
     const vb = b[sortState.col] ?? '';
-    if (typeof va === 'number' || !isNaN(Number(va))) {
+    if (!isNaN(Number(va)) && !isNaN(Number(vb)))
       return (Number(vb) - Number(va)) * sortState.dir;
-    }
     return String(va).localeCompare(String(vb)) * sortState.dir;
   });
   render();
 }
 
-// Sort on header click
 document.querySelectorAll('#nationsTable thead th').forEach(th => {
   th.addEventListener('click', () => {
     const col = th.getAttribute('data-col');
     if (!col) return;
-    if (sortState.col === col) {
-      sortState.dir = sortState.dir === 1 ? -1 : 1;
-    } else {
-      sortState = { col, dir: 1 };
-    }
+    sortState.col === col
+      ? (sortState.dir = sortState.dir === 1 ? -1 : 1)
+      : (sortState = { col, dir: 1 });
     document.querySelectorAll('#nationsTable thead th').forEach(h => {
       h.classList.remove('sorted');
-      const s = h.querySelector('span');
-      if (s) s.textContent = '';
+      const s = h.querySelector('span'); if (s) s.textContent = '';
     });
     th.classList.add('sorted');
     const sp = th.querySelector('span');
