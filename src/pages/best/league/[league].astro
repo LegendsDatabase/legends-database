@@ -278,14 +278,14 @@ const currentStats   = buildLeagueStats(league);
     <a href="/best" class="back">The Best</a>
 
     <div class="league-nav">
-      {ALL_LEAGUES.map(l => (
-        
-          href={'/best/league/' + l.slug}
-          class={l.label===league ? 'league-nav-btn active' : 'league-nav-btn'}
-          style={l.label===league ? 'background:' + l.color + ';border-color:' + l.color + ';' : ''}
-        >{l.label}</a>
-      ))}
-    </div>
+  {ALL_LEAGUES.map(l => (
+    
+      href={'/best/league/' + l.slug}
+      class={l.label===league ? 'league-nav-btn active' : 'league-nav-btn'}
+      style={l.label===league ? 'background:' + l.color + ';border-color:' + l.color + ';' : ''}
+    >{l.label}</a>
+  ))}
+</div>
 
     {disclaimer && (
       <div class="disclaimer">i {disclaimer}</div>
