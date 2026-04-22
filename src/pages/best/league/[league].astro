@@ -3,16 +3,6 @@ import { supabase } from '../../../lib/supabase.js';
 import Navbar from '../../../components/Navbar.astro';
 import Footer from '../../../components/Footer.astro';
 
-const LEAGUE_SLUGS = [
-  { slug: 'serie-a',        league: 'Serie A' },
-  { slug: 'premier-league', league: 'Premier League' },
-  { slug: 'bundesliga',     league: 'Bundesliga' },
-  { slug: 'la-liga',        league: 'La Liga' },
-  { slug: 'ligue-1',        league: 'Ligue 1' },
-  { slug: 'eredivisie',     league: 'Eredivisie' },
-  { slug: 'brasileirao',    league: 'Brasileirão' },
-];
-
 export async function getStaticPaths() {
   const { data: players } = await supabase.from('players').select('*');
   const SLUGS = [
@@ -22,7 +12,7 @@ export async function getStaticPaths() {
     { slug: 'la-liga',        league: 'La Liga' },
     { slug: 'ligue-1',        league: 'Ligue 1' },
     { slug: 'eredivisie',     league: 'Eredivisie' },
-    { slug: 'brasileirao',    league: 'Brasileirão' },
+    { slug: 'brasileirao',    league: 'Brasileirao' },
   ];
   return SLUGS.map(l => ({
     params: { league: l.slug },
@@ -40,21 +30,24 @@ const ALL_LEAGUES = [
   { label: 'La Liga',        slug: 'la-liga',          color: '#ee8200' },
   { label: 'Ligue 1',        slug: 'ligue-1',          color: '#091c3e' },
   { label: 'Eredivisie',     slug: 'eredivisie',       color: '#e8650a' },
-  { label: 'Brasileirão',    slug: 'brasileirao',      color: '#009c3b' },
+  { label: 'Brasileirao',    slug: 'brasileirao',      color: '#009c3b' },
 ];
 
-const LEAGUE_META: Record<string,{ color:string; flag:string; disclaimer?:string }> = {
-  'Serie A':        { color:'#003399', flag:'🇮🇹' },
-  'Premier League': { color:'#3d195b', flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿', disclaimer:'For clarity, "Premier League" here also includes the historical First Division (pre-1992), the top English football league before the rebranding.' },
-  'Bundesliga':     { color:'#d4021d', flag:'🇩🇪' },
-  'La Liga':        { color:'#ee8200', flag:'🇪🇸' },
-  'Ligue 1':        { color:'#091c3e', flag:'🇫🇷' },
-  'Eredivisie':     { color:'#e8650a', flag:'🇳🇱' },
-  'Brasileirão':    { color:'#009c3b', flag:'🇧🇷' },
+const LEAGUE_FLAG: Record<string,string> = {
+  'Serie A': '🇮🇹', 'Premier League': '🇬🇧', 'Bundesliga': '🇩🇪',
+  'La Liga': '🇪🇸', 'Ligue 1': '🇫🇷', 'Eredivisie': '🇳🇱', 'Brasileirao': '🇧🇷',
+};
+const LEAGUE_COLOR: Record<string,string> = {
+  'Serie A': '#003399', 'Premier League': '#3d195b', 'Bundesliga': '#d4021d',
+  'La Liga': '#ee8200', 'Ligue 1': '#091c3e', 'Eredivisie': '#e8650a', 'Brasileirao': '#009c3b',
+};
+const LEAGUE_DISCLAIMER: Record<string,string> = {
+  'Premier League': 'For clarity, "Premier League" here also includes the historical First Division (pre-1992), the top English football league before the rebranding.',
 };
 
-const meta      = LEAGUE_META[league] ?? { color:'#0071e3', flag:'🏆' };
-const accentCol = meta.color;
+const accentCol   = LEAGUE_COLOR[league] ?? '#0071e3';
+const leagueFlag  = LEAGUE_FLAG[league]  ?? 'x';
+const disclaimer  = LEAGUE_DISCLAIMER[league] ?? '';
 
 function avg(vals: (number|null|undefined)[]) {
   const v = vals.filter(x => x != null && !isNaN(Number(x))) as number[];
@@ -141,7 +134,7 @@ function buildLeagueStats(lg:string) {
     avgSta:avgF(pool.map(p=>p.stamina).filter(Boolean)),
   };
 }
-const LEAGUE_NAMES = ['Serie A','Premier League','Bundesliga','La Liga','Ligue 1','Eredivisie','Brasileirão'];
+const LEAGUE_NAMES = ['Serie A','Premier League','Bundesliga','La Liga','Ligue 1','Eredivisie','Brasileirao'];
 const allLeagueStats = LEAGUE_NAMES.map(l=>buildLeagueStats(l)).filter(Boolean);
 const currentStats   = buildLeagueStats(league);
 ---
@@ -149,7 +142,7 @@ const currentStats   = buildLeagueStats(league);
 <html>
 <head>
   <meta charset="UTF-8"/>
-  <title>All-Time {league} – Legends Database</title>
+  <title>All-Time {league} - Legends Database</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style is:global>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -175,7 +168,7 @@ const currentStats   = buildLeagueStats(league);
     .dept-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:0 22px 0 0;}
     .dept-sep{width:1px;height:32px;background:#e5e5ea;margin-right:22px;}
     .dept-val{font-size:22px;font-weight:700;letter-spacing:-0.5px;line-height:1;}
-    .dept-label{font-size:9.5px;font-weight:700;color:#aeaeb2;letter-spacing:0.07em;text-transform:uppercase;}
+    .dept-label{font-size:9px;font-weight:700;color:#aeaeb2;letter-spacing:0.07em;text-transform:uppercase;}
     .ovr-block{text-align:center;flex-shrink:0;}
     .ovr-num{font-size:40px;font-weight:700;letter-spacing:-1.5px;line-height:1;}
     .ovr-sub{font-size:10px;font-weight:600;color:#aeaeb2;letter-spacing:0.06em;text-transform:uppercase;margin-top:2px;}
@@ -242,7 +235,7 @@ const currentStats   = buildLeagueStats(league);
     .clash-chip{font-family:inherit;font-size:11.5px;font-weight:600;padding:5px 13px;border:1.5px solid #e5e5ea;border-radius:16px;background:#fff;color:#6e6e73;cursor:pointer;transition:all 0.14s;white-space:nowrap;}
     .clash-chip:hover{border-color:#c0392b;color:#c0392b;}
     .clash-chip.selected{background:#c0392b;border-color:#c0392b;color:#fff;}
-    .clash-vs-banner{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;margin-bottom:24px;padding:20px 24px;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.15);}
+    .clash-vs-banner{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;margin-bottom:24px;padding:20px 24px;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);border-radius:16px;}
     .clash-vs-side{display:flex;flex-direction:column;align-items:center;gap:6px;}
     .clash-vs-name{font-size:18px;font-weight:800;letter-spacing:-0.5px;line-height:1;text-align:center;}
     .clash-vs-label{font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;opacity:0.45;color:#fff;}
@@ -282,60 +275,56 @@ const currentStats   = buildLeagueStats(league);
 <body>
   <Navbar/>
   <div class="page">
-    <a href="/best" class="back">← The Best</a>
+    <a href="/best" class="back">The Best</a>
 
     <div class="league-nav">
       {ALL_LEAGUES.map(l => (
         
           href={'/best/league/' + l.slug}
-          class={`league-nav-btn${l.label===league?' active':''}`}
-          style={l.label===league ? `background:${l.color};border-color:${l.color};` : ''}
+          class={l.label===league ? 'league-nav-btn active' : 'league-nav-btn'}
+          style={l.label===league ? 'background:' + l.color + ';border-color:' + l.color + ';' : ''}
         >{l.label}</a>
       ))}
     </div>
 
-    {meta.disclaimer && (
-      <div class="disclaimer">ⓘ {meta.disclaimer}</div>
+    {disclaimer && (
+      <div class="disclaimer">i {disclaimer}</div>
     )}
 
     <div class="hero">
-      <div class="league-badge" style={`background:${accentCol}20;`}>
-        {meta.flag}
+      <div class="league-badge" style={'background:' + accentCol + '15;'}>
+        {leagueFlag}
       </div>
       <div class="hero-body">
         <h1 class="team-name">All-Time {league}</h1>
         <div class="hero-tags">
-          <span class="tag tag-accent" style={`background:${accentCol};`}>{league}</span>
+          <span class="tag tag-accent" style={'background:' + accentCol + ';'}>{league}</span>
           <span class="tag">{roster.length} Players</span>
           <span class="tag">{teamPlayers.length} in DB</span>
         </div>
         <div class="dept-grid">
-          <div class="dept-item"><span class="dept-val" style={`color:${ovrColor(gkOvr)}`}>{gkOvr}</span><span class="dept-label">GK</span></div>
+          <div class="dept-item"><span class="dept-val" style={'color:' + ovrColor(gkOvr)}>{gkOvr}</span><span class="dept-label">GK</span></div>
           <div class="dept-sep"></div>
-          <div class="dept-item"><span class="dept-val" style={`color:${ovrColor(defOvr)}`}>{defOvr}</span><span class="dept-label">DEF</span></div>
+          <div class="dept-item"><span class="dept-val" style={'color:' + ovrColor(defOvr)}>{defOvr}</span><span class="dept-label">DEF</span></div>
           <div class="dept-sep"></div>
-          <div class="dept-item"><span class="dept-val" style={`color:${ovrColor(midOvr)}`}>{midOvr}</span><span class="dept-label">MID</span></div>
+          <div class="dept-item"><span class="dept-val" style={'color:' + ovrColor(midOvr)}>{midOvr}</span><span class="dept-label">MID</span></div>
           <div class="dept-sep"></div>
-          <div class="dept-item"><span class="dept-val" style={`color:${ovrColor(attOvr)}`}>{attOvr}</span><span class="dept-label">ATT</span></div>
+          <div class="dept-item"><span class="dept-val" style={'color:' + ovrColor(attOvr)}>{attOvr}</span><span class="dept-label">ATT</span></div>
         </div>
       </div>
       <div class="ovr-block">
-        <div class="ovr-num" style={`color:${ovrColor(teamOvr)}`}>{teamOvr}</div>
+        <div class="ovr-num" style={'color:' + ovrColor(teamOvr)}>{teamOvr}</div>
         <div class="ovr-sub">Overall</div>
       </div>
     </div>
-
-    {roster.length === 0 && (
-      <div class="card" style="text-align:center;color:#aeaeb2;padding:40px;">No players found for {league}.</div>
-    )}
 
     {roster.length >= 11 && (
       <div class="card lineup-card">
         <div class="lineup-top">
           <div class="card-title" style="margin-bottom:0;">Tactical Lineup</div>
           <div class="formation-tabs" id="formTabs">
-            {['4-3-3','4-4-2','4-4-2◆','4-3-2-1','4-3-1-2','4-2-3-1','3-4-3','4-2-4','4-5-1','3-5-2','5-3-2','5-4-1'].map((f,i) => (
-              <button class={`form-btn${i===0?' active':''}`} data-form={f}>{f}</button>
+            {['4-3-3','4-4-2','4-3-2-1','4-3-1-2','4-2-3-1','3-4-3','4-2-4','4-5-1','3-5-2','5-3-2','5-4-1'].map((f,i) => (
+              <button class={i===0 ? 'form-btn active' : 'form-btn'} data-form={f}>{f}</button>
             ))}
           </div>
         </div>
@@ -378,10 +367,10 @@ const currentStats   = buildLeagueStats(league);
         </div>
 
         <div class="highlights-grid">
-          {bestPlayer && <div class="hl-card"><div class="hl-label">Best Player</div><div class="hl-name"><a href={'/player/' + bestPlayer.slug}>{bestPlayer.name}</a></div><div class="hl-val" style={`color:${ovrColor(bestPlayer.overall_rating)}`}>{bestPlayer.overall_rating}</div></div>}
-          {fastestP   && <div class="hl-card"><div class="hl-label">Fastest</div><div class="hl-name"><a href={'/player/' + fastestP.slug}>{fastestP.name}</a></div><div class="hl-val" style={`color:${skillColor(pSpd(fastestP))}`}>{pSpd(fastestP)} <span class="hl-unit">SPD</span></div></div>}
-          {bestTech   && <div class="hl-card"><div class="hl-label">Most Technical</div><div class="hl-name"><a href={'/player/' + bestTech.slug}>{bestTech.name}</a></div><div class="hl-val" style={`color:${skillColor(bestTech['first-touch']??0)}`}>{bestTech['first-touch']} <span class="hl-unit">1-TCH</span></div></div>}
-          {strongestP && <div class="hl-card"><div class="hl-label">Strongest</div><div class="hl-name"><a href={'/player/' + strongestP.slug}>{strongestP.name}</a></div><div class="hl-val" style={`color:${skillColor(strongestP.strength??0)}`}>{strongestP.strength} <span class="hl-unit">STR</span></div></div>}
+          {bestPlayer && <div class="hl-card"><div class="hl-label">Best Player</div><div class="hl-name"><a href={'/player/' + bestPlayer.slug}>{bestPlayer.name}</a></div><div class="hl-val" style={'color:' + ovrColor(bestPlayer.overall_rating)}>{bestPlayer.overall_rating}</div></div>}
+          {fastestP   && <div class="hl-card"><div class="hl-label">Fastest</div><div class="hl-name"><a href={'/player/' + fastestP.slug}>{fastestP.name}</a></div><div class="hl-val" style={'color:' + skillColor(pSpd(fastestP))}>{pSpd(fastestP)} <span class="hl-unit">SPD</span></div></div>}
+          {bestTech   && <div class="hl-card"><div class="hl-label">Most Technical</div><div class="hl-name"><a href={'/player/' + bestTech.slug}>{bestTech.name}</a></div><div class="hl-val" style={'color:' + skillColor(bestTech['first-touch']??0)}>{bestTech['first-touch']} <span class="hl-unit">1-TCH</span></div></div>}
+          {strongestP && <div class="hl-card"><div class="hl-label">Strongest</div><div class="hl-name"><a href={'/player/' + strongestP.slug}>{strongestP.name}</a></div><div class="hl-val" style={'color:' + skillColor(strongestP.strength??0)}>{strongestP.strength} <span class="hl-unit">STR</span></div></div>}
         </div>
 
         <div class="records-grid">
@@ -393,11 +382,11 @@ const currentStats   = buildLeagueStats(league);
         <div class="card">
           <div class="card-title">Average Height</div>
           <div class="height-grid">
-            <div class="height-item"><div class="height-val">{hGK ? hGK+' cm' : '—'}</div><div class="height-label">GK</div></div>
-            <div class="height-item"><div class="height-val">{hDEF ? hDEF+' cm' : '—'}</div><div class="height-label">DEF</div></div>
-            <div class="height-item"><div class="height-val">{hMID ? hMID+' cm' : '—'}</div><div class="height-label">MID</div></div>
-            <div class="height-item"><div class="height-val">{hATT ? hATT+' cm' : '—'}</div><div class="height-label">ATT</div></div>
-            <div class="height-item total"><div class="height-val">{hTOT ? hTOT+' cm' : '—'}</div><div class="height-label">Squad Avg</div></div>
+            <div class="height-item"><div class="height-val">{hGK ? hGK+' cm' : '-'}</div><div class="height-label">GK</div></div>
+            <div class="height-item"><div class="height-val">{hDEF ? hDEF+' cm' : '-'}</div><div class="height-label">DEF</div></div>
+            <div class="height-item"><div class="height-val">{hMID ? hMID+' cm' : '-'}</div><div class="height-label">MID</div></div>
+            <div class="height-item"><div class="height-val">{hATT ? hATT+' cm' : '-'}</div><div class="height-label">ATT</div></div>
+            <div class="height-item total"><div class="height-val">{hTOT ? hTOT+' cm' : '-'}</div><div class="height-label">Squad Avg</div></div>
           </div>
         </div>
       </>
@@ -407,7 +396,7 @@ const currentStats   = buildLeagueStats(league);
       <div class="clash-header">
         <div class="clash-title-block">
           <span class="clash-title">League Clash</span>
-          <span class="clash-badge">⚡ New</span>
+          <span class="clash-badge">New</span>
         </div>
         <div class="clash-chips" id="clashChips">
           {ALL_LEAGUES.filter(l => l.label !== league).map(l => (
@@ -432,11 +421,10 @@ const ROLE_BG={GK:'rgba(160,90,0,0.92)',DEF:'rgba(22,110,22,0.92)',MID:'rgba(0,9
 function getRoleGroup(r){if(r==='GK')return'GK';if(['CB','SW','RB','LB'].includes(r))return'DEF';if(['DM','CM','AM','RM','LM'].includes(r))return'MID';return'ATT';}
 function getSurname(n){if(!n)return'?';const c=n.indexOf(',');return c>-1?n.substring(0,c).trim():n.trim();}
 function getInitials(n){return getSurname(n).slice(0,2).toUpperCase();}
-const LEAGUE_COLORS={'Serie A':'#003399','Premier League':'#3d195b','Bundesliga':'#d4021d','La Liga':'#ee8200','Ligue 1':'#091c3e','Eredivisie':'#e8650a','Brasileirão':'#009c3b'};
+const LEAGUE_COLORS={'Serie A':'#003399','Premier League':'#3d195b','Bundesliga':'#d4021d','La Liga':'#ee8200','Ligue 1':'#091c3e','Eredivisie':'#e8650a','Brasileirao':'#009c3b'};
 const FORMATIONS={
   '4-3-3':{slots:[{x:50,y:88,roles:['GK']},{x:14,y:74,roles:['LB']},{x:36,y:74,roles:['CB']},{x:64,y:74,roles:['CB','SW'],sw:true},{x:86,y:74,roles:['RB']},{x:28,y:52,roles:['CM','AM']},{x:50,y:55,roles:['DM','CM']},{x:72,y:52,roles:['CM']},{x:16,y:22,roles:['LW','FW']},{x:50,y:18,roles:['ST','FW']},{x:84,y:22,roles:['RW']}]},
   '4-4-2':{slots:[{x:50,y:88,roles:['GK']},{x:14,y:74,roles:['LB']},{x:36,y:74,roles:['CB']},{x:64,y:74,roles:['CB','SW'],sw:true},{x:86,y:74,roles:['RB']},{x:10,y:50,roles:['LM','LW']},{x:34,y:50,roles:['CM','DM']},{x:66,y:50,roles:['CM','DM']},{x:90,y:50,roles:['RM','RW']},{x:35,y:20,roles:['ST','FW']},{x:65,y:20,roles:['ST']}]},
-  '4-4-2◆':{slots:[{x:50,y:88,roles:['GK']},{x:14,y:74,roles:['LB']},{x:36,y:74,roles:['CB']},{x:64,y:74,roles:['CB','SW'],sw:true},{x:86,y:74,roles:['RB']},{x:50,y:63,roles:['DM']},{x:26,y:50,roles:['CM']},{x:74,y:50,roles:['CM']},{x:50,y:37,roles:['AM','FW']},{x:34,y:20,roles:['FW','ST']},{x:66,y:20,roles:['ST']}]},
   '4-3-2-1':{slots:[{x:50,y:88,roles:['GK']},{x:14,y:74,roles:['LB']},{x:36,y:74,roles:['CB']},{x:64,y:74,roles:['CB','SW'],sw:true},{x:86,y:74,roles:['RB']},{x:28,y:57,roles:['CM']},{x:50,y:60,roles:['DM']},{x:72,y:57,roles:['CM']},{x:34,y:40,roles:['AM']},{x:66,y:40,roles:['AM','FW']},{x:50,y:18,roles:['ST']}]},
   '4-3-1-2':{slots:[{x:50,y:88,roles:['GK']},{x:14,y:74,roles:['LB']},{x:36,y:74,roles:['CB']},{x:64,y:74,roles:['CB','SW'],sw:true},{x:86,y:74,roles:['RB']},{x:28,y:57,roles:['CM']},{x:50,y:60,roles:['DM']},{x:72,y:57,roles:['CM']},{x:50,y:41,roles:['AM']},{x:34,y:20,roles:['FW','ST']},{x:66,y:20,roles:['ST']}]},
   '4-2-3-1':{slots:[{x:50,y:88,roles:['GK']},{x:14,y:74,roles:['LB']},{x:36,y:74,roles:['CB']},{x:64,y:74,roles:['CB','SW'],sw:true},{x:86,y:74,roles:['RB']},{x:34,y:61,roles:['DM']},{x:66,y:61,roles:['CM','DM']},{x:16,y:42,roles:['LW','LM']},{x:50,y:40,roles:['AM','FW']},{x:84,y:42,roles:['RM','RW']},{x:50,y:18,roles:['ST']}]},
@@ -479,7 +467,7 @@ function renderLineup(formKey){
       const bg=ROLE_BG[getRoleGroup(player.role)];
       token.innerHTML='<a href="/player/'+player.slug+'" class="token-link"><div class="token-circle" style="background:'+bg+'"><span class="token-init">'+getInitials(player.name)+'</span></div><div class="token-name">'+getSurname(player.name)+'</div><div class="token-ovr">'+player.ovr+'</div></a>';
     }else{
-      token.innerHTML='<div class="token-link"><div class="token-circle token-empty-circle"><span class="token-init" style="color:rgba(255,255,255,0.35)">—</span></div><div class="token-name" style="color:rgba(255,255,255,0.3)">'+slot.roles[0]+'</div></div>';
+      token.innerHTML='<div class="token-link"><div class="token-circle token-empty-circle"><span class="token-init" style="color:rgba(255,255,255,0.35)">?</span></div><div class="token-name" style="color:rgba(255,255,255,0.3)">'+slot.roles[0]+'</div></div>';
     }
     pitch.appendChild(token);
   });
@@ -500,7 +488,7 @@ function renderRoster(data){
 }
 function makeRow(p){
   const tr=document.createElement('tr');tr.className='player-row';const isGK=p.role==='GK';
-  tr.innerHTML='<td><a href="/player/'+p.slug+'" class="player-link">'+p.name+'</a></td><td><span class="role-badge '+roleCls(p.role)+'">'+p.role+'</span></td><td class="col-ovr" style="color:'+ovrColor(p.ovr)+'">'+p.ovr+'</td><td class="col-stat'+(isGK?' muted':'')+'" style="'+(isGK?'':'color:'+skillColor(p.def))+'">'+(isGK?'—':p.def)+'</td><td class="col-stat'+(isGK?' muted':'')+'" style="'+(isGK?'':'color:'+skillColor(p.play))+'">'+(isGK?'—':p.play)+'</td><td class="col-stat'+(isGK?' muted':'')+'" style="'+(isGK?'':'color:'+skillColor(p.att))+'">'+(isGK?'—':p.att)+'</td>';
+  tr.innerHTML='<td><a href="/player/'+p.slug+'" class="player-link">'+p.name+'</a></td><td><span class="role-badge '+roleCls(p.role)+'">'+p.role+'</span></td><td class="col-ovr" style="color:'+ovrColor(p.ovr)+'">'+p.ovr+'</td><td class="col-stat'+(isGK?' muted':'')+'" style="'+(isGK?'':'color:'+skillColor(p.def))+'">'+(isGK?'-':p.def)+'</td><td class="col-stat'+(isGK?' muted':'')+'" style="'+(isGK?'':'color:'+skillColor(p.play))+'">'+(isGK?'-':p.play)+'</td><td class="col-stat'+(isGK?' muted':'')+'" style="'+(isGK?'':'color:'+skillColor(p.att))+'">'+(isGK?'-':p.att)+'</td>';
   return tr;
 }
 document.querySelectorAll('#rosterTable thead th').forEach(th=>{
@@ -508,7 +496,7 @@ document.querySelectorAll('#rosterTable thead th').forEach(th=>{
     const col=th.getAttribute('data-col');if(!col)return;
     if(currentSort.col===col){currentSort.dir===1?currentSort.dir=-1:(currentSort={col:null,dir:1});}else{currentSort={col,dir:1};}
     document.querySelectorAll('#rosterTable thead th').forEach(h=>{h.classList.remove('sorted');const s=h.querySelector('span');if(s)s.textContent='';});
-    th.classList.add('sorted');const sp=th.querySelector('span');if(sp)sp.textContent=currentSort.dir===1?' ↑':' ↓';
+    th.classList.add('sorted');const sp=th.querySelector('span');if(sp)sp.textContent=currentSort.dir===1?' ^':' v';
     renderRoster(rosterData);
   });
 });
@@ -517,7 +505,6 @@ document.querySelectorAll('.form-btn').forEach(btn=>{
 });
 renderRoster(rosterData);
 if(document.getElementById('lineupPitch'))renderLineup('4-3-3');
-
 const METRICS=[
   {key:'avgOvr',label:'Avg OVR'},{key:'avgSpd',label:'Speed'},
   {key:'avgStr',label:'Strength'},{key:'avgTch',label:'First Touch'},
@@ -527,30 +514,28 @@ const METRICS=[
 ];
 const statsMap={};
 allLeagueStats.forEach(s=>{statsMap[s.league]=s;});
-
 document.getElementById('clashChips').addEventListener('click',e=>{
   const btn=e.target.closest('.clash-chip');if(!btn)return;
   document.querySelectorAll('.clash-chip').forEach(b=>b.classList.remove('selected'));
   btn.classList.add('selected');renderClash(btn.getAttribute('data-league'));
 });
-
 function renderClash(rivalLeague){
   const A=currentStats,B=statsMap[rivalLeague];if(!A||!B)return;
   document.getElementById('clashEmpty').style.display='none';
   document.getElementById('clashContent').style.display='block';
   const colorA=LEAGUE_COLORS[A.league]||accentCol,colorB=LEAGUE_COLORS[B.league]||'#c0392b';
   let winsA=0,winsB=0;
-  METRICS.forEach(m=>{const va=A[m.key]??0,vb=B[m.key]??0;if(va>vb)winsA++;else if(vb>va)winsB++;});
+  METRICS.forEach(m=>{const va=A[m.key]||0,vb=B[m.key]||0;if(va>vb)winsA++;else if(vb>va)winsB++;});
   if(A.total>B.total)winsA++;else if(B.total>A.total)winsB++;
   if(A.peakOvr>B.peakOvr)winsA++;else if(B.peakOvr>A.peakOvr)winsB++;
   const aW=winsA>winsB,bW=winsB>winsA;
   document.getElementById('clashBanner').innerHTML=
-    '<div class="clash-vs-side"><div class="clash-vs-name" style="color:'+colorA+'">'+A.league+'</div><div class="clash-vs-label">This league</div><div class="clash-vs-sub">avg '+A.avgOvr+' OVR &middot; '+A.total+' legends</div></div>'+
-    '<div class="clash-vs-mid"><div class="clash-vs-text">VS</div><div class="clash-score"><span class="clash-score-num" style="color:'+(aW?colorA:'rgba(255,255,255,0.4)')+'">'+winsA+'</span><span class="clash-score-sep">—</span><span class="clash-score-num" style="color:'+(bW?colorB:'rgba(255,255,255,0.4)')+'">'+winsB+'</span></div></div>'+
-    '<div class="clash-vs-side"><div class="clash-vs-name" style="color:'+colorB+'">'+B.league+'</div><div class="clash-vs-label">Rival league</div><div class="clash-vs-sub">avg '+B.avgOvr+' OVR &middot; '+B.total+' legends</div></div>';
+    '<div class="clash-vs-side"><div class="clash-vs-name" style="color:'+colorA+'">'+A.league+'</div><div class="clash-vs-label">This league</div><div class="clash-vs-sub">avg '+A.avgOvr+' OVR - '+A.total+' legends</div></div>'+
+    '<div class="clash-vs-mid"><div class="clash-vs-text">VS</div><div class="clash-score"><span class="clash-score-num" style="color:'+(aW?colorA:'rgba(255,255,255,0.4)')+'">'+winsA+'</span><span class="clash-score-sep">-</span><span class="clash-score-num" style="color:'+(bW?colorB:'rgba(255,255,255,0.4)')+'">'+winsB+'</span></div></div>'+
+    '<div class="clash-vs-side"><div class="clash-vs-name" style="color:'+colorB+'">'+B.league+'</div><div class="clash-vs-label">Rival league</div><div class="clash-vs-sub">avg '+B.avgOvr+' OVR - '+B.total+' legends</div></div>';
   const metricsEl=document.getElementById('clashMetrics');metricsEl.innerHTML='';
   METRICS.forEach(m=>{
-    const va=A[m.key]??0,vb=B[m.key]??0,maxVal=Math.max(va,vb,1);
+    const va=A[m.key]||0,vb=B[m.key]||0,maxVal=Math.max(va,vb,1);
     const pctA=Math.round((va/maxVal)*100),pctB=Math.round((vb/maxVal)*100);
     const aWins=va>vb,bWins=vb>va;
     const row=document.createElement('div');row.className='clash-metric';
