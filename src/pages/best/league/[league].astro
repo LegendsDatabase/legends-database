@@ -25,12 +25,12 @@ const { allPlayers, leagueName: league } = Astro.props;
 
 const ALL_LEAGUES = [
   { label: 'Serie A',        slug: 'serie-a',        color: '#003399' },
-  { label: 'Premier League', slug: 'premier-league',  color: '#3d195b' },
-  { label: 'Bundesliga',     slug: 'bundesliga',       color: '#d4021d' },
-  { label: 'La Liga',        slug: 'la-liga',          color: '#ee8200' },
-  { label: 'Ligue 1',        slug: 'ligue-1',          color: '#091c3e' },
-  { label: 'Eredivisie',     slug: 'eredivisie',       color: '#e8650a' },
-  { label: 'Brasileirao',    slug: 'brasileirao',      color: '#009c3b' },
+  { label: 'Premier League', slug: 'premier-league', color: '#3d195b' },
+  { label: 'Bundesliga',     slug: 'bundesliga',     color: '#d4021d' },
+  { label: 'La Liga',        slug: 'la-liga',        color: '#ee8200' },
+  { label: 'Ligue 1',        slug: 'ligue-1',        color: '#091c3e' },
+  { label: 'Eredivisie',     slug: 'eredivisie',     color: '#e8650a' },
+  { label: 'Brasileirao',    slug: 'brasileirao',    color: '#009c3b' },
 ];
 
 const LEAGUE_FLAG: Record<string,string> = {
@@ -278,17 +278,17 @@ const currentStats   = buildLeagueStats(league);
     <a href="/best" class="back">The Best</a>
 
     <div class="league-nav">
-  {ALL_LEAGUES.map(l => (
-    
-      href={'/best/league/' + l.slug}
-      class={l.label===league ? 'league-nav-btn active' : 'league-nav-btn'}
-      style={l.label===league ? 'background:' + l.color + ';border-color:' + l.color + ';' : ''}
-    >{l.label}</a>
-  ))}
-</div>
+      {ALL_LEAGUES.map(l => (
+        <a
+          href={'/best/league/' + l.slug}
+          class={l.label===league ? 'league-nav-btn active' : 'league-nav-btn'}
+          style={l.label===league ? 'background:' + l.color + ';border-color:' + l.color + ';' : ''}
+        >{l.label}</a>
+      ))}
+    </div>
 
     {disclaimer && (
-      <div class="disclaimer">i {disclaimer}</div>
+      <div class="disclaimer">{disclaimer}</div>
     )}
 
     <div class="hero">
@@ -430,7 +430,7 @@ const FORMATIONS={
   '4-2-3-1':{slots:[{x:50,y:88,roles:['GK']},{x:14,y:74,roles:['LB']},{x:36,y:74,roles:['CB']},{x:64,y:74,roles:['CB','SW'],sw:true},{x:86,y:74,roles:['RB']},{x:34,y:61,roles:['DM']},{x:66,y:61,roles:['CM','DM']},{x:16,y:42,roles:['LW','LM']},{x:50,y:40,roles:['AM','FW']},{x:84,y:42,roles:['RM','RW']},{x:50,y:18,roles:['ST']}]},
   '3-4-3':{slots:[{x:50,y:88,roles:['GK']},{x:25,y:74,roles:['CB']},{x:50,y:76,roles:['CB','SW'],sw:true},{x:75,y:74,roles:['CB']},{x:20,y:55,roles:['DM']},{x:40,y:52,roles:['CM']},{x:60,y:52,roles:['CM']},{x:80,y:50,roles:['AM']},{x:16,y:22,roles:['LW']},{x:50,y:16,roles:['ST','FW']},{x:84,y:22,roles:['RW']}]},
   '4-2-4':{slots:[{x:50,y:88,roles:['GK']},{x:14,y:74,roles:['LB']},{x:36,y:74,roles:['CB']},{x:64,y:74,roles:['CB','SW'],sw:true},{x:86,y:74,roles:['RB']},{x:34,y:56,roles:['DM','CM']},{x:66,y:56,roles:['DM','CM']},{x:10,y:22,roles:['LW','FW']},{x:36,y:18,roles:['FW','ST']},{x:64,y:18,roles:['ST']},{x:90,y:22,roles:['RW']}]},
-  '4-5-1':{slots:[{x:50,y:88,roles:['GK']},{x:14,y:74,roles:['LB']},{x:36,y:74,roles:['CB']},{x:64,y:74,roles:['CB','SW'],sw:true},{x:86,y:74,roles:['RB']},{x:10,y:52,roles:['LM']},{x:32,y:55,roles:['DM','CM']},{x:68,y:55,roles:['CM','DM']},{x:90,y:52,roles:['RM']},{x:50,y:40,roles:['AM','FW']},{x:50,y:18,roles:['ST']}]},
+  '4-5-1':{slots:[{x:50,y:88,roles:['GK']},{x:14,y:74,roles:['LB']},{x:36,y:74,roles:['CB']},{x:64,y:74,roles:['CB','SW'],sw:true},{x:86,y:74,roles:['RB']},{x:10,y:52,roles:['LM']},{x:32,y:55,roles:['CM','DM']},{x:68,y:55,roles:['CM','DM']},{x:90,y:52,roles:['RM']},{x:50,y:40,roles:['AM','FW']},{x:50,y:18,roles:['ST']}]},
   '3-5-2':{slots:[{x:50,y:88,roles:['GK']},{x:25,y:74,roles:['CB']},{x:50,y:76,roles:['CB','SW'],sw:true},{x:75,y:74,roles:['CB']},{x:10,y:52,roles:['LM']},{x:30,y:55,roles:['CM']},{x:50,y:58,roles:['DM']},{x:70,y:55,roles:['CM']},{x:90,y:52,roles:['RM']},{x:34,y:20,roles:['FW','ST']},{x:66,y:20,roles:['ST']}]},
   '5-3-2':{slots:[{x:50,y:88,roles:['GK']},{x:8,y:74,roles:['LB']},{x:26,y:74,roles:['CB']},{x:50,y:76,roles:['SW','CB'],sw:true},{x:74,y:74,roles:['CB']},{x:92,y:74,roles:['RB']},{x:50,y:58,roles:['DM']},{x:28,y:52,roles:['CM']},{x:72,y:52,roles:['CM','AM']},{x:34,y:20,roles:['FW','ST']},{x:66,y:20,roles:['FW','ST']}]},
   '5-4-1':{slots:[{x:50,y:88,roles:['GK']},{x:8,y:74,roles:['LB']},{x:26,y:74,roles:['CB']},{x:50,y:76,roles:['SW','CB'],sw:true},{x:74,y:74,roles:['CB']},{x:92,y:74,roles:['RB']},{x:10,y:50,roles:['LM','LW']},{x:34,y:53,roles:['CM','DM']},{x:66,y:53,roles:['CM','DM']},{x:90,y:50,roles:['RM','RW']},{x:50,y:18,roles:['ST','FW']}]},
