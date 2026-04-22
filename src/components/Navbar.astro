@@ -7,17 +7,84 @@ const currentPath = Astro.url.pathname;
     <a href="/" class="nav-logo">
       <img src="/logo.svg" alt="Legends Database" height="22" style="mix-blend-mode: multiply;" />
     </a>
+
     <div class="nav-links">
       <a href="/" class={currentPath === '/' ? 'active' : ''}>Database</a>
       <a href="/nations" class={currentPath === '/nations' || currentPath.startsWith('/nation/') ? 'active' : ''}>Nations</a>
-<a href="/teams" class={currentPath === '/teams' || currentPath.startsWith('/team/') ? 'active' : ''}>All-Time Teams</a>
+      <a href="/teams" class={currentPath === '/teams' || currentPath.startsWith('/team/') ? 'active' : ''}>All-Time Teams</a>
       <a href="/best" class={currentPath.startsWith('/best') ? 'active' : ''}>The Best</a>
-<a href="/timeline" class={currentPath === '/timeline' ? 'active' : ''}>Timeline</a>
+      <a href="/timeline" class={currentPath === '/timeline' ? 'active' : ''}>Timeline</a>
+      <a href="/about" class={currentPath === '/about' ? 'active' : ''}>About</a>
+      <a href="/legenda" class={currentPath === '/legenda' ? 'active' : ''}>Legend</a>
+    </div>
+
+    <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+
+  <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+    <div class="mobile-menu-head">
+      <button class="mobile-close" id="mobileClose" aria-label="Close menu">×</button>
+    </div>
+
+    <div class="mobile-menu-links">
+      <a href="/" class={currentPath === '/' ? 'active' : ''}>Database</a>
+      <a href="/nations" class={currentPath === '/nations' || currentPath.startsWith('/nation/') ? 'active' : ''}>Nations</a>
+      <a href="/teams" class={currentPath === '/teams' || currentPath.startsWith('/team/') ? 'active' : ''}>All-Time Teams</a>
+      <a href="/best" class={currentPath.startsWith('/best') ? 'active' : ''}>The Best</a>
+      <a href="/timeline" class={currentPath === '/timeline' ? 'active' : ''}>Timeline</a>
       <a href="/about" class={currentPath === '/about' ? 'active' : ''}>About</a>
       <a href="/legenda" class={currentPath === '/legenda' ? 'active' : ''}>Legend</a>
     </div>
   </div>
 </nav>
+
+<script>
+  const navToggle = document.getElementById('navToggle');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const mobileClose = document.getElementById('mobileClose');
+
+  function openMenu() {
+    if (!navToggle || !mobileMenu) return;
+    mobileMenu.classList.add('open');
+    navToggle.setAttribute('aria-expanded', 'true');
+    mobileMenu.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeMenu() {
+    if (!navToggle || !mobileMenu) return;
+    mobileMenu.classList.remove('open');
+    navToggle.setAttribute('aria-expanded', 'false');
+    mobileMenu.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  if (navToggle) {
+    navToggle.addEventListener('click', openMenu);
+  }
+
+  if (mobileClose) {
+    mobileClose.addEventListener('click', closeMenu);
+  }
+
+  if (mobileMenu) {
+    mobileMenu.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', closeMenu);
+    });
+  }
+
+  window.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeMenu();
+  });
+
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 768) closeMenu();
+  });
+</script>
 
 <script async src="/_vercel/insights/script.js"></script>
 
@@ -32,6 +99,7 @@ const currentPath = Astro.url.pathname;
     border-bottom: 1px solid rgba(0,0,0,0.08);
     height: 44px;
   }
+
   .nav-inner {
     max-width: 1800px;
     margin: 0 auto;
@@ -40,8 +108,16 @@ const currentPath = Astro.url.pathname;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    position: relative;
   }
+
+  .nav-logo {
+    position: relative;
+    z-index: 102;
+  }
+
   .nav-logo img { display: block; }
+
   .nav-links {
     position: absolute;
     left: 50%;
@@ -50,15 +126,118 @@ const currentPath = Astro.url.pathname;
     align-items: center;
     gap: 32px;
   }
-  .nav-links a {
+
+  .nav-links a,
+  .mobile-menu-links a {
     font-family: -apple-system, 'SF Pro Text', 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-decoration: none;
+    transition: color 0.15s, opacity 0.15s;
+  }
+
+  .nav-links a {
     font-size: 13px;
     font-weight: 400;
     color: #6e6e73;
-    text-decoration: none;
-    transition: color 0.15s;
-    -webkit-font-smoothing: antialiased;
   }
+
   .nav-links a:hover { color: #1d1d1f; }
   .nav-links a.active { color: #1d1d1f; font-weight: 500; }
+
+  .nav-toggle {
+    display: none;
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 4px;
+    position: relative;
+    z-index: 102;
+  }
+
+  .nav-toggle span {
+    display: block;
+    width: 16px;
+    height: 1.5px;
+    border-radius: 999px;
+    background: #1d1d1f;
+  }
+
+  .mobile-menu {
+    position: fixed;
+    inset: 0;
+    background: rgba(250, 250, 252, 0.98);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    z-index: 101;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.22s ease, visibility 0.22s ease;
+  }
+
+  .mobile-menu.open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .mobile-menu-head {
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 20px;
+  }
+
+  .mobile-close {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    color: #1d1d1f;
+    font-size: 32px;
+    font-weight: 300;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .mobile-menu-links {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 8px 32px 40px;
+  }
+
+  .mobile-menu-links a {
+    font-size: 23px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    color: #1d1d1f;
+    line-height: 1.15;
+  }
+
+  .mobile-menu-links a.active {
+    color: #6e6e73;
+  }
+
+  @media (max-width: 768px) {
+    .nav-inner {
+      padding: 0 18px;
+    }
+
+    .nav-links {
+      display: none;
+    }
+
+    .nav-toggle {
+      display: inline-flex;
+    }
+  }
 </style>
