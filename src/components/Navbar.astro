@@ -86,7 +86,7 @@ const currentPath = Astro.url.pathname;
 
 <script async src="/_vercel/insights/script.js"></script>
 
-<style>
+<style is:global>
   /* ── NAVBAR ───────────────────────────────────────── */
   .nav {
     position: fixed;
@@ -165,7 +165,7 @@ const currentPath = Astro.url.pathname;
   /* ── MOBILE MENU (full-screen overlay) ────────────── */
   .mobile-menu {
     position: fixed;
-    inset: 0;
+    top: 0; left: 0; right: 0; bottom: 0;
     z-index: 101;
     background: #ffffff;        /* bianco pieno, come Apple */
     opacity: 0;
