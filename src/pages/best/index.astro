@@ -8,7 +8,16 @@ const continents = [
   { label: 'South America', slug: 'South-America' },
   { label: 'Africa',        slug: 'Africa' },
   { label: 'North America', slug: 'North-America' },
-{ label: 'Asia', slug: 'Asia' },
+  { label: 'Asia',          slug: 'Asia' },
+];
+const leagues = [
+  { label: 'Serie A',        slug: 'serie-a' },
+  { label: 'Premier League', slug: 'premier-league' },
+  { label: 'Bundesliga',     slug: 'bundesliga' },
+  { label: 'La Liga',        slug: 'la-liga' },
+  { label: 'Ligue 1',        slug: 'ligue-1' },
+  { label: 'Eredivisie',     slug: 'eredivisie' },
+  { label: 'Brasileirao',    slug: 'brasileirao' },
 ];
 ---
 
@@ -135,6 +144,22 @@ const continents = [
         ))}
       </div>
     </div>
+
+<!-- BY LEAGUE -->
+<div class="section-card">
+  <div class="section-header">
+    <div class="section-icon icon-orange">🏆</div>
+    <div>
+      <div class="section-title">By League</div>
+      <div class="section-desc">All-time selections from the greatest football leagues</div>
+    </div>
+  </div>
+  <div class="chips-row">
+    {leagues.map(l => (
+      <a href={'/best/league/' + l.slug} class="chip">{l.label}</a>
+    ))}
+  </div>
+</div>
 
     <!-- BY SKILL -->
     <a href="/best/skills" style="text-decoration:none;">
