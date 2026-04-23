@@ -62,9 +62,10 @@ const SECTIONS = [
 ];
 ---
 
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
   <title>Miscellaneous – The Best – Legends Database</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style is:global>
@@ -158,16 +159,32 @@ const SECTIONS = [
     .empty-note { padding: 22px; font-size: 12.5px; color: #aeaeb2; text-align: center; }
 
     /* MOBILE */
-    @media (max-width: 640px) {
-      .page { padding: 32px 16px 64px; }
-      .page-title { font-size: 26px; }
-      .page-sub { font-size: 13px; margin-bottom: 24px; }
-      .misc-header { padding: 16px; gap: 12px; }
-      .misc-title { font-size: 13.5px; }
-      .misc-count { display: none; }
 
-      /* Schede mobile invece di tabella */
+    /* Desktop: nascondi mobile-cards */
+
+    /* Desktop: hide mobile-cards */
+    @media (min-width: 768px) {
+      .mobile-cards { display: none; }
+    }
+
+    @media (max-width: 767px) {
+      .page { padding: 20px 14px 60px; }
+      .page-eyebrow { font-size: 10px; margin-bottom: 6px; }
+      .page-title { font-size: 24px; letter-spacing: -0.4px; margin-bottom: 6px; }
+      .page-sub { font-size: 13px; margin-bottom: 20px; }
+
+      /* Accordion header */
+      .misc-header { padding: 14px 14px; gap: 10px; }
+      .misc-emoji { font-size: 18px; }
+      .misc-title { font-size: 13.5px; }
+      .misc-note { font-size: 10.5px; }
+      .misc-count { display: none; }
+      .misc-chevron { font-size: 14px; }
+
+      /* Desktop table: hidden on mobile */
       .misc-table { display: none; }
+
+      /* Mobile cards: shown on mobile */
       .mobile-cards { display: block; padding: 8px 12px 12px; }
       .mobile-card {
         background: #f9f9fb;
@@ -180,59 +197,15 @@ const SECTIONS = [
         text-decoration: none;
       }
       .mobile-card:last-child { margin-bottom: 0; }
-      .mobile-card-rank {
-        font-size: 12px;
-        font-weight: 700;
-        color: #aeaeb2;
-        min-width: 24px;
-        text-align: center;
-      }
+      .mobile-card:active { opacity: 0.75; }
+      .mobile-card-rank { font-size: 12px; font-weight: 700; color: #aeaeb2; min-width: 24px; text-align: center; }
       .mobile-card-body { flex: 1; min-width: 0; }
-      .mobile-card-name {
-        font-size: 14px;
-        font-weight: 600;
-        color: #1d1d1f;
-        margin-bottom: 4px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      .mobile-card-meta {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-      }
-      .mobile-card-role {
-        font-size: 10px;
-        font-weight: 700;
-        padding: 2px 7px;
-        border-radius: 4px;
-        letter-spacing: 0.04em;
-      }
-      .mobile-card-nation {
-        font-size: 11.5px;
-        color: #aeaeb2;
-      }
-      .mobile-card-val {
-        font-size: 18px;
-        font-weight: 700;
-        font-variant-numeric: tabular-nums;
-        white-space: nowrap;
-        text-align: right;
-      }
-      .mobile-card-unit {
-        font-size: 10px;
-        color: #aeaeb2;
-        font-weight: 500;
-        display: block;
-        text-align: right;
-        margin-top: 1px;
-      }
-    }
-
-    /* Desktop: nascondi mobile-cards */
-    @media (min-width: 641px) {
-      .mobile-cards { display: none; }
+      .mobile-card-name { font-size: 14px; font-weight: 600; color: #1d1d1f; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .mobile-card-meta { display: flex; align-items: center; gap: 6px; }
+      .mobile-card-role { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; letter-spacing: 0.04em; }
+      .mobile-card-nation { font-size: 11.5px; color: #aeaeb2; }
+      .mobile-card-val { font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; }
+      .mobile-card-unit { font-size: 10px; color: #aeaeb2; font-weight: 500; display: block; text-align: right; margin-top: 1px; }
     }
   </style>
 </head>
