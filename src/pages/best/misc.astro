@@ -31,7 +31,6 @@ function roleColor(role) {
   const att = ['ST', 'FW', 'RW', 'LW'];
   const mid = ['AM', 'CM', 'DM', 'RM', 'LM'];
   const def = ['CB', 'SW', 'RB', 'LB'];
-
   if (att.includes(role)) return { bg: '#fff0ee', text: '#c0392b' };
   if (mid.includes(role)) return { bg: '#eef4ff', text: '#0071e3' };
   if (def.includes(role)) return { bg: '#eeffee', text: '#1a7a1a' };
@@ -46,25 +45,10 @@ function sortAsc(arr, fn) {
   return [...arr].sort((a, b) => fn(a) - fn(b) || (a.name ?? '').localeCompare(b.name ?? ''));
 }
 
-const leftFoot = sortDesc(
-  all.filter(p => p.preferred_foot === 'Left'),
-  p => p.overall_rating ?? 0
-).slice(0, 15);
-
-const rightFoot = sortDesc(
-  all.filter(p => p.preferred_foot === 'Right'),
-  p => p.overall_rating ?? 0
-).slice(0, 15);
-
-const topScorers = sortDesc(
-  all.filter(p => (p.nat_apps ?? 0) >= 10),
-  p => p.nat_goals ?? 0
-).slice(0, 10);
-
-const bestRatio = sortDesc(
-  all.filter(p => (p.nat_apps ?? 0) >= 20),
-  p => parseFloat(p.nat_goal_ratio ?? 0)
-).slice(0, 10);
+const leftFoot = sortDesc(all.filter(p => p.preferred_foot === 'Left'), p => p.overall_rating ?? 0).slice(0, 15);
+const rightFoot = sortDesc(all.filter(p => p.preferred_foot === 'Right'), p => p.overall_rating ?? 0).slice(0, 15);
+const topScorers = sortDesc(all.filter(p => (p.nat_apps ?? 0) >= 10), p => p.nat_goals ?? 0).slice(0, 10);
+const bestRatio = sortDesc(all.filter(p => (p.nat_apps ?? 0) >= 20), p => parseFloat(p.nat_goal_ratio ?? 0)).slice(0, 10);
 
 const goalScoringDef = sortDesc(
   all.filter(p => ['CB', 'SW'].includes(p.role) && (p.club_apps ?? 0) >= 50),
@@ -76,15 +60,8 @@ const technicalGK = sortDesc(
   p => p['first-touch'] ?? 0
 ).slice(0, 10);
 
-const tallest = sortDesc(
-  all.filter(p => p.height),
-  p => p.height
-).slice(0, 10);
-
-const shortest = sortAsc(
-  all.filter(p => p.height && p.height <= 169),
-  p => p.height
-).slice(0, 10);
+const tallest = sortDesc(all.filter(p => p.height), p => p.height).slice(0, 10);
+const shortest = sortAsc(all.filter(p => p.height && p.height <= 169), p => p.height).slice(0, 10);
 
 const SECTIONS = [
   {
@@ -133,7 +110,7 @@ const SECTIONS = [
     valFn: p => p.club_goals,
     valLabel: 'Club Goals',
     colorFn: () => '#1d1d1f',
-    note: 'CB & SW only — club goals — min. 50 club appearances',
+    note: 'CB & SW only - club goals - min. 50 club appearances',
   },
   {
     id: 'techgk',
@@ -166,10 +143,10 @@ const SECTIONS = [
 ];
 ---
 
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8" />
-  <title>Miscellaneous – The Best – Legends Database</title>
+  <title>Miscellaneous - The Best - Legends Database</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -196,46 +173,52 @@ const SECTIONS = [
     .page {
       flex: 1;
       width: 100%;
-      max-width: 860px;
+      max-width: 920px;
       margin: 0 auto;
-      padding: 40px 40px 80px;
+      padding: 40px 40px 72px;
+    }
+
+    .page-head {
+      margin-bottom: 22px;
     }
 
     .page-title {
-      font-size: 26px;
+      font-size: 28px;
       font-weight: 600;
-      letter-spacing: -0.5px;
+      letter-spacing: -0.6px;
       color: #1d1d1f;
-      margin-bottom: 24px;
+      line-height: 1.05;
+      margin-bottom: 8px;
+    }
+
+    .page-subtitle {
+      font-size: 13px;
+      color: #6e6e73;
+      line-height: 1.5;
+      max-width: 640px;
     }
 
     .misc-list {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
     }
 
     .misc-item {
       background: #ffffff;
-      border-radius: 14px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      border-radius: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 14px rgba(0,0,0,0.03);
       overflow: hidden;
     }
 
     .misc-header {
-      width: 100%;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
       padding: 18px 22px;
-      border: 0;
-      background: transparent;
       cursor: pointer;
       transition: background 0.12s;
-      text-align: left;
       user-select: none;
-      appearance: none;
-      -webkit-appearance: none;
     }
 
     .misc-header:hover {
@@ -264,7 +247,7 @@ const SECTIONS = [
       font-size: 11px;
       color: #aeaeb2;
       margin-top: 3px;
-      line-height: 1.4;
+      line-height: 1.45;
     }
 
     .misc-count {
@@ -290,6 +273,7 @@ const SECTIONS = [
     .misc-body {
       display: none;
       border-top: 1px solid #f0f0f5;
+      background: #ffffff;
     }
 
     .misc-item.open .misc-body {
@@ -301,74 +285,60 @@ const SECTIONS = [
       border-collapse: collapse;
     }
 
-    .misc-table tbody tr {
+    .misc-table tr {
       border-bottom: 1px solid #f5f5f7;
     }
 
-    .misc-table tbody tr:last-child {
+    .misc-table tr:last-child {
       border-bottom: none;
     }
 
-    .misc-table tbody tr:hover td {
+    .misc-table tr:hover td {
       background: #f7f7f9;
     }
 
     .misc-table td {
-      padding: 11px 22px;
+      padding: 12px 22px;
       font-size: 12.5px;
       vertical-align: middle;
-    }
-
-    .cell-rank {
-      width: 48px;
+      background: transparent;
+      transition: background 0.12s;
     }
 
     .rank-num {
+      display: inline-block;
+      width: 30px;
       font-size: 11px;
       font-weight: 700;
       color: #aeaeb2;
       font-variant-numeric: tabular-nums;
     }
 
-    .cell-name {
-      width: 42%;
-    }
-
     .p-link {
       color: #1d1d1f;
       text-decoration: none;
       font-weight: 500;
-      line-height: 1.35;
+      line-height: 1.3;
     }
 
     .p-link:hover {
       color: #0071e3;
     }
 
-    .cell-meta {
-      white-space: nowrap;
-    }
-
-    .meta-stack {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
     .p-role {
+      display: inline-block;
       font-size: 10px;
       font-weight: 700;
       padding: 2px 6px;
       border-radius: 4px;
       letter-spacing: 0.04em;
-      line-height: 1.2;
+      white-space: nowrap;
     }
 
     .p-nation {
       font-size: 11.5px;
       color: #aeaeb2;
-      line-height: 1.2;
+      white-space: nowrap;
     }
 
     .p-val {
@@ -383,11 +353,11 @@ const SECTIONS = [
       font-size: 10px;
       color: #aeaeb2;
       font-weight: 500;
-      margin-left: 3px;
+      margin-left: 2px;
     }
 
     .empty-note {
-      padding: 20px 22px;
+      padding: 22px;
       font-size: 12.5px;
       color: #aeaeb2;
       text-align: center;
@@ -395,72 +365,120 @@ const SECTIONS = [
 
     @media (max-width: 720px) {
       .page {
-        padding: 28px 18px 56px;
+        padding: 24px 16px 48px;
+      }
+
+      .page-head {
+        margin-bottom: 18px;
       }
 
       .page-title {
         font-size: 24px;
-        margin-bottom: 18px;
+        letter-spacing: -0.5px;
+        margin-bottom: 6px;
+      }
+
+      .page-subtitle {
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      .misc-list {
+        gap: 10px;
       }
 
       .misc-header {
-        padding: 16px 16px;
         align-items: flex-start;
+        padding: 16px;
+        gap: 12px;
+      }
+
+      .misc-title {
+        font-size: 13.5px;
+      }
+
+      .misc-note {
+        font-size: 10.5px;
       }
 
       .misc-count {
         display: none;
       }
 
-      .misc-table,
-      .misc-table tbody {
-        display: block;
+      .misc-body {
+        padding: 10px;
+        background: #f9f9fb;
       }
 
-      .misc-table tbody tr {
-        display: grid;
-        grid-template-columns: 34px minmax(0, 1fr) auto;
-        grid-template-areas:
-          "rank name value"
-          "rank meta value";
-        gap: 4px 10px;
-        padding: 12px 16px;
+      .misc-table,
+      .misc-table tbody,
+      .misc-table tr,
+      .misc-table td {
+        display: block;
+        width: 100%;
+      }
+
+      .misc-table tr {
+        background: #ffffff;
+        border: 1px solid #f0f0f5;
+        border-radius: 12px;
+        padding: 12px 12px 10px;
+        margin-bottom: 8px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+      }
+
+      .misc-table tr:last-child {
+        margin-bottom: 0;
+      }
+
+      .misc-table tr:hover td {
+        background: transparent;
       }
 
       .misc-table td {
         padding: 0;
-        background: transparent !important;
+        border: none;
       }
 
-      .cell-rank {
-        grid-area: rank;
+      .misc-table td:nth-child(1) {
+        margin-bottom: 6px;
+      }
+
+      .misc-table td:nth-child(2) {
+        margin-bottom: 8px;
+      }
+
+      .misc-table td:nth-child(3),
+      .misc-table td:nth-child(4) {
+        display: inline-block;
         width: auto;
-        padding-top: 2px;
+        vertical-align: middle;
       }
 
-      .cell-name {
-        grid-area: name;
+      .misc-table td:nth-child(4) {
+        margin-left: 8px;
+      }
+
+      .misc-table td:nth-child(5) {
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid #f2f2f7;
+      }
+
+      .rank-num {
         width: auto;
-        min-width: 0;
-      }
-
-      .cell-meta {
-        grid-area: meta;
-        min-width: 0;
-      }
-
-      .cell-value {
-        grid-area: value;
-        align-self: center;
-      }
-
-      .meta-stack {
-        gap: 6px;
+        font-size: 10px;
       }
 
       .p-link {
-        display: inline-block;
-        font-size: 13px;
+        display: block;
+        font-size: 13.5px;
+        line-height: 1.35;
+      }
+
+      .p-role {
+        font-size: 9.5px;
+        padding: 2px 7px;
       }
 
       .p-nation {
@@ -468,26 +486,17 @@ const SECTIONS = [
       }
 
       .p-val {
-        font-size: 13px;
-      }
-    }
-
-    @media (max-width: 420px) {
-      .page {
-        padding-left: 14px;
-        padding-right: 14px;
-      }
-
-      .misc-header {
-        padding: 15px 14px;
-      }
-
-      .misc-table tbody tr {
-        padding: 12px 14px;
-      }
-
-      .misc-title {
+        text-align: left;
         font-size: 13.5px;
+      }
+
+      .p-val-unit {
+        margin-left: 4px;
+      }
+
+      .empty-note {
+        padding: 18px 12px;
+        font-size: 12px;
       }
     }
   </style>
@@ -498,16 +507,17 @@ const SECTIONS = [
 
   <div class="site-shell">
     <main class="page">
-      <h1 class="page-title">Miscellaneous</h1>
+      <div class="page-head">
+        <h1 class="page-title">Miscellaneous</h1>
+        <p class="page-subtitle">
+          A curated set of unusual rankings and special lists across the database.
+        </p>
+      </div>
 
       <div class="misc-list">
         {SECTIONS.map((sec, i) => (
-          <section class={`misc-item${i === 0 ? ' open' : ''}`}>
-            <button
-              class="misc-header"
-              type="button"
-              aria-expanded={i === 0 ? 'true' : 'false'}
-            >
+          <div class={`misc-item${i === 0 ? ' open' : ''}`}>
+            <div class="misc-header">
               <span class="misc-emoji">{sec.emoji}</span>
               <div class="misc-header-body">
                 <div class="misc-title">{sec.label}</div>
@@ -515,48 +525,34 @@ const SECTIONS = [
               </div>
               <span class="misc-count">{sec.players.length} players</span>
               <span class="misc-chevron">›</span>
-            </button>
+            </div>
 
             <div class="misc-body">
               {sec.players.length === 0 ? (
                 <div class="empty-note">No data available.</div>
               ) : (
                 <table class="misc-table">
-                  <tbody>
-                    {sec.players.map((p, idx) => {
-                      const rc = roleColor(p.role);
-                      const raw = sec.valFn(p);
-                      const val = raw ?? '—';
-                      const col = raw != null ? sec.colorFn(raw) : '#aeaeb2';
-
-                      return (
-                        <tr>
-                          <td class="cell-rank">
-                            <span class="rank-num">#{idx + 1}</span>
-                          </td>
-
-                          <td class="cell-name">
-                            <a href={`/player/${p.slug}`} class="p-link">{p.name}</a>
-                          </td>
-
-                          <td class="cell-meta">
-                            <div class="meta-stack">
-                              <span class="p-role" style={`background:${rc.bg};color:${rc.text};`}>{p.role}</span>
-                              <span class="p-nation">{p.nation}</span>
-                            </div>
-                          </td>
-
-                          <td class="cell-value p-val" style={`color:${col};`}>
-                            {val}<span class="p-val-unit">{sec.valLabel}</span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
+                  {sec.players.map((p, idx) => {
+                    const rc = roleColor(p.role);
+                    const raw = sec.valFn(p);
+                    const val = raw ?? '—';
+                    const col = raw != null ? sec.colorFn(raw) : '#aeaeb2';
+                    return (
+                      <tr>
+                        <td><span class="rank-num">#{idx + 1}</span></td>
+                        <td><a href={`/player/${p.slug}`} class="p-link">{p.name}</a></td>
+                        <td><span class="p-role" style={`background:${rc.bg};color:${rc.text};`}>{p.role}</span></td>
+                        <td><span class="p-nation">{p.nation}</span></td>
+                        <td class="p-val" style={`color:${col};`}>
+                          {val}<span class="p-val-unit">{sec.valLabel}</span>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </table>
               )}
             </div>
-          </section>
+          </div>
         ))}
       </div>
     </main>
@@ -569,9 +565,7 @@ const SECTIONS = [
       header.addEventListener('click', () => {
         const item = header.closest('.misc-item');
         if (!item) return;
-
         item.classList.toggle('open');
-        header.setAttribute('aria-expanded', item.classList.contains('open') ? 'true' : 'false');
       });
     });
   </script>
