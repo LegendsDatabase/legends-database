@@ -361,6 +361,21 @@ const radarLabelData=radarAxes.map((ax,i)=>{
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
   <title>{p.name} – Legends Database</title>
+  <meta name="description" content={p.role + ' · ' + p.nation + ' · OVR ' + p.overall_rating + ' · ' + (p.iconic_club ?? '') + '. Full stats, skills and career profile on Legends Database.'}/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href={'https://legendsdatabase.com/player/' + p.slug}/>
+  <meta property="og:type"         content="profile"/>
+  <meta property="og:url"          content={'https://legendsdatabase.com/player/' + p.slug}/>
+  <meta property="og:title"        content={p.name + ' – Legends Database'}/>
+  <meta property="og:description"  content={p.role + ' · ' + p.nation + ' · OVR ' + p.overall_rating + '. Full stats and career profile on Legends Database.'}/>
+  <meta property="og:image"        content="https://legendsdatabase.com/og-image.jpg"/>
+  <meta property="og:image:width"  content="1200"/>
+  <meta property="og:image:height" content="630"/>
+  <meta property="og:locale"       content="en_US"/>
+  <meta name="twitter:card"        content="summary_large_image"/>
+  <meta name="twitter:title"       content={p.name + ' – Legends Database'}/>
+  <meta name="twitter:description" content={p.role + ' · ' + p.nation + ' · OVR ' + p.overall_rating + '. Full stats and career profile on Legends Database.'}/>
+  <meta name="twitter:image"       content="https://legendsdatabase.com/og-image.jpg"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <style is:global>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
