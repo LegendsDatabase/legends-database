@@ -3,9 +3,10 @@ import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 ---
 
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
   <title>Contact – Legends Database</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style is:global>
@@ -146,6 +147,17 @@ import Footer from '../components/Footer.astro';
       color: #c7c7cc;
       margin-top: 18px;
       line-height: 1.5;
+    }
+
+    @media (max-width: 767px) {
+      .page { padding: 20px 14px 60px; }
+      .page-title { font-size: 28px; letter-spacing: -0.4px; }
+      .page-sub { font-size: 13.5px; margin-bottom: 28px; }
+      .form-card { padding: 24px 18px; border-radius: 16px; }
+      .field { margin-bottom: 14px; }
+      .field input, .field textarea { font-size: 16px; padding: 12px 14px; border-radius: 10px; }
+      .submit-btn { font-size: 16px; padding: 13px; border-radius: 10px; }
+      .form-status { padding: 24px 16px; }
     }
   </style>
 </head>

@@ -46,9 +46,10 @@ const countryFlags: Record<string, string> = {
 };
 ---
 
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
   <title>Sources – Legends Database</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
@@ -200,10 +201,17 @@ const countryFlags: Record<string, string> = {
       font-size: 12.5px; color: #6e6e73; line-height: 1.7;
     }
 
-    @media (max-width: 600px) {
-      .page { padding: 32px 20px 60px; }
-      .page-title { font-size: 30px; }
+    @media (max-width: 767px) {
+      .page { padding: 20px 14px 60px; }
+      .page-title { font-size: 26px; letter-spacing: -0.4px; }
+      .page-sub { font-size: 13px; margin-bottom: 28px; }
       .print-grid { grid-template-columns: 1fr; }
+      .print-card { padding: 13px 14px; gap: 11px; }
+      .print-flag { font-size: 20px; width: 28px; }
+      .print-name { font-size: 12.5px; }
+      .section-eyebrow { font-size: 10px; margin-bottom: 10px; }
+      .section-divider { margin: 6px 0 24px; }
+      .digital-card { padding: 13px 14px; gap: 12px; }
     }
   </style>
 </head>
