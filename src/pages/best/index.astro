@@ -21,32 +21,56 @@ const leagues = [
 ];
 ---
 
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
   <title>The Best – Legends Database</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<style is:global>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style is:global>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; }
-    body { display: flex; flex-direction: column; min-height: 100vh; }
-    body { font-family: -apple-system, 'SF Pro Text', 'Inter', sans-serif; background: #f2f2f7; color: #1d1d1f; padding-top: 44px; -webkit-font-smoothing: antialiased; }
-    .page { max-width: 860px; margin: 0 auto; padding: 48px 40px 80px; }
-    .page-eyebrow { font-size: 11px; font-weight: 700; color: #0071e3; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
-    .page-title { font-size: 40px; font-weight: 700; letter-spacing: -1px; color: #1d1d1f; line-height: 1.1; margin-bottom: 8px; }
-    .page-sub { font-size: 15px; color: #6e6e73; margin-bottom: 32px; line-height: 1.5; }
+    body {
+      display: flex; flex-direction: column; min-height: 100vh;
+      font-family: -apple-system, 'SF Pro Text', 'Inter', sans-serif;
+      background: #f2f2f7; color: #1d1d1f; padding-top: 44px;
+      -webkit-font-smoothing: antialiased;
+    }
 
-    /* WORLD XI BANNER */
-    .worldxi-banner { display: flex; align-items: center; gap: 20px; background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%); border-radius: 16px; padding: 22px 28px; text-decoration: none; margin-bottom: 32px; transition: transform 0.15s, box-shadow 0.15s; box-shadow: 0 2px 12px rgba(0,0,0,0.14); }
+    .page { max-width: 860px; margin: 0 auto; padding: 48px 40px 80px; }
+
+    .page-eyebrow { font-size: 11px; font-weight: 700; color: #0071e3; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+    .page-title   { font-size: 40px; font-weight: 700; letter-spacing: -1px; color: #1d1d1f; line-height: 1.1; margin-bottom: 8px; }
+    .page-sub     { font-size: 15px; color: #6e6e73; margin-bottom: 32px; line-height: 1.5; }
+
+    /* ─── WORLD XI BANNER ─── */
+    .worldxi-banner {
+      display: flex; align-items: center; gap: 20px;
+      background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+      border-radius: 16px; padding: 22px 28px;
+      text-decoration: none; margin-bottom: 32px;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.14);
+    }
     .worldxi-banner:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,0,0,0.20); }
-    .worldxi-banner-badge { width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, #ffd700, #ffb300); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: #1a1a2e; flex-shrink: 0; box-shadow: 0 2px 8px rgba(255,183,0,0.4); }
-    .worldxi-banner-body { flex: 1; }
+    .worldxi-banner-badge {
+      width: 52px; height: 52px; border-radius: 14px;
+      background: linear-gradient(135deg, #ffd700, #ffb300);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 800; color: #1a1a2e;
+      flex-shrink: 0; box-shadow: 0 2px 8px rgba(255,183,0,0.4);
+    }
+    .worldxi-banner-body { flex: 1; min-width: 0; }
     .worldxi-banner-title { font-size: 16px; font-weight: 600; color: #ffffff; letter-spacing: -0.2px; margin-bottom: 4px; }
-    .worldxi-banner-sub { font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.4; }
+    .worldxi-banner-sub   { font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.4; }
     .worldxi-banner-arrow { font-size: 20px; color: rgba(255,255,255,0.35); flex-shrink: 0; }
 
-    /* SECTION CARDS */
-    .section-card { background: #ffffff; border-radius: 20px; padding: 28px 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 20px rgba(0,0,0,0.04); margin-bottom: 16px; transition: box-shadow 0.2s; }
+    /* ─── SECTION CARD ─── */
+    .section-card {
+      background: #ffffff; border-radius: 20px; padding: 28px 32px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 20px rgba(0,0,0,0.04);
+      margin-bottom: 16px; transition: box-shadow 0.2s;
+    }
     .section-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 8px 28px rgba(0,0,0,0.06); }
     .section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
     .section-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
@@ -55,47 +79,111 @@ const leagues = [
     .icon-purple { background: #f3eeff; }
     .icon-orange { background: #fff4ee; }
     .section-title { font-size: 17px; font-weight: 600; color: #1d1d1f; letter-spacing: -0.2px; }
-    .section-desc { font-size: 12.5px; color: #aeaeb2; margin-top: 1px; }
+    .section-desc  { font-size: 12.5px; color: #aeaeb2; margin-top: 1px; }
 
-    /* DECADE CHIPS */
+    /* ─── DECADE CHIPS ─── */
     .chips-row { display: flex; gap: 8px; flex-wrap: wrap; }
-    .chip { display: inline-flex; align-items: center; text-decoration: none; font-size: 13px; font-weight: 600; padding: 8px 18px; border-radius: 20px; border: 1.5px solid #e5e5ea; color: #1d1d1f; background: #f9f9fb; transition: background 0.15s, border-color 0.15s, transform 0.12s, box-shadow 0.15s; letter-spacing: -0.1px; }
+    .chip {
+      display: inline-flex; align-items: center; text-decoration: none;
+      font-size: 13px; font-weight: 600; padding: 8px 18px;
+      border-radius: 20px; border: 1.5px solid #e5e5ea;
+      color: #1d1d1f; background: #f9f9fb;
+      transition: background 0.15s, border-color 0.15s, transform 0.12s, box-shadow 0.15s;
+      letter-spacing: -0.1px;
+    }
     .chip:hover { background: #0071e3; border-color: #0071e3; color: #ffffff; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,113,227,0.25); }
 
-    /* CONTINENT GRID */
+    /* ─── CONTINENT GRID ─── */
     .continent-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .continent-chip { display: flex; align-items: center; gap: 10px; text-decoration: none; background: #f9f9fb; border: 1.5px solid #e5e5ea; border-radius: 14px; padding: 14px 18px; transition: background 0.15s, border-color 0.15s, transform 0.12s, box-shadow 0.15s; }
+    .continent-chip {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none; background: #f9f9fb;
+      border: 1.5px solid #e5e5ea; border-radius: 14px; padding: 14px 18px;
+      transition: background 0.15s, border-color 0.15s, transform 0.12s, box-shadow 0.15s;
+    }
     .continent-chip:hover { background: #0071e3; border-color: #0071e3; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,113,227,0.2); }
-    .continent-chip:hover .cc-label, .continent-chip:hover .cc-arrow { color: #ffffff; }
+    .continent-chip:hover .cc-label,
+    .continent-chip:hover .cc-arrow { color: #ffffff; }
     .cc-label { font-size: 13.5px; font-weight: 600; color: #1d1d1f; flex: 1; transition: color 0.15s; }
     .cc-arrow { font-size: 16px; color: #aeaeb2; transition: color 0.15s; }
 
-    /* LINK CARDS */
-    .link-card { display: flex; align-items: center; text-decoration: none; gap: 16px; }
-    .link-card-body { flex: 1; }
+    /* ─── LINK CARDS (skill / misc) ─── */
+    .link-card-body  { flex: 1; }
     .link-card-title { font-size: 15px; font-weight: 600; color: #1d1d1f; margin-bottom: 4px; }
-    .link-card-desc { font-size: 12.5px; color: #aeaeb2; line-height: 1.5; }
+    .link-card-desc  { font-size: 12.5px; color: #aeaeb2; line-height: 1.5; }
     .link-card-arrow { font-size: 20px; color: #aeaeb2; transition: color 0.15s, transform 0.15s; }
     .section-card.clickable { cursor: pointer; }
     .section-card.clickable:hover .link-card-arrow { color: #0071e3; transform: translateX(3px); }
 
     .skill-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 14px; }
-    .skill-pill { font-size: 10.5px; font-weight: 600; padding: 3px 9px; border-radius: 6px; background: #f0f0f5; color: #6e6e73; letter-spacing: 0.02em; }
-    .misc-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 14px; }
-    .misc-pill { font-size: 10.5px; font-weight: 600; padding: 3px 9px; border-radius: 6px; background: #fff4ee; color: #b07800; letter-spacing: 0.02em; }
+    .skill-pill  { font-size: 10.5px; font-weight: 600; padding: 3px 9px; border-radius: 6px; background: #f0f0f5; color: #6e6e73; letter-spacing: 0.02em; }
+    .misc-pills  { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 14px; }
+    .misc-pill   { font-size: 10.5px; font-weight: 600; padding: 3px 9px; border-radius: 6px; background: #fff4ee; color: #b07800; letter-spacing: 0.02em; }
 
-    @media (max-width: 600px) {
-      .page { padding: 32px 20px 60px; }
-      .page-title { font-size: 30px; }
-      .section-card { padding: 20px 20px; }
-      .continent-grid { grid-template-columns: 1fr; }
+    /* ══════════════════════════════════════════
+       MOBILE — max-width: 767px
+    ══════════════════════════════════════════ */
+    @media (max-width: 767px) {
+
+      .page {
+        padding: 24px 14px 80px;
+      }
+
+      .page-eyebrow { font-size: 10px; margin-bottom: 6px; }
+      .page-title   { font-size: 28px; letter-spacing: -0.5px; margin-bottom: 6px; }
+      .page-sub     { font-size: 13px; margin-bottom: 20px; }
+
+      /* World XI banner */
+      .worldxi-banner {
+        padding: 16px 18px; gap: 14px;
+        border-radius: 14px; margin-bottom: 20px;
+      }
+      .worldxi-banner-badge { width: 44px; height: 44px; font-size: 15px; border-radius: 11px; }
+      .worldxi-banner-title { font-size: 15px; }
+      .worldxi-banner-sub   { font-size: 11.5px; }
+      .worldxi-banner-arrow { font-size: 18px; }
+
+      /* Section cards */
+      .section-card { padding: 18px 16px; border-radius: 16px; margin-bottom: 12px; }
+      .section-header { gap: 12px; margin-bottom: 16px; }
+      .section-icon { width: 36px; height: 36px; font-size: 18px; border-radius: 9px; }
+      .section-title { font-size: 15px; }
+      .section-desc  { font-size: 11.5px; }
+
+      /* Decade chips — bigger tap targets, 2 per row */
+      .chips-row { gap: 8px; }
+      .chip {
+        font-size: 14px;
+        padding: 10px 0;
+        border-radius: 12px;
+        flex: 1 1 calc(50% - 4px);
+        justify-content: center;
+        min-width: 0;
+      }
+
+      /* Continent chips — single column, taller */
+      .continent-grid { grid-template-columns: 1fr; gap: 8px; }
+      .continent-chip { padding: 14px 16px; border-radius: 12px; }
+      .cc-label { font-size: 14px; }
+      .cc-arrow { font-size: 18px; }
+
+      /* Link cards (skill, misc) */
+      .link-card-title { font-size: 15px; }
+      .link-card-desc  { font-size: 12px; }
+      .section-card.clickable .section-header { margin-bottom: 0; }
+
+      .skill-pills { margin-top: 12px; gap: 5px; }
+      .skill-pill  { font-size: 10px; padding: 4px 9px; }
+      .misc-pills  { margin-top: 12px; gap: 5px; }
+      .misc-pill   { font-size: 10px; padding: 4px 9px; }
     }
   </style>
 </head>
 
 <body>
-  <Navbar />
+  <Navbar/>
   <div class="page">
+
     <div class="page-eyebrow">Legends Database</div>
     <h1 class="page-title">The Best</h1>
     <p class="page-sub">Football's greatest legends, organized by era, geography, and skill.</p>
@@ -107,13 +195,13 @@ const leagues = [
         <div class="worldxi-banner-title">All-Time World XI</div>
         <div class="worldxi-banner-sub">The ultimate selection — 25 greatest legends across all eras and nations</div>
       </div>
-      <div class="worldxi-banner-arrow">→</div>
+      <div class="worldxi-banner-arrow">&#8594;</div>
     </a>
 
     <!-- BY DECADE -->
     <div class="section-card">
       <div class="section-header">
-        <div class="section-icon icon-blue">🗓</div>
+        <div class="section-icon icon-blue">&#128197;</div>
         <div>
           <div class="section-title">By Decade</div>
           <div class="section-desc">All-time selections across seven eras of football</div>
@@ -129,7 +217,7 @@ const leagues = [
     <!-- BY CONTINENT -->
     <div class="section-card">
       <div class="section-header">
-        <div class="section-icon icon-green">🌍</div>
+        <div class="section-icon icon-green">&#127757;</div>
         <div>
           <div class="section-title">By Continent</div>
           <div class="section-desc">The greatest players from each part of the world</div>
@@ -139,38 +227,38 @@ const leagues = [
         {continents.map(c => (
           <a href={`/best/continent/${c.slug}`} class="continent-chip">
             <span class="cc-label">{c.label}</span>
-            <span class="cc-arrow">›</span>
+            <span class="cc-arrow">&#8250;</span>
           </a>
         ))}
       </div>
     </div>
 
-<!-- BY LEAGUE -->
-<div class="section-card">
-  <div class="section-header">
-    <div class="section-icon icon-orange">🏆</div>
-    <div>
-      <div class="section-title">By League</div>
-      <div class="section-desc">All-time selections from the greatest football leagues</div>
+    <!-- BY LEAGUE -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-icon icon-orange">&#127942;</div>
+        <div>
+          <div class="section-title">By League</div>
+          <div class="section-desc">All-time selections from the greatest football leagues</div>
+        </div>
+      </div>
+      <div class="chips-row">
+        {leagues.map(l => (
+          <a href={`/best/league/${l.slug}`} class="chip">{l.label}</a>
+        ))}
+      </div>
     </div>
-  </div>
-  <div class="chips-row">
-    {leagues.map(l => (
-      <a href={'/best/league/' + l.slug} class="chip">{l.label}</a>
-    ))}
-  </div>
-</div>
 
     <!-- BY SKILL -->
     <a href="/best/skills" style="text-decoration:none;">
       <div class="section-card clickable">
         <div class="section-header" style="margin-bottom:0;">
-          <div class="section-icon icon-purple">⚡</div>
+          <div class="section-icon icon-purple">&#9889;</div>
           <div class="link-card-body">
             <div class="link-card-title">By Skill</div>
             <div class="link-card-desc">Top 10 players for each of the 34 individual skills</div>
           </div>
-          <div class="link-card-arrow">›</div>
+          <div class="link-card-arrow">&#8250;</div>
         </div>
         <div class="skill-pills">
           {['Pace','Dribbling','Finishing','Passing','Heading','Tackling','Vision','Strength'].map(s => (
@@ -185,12 +273,12 @@ const leagues = [
     <a href="/best/misc" style="text-decoration:none;">
       <div class="section-card clickable">
         <div class="section-header" style="margin-bottom:0;">
-          <div class="section-icon icon-orange">✦</div>
+          <div class="section-icon icon-orange">&#10022;</div>
           <div class="link-card-body">
             <div class="link-card-title">Miscellaneous</div>
             <div class="link-card-desc">Special categories and unusual rankings</div>
           </div>
-          <div class="link-card-arrow">›</div>
+          <div class="link-card-arrow">&#8250;</div>
         </div>
         <div class="misc-pills">
           {['Left Foot','Right Foot','Top Scorers','Best Ratio','Tallest'].map(s => (
@@ -201,6 +289,6 @@ const leagues = [
     </a>
 
   </div>
-<Footer/>
+  <Footer/>
 </body>
 </html>
