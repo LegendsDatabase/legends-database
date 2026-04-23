@@ -117,9 +117,10 @@ const allContinentStats = VALID_CONTINENTS.map(n=>buildContinentStats(n)).filter
 const currentStats = buildContinentStats(continentName);
 ---
 
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
   <title>{displayName} – Legends Database</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style is:global>
@@ -230,9 +231,112 @@ const currentStats = buildContinentStats(continentName);
     .clash-fill-left{float:right;}
     .clash-win{font-weight:800;}
     .clash-empty{text-align:center;padding:40px;color:#aeaeb2;font-size:14px;}
+    @media(max-width:767px){
+      /* ── PAGE ── */
+      .page{padding:16px 14px 80px;}
+      .back{font-size:12px;margin-bottom:16px;}
 
-    @media(max-width:640px){
-      .page{padding:24px 20px 60px;}
+      /* ── NAV STRIPS (continent / decade / league): horizontal scroll ── */
+      .continent-nav,.decade-nav,.league-nav{
+        flex-wrap:nowrap;overflow-x:auto;
+        -webkit-overflow-scrolling:touch;
+        scrollbar-width:none;gap:6px;
+        padding-bottom:4px;margin-bottom:14px;
+      }
+      .continent-nav::-webkit-scrollbar,.decade-nav::-webkit-scrollbar,.league-nav::-webkit-scrollbar{display:none;}
+      .continent-nav-btn,.decade-nav-btn,.league-nav-btn{font-size:11.5px;padding:6px 12px;flex-shrink:0;}
+
+      /* ── HERO: stack vertically ── */
+      .hero{flex-direction:column;align-items:flex-start;gap:14px;padding:18px 16px;border-radius:14px;margin-bottom:12px;}
+      .continent-badge,.decade-badge,.league-badge{width:52px;height:52px;border-radius:12px;}
+      .continent-badge-emoji,.league-badge-emoji{font-size:24px;}
+      .decade-badge-num{font-size:17px;}
+      .decade-badge-s{font-size:10px;}
+      .team-name{font-size:20px;margin-bottom:6px;letter-spacing:-0.3px;}
+      .hero-tags{gap:6px;margin-bottom:10px;}
+      .tag{font-size:10.5px;padding:3px 8px;}
+      .dept-grid{gap:0;}
+      .dept-item{padding:0 14px 0 0;}
+      .dept-sep{height:24px;margin-right:14px;}
+      .dept-val{font-size:18px;}
+      .dept-label{font-size:8.5px;}
+      .ovr-block{align-self:flex-start;margin-left:auto;}
+      .ovr-num{font-size:36px;letter-spacing:-1px;}
+      .ovr-sub{font-size:9px;}
+
+      /* ── LINEUP CARD ── */
+      .lineup-card{padding:16px 12px 14px;border-radius:14px;}
+      .card{padding:16px 12px;border-radius:14px;}
+      .card-title{margin-bottom:14px;}
+      .lineup-top{margin-bottom:12px;}
+
+      /* Formation tabs: horizontal scroll */
+      .formation-tabs{
+        flex-wrap:nowrap;overflow-x:auto;
+        -webkit-overflow-scrolling:touch;
+        scrollbar-width:none;gap:5px;
+        padding-bottom:2px;width:100%;
+      }
+      .formation-tabs::-webkit-scrollbar{display:none;}
+      .form-btn{font-size:10.5px;padding:5px 10px;flex-shrink:0;}
+
+      /* Pitch */
+      .lineup-pitch{height:340px;border-radius:9px;}
+      .token-circle{width:28px;height:28px;}
+      .token-init{font-size:8.5px;}
+      .token-name{font-size:8px;max-width:58px;}
+      .token-ovr{font-size:7px;}
+
+      /* Roster table */
+      .roster-table thead th{padding:0 8px 10px;font-size:9.5px;}
+      .player-row td{padding:9px 8px;font-size:12px;}
+      .section-row td{padding:14px 8px 5px;}
+      .role-badge{font-size:9.5px;padding:2px 6px;}
+      .col-mob-hide{display:none;}
+
+      /* Highlights: 2 cols */
+      .highlights-grid{grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px;}
+      .hl-card{padding:14px 12px;border-radius:12px;gap:4px;}
+      .hl-label{font-size:9px;}
+      .hl-name a{font-size:12.5px;}
+      .hl-val{font-size:24px;}
+      .hl-unit{font-size:10.5px;}
+
+      /* Records: 1 col */
+      .records-grid{grid-template-columns:1fr;gap:8px;margin-bottom:12px;}
+      .rec-card{padding:14px 16px;border-radius:12px;}
+      .rec-label{font-size:9px;}
+      .rec-name a{font-size:13px;}
+      .rec-val{font-size:28px;}
+
+      /* Height: 3 cols */
+      .height-grid{grid-template-columns:repeat(3,1fr);}
+      .height-item{padding:10px 4px;}
+      .height-val{font-size:17px;}
+      .height-label{font-size:9px;}
+
+      /* Clash section */
+      .clash-header{flex-direction:column;align-items:flex-start;gap:10px;}
+      .clash-deck-select{
+        flex-wrap:nowrap;overflow-x:auto;
+        -webkit-overflow-scrolling:touch;
+        scrollbar-width:none;gap:5px;
+        padding-bottom:2px;width:100%;
+      }
+      .clash-deck-select::-webkit-scrollbar{display:none;}
+      .clash-chip{flex-shrink:0;font-size:11px;padding:5px 11px;}
+      .clash-vs-banner{gap:8px;padding:14px 12px;}
+      .clash-vs-name,.clash-vs-decade,.clash-league-name{font-size:15px;letter-spacing:-0.3px;}
+      .clash-vs-emoji,.clash-league-emoji{font-size:20px;}
+      .clash-vs-sub,.clash-vs-ovr{font-size:12px;}
+      .clash-score-num{font-size:22px;}
+      .clash-metric{grid-template-columns:1fr 44px 1fr;gap:5px;}
+      .clash-metric-label{font-size:9px;}
+      .clash-val{font-size:11px;min-width:24px;}
+      .clash-track{height:6px;}
+      .clash-title{font-size:16px;}
+      .clash-empty{padding:24px;font-size:13px;}
+    }
       .hero{flex-direction:column;align-items:flex-start;gap:16px;}
       .highlights-grid{grid-template-columns:repeat(2,1fr);}
       .records-grid{grid-template-columns:1fr;}
@@ -326,9 +430,9 @@ const currentStats = buildContinentStats(continentName);
             <th data-col="name">Player <span></span></th>
             <th data-col="role">Role <span></span></th>
             <th class="col-ovr" data-col="ovr">OVR <span></span></th>
-            <th class="col-stat" data-col="def">DEF <span></span></th>
-            <th class="col-stat" data-col="play">PLAY <span></span></th>
-            <th class="col-stat" data-col="att">ATT <span></span></th>
+            <th class="col-stat col-mob-hide" data-col="def">DEF <span></span></th>
+            <th class="col-stat col-mob-hide" data-col="play">PLAY <span></span></th>
+            <th class="col-stat col-mob-hide" data-col="att">ATT <span></span></th>
           </tr></thead>
           <tbody id="rosterBody"></tbody>
         </table>
