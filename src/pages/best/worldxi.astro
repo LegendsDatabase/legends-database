@@ -112,9 +112,10 @@ const rosterData = roster.map(p=>({
 }));
 ---
 
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
   <title>All-Time World XI – Legends Database</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style is:global>
@@ -223,15 +224,77 @@ const rosterData = roster.map(p=>({
     .height-label{font-size:10px;font-weight:600;color:#aeaeb2;letter-spacing:0.05em;text-transform:uppercase;}
     .height-item.total .height-val,.height-item.total .height-label{color:#0071e3;}
 
-    @media(max-width:640px){
-      .page{padding:24px 20px 60px;}
-      .hero-xi{flex-direction:column;align-items:flex-start;gap:16px;padding:24px 24px;}
-      .awards-grid{grid-template-columns:repeat(2,1fr);}
-      .dna-grid{grid-template-columns:1fr;}
+    @media(max-width:767px){
+      /* Page */
+      .page{padding:16px 14px 60px;}
+      .back{font-size:12px;margin-bottom:16px;}
+
+      /* Hero: dark card, stack vertically */
+      .hero-xi{flex-direction:column;align-items:flex-start;gap:14px;padding:18px 16px;border-radius:16px;margin-bottom:12px;}
+      .xi-badge{width:52px;height:52px;border-radius:13px;}
+      .xi-badge-text{font-size:18px;}
+      .xi-badge-sub{font-size:8px;}
+      .xi-title{font-size:20px;margin-bottom:4px;}
+      .xi-subtitle{font-size:11px;margin-bottom:12px;}
+      .xi-dept-row{gap:0;}
+      .xi-dept-item{padding:0 14px 0 0;}
+      .xi-dept-sep{height:22px;margin-right:14px;}
+      .xi-dept-val{font-size:17px;}
+      .xi-dept-label{font-size:8px;}
+      .xi-ovr-block{align-self:flex-start;margin-left:auto;}
+      .xi-ovr{font-size:40px;letter-spacing:-1.5px;}
+      .xi-ovr-sub{font-size:9px;margin-top:2px;}
+
+      /* Section header */
+      .section-header{font-size:10px;margin:20px 0 10px 2px;}
+
+      /* Card */
+      .card{padding:16px 12px;border-radius:14px;margin-bottom:12px;}
+      .card-title{margin-bottom:14px;}
+
+      /* Lineup */
+      .lineup-card{padding:14px 12px 12px;border-radius:14px;}
+      .lineup-top{margin-bottom:10px;}
+      .formation-tabs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:5px;padding-bottom:2px;width:100%;}
+      .formation-tabs::-webkit-scrollbar{display:none;}
+      .form-btn{font-size:10.5px;padding:5px 10px;flex-shrink:0;}
+      .lineup-pitch{height:340px;border-radius:9px;}
+      .token-circle{width:28px;height:28px;}
+      .token-init{font-size:8.5px;}
+      .token-name{font-size:8px;max-width:58px;}
+      .token-ovr{font-size:7px;}
+
+      /* Roster table */
+      .roster-table thead th{padding:0 8px 10px;font-size:9.5px;}
+      .player-row td{padding:9px 8px;font-size:12px;}
+      .section-row td{padding:14px 8px 5px;}
+      .role-badge{font-size:9.5px;padding:2px 6px;}
+      .col-mob-hide{display:none;}
+
+      /* Awards: 2 cols */
+      .awards-grid{grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:6px;}
+      .aw-card{padding:13px 12px 11px;border-radius:12px;gap:3px;}
+      .aw-label{font-size:9px;}
+      .aw-name a{font-size:11.5px;}
+      .aw-val{font-size:22px;margin-top:4px;}
+      .aw-sub{font-size:9.5px;}
+
+      /* DNA: 1 col */
+      .dna-grid{grid-template-columns:1fr;gap:10px;}
+      .dna-card{padding:16px 14px 12px;border-radius:12px;}
+      .dna-label{font-size:11.5px;min-width:80px;}
+
+      /* Foot + dept split */
+      .dept-split{grid-template-columns:repeat(4,1fr);}
+      .dept-split-item{padding:10px 4px;}
+      .dept-split-val{font-size:18px;}
+      .dept-split-label{font-size:9px;}
+
+      /* Height: 3 cols */
       .height-grid{grid-template-columns:repeat(3,1fr);}
-      .dept-split{grid-template-columns:repeat(2,1fr);}
-      .lineup-pitch{height:380px;}
-      .token-circle{width:28px;height:28px;} .token-init{font-size:8.5px;} .token-name{font-size:8px;max-width:60px;} .token-ovr{font-size:7px;}
+      .height-item{padding:10px 4px;}
+      .height-val{font-size:17px;}
+      .height-label{font-size:9px;}
     }
   </style>
 </head>
@@ -308,9 +371,9 @@ const rosterData = roster.map(p=>({
           <th data-col="name">Player <span></span></th>
           <th data-col="role">Role <span></span></th>
           <th class="col-ovr" data-col="ovr">OVR <span></span></th>
-          <th class="col-stat" data-col="def">DEF <span></span></th>
-          <th class="col-stat" data-col="play">PLAY <span></span></th>
-          <th class="col-stat" data-col="att">ATT <span></span></th>
+          <th class="col-stat col-mob-hide" data-col="def">DEF <span></span></th>
+          <th class="col-stat col-mob-hide" data-col="play">PLAY <span></span></th>
+          <th class="col-stat col-mob-hide" data-col="att">ATT <span></span></th>
         </tr></thead>
         <tbody id="rosterBody"></tbody>
       </table>
