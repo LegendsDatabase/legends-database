@@ -47,9 +47,10 @@ const decadeData = DECADES.map(d => {
 });
 ---
 
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
   <title>Legends Timeline – Legends Database</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style is:global>
@@ -310,13 +311,69 @@ const decadeData = DECADES.map(d => {
       color: #aeaeb2;
     }
 
-    @media (max-width: 640px) {
-      .tl-page { padding: 28px 20px 60px; }
-      .tl-title { font-size: 30px; }
-      .tl-svg-container { width: 300px; height: 300px; }
-      .tl-pcard { width: 118px; padding: 14px 10px; }
-      .tl-pcard.is-first { width: 138px; }
-      .tl-stats { grid-template-columns: repeat(2, 1fr); }
+    /* Back button: desktop hidden, mobile visible */
+    .tl-back { display: none; }
+
+    @media (max-width: 767px) {
+      /* Page */
+      .tl-page { padding: 20px 14px 60px; }
+
+      /* Back link: show on mobile */
+      .tl-back { display: inline-flex; margin-bottom: 20px; font-size: 12px; }
+
+      /* Header */
+      .tl-header { margin-bottom: 28px; }
+      .tl-title { font-size: 26px; letter-spacing: -0.4px; }
+      .tl-sub { font-size: 13.5px; }
+
+      /* Dial: responsive, fits screen */
+      .tl-dial-wrap { margin-bottom: 28px; }
+      .tl-svg-container {
+        width: min(280px, 86vw);
+        height: min(280px, 86vw);
+      }
+      .tl-dial-center { width: 90px; }
+      .tl-center-decade { font-size: 22px; }
+      .tl-center-sub { font-size: 8.5px; }
+      .tl-center-avg { font-size: 10.5px; margin-top: 4px; }
+
+      /* Podium: horizontal scroll so cards stay readable */
+      .tl-podium {
+        justify-content: flex-start;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding-bottom: 10px;
+        gap: 10px;
+      }
+      .tl-podium::-webkit-scrollbar { display: none; }
+
+      /* Player cards: shrink but keep structure */
+      .tl-pcard { width: 120px !important; padding: 13px 9px; border-radius: 13px; }
+      .tl-pcard.is-first { width: 138px !important; }
+
+      .tl-avatar { width: 42px; height: 42px; font-size: 12px; margin-bottom: 8px; }
+      .tl-pcard.is-first .tl-avatar { width: 50px; height: 50px; font-size: 14px; }
+
+      .tl-pname { font-size: 11px; margin-bottom: 5px; }
+      .tl-pcard.is-first .tl-pname { font-size: 12px; }
+
+      .tl-povr { font-size: 26px; }
+      .tl-pcard.is-first .tl-povr { font-size: 30px; }
+
+      /* Podium title */
+      .tl-podium-title { margin-bottom: 16px; font-size: 10.5px; }
+
+      /* Stats: 2 cols */
+      .tl-stats { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .tl-stat { padding: 13px 10px; border-radius: 12px; }
+      .tl-stat-val { font-size: 19px; }
+      .tl-stat-label { font-size: 9.5px; }
+
+      /* Empty state */
+      .tl-empty { padding: 40px 0; }
+      .tl-empty-icon { font-size: 28px; }
+      .tl-empty-text { font-size: 13px; }
     }
   </style>
 </head>
