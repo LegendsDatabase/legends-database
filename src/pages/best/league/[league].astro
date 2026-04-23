@@ -259,18 +259,14 @@ const currentStats   = buildLeagueStats(league);
     .clash-fill-left{float:right;}
     .clash-win{font-weight:800;}
     .clash-empty{text-align:center;padding:40px;color:#aeaeb2;font-size:14px;}
+
     @media(max-width:767px){
       /* ── PAGE ── */
       .page{padding:16px 14px 80px;}
       .back{font-size:12px;margin-bottom:16px;}
 
-      /* ── NAV STRIPS (continent / decade / league): horizontal scroll ── */
-      .continent-nav,.decade-nav,.league-nav{
-        flex-wrap:nowrap;overflow-x:auto;
-        -webkit-overflow-scrolling:touch;
-        scrollbar-width:none;gap:6px;
-        padding-bottom:4px;margin-bottom:14px;
-      }
+      /* ── NAV STRIPS: horizontal scroll ── */
+      .continent-nav,.decade-nav,.league-nav{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:6px;padding-bottom:4px;margin-bottom:14px;}
       .continent-nav::-webkit-scrollbar,.decade-nav::-webkit-scrollbar,.league-nav::-webkit-scrollbar{display:none;}
       .continent-nav-btn,.decade-nav-btn,.league-nav-btn{font-size:11.5px;padding:6px 12px;flex-shrink:0;}
 
@@ -299,12 +295,7 @@ const currentStats   = buildLeagueStats(league);
       .lineup-top{margin-bottom:12px;}
 
       /* Formation tabs: horizontal scroll */
-      .formation-tabs{
-        flex-wrap:nowrap;overflow-x:auto;
-        -webkit-overflow-scrolling:touch;
-        scrollbar-width:none;gap:5px;
-        padding-bottom:2px;width:100%;
-      }
+      .formation-tabs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:5px;padding-bottom:2px;width:100%;}
       .formation-tabs::-webkit-scrollbar{display:none;}
       .form-btn{font-size:10.5px;padding:5px 10px;flex-shrink:0;}
 
@@ -343,14 +334,9 @@ const currentStats   = buildLeagueStats(league);
       .height-val{font-size:17px;}
       .height-label{font-size:9px;}
 
-      /* Clash section */
+      /* Clash */
       .clash-header{flex-direction:column;align-items:flex-start;gap:10px;}
-      .clash-deck-select{
-        flex-wrap:nowrap;overflow-x:auto;
-        -webkit-overflow-scrolling:touch;
-        scrollbar-width:none;gap:5px;
-        padding-bottom:2px;width:100%;
-      }
+      .clash-deck-select{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:5px;padding-bottom:2px;width:100%;}
       .clash-deck-select::-webkit-scrollbar{display:none;}
       .clash-chip{flex-shrink:0;font-size:11px;padding:5px 11px;}
       .clash-vs-banner{gap:8px;padding:14px 12px;}
@@ -364,16 +350,6 @@ const currentStats   = buildLeagueStats(league);
       .clash-track{height:6px;}
       .clash-title{font-size:16px;}
       .clash-empty{padding:24px;font-size:13px;}
-    }
-      .hero{flex-direction:column;align-items:flex-start;gap:16px;}
-      .highlights-grid{grid-template-columns:repeat(2,1fr);}
-      .records-grid{grid-template-columns:1fr;}
-      .height-grid{grid-template-columns:repeat(3,1fr);}
-      .lineup-pitch{height:380px;}
-      .token-circle{width:28px;height:28px;}
-      .token-init{font-size:8.5px;}
-      .token-name{font-size:8px;max-width:60px;}
-      .token-ovr{font-size:7px;}
     }
   </style>
 </head>
