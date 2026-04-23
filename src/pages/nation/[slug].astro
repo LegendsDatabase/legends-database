@@ -167,8 +167,22 @@ const flagSvg = FLAG_SVGS[n.name] ?? `<svg viewBox="0 0 30 20" xmlns="http://www
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-  <title>{n.name} – Legends Database</title>
-  <meta name="description" content={`${n.name} football legends, stats, history and All-Time XI on Legends Database.`}/>
+  <title>{n.name} – Football Legends, Stats & History – Legends Database</title>
+  <meta name="description" content={n.name + ' football legends, stats, history and All-Time XI on Legends Database. ' + (n.world_cups_won > 0 ? n.world_cups_won + ' World Cup titles.' : '')}/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href={'https://legendsdatabase.com/nation/' + n.name.toLowerCase().replace(/\s+/g,'-')}/>
+  <meta property="og:type"         content="website"/>
+  <meta property="og:url"          content={'https://legendsdatabase.com/nation/' + n.name.toLowerCase().replace(/\s+/g,'-')}/>
+  <meta property="og:title"        content={n.name + ' – Football Legends & Stats – Legends Database'}/>
+  <meta property="og:description"  content={n.name + ' football legends, stats, history and All-Time XI on Legends Database.'}/>
+  <meta property="og:image"        content="https://legendsdatabase.com/og-image.jpg"/>
+  <meta property="og:image:width"  content="1200"/>
+  <meta property="og:image:height" content="630"/>
+  <meta property="og:locale"       content="en_US"/>
+  <meta name="twitter:card"        content="summary_large_image"/>
+  <meta name="twitter:title"       content={n.name + ' – Football Legends & Stats – Legends Database'}/>
+  <meta name="twitter:description" content={n.name + ' football legends, stats, history and All-Time XI on Legends Database.'}/>
+  <meta name="twitter:image"       content="https://legendsdatabase.com/og-image.jpg"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <style is:global>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
