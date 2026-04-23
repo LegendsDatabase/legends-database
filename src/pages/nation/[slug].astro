@@ -163,12 +163,13 @@ const FLAG_SVGS: Record<string,string> = {
 const flagSvg = FLAG_SVGS[n.name] ?? `<svg viewBox="0 0 30 20" xmlns="http://www.w3.org/2000/svg"><rect width="30" height="20" fill="#e5e5ea" rx="2"/><text x="15" y="13" text-anchor="middle" font-size="8" fill="#aeaeb2">${n.name.slice(0,3).toUpperCase()}</text></svg>`;
 ---
 
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
   <title>{n.name} – Legends Database</title>
   <meta name="description" content={`${n.name} football legends, stats, history and All-Time XI on Legends Database.`}/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <style is:global>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     body{
@@ -326,26 +327,135 @@ const flagSvg = FLAG_SVGS[n.name] ?? `<svg viewBox="0 0 30 20" xmlns="http://www
     /* ─── DIVIDER ─── */
     .divider{height:1px;background:#f0f0f5;margin:4px 0 14px;}
 
-    /* ─── MOBILE ─── */
-    @media(max-width:640px){
-      .hero{padding:24px 20px 20px;}
-      .section{padding:0 16px;}
-      .alltime-cta{margin:0 16px 16px;}
-      .legends-grid{grid-template-columns:repeat(2,1fr);}
-      .stat-row{grid-template-columns:repeat(3,1fr);}
-      .role-row{grid-template-columns:repeat(2,1fr);}
-      .award-grid{grid-template-columns:1fr;}
-      .match-top{grid-template-columns:repeat(2,1fr);}
-      .goals-split{grid-template-columns:1fr 1fr;}
-      .infra-grid{grid-template-columns:1fr;}
-      .infra-box.wide{grid-column:span 1;}
-      .hero-nation{font-size:24px;}
-      .legend-ovr{font-size:22px;}
-      .hero-chips{gap:6px;}
-      .hero-chip{font-size:11px;padding:5px 10px;}
+    /* ══════════════════════════════════════════
+       MOBILE — max-width: 767px
+    ══════════════════════════════════════════ */
+    @media(max-width:767px){
+
+      /* ── PAGE WRAPPER ── */
+      .page{ padding:0 0 80px; }
+
+      /* ── HERO ── */
+      .hero{
+        padding:20px 16px 20px;
+        margin-bottom:16px;
+      }
+      .back{ font-size:12px; margin-bottom:16px; }
+      .hero-top{ gap:14px; margin-bottom:14px; }
+      .flag-wrap{ width:56px; height:38px; border-radius:7px; }
+      .hero-nation{ font-size:24px; letter-spacing:-0.5px; margin-bottom:3px; }
+      .hero-sub{ font-size:12px; }
+
+      /* Hero chips: horizontal scroll, no wrap */
+      .hero-chips{
+        flex-wrap:nowrap;
+        overflow-x:auto;
+        -webkit-overflow-scrolling:touch;
+        scrollbar-width:none;
+        gap:6px;
+        padding-bottom:2px;
+        margin-top:12px;
+      }
+      .hero-chips::-webkit-scrollbar{ display:none; }
+      .hero-chip{ font-size:11.5px; padding:6px 11px; }
+
+      /* ── ALL-TIME CTA ── */
+      .alltime-cta{
+        margin:0 16px 16px;
+        padding:14px 16px;
+        border-radius:13px;
+        gap:12px;
+      }
+      .cta-badge{ width:40px; height:40px; font-size:14px; border-radius:10px; }
+      .cta-title{ font-size:14px; }
+      .cta-sub{ font-size:11px; }
+      .cta-arrow{ font-size:20px; }
+
+      /* ── SECTIONS ── */
+      .section{ padding:0 16px; margin-bottom:20px; }
+      .section-label{ font-size:10px; margin-bottom:10px; }
+
+      /* ── CARD ── */
+      .card{ padding:16px 14px; border-radius:14px; }
+
+      /* ── TOP LEGENDS: 2 col ── */
+      .legends-grid{ grid-template-columns:repeat(2,1fr); gap:8px; }
+      .legend-card{ padding:14px 12px; border-radius:12px; gap:6px; }
+      .legend-rank{ font-size:9px; }
+      .legend-name{ font-size:12.5px; }
+      .legend-role-badge{ font-size:9px; padding:2px 6px; }
+      .legend-ovr{ font-size:28px; }
+
+      /* ── STAT ROW: 3 col (2 rows of 3) ── */
+      .stat-row{
+        grid-template-columns:repeat(3,1fr);
+        gap:8px;
+        margin-bottom:12px;
+      }
+      .stat-box{ padding:14px 8px; border-radius:11px; }
+      .stat-val{ font-size:22px; }
+      .stat-lbl{ font-size:8.5px; }
+
+      /* ── ROLE BOXES: 4 col stays, taller ── */
+      .role-box{ padding:14px 6px; border-radius:11px; }
+      .role-box-num{ font-size:24px; }
+      .role-box-lbl{ font-size:8.5px; margin-top:3px; }
+
+      /* ── FOOT BAR ── */
+      .foot-bar{ height:10px; margin:12px 0 8px; }
+      .foot-labels{ font-size:12px; }
+
+      /* ── DECADE BARS ── */
+      .decade-bars{ height:60px; gap:4px; }
+      .decade-bar-lbl{ font-size:8px; }
+      .decade-bar-num{ font-size:8px; }
+
+      /* ── AWARD GRID: 1 col ── */
+      .award-grid{ grid-template-columns:1fr; gap:8px; }
+      .award-card{ padding:14px 16px; border-radius:12px; }
+      .award-lbl{ font-size:10px; }
+      .award-link{ font-size:14px; }
+      .award-val{ font-size:26px; }
+
+      /* ── MATCH STATS: 2 col ── */
+      .match-top{
+        grid-template-columns:repeat(2,1fr);
+        gap:8px;
+        margin-bottom:14px;
+      }
+      .match-box{ padding:14px 10px; border-radius:11px; }
+      .match-val{ font-size:26px; }
+      .match-lbl{ font-size:8.5px; margin-top:4px; }
+
+      /* ── BARS ── */
+      .bar-row{ gap:8px; margin-bottom:9px; }
+      .bar-label{ font-size:12px; min-width:44px; }
+      .bar-track{ height:7px; }
+      .bar-val{ font-size:12px; }
+
+      /* ── GOALS SPLIT: 3 col stays ── */
+      .goals-split{ gap:6px; margin-top:12px; }
+      .goals-box{ padding:12px 6px; border-radius:10px; }
+      .goals-val{ font-size:24px; }
+      .goals-lbl{ font-size:8.5px; }
+
+      /* ── PHILOSOPHY PILLS ── */
+      .pills{ gap:7px; }
+      .pill{ font-size:12px; padding:7px 14px; border-radius:20px; }
+
+      /* ── INFRA GRID: 1 col ── */
+      .infra-grid{ grid-template-columns:1fr; gap:8px; }
+      .infra-box{ padding:14px 14px; border-radius:11px; }
+      .infra-box.wide{ grid-column:span 1; }
+      .infra-val{ font-size:14px; }
+      .infra-lbl{ font-size:9px; }
+
+      /* ── DIVIDER ── */
+      .divider{ margin:6px 0 14px; }
     }
   </style>
 </head>
+
 <body>
   <Navbar/>
 
@@ -354,9 +464,9 @@ const flagSvg = FLAG_SVGS[n.name] ?? `<svg viewBox="0 0 30 20" xmlns="http://www
     style={'--accent:' + accentCol + ';--accent-dark:' + accentCol + 'cc;--rgb:' + rgb + ';'}
   >
 
-    <!-- HERO -->
+    <!-- ─── HERO ─── -->
     <div class="hero">
-      <a href="/nations" class="back">← Nations</a>
+      <a href="/nations" class="back">&#8592; Nations</a>
       <div class="hero-top">
         <div class="flag-wrap" set:html={flagSvg}></div>
         <div>
@@ -365,16 +475,16 @@ const flagSvg = FLAG_SVGS[n.name] ?? `<svg viewBox="0 0 30 20" xmlns="http://www
         </div>
       </div>
       <div class="hero-chips">
-        {n.capital && <span class="hero-chip">🏛 {n.capital}</span>}
-        {n.population && <span class="hero-chip">👥 {(n.population/1000000).toFixed(1)}M <span class="hero-chip-label">pop</span></span>}
-        {(n.world_cups_won??0) > 0 && <span class="hero-chip hero-chip-accent">🏆 {n.world_cups_won} World Cup{n.world_cups_won > 1 ? 's' : ''}</span>}
+        {n.capital                        && <span class="hero-chip">&#127963; {n.capital}</span>}
+        {n.population                     && <span class="hero-chip">&#128101; {(n.population/1000000).toFixed(1)}M <span class="hero-chip-label">pop</span></span>}
+        {(n.world_cups_won??0) > 0        && <span class="hero-chip hero-chip-accent">&#127942; {n.world_cups_won} World Cup{n.world_cups_won > 1 ? 's' : ''}</span>}
         {(n.world_cup_appearances??0) > 0 && <span class="hero-chip">{n.world_cup_appearances} WC appearances</span>}
-        {legendCount > 0 && <span class="hero-chip hero-chip-accent">{legendCount} legends in DB</span>}
-        {n.famous_coach && <span class="hero-chip">Coach: {n.famous_coach}</span>}
+        {legendCount > 0                  && <span class="hero-chip hero-chip-accent">{legendCount} legends in DB</span>}
+        {n.famous_coach                   && <span class="hero-chip">Coach: {n.famous_coach}</span>}
       </div>
     </div>
 
-    <!-- ALL-TIME CTA -->
+    <!-- ─── ALL-TIME CTA ─── -->
     {allTimeTeam && (
       <a href={'/team/' + allTimeTeam.slug} class="alltime-cta">
         <div class="cta-badge">XI</div>
@@ -382,11 +492,11 @@ const flagSvg = FLAG_SVGS[n.name] ?? `<svg viewBox="0 0 30 20" xmlns="http://www
           <div class="cta-title">All-Time {n.name}</div>
           <div class="cta-sub">Tactical lineup, roster and full stats</div>
         </div>
-        <div class="cta-arrow">›</div>
+        <div class="cta-arrow">&#8250;</div>
       </a>
     )}
 
-    <!-- TOP LEGENDS -->
+    <!-- ─── TOP LEGENDS ─── -->
     {top6.length > 0 && (
       <div class="section">
         <div class="section-label">Top Legends</div>
@@ -407,7 +517,7 @@ const flagSvg = FLAG_SVGS[n.name] ?? `<svg viewBox="0 0 30 20" xmlns="http://www
       </div>
     )}
 
-    <!-- LEGENDS PROFILE -->
+    <!-- ─── LEGENDS PROFILE ─── -->
     {legendCount > 0 && (
       <div class="section">
         <div class="section-label">Legends Profile</div>
@@ -498,7 +608,7 @@ const flagSvg = FLAG_SVGS[n.name] ?? `<svg viewBox="0 0 30 20" xmlns="http://www
       </div>
     )}
 
-    <!-- INDIVIDUAL RECORDS -->
+    <!-- ─── INDIVIDUAL RECORDS ─── -->
     {legendCount > 0 && (
       <div class="section">
         <div class="section-label">Individual Records</div>
@@ -563,7 +673,7 @@ const flagSvg = FLAG_SVGS[n.name] ?? `<svg viewBox="0 0 30 20" xmlns="http://www
       </div>
     )}
 
-    <!-- NATIONAL TEAM RECORD -->
+    <!-- ─── NATIONAL TEAM RECORD ─── -->
     {(n.official_matches ?? 0) > 0 && (
       <div class="section">
         <div class="section-label">National Team Record</div>
@@ -619,7 +729,7 @@ const flagSvg = FLAG_SVGS[n.name] ?? `<svg viewBox="0 0 30 20" xmlns="http://www
       </div>
     )}
 
-    <!-- PHILOSOPHY -->
+    <!-- ─── PHILOSOPHY ─── -->
     {philosophyPills.length > 0 && (
       <div class="section">
         <div class="section-label">Football Identity</div>
@@ -633,7 +743,7 @@ const flagSvg = FLAG_SVGS[n.name] ?? `<svg viewBox="0 0 30 20" xmlns="http://www
       </div>
     )}
 
-    <!-- INFRASTRUCTURE -->
+    <!-- ─── INFRASTRUCTURE ─── -->
     <div class="section">
       <div class="section-label">Infrastructure</div>
       <div class="infra-grid">
