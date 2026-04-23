@@ -137,7 +137,22 @@ function teamDisplayName(slug) {
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-  <title>{displayName} – Legends Database</title>
+  <title>{displayName} – All-Time Squad – Legends Database</title>
+  <meta name="description" content={'All-Time ' + displayName + ' — tactical lineup, full roster and stats on Legends Database.'}/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href={'https://legendsdatabase.com/team/' + team.slug}/>
+  <meta property="og:type"         content="website"/>
+  <meta property="og:url"          content={'https://legendsdatabase.com/team/' + team.slug}/>
+  <meta property="og:title"        content={displayName + ' – All-Time Squad – Legends Database'}/>
+  <meta property="og:description"  content={'All-Time ' + displayName + ' — tactical lineup, full roster and stats on Legends Database.'}/>
+  <meta property="og:image"        content="https://legendsdatabase.com/og-image.jpg"/>
+  <meta property="og:image:width"  content="1200"/>
+  <meta property="og:image:height" content="630"/>
+  <meta property="og:locale"       content="en_US"/>
+  <meta name="twitter:card"        content="summary_large_image"/>
+  <meta name="twitter:title"       content={displayName + ' – All-Time Squad – Legends Database'}/>
+  <meta name="twitter:description" content={'All-Time ' + displayName + ' — tactical lineup, full roster and stats on Legends Database.'}/>
+  <meta name="twitter:image"       content="https://legendsdatabase.com/og-image.jpg"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <style is:global>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
