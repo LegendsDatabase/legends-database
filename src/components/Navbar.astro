@@ -1,5 +1,10 @@
 ---
+import { injectSpeedInsights } from '@vercel/speed-insights';
+
 const currentPath = Astro.url.pathname;
+
+// Inject Vercel Speed Insights
+injectSpeedInsights();
 ---
 
 <nav class="nav" id="siteNav">
