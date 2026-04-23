@@ -133,21 +133,33 @@ function teamDisplayName(slug) {
 }
 ---
 
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
   <title>{displayName} – Legends Database</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <style is:global>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     body{font-family:-apple-system,'SF Pro Text','Inter',sans-serif;background:#f2f2f7;color:#1d1d1f;padding-top:44px;font-size:13px;-webkit-font-smoothing:antialiased;}
+
+    /* ─── LAYOUT ─── */
     .page{max-width:900px;margin:0 auto;padding:40px 40px 80px;}
+
+    /* ─── BACK + NAV ─── */
     .back{display:inline-flex;align-items:center;gap:4px;font-size:13px;color:#6e6e73;text-decoration:none;margin-bottom:28px;transition:color 0.15s;}
     .back:hover{color:#0071e3;}
+    .team-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:20px;}
+    .team-nav-btn{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-size:12px;font-weight:600;padding:6px 14px;border-radius:20px;border:1.5px solid #e5e5ea;color:#6e6e73;background:#ffffff;transition:all 0.12s;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,0.05);max-width:200px;overflow:hidden;text-overflow:ellipsis;}
+    .team-nav-btn:hover{border-color:#0071e3;color:#0071e3;}
+    .team-nav-btn.prev::before{content:'&#8592;';margin-right:2px;}
+    .team-nav-btn.next::after{content:'&#8594;';margin-left:2px;}
+
+    /* ─── CARD ─── */
     .card{background:#ffffff;border-radius:16px;padding:24px 28px;box-shadow:0 1px 3px rgba(0,0,0,0.07),0 4px 16px rgba(0,0,0,0.04);margin-bottom:16px;}
     .card-title{font-size:11px;font-weight:700;color:#aeaeb2;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:18px;}
 
-    /* HERO */
+    /* ─── HERO ─── */
     .hero{background:#ffffff;border-radius:16px;padding:28px 32px;box-shadow:0 1px 3px rgba(0,0,0,0.07),0 4px 16px rgba(0,0,0,0.04);display:flex;align-items:center;gap:28px;margin-bottom:16px;}
     .team-logo{width:72px;height:72px;object-fit:contain;flex-shrink:0;display:block;}
     .team-initials-fb{display:none;width:72px;height:72px;flex-shrink:0;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#aeaeb2;letter-spacing:-0.5px;}
@@ -166,126 +178,24 @@ function teamDisplayName(slug) {
     .ovr-sub{font-size:10px;font-weight:600;color:#aeaeb2;letter-spacing:0.06em;text-transform:uppercase;margin-top:2px;}
 
     /* ─── TACTICAL LINEUP ─── */
-    .lineup-card { padding: 22px 24px 20px; }
+    .lineup-card{padding:22px 24px 20px;}
+    .lineup-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+    .formation-tabs{display:flex;gap:4px;flex-wrap:wrap;}
+    .form-btn{font-family:inherit;font-size:11px;font-weight:600;padding:4px 11px;border:1.5px solid #e5e5ea;border-radius:7px;background:#f9f9fb;color:#6e6e73;cursor:pointer;transition:all 0.12s;letter-spacing:0.02em;white-space:nowrap;}
+    .form-btn:hover{border-color:#0071e3;color:#0071e3;}
+    .form-btn.active{background:#0071e3;border-color:#0071e3;color:#ffffff;}
+    .lineup-pitch{position:relative;width:100%;height:480px;border-radius:10px;overflow:hidden;}
+    .pitch-svg{position:absolute;inset:0;width:100%;height:100%;}
+    .player-token{position:absolute;transform:translate(-50%,-50%);text-align:center;z-index:10;}
+    .token-link{display:flex;flex-direction:column;align-items:center;gap:3px;text-decoration:none;}
+    .token-circle{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.45);transition:transform 0.15s,box-shadow 0.15s;border:2px solid rgba(255,255,255,0.45);}
+    .token-link:hover .token-circle{transform:scale(1.13);box-shadow:0 4px 10px rgba(0,0,0,0.5);border-color:rgba(255,255,255,0.9);}
+    .token-empty-circle{background:rgba(255,255,255,0.12) !important;border-color:rgba(255,255,255,0.2) !important;}
+    .token-init{font-size:10px;font-weight:700;color:rgba(255,255,255,0.95);letter-spacing:-0.3px;}
+    .token-name{font-size:9px;font-weight:600;color:rgba(255,255,255,0.95);text-shadow:0 1px 3px rgba(0,0,0,0.9);white-space:nowrap;max-width:76px;overflow:hidden;text-overflow:ellipsis;line-height:1.1;}
+    .token-ovr{font-size:8px;font-weight:700;color:rgba(255,255,255,0.65);text-shadow:0 1px 2px rgba(0,0,0,0.8);}
 
-    .lineup-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-    }
-
-    .formation-tabs {
-      display: flex;
-      gap: 4px;
-      flex-wrap: wrap;
-    }
-
-    .form-btn {
-      font-family: inherit;
-      font-size: 11px;
-      font-weight: 600;
-      padding: 4px 11px;
-      border: 1.5px solid #e5e5ea;
-      border-radius: 7px;
-      background: #f9f9fb;
-      color: #6e6e73;
-      cursor: pointer;
-      transition: all 0.12s;
-      letter-spacing: 0.02em;
-      white-space: nowrap;
-    }
-
-    .form-btn:hover { border-color: #0071e3; color: #0071e3; }
-
-    .form-btn.active {
-      background: #0071e3;
-      border-color: #0071e3;
-      color: #ffffff;
-    }
-
-    .lineup-pitch {
-      position: relative;
-      width: 100%;
-      height: 480px;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-
-    .pitch-svg {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-    }
-
-    .player-token {
-      position: absolute;
-      transform: translate(-50%, -50%);
-      text-align: center;
-      z-index: 10;
-    }
-
-    .token-link {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 3px;
-      text-decoration: none;
-    }
-
-    .token-circle {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.45);
-      transition: transform 0.15s, box-shadow 0.15s;
-      border: 2px solid rgba(255,255,255,0.45);
-    }
-
-    .token-link:hover .token-circle {
-      transform: scale(1.13);
-      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-      border-color: rgba(255,255,255,0.9);
-    }
-
-    .token-empty-circle {
-      background: rgba(255,255,255,0.12) !important;
-      border-color: rgba(255,255,255,0.2) !important;
-    }
-
-    .token-init {
-      font-size: 10px;
-      font-weight: 700;
-      color: rgba(255,255,255,0.95);
-      letter-spacing: -0.3px;
-    }
-
-    .token-name {
-      font-size: 9px;
-      font-weight: 600;
-      color: rgba(255,255,255,0.95);
-      text-shadow: 0 1px 3px rgba(0,0,0,0.9);
-      white-space: nowrap;
-      max-width: 76px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      line-height: 1.1;
-    }
-
-    .token-ovr {
-      font-size: 8px;
-      font-weight: 700;
-      color: rgba(255,255,255,0.65);
-      text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-    }
-
-    /* ROSTER TABLE */
+    /* ─── ROSTER TABLE ─── */
     .roster-table{width:100%;border-collapse:collapse;}
     .roster-table thead th{font-size:10px;font-weight:700;color:#aeaeb2;letter-spacing:0.06em;text-transform:uppercase;padding:0 12px 12px;text-align:left;border-bottom:1px solid #f0f0f5;cursor:pointer;user-select:none;white-space:nowrap;transition:color 0.12s;}
     .roster-table thead th:hover{color:#0071e3;}
@@ -305,7 +215,7 @@ function teamDisplayName(slug) {
     .col-ovr,.col-stat{text-align:right;font-weight:600;font-variant-numeric:tabular-nums;}
     .muted{color:#d1d1d6 !important;font-weight:400 !important;}
 
-    /* HIGHLIGHTS */
+    /* ─── HIGHLIGHTS ─── */
     .highlights-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
     .hl-card{background:#ffffff;border-radius:14px;padding:18px 16px;box-shadow:0 1px 3px rgba(0,0,0,0.06);display:flex;flex-direction:column;gap:6px;}
     .hl-label{font-size:10px;font-weight:700;color:#aeaeb2;letter-spacing:0.06em;text-transform:uppercase;}
@@ -314,7 +224,7 @@ function teamDisplayName(slug) {
     .hl-val{font-size:22px;font-weight:700;letter-spacing:-0.5px;line-height:1;margin-top:4px;}
     .hl-unit{font-size:11px;font-weight:600;color:#aeaeb2;}
 
-    /* RECORDS */
+    /* ─── RECORDS ─── */
     .records-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
     .rec-card{background:#ffffff;border-radius:14px;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);display:flex;flex-direction:column;gap:6px;}
     .rec-label{font-size:10px;font-weight:700;color:#aeaeb2;letter-spacing:0.06em;text-transform:uppercase;}
@@ -323,30 +233,142 @@ function teamDisplayName(slug) {
     .rec-val{font-size:26px;font-weight:700;color:#1d1d1f;letter-spacing:-0.5px;line-height:1;margin-top:4px;}
     .rec-unit{font-size:11px;font-weight:500;color:#aeaeb2;}
 
-    /* HEIGHT */
+    /* ─── HEIGHT ─── */
     .height-grid{display:grid;grid-template-columns:repeat(5,1fr);}
     .height-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 0;border-right:1px solid #f0f0f5;}
     .height-item:last-child{border-right:none;}
     .height-val{font-size:20px;font-weight:600;color:#1d1d1f;letter-spacing:-0.3px;}
     .height-label{font-size:10px;font-weight:600;color:#aeaeb2;letter-spacing:0.05em;text-transform:uppercase;}
     .height-item.total .height-val,.height-item.total .height-label{color:#0071e3;}
-.team-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:20px;}
-.team-nav-btn{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-size:12px;font-weight:600;padding:6px 14px;border-radius:20px;border:1.5px solid #e5e5ea;color:#6e6e73;background:#ffffff;transition:all 0.12s;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,0.05);}
-.team-nav-btn:hover{border-color:#0071e3;color:#0071e3;}
-.team-nav-btn.prev::before{content:'←';margin-right:2px;}
-.team-nav-btn.next::after{content:'→';margin-left:2px;}
 
-    @media(max-width:640px){
-      .page{padding:24px 20px 60px;}
-      .hero{flex-direction:column;align-items:flex-start;gap:16px;}
-      .highlights-grid{grid-template-columns:repeat(2,1fr);}
-      .records-grid{grid-template-columns:1fr;}
-      .height-grid{grid-template-columns:repeat(3,1fr);}
-      .lineup-pitch{height:380px;}
-      .token-circle{width:28px;height:28px;}
-      .token-init{font-size:8.5px;}
-      .token-name{font-size:8px;max-width:60px;}
-      .token-ovr{font-size:7px;}
+    /* ══════════════════════════════════════════
+       MOBILE — max-width: 767px
+    ══════════════════════════════════════════ */
+    @media(max-width:767px){
+
+      /* ── PAGE ── */
+      .page{ padding:16px 14px 80px; }
+
+      /* ── TEAM NAV ── */
+      .team-nav{ margin-bottom:14px; gap:6px; }
+      .team-nav-btn{
+        font-size:11px; padding:6px 10px;
+        border-radius:16px; max-width:130px;
+      }
+      .team-nav a[href="/teams"]{
+        font-size:11px; white-space:nowrap;
+      }
+
+      /* ── HERO: stack vertically ── */
+      .hero{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:14px;
+        padding:18px 16px;
+        border-radius:14px;
+        margin-bottom:12px;
+      }
+
+      /* Logo + name + OVR in a row at top */
+      .hero-top-row{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        width:100%;
+        gap:12px;
+      }
+      .hero-top-left{
+        display:flex;
+        align-items:center;
+        gap:12px;
+        flex:1;
+        min-width:0;
+      }
+      .team-logo{ width:52px; height:52px; }
+      .team-initials-fb{ width:52px; height:52px; font-size:16px; }
+      .team-name{ font-size:20px; margin-bottom:6px; letter-spacing:-0.3px; }
+      .hero-tags{ gap:6px; margin-bottom:12px; }
+      .tag{ font-size:10.5px; padding:3px 8px; }
+
+      /* Dept grid: tighter on mobile */
+      .dept-grid{ gap:0; }
+      .dept-item{ padding:0 14px 0 0; }
+      .dept-sep{ height:24px; margin-right:14px; }
+      .dept-val{ font-size:18px; }
+      .dept-label{ font-size:8.5px; }
+
+      /* OVR: standalone large badge */
+      .ovr-block{ align-self:flex-start; margin-left:auto; flex-shrink:0; }
+      .ovr-num{ font-size:36px; letter-spacing:-1px; }
+      .ovr-sub{ font-size:9px; }
+
+      /* ── LINEUP CARD ── */
+      .lineup-card{ padding:16px 12px 14px; border-radius:14px; }
+      .lineup-top{ margin-bottom:12px; gap:8px; }
+      .card-title{ font-size:10px; }
+
+      /* Formation tabs: horizontal scroll */
+      .formation-tabs{
+        flex-wrap:nowrap;
+        overflow-x:auto;
+        -webkit-overflow-scrolling:touch;
+        scrollbar-width:none;
+        gap:5px;
+        padding-bottom:2px;
+        width:100%;
+      }
+      .formation-tabs::-webkit-scrollbar{ display:none; }
+      .form-btn{ font-size:10.5px; padding:5px 10px; flex-shrink:0; }
+
+      /* Pitch: taller relative but shorter absolute */
+      .lineup-pitch{ height:340px; border-radius:9px; }
+      .token-circle{ width:28px; height:28px; }
+      .token-init{ font-size:8.5px; }
+      .token-name{ font-size:8px; max-width:58px; }
+      .token-ovr{ font-size:7px; }
+
+      /* ── ROSTER TABLE ── */
+      .card{ padding:16px 12px; border-radius:14px; }
+      .card-title{ margin-bottom:14px; }
+      .roster-table thead th{ padding:0 8px 10px; font-size:9.5px; }
+      .player-row td{ padding:9px 8px; font-size:12px; }
+      .section-row td{ padding:14px 8px 5px; }
+      .role-badge{ font-size:9.5px; padding:2px 6px; }
+
+      /* Hide DEF/PLAY/ATT columns on mobile — keep Name, Role, OVR */
+      .col-mob-hide{ display:none; }
+
+      /* ── HIGHLIGHTS: 2 cols ── */
+      .highlights-grid{
+        grid-template-columns:repeat(2,1fr);
+        gap:8px;
+        margin-bottom:12px;
+      }
+      .hl-card{ padding:14px 12px; border-radius:12px; gap:4px; }
+      .hl-label{ font-size:9px; }
+      .hl-name a{ font-size:12.5px; }
+      .hl-val{ font-size:24px; }
+      .hl-unit{ font-size:10.5px; }
+
+      /* ── RECORDS: 1 col ── */
+      .records-grid{
+        grid-template-columns:1fr;
+        gap:8px;
+        margin-bottom:12px;
+      }
+      .rec-card{ padding:14px 16px; border-radius:12px; }
+      .rec-label{ font-size:9px; }
+      .rec-name a{ font-size:13px; }
+      .rec-val{ font-size:28px; }
+
+      /* ── HEIGHT: 3+2 cols ── */
+      .height-grid{
+        grid-template-columns:repeat(3,1fr);
+        gap:0;
+      }
+      .height-item{ padding:10px 4px; }
+      .height-val{ font-size:17px; }
+      .height-label{ font-size:9px; }
     }
   </style>
 </head>
@@ -354,18 +376,21 @@ function teamDisplayName(slug) {
 <body>
   <Navbar/>
   <div class="page">
-<div class="team-nav">
-  <a href={'/team/' + prevTeam.slug} class="team-nav-btn prev">
-    {teamDisplayName(prevTeam.slug)}
-  </a>
-  <a href="/teams" style="font-size:12px;color:#aeaeb2;text-decoration:none;font-weight:500;">All-Time Teams</a>
-  <a href={'/team/' + nextTeam.slug} class="team-nav-btn next">
-    {teamDisplayName(nextTeam.slug)}
-  </a>
-</div>
 
-    <!-- HERO -->
+    <!-- ─── TEAM NAV ─── -->
+    <div class="team-nav">
+      <a href={'/team/' + prevTeam.slug} class="team-nav-btn prev">
+        {teamDisplayName(prevTeam.slug)}
+      </a>
+      <a href="/teams" style="font-size:12px;color:#aeaeb2;text-decoration:none;font-weight:500;white-space:nowrap;">All-Time Teams</a>
+      <a href={'/team/' + nextTeam.slug} class="team-nav-btn next">
+        {teamDisplayName(nextTeam.slug)}
+      </a>
+    </div>
+
+    <!-- ─── HERO ─── -->
     <div class="hero">
+      <!-- Mobile wrapper injected via CSS classes; desktop stays flex row -->
       <img src={logoSrc} class="team-logo" alt={displayName} id="team-logo"/>
       <div class="team-initials-fb" id="team-initials">
         {(t.slug??'').split('-').map(w=>w[0]).join('').toUpperCase().slice(0,3)}
@@ -393,7 +418,7 @@ function teamDisplayName(slug) {
       </div>
     </div>
 
-    <!-- TACTICAL LINEUP -->
+    <!-- ─── TACTICAL LINEUP ─── -->
     {roster.length >= 11 && (
       <div class="card lineup-card">
         <div class="lineup-top">
@@ -406,35 +431,28 @@ function teamDisplayName(slug) {
         </div>
         <div class="lineup-pitch" id="lineupPitch">
           <svg class="pitch-svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-            <!-- Stripes -->
             <rect width="100" height="100" fill="#1e5c38"/>
             <rect y="0"  width="100" height="10" fill="#1a5434" opacity="0.55"/>
             <rect y="20" width="100" height="10" fill="#1a5434" opacity="0.55"/>
             <rect y="40" width="100" height="10" fill="#1a5434" opacity="0.55"/>
             <rect y="60" width="100" height="10" fill="#1a5434" opacity="0.55"/>
             <rect y="80" width="100" height="10" fill="#1a5434" opacity="0.55"/>
-            <!-- Boundary -->
             <rect x="3" y="2" width="94" height="96" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="0.4"/>
-            <!-- Center line -->
             <line x1="3" y1="50" x2="97" y2="50" stroke="rgba(255,255,255,0.28)" stroke-width="0.4"/>
-            <!-- Center circle -->
             <circle cx="50" cy="50" r="10" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="0.4"/>
             <circle cx="50" cy="50" r="0.8" fill="rgba(255,255,255,0.45)"/>
-            <!-- Attack penalty area (top) -->
             <rect x="25" y="2" width="50" height="15" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="0.4"/>
             <rect x="37" y="2" width="26" height="5.5" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="0.4"/>
             <circle cx="50" cy="13" r="0.7" fill="rgba(255,255,255,0.35)"/>
-            <!-- Defense penalty area (bottom) -->
             <rect x="25" y="83" width="50" height="15" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="0.4"/>
             <rect x="37" y="92.5" width="26" height="5.5" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="0.4"/>
             <circle cx="50" cy="87" r="0.7" fill="rgba(255,255,255,0.35)"/>
           </svg>
-          <!-- player tokens injected by JS -->
         </div>
       </div>
     )}
 
-    <!-- ROSTER -->
+    <!-- ─── ROSTER ─── -->
     <div class="card">
       <div class="card-title">Roster</div>
       <table class="roster-table" id="rosterTable">
@@ -443,16 +461,16 @@ function teamDisplayName(slug) {
             <th data-col="name">Player <span></span></th>
             <th data-col="role">Role <span></span></th>
             <th class="col-ovr" data-col="ovr">OVR <span></span></th>
-            <th class="col-stat" data-col="def">DEF <span></span></th>
-            <th class="col-stat" data-col="play">PLAY <span></span></th>
-            <th class="col-stat" data-col="att">ATT <span></span></th>
+            <th class="col-stat col-mob-hide" data-col="def">DEF <span></span></th>
+            <th class="col-stat col-mob-hide" data-col="play">PLAY <span></span></th>
+            <th class="col-stat col-mob-hide" data-col="att">ATT <span></span></th>
           </tr>
         </thead>
         <tbody id="rosterBody"></tbody>
       </table>
     </div>
 
-    <!-- HIGHLIGHTS -->
+    <!-- ─── HIGHLIGHTS ─── -->
     <div class="highlights-grid">
       {bestPlayer&&<div class="hl-card"><div class="hl-label">Best Player</div><div class="hl-name"><a href={`/player/${bestPlayer.slug}`}>{bestPlayer.name}</a></div><div class="hl-val" style={`color:${ovrColor(bestPlayer.overall_rating)}`}>{bestPlayer.overall_rating}</div></div>}
       {fastestP&&<div class="hl-card"><div class="hl-label">Fastest</div><div class="hl-name"><a href={`/player/${fastestP.slug}`}>{fastestP.name}</a></div><div class="hl-val" style={`color:${skillColor(pSpd(fastestP))}`}>{pSpd(fastestP)} <span class="hl-unit">SPD</span></div></div>}
@@ -460,14 +478,14 @@ function teamDisplayName(slug) {
       {strongestP&&<div class="hl-card"><div class="hl-label">Strongest</div><div class="hl-name"><a href={`/player/${strongestP.slug}`}>{strongestP.name}</a></div><div class="hl-val" style={`color:${skillColor(strongestP.strength??0)}`}>{strongestP.strength} <span class="hl-unit">STR</span></div></div>}
     </div>
 
-    <!-- RECORDS -->
+    <!-- ─── RECORDS ─── -->
     <div class="records-grid">
       {mostAppsP&&<div class="rec-card"><div class="rec-label">{isNational?'Most Caps':'Most Appearances'}</div><div class="rec-name"><a href={`/player/${mostAppsP.slug}`}>{mostAppsP.name}</a></div><div class="rec-val">{mostAppsP[appsKey]} <span class="rec-unit">apps</span></div></div>}
       {mostGoalsP&&<div class="rec-card"><div class="rec-label">{isNational?'All-Time Top Scorer':'Top Scorer'}</div><div class="rec-name"><a href={`/player/${mostGoalsP.slug}`}>{mostGoalsP.name}</a></div><div class="rec-val">{mostGoalsP[goalsKey]} <span class="rec-unit">goals</span></div></div>}
       {bestRatioP&&<div class="rec-card"><div class="rec-label">Best Goal Ratio</div><div class="rec-name"><a href={`/player/${bestRatioP.slug}`}>{bestRatioP.name}</a></div><div class="rec-val">{parseFloat(bestRatioP[ratioKey]).toFixed(2)} <span class="rec-unit">per game</span></div></div>}
     </div>
 
-    <!-- HEIGHT -->
+    <!-- ─── HEIGHT ─── -->
     <div class="card">
       <div class="card-title">Average Height</div>
       <div class="height-grid">
@@ -483,350 +501,277 @@ function teamDisplayName(slug) {
 
 <script define:vars={{ rosterData }}>
 
-// ─── ROSTER TABLE ──────────────────────────────────────────────────────────
+/* ── ROSTER TABLE ── */
 
 function ovrColor(v){if(v>=95)return'#0071e3';if(v>=90)return'#1a5e1a';if(v>=80)return'#2e8b2e';if(v>=70)return'#6aaa2a';if(v>=60)return'#c8a800';if(v>=50)return'#e07800';if(v>=40)return'#cc4400';return'#c0392b';}
 function skillColor(v){if(v>=95)return'#5aabff';if(v>=90)return'#1a5e1a';if(v>=80)return'#2e8b2e';if(v>=70)return'#6aaa2a';if(v>=60)return'#c8a800';if(v>=40)return'#e07800';return'#c0392b';}
 function roleCls(r){if(r==='GK')return'role-gk';if(['CB','SW','RB','LB'].includes(r))return'role-def';if(['DM','CM','AM','RM','LM'].includes(r))return'role-mid';return'role-att';}
 
-let currentSort={col:null,dir:1};
+var isMob = window.innerWidth < 768;
+var currentSort = { col: null, dir: 1 };
 
-function renderRoster(data){
-  const tbody=document.getElementById('rosterBody');
-  if(!tbody)return;
-  tbody.innerHTML='';
-  const isSorted=currentSort.col!==null;
-  if(isSorted){
-    [...data].sort((a,b)=>{let va=a[currentSort.col],vb=b[currentSort.col];if(typeof va==='string')return va.localeCompare(vb)*currentSort.dir;return(vb-va)*currentSort.dir;}).forEach(p=>tbody.appendChild(makeRosterRow(p)));
+function makeRosterRow(p) {
+  var tr = document.createElement('tr');
+  tr.className = 'player-row';
+  var isGK = p.role === 'GK';
+  var statCols = isMob ? '' :
+    '<td class="col-stat' + (isGK?' muted':'') + '" style="' + (isGK?'':'color:'+skillColor(p.def)) + '">' + (isGK?'—':p.def) + '</td>' +
+    '<td class="col-stat' + (isGK?' muted':'') + '" style="' + (isGK?'':'color:'+skillColor(p.play)) + '">' + (isGK?'—':p.play) + '</td>' +
+    '<td class="col-stat' + (isGK?' muted':'') + '" style="' + (isGK?'':'color:'+skillColor(p.att)) + '">' + (isGK?'—':p.att) + '</td>';
+  tr.innerHTML =
+    '<td><a href="/player/' + p.slug + '" class="player-link">' + p.name + '</a></td>' +
+    '<td><span class="role-badge ' + roleCls(p.role) + '">' + p.role + '</span></td>' +
+    '<td class="col-ovr" style="color:' + ovrColor(p.ovr) + '">' + p.ovr + '</td>' +
+    statCols;
+  return tr;
+}
+
+function renderRoster(data) {
+  var tbody = document.getElementById('rosterBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  var sorted = currentSort.col !== null;
+  if (sorted) {
+    data.slice().sort(function(a,b){
+      var va = a[currentSort.col], vb = b[currentSort.col];
+      if (typeof va === 'string') return va.localeCompare(vb) * currentSort.dir;
+      return (vb - va) * currentSort.dir;
+    }).forEach(function(p){ tbody.appendChild(makeRosterRow(p)); });
   } else {
-    ['GK','DEF','MID','ATT'].forEach(sec=>{
-      const group=data.filter(p=>p.section===sec);if(!group.length)return;
-      const labels={GK:'Goalkeepers',DEF:'Defenders',MID:'Midfielders',ATT:'Attackers'};
-      const hr=document.createElement('tr');hr.className='section-row';
-      hr.innerHTML=`<td colspan="6">${labels[sec]}</td>`;tbody.appendChild(hr);
-      group.forEach(p=>tbody.appendChild(makeRosterRow(p)));
+    ['GK','DEF','MID','ATT'].forEach(function(sec) {
+      var group = data.filter(function(p){ return p.section === sec; });
+      if (!group.length) return;
+      var labels = { GK:'Goalkeepers', DEF:'Defenders', MID:'Midfielders', ATT:'Attackers' };
+      var hr = document.createElement('tr');
+      hr.className = 'section-row';
+      hr.innerHTML = '<td colspan="6">' + labels[sec] + '</td>';
+      tbody.appendChild(hr);
+      group.forEach(function(p){ tbody.appendChild(makeRosterRow(p)); });
     });
   }
 }
 
-function makeRosterRow(p){
-  const tr=document.createElement('tr');tr.className='player-row';
-  const isGK=p.role==='GK';
-  tr.innerHTML=`<td><a href="/player/${p.slug}" class="player-link">${p.name}</a></td><td><span class="role-badge ${roleCls(p.role)}">${p.role}</span></td><td class="col-ovr" style="color:${ovrColor(p.ovr)}">${p.ovr}</td><td class="col-stat${isGK?' muted':''}" style="${isGK?'':` color:${skillColor(p.def)}`}">${isGK?'—':p.def}</td><td class="col-stat${isGK?' muted':''}" style="${isGK?'':` color:${skillColor(p.play)}`}">${isGK?'—':p.play}</td><td class="col-stat${isGK?' muted':''}" style="${isGK?'':` color:${skillColor(p.att)}`}">${isGK?'—':p.att}</td>`;
-  return tr;
-}
-
-function updateRosterHeaders(){
-  document.querySelectorAll('#rosterTable thead th').forEach(th=>{
-    const col=th.getAttribute('data-col');const span=th.querySelector('span');
-    th.classList.remove('sorted');if(span)span.textContent='';
-    if(col===currentSort.col){th.classList.add('sorted');if(span)span.textContent=currentSort.dir===1?' ↑':' ↓';}
+function updateRosterHeaders() {
+  document.querySelectorAll('#rosterTable thead th').forEach(function(th) {
+    var col = th.getAttribute('data-col');
+    var span = th.querySelector('span');
+    th.classList.remove('sorted');
+    if (span) span.textContent = '';
+    if (col === currentSort.col) {
+      th.classList.add('sorted');
+      if (span) span.textContent = currentSort.dir === 1 ? ' \u2191' : ' \u2193';
+    }
   });
 }
 
-document.querySelectorAll('#rosterTable thead th').forEach(th=>{
-  th.addEventListener('click',()=>{
-    const col=th.getAttribute('data-col');if(!col)return;
-    if(currentSort.col===col){currentSort.dir===1?currentSort.dir=-1:(currentSort={col:null,dir:1});}
-    else{currentSort={col,dir:1};}
-    updateRosterHeaders();renderRoster(rosterData);
+document.querySelectorAll('#rosterTable thead th').forEach(function(th) {
+  th.addEventListener('click', function() {
+    var col = th.getAttribute('data-col');
+    if (!col) return;
+    if (currentSort.col === col) {
+      currentSort.dir === 1 ? (currentSort.dir = -1) : (currentSort = { col: null, dir: 1 });
+    } else {
+      currentSort = { col: col, dir: 1 };
+    }
+    updateRosterHeaders();
+    renderRoster(rosterData);
   });
 });
 
 renderRoster(rosterData);
 
-// ─── TACTICAL LINEUP ───────────────────────────────────────────────────────
+/* ── TACTICAL LINEUP ── */
 
-// Role colors for pitch tokens
-const ROLE_BG = {
+var ROLE_BG = {
   GK:  'rgba(160,90,0,0.92)',
   DEF: 'rgba(22,110,22,0.92)',
   MID: 'rgba(0,90,200,0.92)',
   ATT: 'rgba(175,35,35,0.92)',
 };
 
-function getRoleGroup(role){
-  if(role==='GK')return'GK';
-  if(['CB','SW','RB','LB'].includes(role))return'DEF';
-  if(['DM','CM','AM','RM','LM'].includes(role))return'MID';
-  return'ATT';
+function getRoleGroup(role) {
+  if (role === 'GK') return 'GK';
+  if (['CB','SW','RB','LB'].includes(role)) return 'DEF';
+  if (['DM','CM','AM','RM','LM'].includes(role)) return 'MID';
+  return 'ATT';
+}
+function getSurname(name) {
+  if (!name) return '?';
+  var c = name.indexOf(',');
+  return c > -1 ? name.substring(0, c).trim() : name.trim();
+}
+function getInitials(name) {
+  return getSurname(name).slice(0, 2).toUpperCase();
 }
 
-function getSurname(name){
-  if(!name)return'?';
-  const c=name.indexOf(',');
-  return c>-1?name.substring(0,c).trim():name.trim();
-}
-
-function getInitials(name){
-  const s=getSurname(name);
-  return s.slice(0,2).toUpperCase();
-}
-
-// Formation definitions
-// y=0 top (attack), y=100 bottom (GK)
-// sw:true = this slot accepts SW players (only one per formation)
-const FORMATIONS = {
-  '4-3-3':{ label:'4-3-3', slots:[
+var FORMATIONS = {
+  '4-3-3':{ slots:[
     {x:50,y:88,roles:['GK']},
-    {x:14,y:74,roles:['LB']},
-    {x:36,y:74,roles:['CB']},
-    {x:64,y:74,roles:['CB','SW'],sw:true},
-    {x:86,y:74,roles:['RB']},
-    {x:28,y:52,roles:['CM','AM']},
-    {x:50,y:55,roles:['DM','CM']},
-    {x:72,y:52,roles:['CM']},
-    {x:16,y:22,roles:['LW','FW']},
-    {x:50,y:18,roles:['ST','FW']},
-    {x:84,y:22,roles:['RW']},
+    {x:14,y:74,roles:['LB']},{x:36,y:74,roles:['CB']},{x:64,y:74,roles:['CB','SW'],sw:true},{x:86,y:74,roles:['RB']},
+    {x:28,y:52,roles:['CM','AM']},{x:50,y:55,roles:['DM','CM']},{x:72,y:52,roles:['CM']},
+    {x:16,y:22,roles:['LW','FW']},{x:50,y:18,roles:['ST','FW']},{x:84,y:22,roles:['RW']},
   ]},
-  '4-4-2':{ label:'4-4-2', slots:[
+  '4-4-2':{ slots:[
     {x:50,y:88,roles:['GK']},
-    {x:14,y:74,roles:['LB']},
-    {x:36,y:74,roles:['CB']},
-    {x:64,y:74,roles:['CB','SW'],sw:true},
-    {x:86,y:74,roles:['RB']},
-    {x:10,y:50,roles:['LM','LW']},
-    {x:34,y:50,roles:['CM','DM']},
-    {x:66,y:50,roles:['CM','DM']},
-    {x:90,y:50,roles:['RM','RW']},
-    {x:35,y:20,roles:['ST','FW']},
-    {x:65,y:20,roles:['ST']},
+    {x:14,y:74,roles:['LB']},{x:36,y:74,roles:['CB']},{x:64,y:74,roles:['CB','SW'],sw:true},{x:86,y:74,roles:['RB']},
+    {x:10,y:50,roles:['LM','LW']},{x:34,y:50,roles:['CM','DM']},{x:66,y:50,roles:['CM','DM']},{x:90,y:50,roles:['RM','RW']},
+    {x:35,y:20,roles:['ST','FW']},{x:65,y:20,roles:['ST']},
   ]},
-  '4-4-2◆':{ label:'4-4-2◆', slots:[
+  '4-4-2\u25C6':{ slots:[
     {x:50,y:88,roles:['GK']},
-    {x:14,y:74,roles:['LB']},
-    {x:36,y:74,roles:['CB']},
-    {x:64,y:74,roles:['CB','SW'],sw:true},
-    {x:86,y:74,roles:['RB']},
-    {x:50,y:63,roles:['DM']},
-    {x:26,y:50,roles:['CM']},
-    {x:74,y:50,roles:['CM']},
-    {x:50,y:37,roles:['AM','FW']},
-    {x:34,y:20,roles:['FW','ST']},
-    {x:66,y:20,roles:['ST']},
+    {x:14,y:74,roles:['LB']},{x:36,y:74,roles:['CB']},{x:64,y:74,roles:['CB','SW'],sw:true},{x:86,y:74,roles:['RB']},
+    {x:50,y:63,roles:['DM']},{x:26,y:50,roles:['CM']},{x:74,y:50,roles:['CM']},{x:50,y:37,roles:['AM','FW']},
+    {x:34,y:20,roles:['FW','ST']},{x:66,y:20,roles:['ST']},
   ]},
-  '4-3-2-1':{ label:'4-3-2-1', slots:[
+  '4-3-2-1':{ slots:[
     {x:50,y:88,roles:['GK']},
-    {x:14,y:74,roles:['LB']},
-    {x:36,y:74,roles:['CB']},
-    {x:64,y:74,roles:['CB','SW'],sw:true},
-    {x:86,y:74,roles:['RB']},
-    {x:28,y:57,roles:['CM']},
-    {x:50,y:60,roles:['DM']},
-    {x:72,y:57,roles:['CM']},
-    {x:34,y:40,roles:['AM']},
-    {x:66,y:40,roles:['AM','FW']},
+    {x:14,y:74,roles:['LB']},{x:36,y:74,roles:['CB']},{x:64,y:74,roles:['CB','SW'],sw:true},{x:86,y:74,roles:['RB']},
+    {x:28,y:57,roles:['CM']},{x:50,y:60,roles:['DM']},{x:72,y:57,roles:['CM']},
+    {x:34,y:40,roles:['AM']},{x:66,y:40,roles:['AM','FW']},
     {x:50,y:18,roles:['ST']},
   ]},
-  '4-3-1-2':{ label:'4-3-1-2', slots:[
+  '4-3-1-2':{ slots:[
     {x:50,y:88,roles:['GK']},
-    {x:14,y:74,roles:['LB']},
-    {x:36,y:74,roles:['CB']},
-    {x:64,y:74,roles:['CB','SW'],sw:true},
-    {x:86,y:74,roles:['RB']},
-    {x:28,y:57,roles:['CM']},
-    {x:50,y:60,roles:['DM']},
-    {x:72,y:57,roles:['CM']},
+    {x:14,y:74,roles:['LB']},{x:36,y:74,roles:['CB']},{x:64,y:74,roles:['CB','SW'],sw:true},{x:86,y:74,roles:['RB']},
+    {x:28,y:57,roles:['CM']},{x:50,y:60,roles:['DM']},{x:72,y:57,roles:['CM']},
     {x:50,y:41,roles:['AM']},
-    {x:34,y:20,roles:['FW','ST']},
-    {x:66,y:20,roles:['ST']},
+    {x:34,y:20,roles:['FW','ST']},{x:66,y:20,roles:['ST']},
   ]},
-  '4-2-3-1':{ label:'4-2-3-1', slots:[
+  '4-2-3-1':{ slots:[
     {x:50,y:88,roles:['GK']},
-    {x:14,y:74,roles:['LB']},
-    {x:36,y:74,roles:['CB']},
-    {x:64,y:74,roles:['CB','SW'],sw:true},
-    {x:86,y:74,roles:['RB']},
-    {x:34,y:61,roles:['DM']},
-    {x:66,y:61,roles:['CM','DM']},
-    {x:16,y:42,roles:['LW','LM']},
-    {x:50,y:40,roles:['AM','FW']},
-    {x:84,y:42,roles:['RM','RW']},
+    {x:14,y:74,roles:['LB']},{x:36,y:74,roles:['CB']},{x:64,y:74,roles:['CB','SW'],sw:true},{x:86,y:74,roles:['RB']},
+    {x:34,y:61,roles:['DM']},{x:66,y:61,roles:['CM','DM']},
+    {x:16,y:42,roles:['LW','LM']},{x:50,y:40,roles:['AM','FW']},{x:84,y:42,roles:['RM','RW']},
     {x:50,y:18,roles:['ST']},
   ]},
-  '3-4-3':{ label:'3-4-3', slots:[
+  '3-4-3':{ slots:[
     {x:50,y:88,roles:['GK']},
-    {x:25,y:74,roles:['CB']},
-    {x:50,y:76,roles:['CB','SW'],sw:true},
-    {x:75,y:74,roles:['CB']},
-    {x:20,y:55,roles:['DM']},
-    {x:40,y:52,roles:['CM']},
-    {x:60,y:52,roles:['CM']},
-    {x:80,y:50,roles:['AM']},
-    {x:16,y:22,roles:['LW']},
-    {x:50,y:16,roles:['ST','FW']},
-    {x:84,y:22,roles:['RW']},
+    {x:25,y:74,roles:['CB']},{x:50,y:76,roles:['CB','SW'],sw:true},{x:75,y:74,roles:['CB']},
+    {x:20,y:55,roles:['DM']},{x:40,y:52,roles:['CM']},{x:60,y:52,roles:['CM']},{x:80,y:50,roles:['AM']},
+    {x:16,y:22,roles:['LW']},{x:50,y:16,roles:['ST','FW']},{x:84,y:22,roles:['RW']},
   ]},
-  '4-2-4':{ label:'4-2-4', slots:[
+  '4-2-4':{ slots:[
     {x:50,y:88,roles:['GK']},
-    {x:14,y:74,roles:['LB']},
-    {x:36,y:74,roles:['CB']},
-    {x:64,y:74,roles:['CB','SW'],sw:true},
-    {x:86,y:74,roles:['RB']},
-    {x:34,y:56,roles:['DM','CM']},
-    {x:66,y:56,roles:['DM','CM']},
-    {x:10,y:22,roles:['LW','FW']},
-    {x:36,y:18,roles:['FW','ST']},
-    {x:64,y:18,roles:['ST']},
-    {x:90,y:22,roles:['RW']},
+    {x:14,y:74,roles:['LB']},{x:36,y:74,roles:['CB']},{x:64,y:74,roles:['CB','SW'],sw:true},{x:86,y:74,roles:['RB']},
+    {x:34,y:56,roles:['DM','CM']},{x:66,y:56,roles:['DM','CM']},
+    {x:10,y:22,roles:['LW','FW']},{x:36,y:18,roles:['FW','ST']},{x:64,y:18,roles:['ST']},{x:90,y:22,roles:['RW']},
   ]},
-  '4-5-1':{ label:'4-5-1', slots:[
+  '4-5-1':{ slots:[
     {x:50,y:88,roles:['GK']},
-    {x:14,y:74,roles:['LB']},
-    {x:36,y:74,roles:['CB']},
-    {x:64,y:74,roles:['CB','SW'],sw:true},
-    {x:86,y:74,roles:['RB']},
-    {x:10,y:52,roles:['LM']},
-    {x:32,y:55,roles:['DM','CM']},
-    {x:68,y:55,roles:['CM','DM']},
-    {x:90,y:52,roles:['RM']},
+    {x:14,y:74,roles:['LB']},{x:36,y:74,roles:['CB']},{x:64,y:74,roles:['CB','SW'],sw:true},{x:86,y:74,roles:['RB']},
+    {x:10,y:52,roles:['LM']},{x:32,y:55,roles:['DM','CM']},{x:68,y:55,roles:['CM','DM']},{x:90,y:52,roles:['RM']},
     {x:50,y:40,roles:['AM','FW']},
     {x:50,y:18,roles:['ST']},
   ]},
-  '3-5-2':{ label:'3-5-2', slots:[
+  '3-5-2':{ slots:[
     {x:50,y:88,roles:['GK']},
-    {x:25,y:74,roles:['CB']},
-    {x:50,y:76,roles:['CB','SW'],sw:true},
-    {x:75,y:74,roles:['CB']},
-    {x:10,y:52,roles:['LM']},
-    {x:30,y:55,roles:['CM']},
-    {x:50,y:58,roles:['DM']},
-    {x:70,y:55,roles:['CM']},
-    {x:90,y:52,roles:['RM']},
-    {x:34,y:20,roles:['FW','ST']},
-    {x:66,y:20,roles:['ST']},
+    {x:25,y:74,roles:['CB']},{x:50,y:76,roles:['CB','SW'],sw:true},{x:75,y:74,roles:['CB']},
+    {x:10,y:52,roles:['LM']},{x:30,y:55,roles:['CM']},{x:50,y:58,roles:['DM']},{x:70,y:55,roles:['CM']},{x:90,y:52,roles:['RM']},
+    {x:34,y:20,roles:['FW','ST']},{x:66,y:20,roles:['ST']},
   ]},
-  '5-3-2':{ label:'5-3-2', slots:[
+  '5-3-2':{ slots:[
     {x:50,y:88,roles:['GK']},
-    {x:8, y:74,roles:['LB']},
-    {x:26,y:74,roles:['CB']},
-    {x:50,y:76,roles:['SW','CB'],sw:true},
-    {x:74,y:74,roles:['CB']},
-    {x:92,y:74,roles:['RB']},
-    {x:50,y:58,roles:['DM']},
-    {x:28,y:52,roles:['CM']},
-    {x:72,y:52,roles:['CM','AM']},
-    {x:34,y:20,roles:['FW','ST']},
-    {x:66,y:20,roles:['FW','ST']},
+    {x:8,y:74,roles:['LB']},{x:26,y:74,roles:['CB']},{x:50,y:76,roles:['SW','CB'],sw:true},{x:74,y:74,roles:['CB']},{x:92,y:74,roles:['RB']},
+    {x:50,y:58,roles:['DM']},{x:28,y:52,roles:['CM']},{x:72,y:52,roles:['CM','AM']},
+    {x:34,y:20,roles:['FW','ST']},{x:66,y:20,roles:['FW','ST']},
   ]},
 };
 
-// ─── ASSIGNMENT ALGORITHM ─────────────────────────────────────────────────
-
 function buildLineup(slots, roster) {
-  const used = new Set();
-  const result = new Array(slots.length).fill(null);
-  const order = slots.map((s,i) => [i,s]).sort((a,b) => a[1].roles.length - b[1].roles.length);
+  var used = new Set();
+  var result = new Array(slots.length).fill(null);
+  var order = slots.map(function(s,i){ return [i,s]; }).sort(function(a,b){ return a[1].roles.length - b[1].roles.length; });
 
-  for (const [idx, slot] of order) {
-    let best = null;
-    let bestOvr = -1;
-    let bestIsPrimary = false;
+  for (var oi = 0; oi < order.length; oi++) {
+    var idx = order[oi][0];
+    var slot = order[oi][1];
+    var best = null, bestOvr = -1, bestIsPrimary = false;
 
-    for (const p of roster) {
+    for (var pi = 0; pi < roster.length; pi++) {
+      var p = roster[pi];
       if (used.has(p.slug)) continue;
       if (p.role === 'SW' && !slot.sw) continue;
-      const acceptable = slot.sw ? slot.roles : slot.roles.filter(r => r !== 'SW');
-      const altList = (p.alt_roles || '').split(',').map(r => r.trim()).filter(Boolean);
-      const allRoles = [p.role, ...altList];
-
-      if (allRoles.some(r => acceptable.includes(r))) {
-        const isPrimary = acceptable.includes(p.role);
-        if (
-          (!bestIsPrimary && isPrimary) ||
-          (isPrimary === bestIsPrimary && p.ovr > bestOvr)
-        ) {
-          best = p;
-          bestOvr = p.ovr;
-          bestIsPrimary = isPrimary;
+      var acceptable = slot.sw ? slot.roles : slot.roles.filter(function(r){ return r !== 'SW'; });
+      var altList = (p.alt_roles || '').split(',').map(function(r){ return r.trim(); }).filter(Boolean);
+      var allRoles = [p.role].concat(altList);
+      if (allRoles.some(function(r){ return acceptable.includes(r); })) {
+        var isPrimary = acceptable.includes(p.role);
+        if ((!bestIsPrimary && isPrimary) || (isPrimary === bestIsPrimary && p.ovr > bestOvr)) {
+          best = p; bestOvr = p.ovr; bestIsPrimary = isPrimary;
         }
       }
     }
-
     if (best) { used.add(best.slug); result[idx] = best; }
   }
   return result;
 }
 
-// ─── RENDER LINEUP ────────────────────────────────────────────────────────
-
 function renderLineup(formKey) {
-  const pitch = document.getElementById('lineupPitch');
-  const formation = FORMATIONS[formKey];
+  var pitch = document.getElementById('lineupPitch');
+  var formation = FORMATIONS[formKey];
   if (!pitch || !formation) return;
+  var assignment = buildLineup(formation.slots, rosterData);
+  pitch.querySelectorAll('.player-token').forEach(function(el){ el.remove(); });
 
-  const assignment = buildLineup(formation.slots, rosterData);
-
-  // Remove existing tokens
-  pitch.querySelectorAll('.player-token').forEach(el => el.remove());
-
-  formation.slots.forEach((slot, i) => {
-    const player = assignment[i];
-    const token = document.createElement('div');
+  formation.slots.forEach(function(slot, i) {
+    var player = assignment[i];
+    var token = document.createElement('div');
     token.className = 'player-token';
     token.style.left = slot.x + '%';
     token.style.top  = slot.y + '%';
 
     if (player) {
-      const group   = getRoleGroup(player.role);
-      const bg      = ROLE_BG[group];
-      const initials = getInitials(player.name);
-      const surname  = getSurname(player.name);
-
-      token.innerHTML = `
-        <a href="/player/${player.slug}" class="token-link" title="${player.name} · ${player.ovr}">
-          <div class="token-circle" style="background:${bg};">
-            <span class="token-init">${initials}</span>
-          </div>
-          <div class="token-name">${surname}</div>
-          <div class="token-ovr">${player.ovr}</div>
-        </a>`;
+      var group    = getRoleGroup(player.role);
+      var bg       = ROLE_BG[group];
+      var initials = getInitials(player.name);
+      var surname  = getSurname(player.name);
+      token.innerHTML =
+        '<a href="/player/' + player.slug + '" class="token-link" title="' + player.name + ' \u00B7 ' + player.ovr + '">' +
+          '<div class="token-circle" style="background:' + bg + ';">' +
+            '<span class="token-init">' + initials + '</span>' +
+          '</div>' +
+          '<div class="token-name">' + surname + '</div>' +
+          '<div class="token-ovr">' + player.ovr + '</div>' +
+        '</a>';
     } else {
-      token.innerHTML = `
-        <div class="token-link">
-          <div class="token-circle token-empty-circle">
-            <span class="token-init" style="color:rgba(255,255,255,0.35);">—</span>
-          </div>
-          <div class="token-name" style="color:rgba(255,255,255,0.3);">${slot.roles[0]}</div>
-        </div>`;
+      token.innerHTML =
+        '<div class="token-link">' +
+          '<div class="token-circle token-empty-circle">' +
+            '<span class="token-init" style="color:rgba(255,255,255,0.35);">\u2014</span>' +
+          '</div>' +
+          '<div class="token-name" style="color:rgba(255,255,255,0.3);">' + slot.roles[0] + '</div>' +
+        '</div>';
     }
-
     pitch.appendChild(token);
   });
 }
 
-// ─── FORMATION TABS ───────────────────────────────────────────────────────
+var activeForm = '4-3-3';
 
-let activeForm = '4-3-3';
-
-document.querySelectorAll('.form-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.form-btn').forEach(b => b.classList.remove('active'));
+document.querySelectorAll('.form-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.form-btn').forEach(function(b){ b.classList.remove('active'); });
     btn.classList.add('active');
     activeForm = btn.getAttribute('data-form');
     renderLineup(activeForm);
   });
 });
 
-// Initial render
 if (document.getElementById('lineupPitch')) {
   renderLineup('4-3-3');
 }
 
-// ─── LOGO FALLBACK ────────────────────────────────────────────────────────
-
-const logo = document.getElementById('team-logo');
+/* ── LOGO FALLBACK ── */
+var logo = document.getElementById('team-logo');
 if (logo) {
   logo.addEventListener('error', function() {
     this.style.display = 'none';
-    const fb = document.getElementById('team-initials');
+    var fb = document.getElementById('team-initials');
     if (fb) fb.style.display = 'flex';
   });
 }
 
 </script>
 <Footer/>
-
 </body>
 </html>
