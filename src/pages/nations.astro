@@ -95,11 +95,12 @@ const tableData = (nations ?? []).map(n => {
 const continents = [...new Set((nations ?? []).map(n => n.continent).filter(Boolean))].sort();
 ---
 
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
   <title>Nations – Legends Database</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <style is:global>
     *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -108,43 +109,35 @@ const continents = [...new Set((nations ?? []).map(n => n.continent).filter(Bool
       font-size: 13px; -webkit-font-smoothing: antialiased;
       display: flex; flex-direction: column; min-height: 100vh;
     }
-  .page {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 48px 40px 80px;
-  flex: 1;
-  width: 100%;
-  min-width: 0; 
-}
+    .page {
+      max-width: 1200px; margin: 0 auto;
+      padding: 48px 40px 80px;
+      flex: 1; width: 100%; min-width: 0;
+    }
+
     .page-eyebrow { font-size: 11px; font-weight: 700; color: #0071e3; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
     .page-title   { font-size: 36px; font-weight: 700; letter-spacing: -1px; color: #1d1d1f; margin-bottom: 8px; line-height: 1.1; }
     .page-sub     { font-size: 14px; color: #6e6e73; margin-bottom: 32px; line-height: 1.5; }
 
-    /* CONTROLS */
-    .controls       { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
-    .search-wrap    { position: relative; flex: 1; min-width: 200px; }
-    .search-icon    { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 14px; color: #aeaeb2; pointer-events: none; }
-    .search-input   { width: 100%; font-family: inherit; font-size: 13px; padding: 9px 14px 9px 34px; border: 1.5px solid #e5e5ea; border-radius: 12px; background: #fff; color: #1d1d1f; outline: none; transition: border-color 0.15s; }
+    /* ─── CONTROLS ─── */
+    .controls     { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+    .search-wrap  { position: relative; flex: 1; min-width: 200px; }
+    .search-icon  { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 14px; color: #aeaeb2; pointer-events: none; }
+    .search-input { width: 100%; font-family: inherit; font-size: 13px; padding: 9px 14px 9px 34px; border: 1.5px solid #e5e5ea; border-radius: 12px; background: #fff; color: #1d1d1f; outline: none; transition: border-color 0.15s; }
     .search-input:focus { border-color: #0071e3; box-shadow: 0 0 0 3px rgba(0,113,227,0.1); }
-    .filter-select  { font-family: inherit; font-size: 12px; font-weight: 600; padding: 8px 14px; border: 1.5px solid #e5e5ea; border-radius: 12px; background: #fff; color: #6e6e73; cursor: pointer; outline: none; transition: border-color 0.15s; }
+    .filter-select { font-family: inherit; font-size: 12px; font-weight: 600; padding: 8px 14px; border: 1.5px solid #e5e5ea; border-radius: 12px; background: #fff; color: #6e6e73; cursor: pointer; outline: none; transition: border-color 0.15s; }
     .filter-select:focus { border-color: #0071e3; }
-    .meta-count     { font-size: 12px; color: #aeaeb2; white-space: nowrap; }
+    .meta-count   { font-size: 12px; color: #aeaeb2; white-space: nowrap; }
 
-    /* TABLE — unica regola, con min-width */
+    /* ─── DESKTOP TABLE ─── */
     .table-wrap {
-      border-radius: 16px;
-      overflow-x: auto;
+      border-radius: 16px; overflow-x: auto;
       box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 20px rgba(0,0,0,0.05);
       background: #fff;
     }
-    table {
-      width: 100%;
-      min-width: 900px;
-      border-collapse: collapse;
-      font-size: 12.5px;
-    }
-    thead tr   { border-bottom: 1.5px solid #e5e5ea; }
-    thead th   {
+    table { width: 100%; min-width: 900px; border-collapse: collapse; font-size: 12.5px; }
+    thead tr { border-bottom: 1.5px solid #e5e5ea; }
+    thead th {
       padding: 10px 10px; text-align: left; font-size: 10.5px; font-weight: 700;
       color: #6e6e73; letter-spacing: 0.05em; text-transform: uppercase;
       white-space: nowrap; cursor: pointer; user-select: none;
@@ -152,22 +145,25 @@ const continents = [...new Set((nations ?? []).map(n => n.continent).filter(Bool
       transition: color 0.12s, background 0.12s;
       border-right: 1px solid #f0f0f5;
     }
-    thead th:last-child  { border-right: none; }
-    thead th:hover       { color: #1d1d1f; background: rgba(240,240,245,0.9); }
-    thead th.sorted      { color: #0071e3; }
-    thead th.num-col     { text-align: right; }
-    tbody tr             { border-bottom: 1px solid #f2f2f7; cursor: pointer; transition: background 0.1s; }
-    tbody tr:last-child  { border-bottom: none; }
-    tbody tr:hover td    { background: #f7f7f9; }
-    tbody td             { padding: 10px 10px; vertical-align: middle; border-right: 1px solid #f5f5f7; color: #1d1d1f; }
-    tbody td:last-child  { border-right: none; }
-
+    thead th:last-child { border-right: none; }
+    thead th:hover      { color: #1d1d1f; background: rgba(240,240,245,0.9); }
+    thead th.sorted     { color: #0071e3; }
+    thead th.num-col    { text-align: right; }
+    tbody tr            { border-bottom: 1px solid #f2f2f7; cursor: pointer; transition: background 0.1s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover td   { background: #f7f7f9; }
+    tbody td            { padding: 10px 10px; vertical-align: middle; border-right: 1px solid #f5f5f7; color: #1d1d1f; }
+    tbody td:last-child { border-right: none; }
     .nation-cell  { display: flex; align-items: center; gap: 10px; }
     .flag-sm      { width: 28px; height: 19px; border-radius: 3px; overflow: hidden; flex-shrink: 0; box-shadow: 0 1px 4px rgba(0,0,0,0.14); }
     .flag-sm svg  { width: 100%; height: 100%; }
     .nation-name  { font-weight: 600; color: #1d1d1f; transition: color 0.12s; }
     tbody tr:hover .nation-name { color: #0071e3; }
+    .num-col      { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+    .wc-badge     { font-size: 11px; font-weight: 700; }
+    .empty-row td { text-align: center; padding: 48px; color: #aeaeb2; font-size: 14px; }
 
+    /* ─── CONF BADGES ─── */
     .conf-badge    { font-size: 9.5px; font-weight: 700; padding: 2px 7px; border-radius: 5px; letter-spacing: 0.04em; white-space: nowrap; }
     .conf-UEFA     { background: #eef4ff; color: #0071e3; }
     .conf-CONMEBOL { background: #efffee; color: #1a7a1a; }
@@ -176,31 +172,119 @@ const continents = [...new Set((nations ?? []).map(n => n.continent).filter(Bool
     .conf-CONCACAF { background: #fff0ee; color: #c0392b; }
     .conf-other    { background: #f5f5f7; color: #6e6e73; }
 
-    .num-col       { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
-    .wc-badge      { font-size: 11px; font-weight: 700; }
-
+    /* OVR colors */
     .ovr-95 { color: #0071e3; } .ovr-90 { color: #1a5e1a; } .ovr-80 { color: #2e8b2e; }
     .ovr-70 { color: #6aaa2a; } .ovr-60 { color: #c8a800; } .ovr-low { color: #aeaeb2; }
 
-    .empty-row td { text-align: center; padding: 48px; color: #aeaeb2; font-size: 14px; }
+    /* ─── MOBILE CARDS ─── */
+    .card-grid {
+      display: none;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    .nation-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 14px 14px 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 2px 8px rgba(0,0,0,0.04);
+      cursor: pointer;
+      transition: transform 0.12s, box-shadow 0.12s;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .nation-card:active { transform: scale(0.98); }
+    .card-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .card-flag {
+      width: 34px; height: 23px;
+      border-radius: 4px; overflow: hidden; flex-shrink: 0;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.16);
+    }
+    .card-flag svg { width: 100%; height: 100%; }
+    .card-name-wrap { flex: 1; min-width: 0; }
+    .card-name {
+      font-size: 13px; font-weight: 700;
+      color: #1d1d1f; line-height: 1.2;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .card-conf {
+      font-size: 9px; font-weight: 700;
+      padding: 1px 5px; border-radius: 4px;
+      letter-spacing: 0.04em; display: inline-block;
+      margin-top: 3px;
+    }
+    .card-stats {
+      display: flex;
+      gap: 6px;
+      justify-content: space-between;
+    }
+    .card-stat {
+      flex: 1;
+      background: #f7f7f9;
+      border-radius: 8px;
+      padding: 7px 8px;
+      text-align: center;
+    }
+    .card-stat-val {
+      font-size: 15px; font-weight: 700;
+      letter-spacing: -0.3px; line-height: 1;
+      color: #1d1d1f;
+      font-variant-numeric: tabular-nums;
+    }
+    .card-stat-lbl {
+      font-size: 8.5px; font-weight: 600;
+      color: #aeaeb2; letter-spacing: 0.04em;
+      text-transform: uppercase; margin-top: 2px;
+    }
+    .card-wc {
+      font-size: 11px; font-weight: 700;
+      color: #b07800;
+    }
+    .card-empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 48px 20px;
+      color: #aeaeb2;
+      font-size: 14px;
+      background: #fff;
+      border-radius: 14px;
+    }
 
-    @media (max-width: 700px) {
-      .page       { padding: 28px 16px 60px; }
-      .page-title { font-size: 26px; }
-      .controls   { gap: 8px; }
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 767px) {
+      .page        { padding: 20px 14px 80px; }
+      .page-title  { font-size: 26px; letter-spacing: -0.5px; }
+      .page-sub    { font-size: 13px; margin-bottom: 20px; }
+      .controls    { gap: 8px; margin-bottom: 12px; }
+      .search-wrap { min-width: 0; }
+      .filter-select { font-size: 11px; padding: 7px 10px; }
+
+      /* Hide table, show cards */
+      .table-wrap { display: none; }
+      .card-grid  { display: grid; }
+    }
+
+    @media (max-width: 380px) {
+      .card-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
+
 <body>
   <Navbar/>
   <div class="page">
     <div class="page-eyebrow">Legends Database</div>
     <h1 class="page-title">Nations</h1>
-    <p class="page-sub">{tableData.length} nations tracked — click any row to explore legends, stats and history.</p>
+    <p class="page-sub">{tableData.length} nations tracked — tap any card to explore legends, stats and history.</p>
 
     <div class="controls">
       <div class="search-wrap">
-        <span class="search-icon">🔍</span>
+        <span class="search-icon">&#128269;</span>
         <input class="search-input" id="searchInput" type="text" placeholder="Search nation…" autocomplete="off"/>
       </div>
       <select class="filter-select" id="contFilter">
@@ -210,6 +294,7 @@ const continents = [...new Set((nations ?? []).map(n => n.continent).filter(Bool
       <span class="meta-count" id="metaCount">{tableData.length} nations</span>
     </div>
 
+    <!-- DESKTOP TABLE -->
     <div class="table-wrap">
       <table id="nationsTable">
         <thead>
@@ -220,7 +305,7 @@ const continents = [...new Set((nations ?? []).map(n => n.continent).filter(Bool
             <th data-col="population"          data-type="num" class="num-col">Population <span></span></th>
             <th data-col="legendCount"         data-type="num" class="num-col">Legends <span></span></th>
             <th data-col="avgOvr"              data-type="num" class="num-col">Avg OVR <span></span></th>
-            <th data-col="world_cups_won"      data-type="num" class="num-col">🏆 WC <span></span></th>
+            <th data-col="world_cups_won"      data-type="num" class="num-col">&#127942; WC <span></span></th>
             <th data-col="win_percentage_num"  data-type="num" class="num-col">Win % <span></span></th>
             <th data-col="famous_coach"        data-type="str">Famous Coach <span></span></th>
             <th data-col="largest_stadium"     data-type="str">Largest Stadium <span></span></th>
@@ -229,10 +314,15 @@ const continents = [...new Set((nations ?? []).map(n => n.continent).filter(Bool
         <tbody id="tableBody"></tbody>
       </table>
     </div>
+
+    <!-- MOBILE CARD GRID -->
+    <div class="card-grid" id="cardGrid"></div>
+
   </div>
   <Footer/>
 
 <script define:vars={{ tableData }}>
+
 function ovrClass(v) {
   if (v >= 95) return 'ovr-95';
   if (v >= 90) return 'ovr-90';
@@ -240,6 +330,14 @@ function ovrClass(v) {
   if (v >= 70) return 'ovr-70';
   if (v >= 60) return 'ovr-60';
   return 'ovr-low';
+}
+function ovrColor(v) {
+  if (v >= 95) return '#0071e3';
+  if (v >= 90) return '#1a5e1a';
+  if (v >= 80) return '#2e8b2e';
+  if (v >= 70) return '#6aaa2a';
+  if (v >= 60) return '#c8a800';
+  return '#aeaeb2';
 }
 function confClass(c) {
   if (!c) return 'conf-other';
@@ -252,104 +350,184 @@ function confClass(c) {
 }
 function fmtPop(n) {
   if (!n) return '—';
-  if (n >= 1e9) return (n/1e9).toFixed(1) + 'B';
-  if (n >= 1e6) return (n/1e6).toFixed(1) + 'M';
-  if (n >= 1e3) return (n/1e3).toFixed(0) + 'K';
+  if (n >= 1e9) return (n / 1e9).toFixed(1) + 'B';
+  if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return (n / 1e3).toFixed(0) + 'K';
   return String(n);
 }
 
-const rows = tableData.map(n => ({
-  ...n,
-  win_percentage_num: n.win_percentage ? parseFloat(n.win_percentage) : 0
-}));
+var rows = tableData.map(function(n) {
+  return Object.assign({}, n, {
+    win_percentage_num: n.win_percentage ? parseFloat(n.win_percentage) : 0
+  });
+});
 
-let filtered   = [...rows];
-let sortState  = { col: null, dir: 1 };
+var filtered  = rows.slice();
+var sortState = { col: null, dir: 1 };
 
-function render() {
-  const tbody = document.getElementById('tableBody');
+function isMobile() {
+  return window.innerWidth < 768;
+}
+
+/* ── TABLE RENDER (desktop) ── */
+function renderTable() {
+  var tbody = document.getElementById('tableBody');
   tbody.innerHTML = '';
-  document.getElementById('metaCount').textContent = filtered.length + ' nations';
 
   if (!filtered.length) {
-    const tr = document.createElement('tr');
+    var tr = document.createElement('tr');
     tr.className = 'empty-row';
     tr.innerHTML = '<td colspan="10">No nations found</td>';
     tbody.appendChild(tr);
     return;
   }
 
-  filtered.forEach(n => {
-    const tr = document.createElement('tr');
-    tr.addEventListener('click', () => window.location = '/nation/' + n.slug);
+  filtered.forEach(function(n) {
+    var tr = document.createElement('tr');
+    tr.addEventListener('click', function() { window.location = '/nation/' + n.slug; });
 
-    const wcStars    = n.world_cups_won > 0
-      ? `<span class="wc-badge" style="color:#b07800;">${'★'.repeat(Math.min(n.world_cups_won,5))} ${n.world_cups_won}</span>`
-      : `<span style="color:#d1d1d6;">0</span>`;
-    const avgOvrHtml = n.avgOvr > 0
-      ? `<span class="${ovrClass(n.avgOvr)}">${n.avgOvr}</span>`
-      : `<span style="color:#d1d1d6;">—</span>`;
-    const legendHtml = n.legendCount > 0
-      ? `<span style="color:#0071e3;font-weight:700;">${n.legendCount}</span>`
-      : `<span style="color:#d1d1d6;">—</span>`;
-    const winHtml    = n.win_percentage
-      ? `<span style="color:${n.win_percentage_num>=50?'#1a7a1a':n.win_percentage_num>=35?'#c8a800':'#c0392b'};font-weight:600;">${n.win_percentage}</span>`
+    var wcStars = n.world_cups_won > 0
+      ? '<span class="wc-badge" style="color:#b07800;">' + '★'.repeat(Math.min(n.world_cups_won, 5)) + ' ' + n.world_cups_won + '</span>'
+      : '<span style="color:#d1d1d6;">0</span>';
+    var avgOvrHtml = n.avgOvr > 0
+      ? '<span class="' + ovrClass(n.avgOvr) + '">' + n.avgOvr + '</span>'
+      : '<span style="color:#d1d1d6;">—</span>';
+    var legendHtml = n.legendCount > 0
+      ? '<span style="color:#0071e3;font-weight:700;">' + n.legendCount + '</span>'
+      : '<span style="color:#d1d1d6;">—</span>';
+    var winHtml = n.win_percentage
+      ? '<span style="color:' + (n.win_percentage_num >= 50 ? '#1a7a1a' : n.win_percentage_num >= 35 ? '#c8a800' : '#c0392b') + ';font-weight:600;">' + n.win_percentage + '</span>'
       : '—';
-    const stadiumShort = (n.largest_stadium ?? '—').length > 30
-      ? (n.largest_stadium ?? '—').substring(0,28) + '…'
-      : (n.largest_stadium ?? '—');
+    var stadiumShort = (n.largest_stadium || '—').length > 30
+      ? (n.largest_stadium || '—').substring(0, 28) + '…'
+      : (n.largest_stadium || '—');
 
-    tr.innerHTML = `
-      <td><div class="nation-cell"><div class="flag-sm">${n.flag}</div><span class="nation-name">${n.name}</span></div></td>
-      <td><span class="conf-badge ${confClass(n.confederation)}">${n.confederation ?? '—'}</span></td>
-      <td style="color:#6e6e73;">${n.continent ?? '—'}</td>
-      <td class="num-col" style="color:#6e6e73;">${fmtPop(n.population)}</td>
-      <td class="num-col">${legendHtml}</td>
-      <td class="num-col">${avgOvrHtml}</td>
-      <td class="num-col">${wcStars}</td>
-      <td class="num-col">${winHtml}</td>
-      <td style="color:#6e6e73;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${n.famous_coach ?? '—'}</td>
-      <td style="color:#6e6e73;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${stadiumShort}</td>
-    `;
+    tr.innerHTML =
+      '<td><div class="nation-cell"><div class="flag-sm">' + n.flag + '</div><span class="nation-name">' + n.name + '</span></div></td>' +
+      '<td><span class="conf-badge ' + confClass(n.confederation) + '">' + (n.confederation || '—') + '</span></td>' +
+      '<td style="color:#6e6e73;">' + (n.continent || '—') + '</td>' +
+      '<td class="num-col" style="color:#6e6e73;">' + fmtPop(n.population) + '</td>' +
+      '<td class="num-col">' + legendHtml + '</td>' +
+      '<td class="num-col">' + avgOvrHtml + '</td>' +
+      '<td class="num-col">' + wcStars + '</td>' +
+      '<td class="num-col">' + winHtml + '</td>' +
+      '<td style="color:#6e6e73;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (n.famous_coach || '—') + '</td>' +
+      '<td style="color:#6e6e73;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + stadiumShort + '</td>';
+
     tbody.appendChild(tr);
   });
 }
 
-function applyFilters() {
-  const q    = document.getElementById('searchInput').value.toLowerCase().trim();
-  const cont = document.getElementById('contFilter').value;
-  filtered = rows.filter(n =>
-    (!q    || n.name.toLowerCase().includes(q)) &&
-    (!cont || n.continent === cont)
-  );
-  if (sortState.col) applySort();
-  else render();
+/* ── CARD RENDER (mobile) ── */
+function renderCards() {
+  var grid = document.getElementById('cardGrid');
+  grid.innerHTML = '';
+
+  if (!filtered.length) {
+    var empty = document.createElement('div');
+    empty.className = 'card-empty';
+    empty.textContent = 'No nations found';
+    grid.appendChild(empty);
+    return;
+  }
+
+  filtered.forEach(function(n) {
+    var card = document.createElement('a');
+    card.href = '/nation/' + n.slug;
+    card.className = 'nation-card';
+
+    var wcText = n.world_cups_won > 0
+      ? '★'.repeat(Math.min(n.world_cups_won, 5)) + ' ' + n.world_cups_won
+      : '0';
+    var wcColor = n.world_cups_won > 0 ? '#b07800' : '#d1d1d6';
+
+    var legendVal  = n.legendCount > 0 ? String(n.legendCount) : '—';
+    var legendColor = n.legendCount > 0 ? '#0071e3' : '#aeaeb2';
+    var ovrVal   = n.avgOvr > 0 ? String(n.avgOvr) : '—';
+    var ovrColorVal = n.avgOvr > 0 ? ovrColor(n.avgOvr) : '#aeaeb2';
+
+    card.innerHTML =
+      '<div class="card-top">' +
+        '<div class="card-flag">' + n.flag + '</div>' +
+        '<div class="card-name-wrap">' +
+          '<div class="card-name">' + n.name + '</div>' +
+          '<span class="card-conf ' + confClass(n.confederation) + '">' + (n.confederation || '—') + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="card-stats">' +
+        '<div class="card-stat">' +
+          '<div class="card-stat-val" style="color:' + legendColor + ';">' + legendVal + '</div>' +
+          '<div class="card-stat-lbl">Legends</div>' +
+        '</div>' +
+        '<div class="card-stat">' +
+          '<div class="card-stat-val" style="color:' + ovrColorVal + ';">' + ovrVal + '</div>' +
+          '<div class="card-stat-lbl">Avg OVR</div>' +
+        '</div>' +
+        '<div class="card-stat">' +
+          '<div class="card-stat-val card-wc" style="color:' + wcColor + ';">' + wcText + '</div>' +
+          '<div class="card-stat-lbl">WC</div>' +
+        '</div>' +
+      '</div>';
+
+    grid.appendChild(card);
+  });
 }
 
-function applySort() {
-  filtered.sort((a, b) => {
-    const va = a[sortState.col] ?? '';
-    const vb = b[sortState.col] ?? '';
-    if (!isNaN(Number(va)) && !isNaN(Number(vb)))
+/* ── UNIFIED RENDER ── */
+function render() {
+  if (isMobile()) {
+    renderCards();
+  } else {
+    renderTable();
+  }
+  document.getElementById('metaCount').textContent = filtered.length + ' nations';
+}
+
+/* ── FILTERS ── */
+function applyFilters() {
+  var q    = document.getElementById('searchInput').value.toLowerCase().trim();
+  var cont = document.getElementById('contFilter').value;
+  filtered = rows.filter(function(n) {
+    return (!q    || n.name.toLowerCase().includes(q)) &&
+           (!cont || n.continent === cont);
+  });
+  if (sortState.col) {
+    applySort(false);
+  } else {
+    render();
+  }
+}
+
+/* ── SORT (desktop only — column headers) ── */
+function applySort(doRender) {
+  filtered.sort(function(a, b) {
+    var va = a[sortState.col] != null ? a[sortState.col] : '';
+    var vb = b[sortState.col] != null ? b[sortState.col] : '';
+    if (!isNaN(Number(va)) && !isNaN(Number(vb))) {
       return (Number(vb) - Number(va)) * sortState.dir;
+    }
     return String(va).localeCompare(String(vb)) * sortState.dir;
   });
-  render();
+  if (doRender !== false) render();
 }
 
-document.querySelectorAll('#nationsTable thead th').forEach(th => {
-  th.addEventListener('click', () => {
-    const col = th.getAttribute('data-col');
+/* ── COLUMN SORT CLICKS ── */
+document.querySelectorAll('#nationsTable thead th').forEach(function(th) {
+  th.addEventListener('click', function() {
+    var col = th.getAttribute('data-col');
     if (!col) return;
-    sortState.col === col
-      ? (sortState.dir = sortState.dir === 1 ? -1 : 1)
-      : (sortState = { col, dir: 1 });
-    document.querySelectorAll('#nationsTable thead th').forEach(h => {
+    if (sortState.col === col) {
+      sortState.dir = sortState.dir === 1 ? -1 : 1;
+    } else {
+      sortState = { col: col, dir: 1 };
+    }
+    document.querySelectorAll('#nationsTable thead th').forEach(function(h) {
       h.classList.remove('sorted');
-      const s = h.querySelector('span'); if (s) s.textContent = '';
+      var s = h.querySelector('span');
+      if (s) s.textContent = '';
     });
     th.classList.add('sorted');
-    const sp = th.querySelector('span');
+    var sp = th.querySelector('span');
     if (sp) sp.textContent = sortState.dir === 1 ? ' ↓' : ' ↑';
     applySort();
   });
@@ -357,6 +535,13 @@ document.querySelectorAll('#nationsTable thead th').forEach(th => {
 
 document.getElementById('searchInput').addEventListener('input', applyFilters);
 document.getElementById('contFilter').addEventListener('change', applyFilters);
+
+/* ── RESIZE: switch between table and cards ── */
+var resizeTimer;
+window.addEventListener('resize', function() {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(render, 120);
+});
 
 render();
 </script>
