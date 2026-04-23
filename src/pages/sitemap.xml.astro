@@ -1,0 +1,83 @@
+---
+import { supabase } from '../lib/supabase.js';
+
+const BASE = 'https://legendsdatabase.com';
+const today = new Date().toISOString().split('T')[0];
+
+const { data: players } = await supabase.from('players').select('slug').not('slug','is',null);
+const { data: teams }   = await supabase.from('teams').select('slug').not('slug','is',null);
+const { data: nations } = await supabase.from('nations').select('name').not('name','is',null);
+
+const playerUrls  = (players ?? []).map(p => `${BASE}/player/${p.slug}`);
+const teamUrls    = (teams   ?? []).map(t => `${BASE}/team/${t.slug}`);
+const nationUrls  = (nations ?? []).map(n => `${BASE}/nation/${n.name.toLowerCase().replace(/\s+/g,'-')}`);
+
+const staticUrls = [
+  { url: BASE + '/',                priority: '1.0', freq: 'weekly'  },
+  { url: BASE + '/legenda',         priority: '0.8', freq: 'monthly' },
+  { url: BASE + '/nations',         priority: '0.9', freq: 'weekly'  },
+  { url: BASE + '/teams',           priority: '0.9', freq: 'weekly'  },
+  { url: BASE + '/best',            priority: '0.9', freq: 'weekly'  },
+  { url: BASE + '/best/worldxi',    priority: '0.8', freq: 'monthly' },
+  { url: BASE + '/best/skills',     priority: '0.8', freq: 'monthly' },
+  { url: BASE + '/best/misc',       priority: '0.7', freq: 'monthly' },
+  { url: BASE + '/best/decade/1950',priority: '0.7', freq: 'monthly' },
+  { url: BASE + '/best/decade/1960',priority: '0.7', freq: 'monthly' },
+  { url: BASE + '/best/decade/1970',priority: '0.7', freq: 'monthly' },
+  { url: BASE + '/best/decade/1980',priority: '0.7', freq: 'monthly' },
+  { url: BASE + '/best/decade/1990',priority: '0.7', freq: 'monthly' },
+  { url: BASE + '/best/decade/2000',priority: '0.7', freq: 'monthly' },
+  { url: BASE + '/best/decade/2010',priority: '0.7', freq: 'monthly' },
+  { url: BASE + '/best/continent/Europe',        priority: '0.7', freq: 'monthly' },
+  { url: BASE + '/best/continent/South-America', priority: '0.7', freq: 'monthly' },
+  { url: BASE + '/best/continent/Africa',        priority: '0.7', freq: 'monthly' },
+  { url: BASE + '/best/continent/North-America', priority: '0.7', freq: 'monthly' },
+  { url: BASE + '/best/continent/Asia',          priority: '0.7', freq: 'monthly' },
+  { url: BASE + '/best/league/serie-a',          priority: '0.7', freq: 'monthly' },
+  { url: BASE + '/best/league/premier-league',   priority: '0.7', freq: 'monthly' },
+  { url: BASE + '/best/league/bundesliga',       priority: '0.7', freq: 'monthly' },
+  { url: BASE + '/best/league/la-liga',          priority: '0.7', freq: 'monthly' },
+  { url: BASE + '/best/league/ligue-1',          priority: '0.7', freq: 'monthly' },
+  { url: BASE + '/best/league/eredivisie',       priority: '0.7', freq: 'monthly' },
+  { url: BASE + '/best/league/brasileirao',      priority: '0.7', freq: 'monthly' },
+  { url: BASE + '/timeline',        priority: '0.6', freq: 'monthly' },
+  { url: BASE + '/about',           priority: '0.5', freq: 'monthly' },
+  { url: BASE + '/sources',         priority: '0.4', freq: 'monthly' },
+  { url: BASE + '/contact',         priority: '0.4', freq: 'monthly' },
+];
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  {staticUrls.map(s => (
+    <url>
+      <loc>{s.url}</loc>
+      <lastmod>{today}</lastmod>
+      <changefreq>{s.freq}</changefreq>
+      <priority>{s.priority}</priority>
+    </url>
+  ))}
+  {playerUrls.map(u => (
+    <url>
+      <loc>{u}</loc>
+      <lastmod>{today}</lastmod>
+      <changefreq>monthly</changefreq>
+      <priority>0.8</priority>
+    </url>
+  ))}
+  {teamUrls.map(u => (
+    <url>
+      <loc>{u}</loc>
+      <lastmod>{today}</lastmod>
+      <changefreq>monthly</changefreq>
+      <priority>0.7</priority>
+    </url>
+  ))}
+  {nationUrls.map(u => (
+    <url>
+      <loc>{u}</loc>
+      <lastmod>{today}</lastmod>
+      <changefreq>monthly</changefreq>
+      <priority>0.7</priority>
+    </url>
+  ))}
+</urlset>
