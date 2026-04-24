@@ -15,6 +15,7 @@ const currentPath = Astro.url.pathname;
       <a href="/teams" class={currentPath === '/teams' || currentPath.startsWith('/team/') ? 'active' : ''}>All-Time Teams</a>
       <a href="/best" class={currentPath.startsWith('/best') ? 'active' : ''}>The Best</a>
       <a href="/timeline" class={currentPath === '/timeline' ? 'active' : ''}>Timeline</a>
+      <a href="/articles" class={currentPath === '/articles' || currentPath.startsWith('/articles/') ? 'active' : ''}>Articles</a>
       <a href="/about" class={currentPath === '/about' ? 'active' : ''}>About</a>
       <a href="/legenda" class={currentPath === '/legenda' ? 'active' : ''}>Legend</a>
     </div>
@@ -46,6 +47,7 @@ const currentPath = Astro.url.pathname;
     <a href="/teams" class={currentPath === '/teams' || currentPath.startsWith('/team/') ? 'active' : ''}>All-Time Teams</a>
     <a href="/best" class={currentPath.startsWith('/best') ? 'active' : ''}>The Best</a>
     <a href="/timeline" class={currentPath === '/timeline' ? 'active' : ''}>Timeline</a>
+    <a href="/articles" class={currentPath === '/articles' || currentPath.startsWith('/articles/') ? 'active' : ''}>Articles</a>
     <a href="/about" class={currentPath === '/about' ? 'active' : ''}>About</a>
     <a href="/legenda" class={currentPath === '/legenda' ? 'active' : ''}>Legend</a>
   </div>
