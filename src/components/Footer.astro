@@ -1,19 +1,19 @@
 ---
 const year = new Date().getFullYear();
 ---
-
 <footer class="site-footer">
   <div class="footer-inner">
     <span class="footer-brand">Legends Database</span>
     <span class="footer-sep">·</span>
     <span class="footer-copy">© {year}</span>
     <nav class="footer-nav">
-<a href="/contact">Contact</a>
-      <a href="/source">Sources</a>
+      <a href="/contact">Contact</a>
+      <a href="/sources">Sources</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/sitemap.xml">Sitemap</a>
     </nav>
   </div>
 </footer>
-
 <style>
   .site-footer {
     border-top: 1px solid #e5e5ea;
@@ -42,6 +42,6 @@ const year = new Date().getFullYear();
   .footer-nav a:hover { color: #0071e3; }
   @media (max-width: 600px) {
     .site-footer { padding: 18px 20px; }
-    .footer-nav { margin-left: 0; gap: 14px; }
+    .footer-nav { margin-left: 0; gap: 14px; flex-wrap: wrap; }
   }
 </style>
