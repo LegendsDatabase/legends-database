@@ -1,0 +1,679 @@
+---
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+
+const title = "Zico, O Galinho — The Little Rooster Who Conquered the World";
+const description = "Zico was a number 10, but in the Brazilian sense of the term — more than just a playmaker, a forward, a midfield maestro, a pure footballing artist. A love letter to one of the most beautiful players who ever lived.";
+const date = "May 2025";
+const readTime = "11 min read";
+const author = "Francesco B.";
+---
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>{title} – Legends Database</title>
+  <meta name="description" content={description}/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://legendsdatabase.com/articles/zico-galinho"/>
+  <meta property="og:type"         content="article"/>
+  <meta property="og:url"          content="https://legendsdatabase.com/articles/zico-galinho"/>
+  <meta property="og:title"        content={title}/>
+  <meta property="og:description"  content={description}/>
+  <meta property="og:image"        content="https://legendsdatabase.com/articles/zico-article.jpg"/>
+  <meta property="og:image:width"  content="1200"/>
+  <meta property="og:image:height" content="630"/>
+  <meta property="og:locale"       content="en_US"/>
+  <meta name="twitter:card"        content="summary_large_image"/>
+  <meta name="twitter:title"       content={title}/>
+  <meta name="twitter:description" content={description}/>
+  <meta name="twitter:image"       content="https://legendsdatabase.com/articles/zico-article.jpg"/>
+  <link rel="icon" type="image/png" href="/favicon.png"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet"/>
+  <style is:global>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, 'SF Pro Text', 'Inter', sans-serif;
+      background: #f2f2f7;
+      color: #1d1d1f;
+      padding-top: 44px;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ── HERO IMAGE ── */
+    .hero-image-wrap {
+      width: 100%;
+      height: clamp(320px, 55vw, 580px);
+      overflow: hidden;
+      position: relative;
+    }
+    .hero-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      display: block;
+      filter: brightness(0.72);
+      transition: transform 8s ease;
+    }
+    .hero-image-wrap:hover .hero-image {
+      transform: scale(1.03);
+    }
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.55) 100%);
+    }
+    .hero-caption {
+      position: absolute;
+      bottom: 28px;
+      left: 40px;
+      right: 40px;
+    }
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.7);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .hero-tag-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #0071e3;
+    }
+    .hero-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(26px, 5vw, 52px);
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.1;
+      letter-spacing: -0.5px;
+      margin-bottom: 14px;
+      max-width: 700px;
+    }
+    .hero-title em {
+      font-style: italic;
+      color: rgba(255,255,255,0.8);
+    }
+    .hero-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+    }
+    .hero-meta-sep { opacity: 0.4; }
+    .hero-author { color: rgba(255,255,255,0.75); font-weight: 500; }
+
+    /* ── LAYOUT ── */
+    .article-wrap {
+      flex: 1;
+      max-width: 720px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 52px 40px 80px;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #6e6e73;
+      text-decoration: none;
+      margin-bottom: 40px;
+      transition: color 0.15s;
+    }
+    .back-link:hover { color: #0071e3; }
+
+    /* ── PROSE ── */
+    .prose p {
+      font-size: 16.5px;
+      line-height: 1.82;
+      color: #3a3a3c;
+      margin-bottom: 26px;
+    }
+    .prose p:last-child { margin-bottom: 0; }
+    .prose strong { color: #1d1d1f; font-weight: 600; }
+    .prose em { font-style: italic; color: #1d1d1f; }
+    .prose a {
+      color: #0071e3;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(0,113,227,0.3);
+      transition: border-color 0.15s;
+    }
+    .prose a:hover { border-color: #0071e3; }
+
+    /* ── SECTION HEADING ── */
+    .section-heading {
+      margin: 52px 0 18px;
+    }
+    .section-heading-accent {
+      display: inline-block;
+      width: 24px;
+      height: 3px;
+      background: #0071e3;
+      border-radius: 2px;
+      margin-bottom: 10px;
+    }
+    .section-heading h2 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: #1d1d1f;
+      line-height: 1.25;
+    }
+
+    /* ── PULL QUOTE ── */
+    .pull-quote {
+      margin: 44px 0;
+      padding: 30px 36px;
+      background: #ffffff;
+      border-radius: 18px;
+      border-left: 4px solid #0071e3;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+      position: relative;
+      overflow: hidden;
+    }
+    .pull-quote::before {
+      content: '"';
+      position: absolute;
+      top: 10px;
+      right: 24px;
+      font-family: Georgia, serif;
+      font-size: 80px;
+      color: #0071e3;
+      opacity: 0.08;
+      line-height: 1;
+    }
+    .pull-quote-text {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 20px;
+      font-style: italic;
+      font-weight: 700;
+      line-height: 1.5;
+      color: #1d1d1f;
+      margin-bottom: 10px;
+    }
+    .pull-quote-attr {
+      font-size: 12px;
+      font-weight: 600;
+      color: #aeaeb2;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    /* ── DARK QUOTE ── */
+    .dark-quote {
+      background: linear-gradient(135deg, #1a1a2e, #0f3460);
+      border-radius: 18px;
+      padding: 30px 32px;
+      margin: 44px 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .dark-quote::after {
+      content: '';
+      position: absolute;
+      right: -30px;
+      bottom: -30px;
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: rgba(0,113,227,0.12);
+    }
+    .dark-quote-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #0071e3;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .dark-quote-text {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 18px;
+      font-style: italic;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.55;
+      margin-bottom: 12px;
+    }
+    .dark-quote-attr {
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+      font-weight: 500;
+    }
+
+    /* ── STAT STRIP ── */
+    .stat-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 40px 0;
+    }
+    .stat-box {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 18px 14px;
+      text-align: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .stat-val {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -1px;
+      color: #0071e3;
+      line-height: 1;
+      margin-bottom: 5px;
+    }
+    .stat-lbl {
+      font-size: 10px;
+      font-weight: 700;
+      color: #aeaeb2;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      line-height: 1.3;
+    }
+
+    /* ── COMPARISON CARD ── */
+    .comparison {
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 28px 24px;
+      margin: 40px 0;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .comparison-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #aeaeb2;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 22px;
+    }
+    .comparison-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .comparison-row:last-child { margin-bottom: 0; }
+    .comparison-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #6e6e73;
+      min-width: 90px;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+    .comparison-bar-wrap { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .comparison-player { font-size: 10.5px; font-weight: 600; color: #1d1d1f; }
+    .comparison-track {
+      height: 6px;
+      background: #f0f0f5;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .comparison-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 1s cubic-bezier(0.34,1.2,0.64,1);
+    }
+    .fill-zico { background: #0071e3; }
+    .fill-iniesta { background: #c0392b; }
+
+    /* ── PLAYER CARD ── */
+    .player-card-inline {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 18px 20px;
+      margin: 32px 0;
+      text-decoration: none;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      border: 1.5px solid transparent;
+      transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+    }
+    .player-card-inline:hover {
+      border-color: #0071e3;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.09);
+    }
+    .player-card-inline-badge {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #0071e3, #34aadc);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 800;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .player-card-inline-body { flex: 1; }
+    .player-card-inline-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1d1d1f;
+      margin-bottom: 3px;
+    }
+    .player-card-inline-sub {
+      font-size: 12px;
+      color: #aeaeb2;
+    }
+    .player-card-inline-arrow {
+      font-size: 16px;
+      color: #aeaeb2;
+      transition: color 0.15s, transform 0.15s;
+    }
+    .player-card-inline:hover .player-card-inline-arrow {
+      color: #0071e3;
+      transform: translateX(3px);
+    }
+
+    /* ── DIVIDER ── */
+    .prose-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #e5e5ea, transparent);
+      margin: 52px 0;
+    }
+
+    /* ── LOCATION TAG ── */
+    .location-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #6e6e73;
+      background: #f5f5f7;
+      padding: 5px 12px;
+      border-radius: 20px;
+      margin-bottom: 24px;
+    }
+
+    /* ── FADE IN ── */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── MOBILE ── */
+    @media (max-width: 640px) {
+      .hero-caption { left: 20px; right: 20px; bottom: 20px; }
+      .hero-title { font-size: clamp(22px, 7vw, 36px); }
+      .article-wrap { padding: 32px 20px 64px; }
+      .prose p { font-size: 15.5px; }
+      .pull-quote { padding: 22px 22px; }
+      .pull-quote-text { font-size: 17px; }
+      .dark-quote { padding: 22px 20px; }
+      .dark-quote-text { font-size: 16px; }
+      .stat-strip { grid-template-columns: repeat(2, 1fr); }
+      .stat-val { font-size: 24px; }
+      .comparison-label { min-width: 70px; font-size: 10px; }
+      .section-heading h2 { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <Navbar/>
+
+  <!-- HERO IMAGE -->
+  <div class="hero-image-wrap">
+    <img
+      src="/articles/zico-article.jpg"
+      alt="Zico, O Galinho"
+      class="hero-image"
+    />
+    <div class="hero-overlay"></div>
+    <div class="hero-caption">
+      <div class="hero-tag">
+        <span class="hero-tag-dot"></span>
+        Player Profile
+        <span class="hero-tag-dot"></span>
+      </div>
+      <h1 class="hero-title">Zico, O Galinho<br/><em>The Little Rooster Who Conquered the World</em></h1>
+      <div class="hero-meta">
+        <span class="hero-author">{author}</span>
+        <span class="hero-meta-sep">·</span>
+        <span>{date}</span>
+        <span class="hero-meta-sep">·</span>
+        <span>{readTime}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARTICLE BODY -->
+  <div class="article-wrap">
+    <a href="/articles" class="back-link">← Articles</a>
+
+    <!-- INTRO -->
+    <div class="location-tag fade-in">📍 Lignano Sabbiadoro, Italy</div>
+
+    <div class="prose fade-in">
+      <p>In Lignano Sabbiadoro, a place I've been visiting regularly for years, there's a Brazilian restaurant with a framed photograph on the wall — signed and dedicated to the owner by none other than Arthur Antunes Coimbra, better known as <strong>Zico</strong>. No words are needed to explain the love that Udine and its surrounding province still hold for the Brazilian maestro.</p>
+      <p>His brief yet legendary spell at Udinese secured his place among the greats in Italian football folklore. Italy's football fans, notoriously critical of players who haven't faced the country's renowned defensive dark arts, were won over by his brilliance. However, as unforgettable as his time in Udine was, it was only a small chapter in his illustrious career — and certainly not the most significant one.</p>
+      <p>When Zico arrived in Italy in 1983, the excitement from the press was accompanied by skepticism. He was already 30 years old, accustomed to the warmth of Rio and the "loose" defenses of South America — an outdated stereotype then as it is now. But any doubts were quickly buried beneath an avalanche of goals and dazzling plays.</p>
+    </div>
+
+    <a href="/player/zico" class="player-card-inline fade-in">
+      <div class="player-card-inline-badge">10</div>
+      <div class="player-card-inline-body">
+        <div class="player-card-inline-name">Zico — Arthur Antunes Coimbra</div>
+        <div class="player-card-inline-sub">AM · Brazil · Flamengo & Udinese · 1970s–80s</div>
+      </div>
+      <div class="player-card-inline-arrow">→</div>
+    </a>
+
+    <!-- STATS -->
+    <div class="stat-strip fade-in">
+      <div class="stat-box">
+        <div class="stat-val">3</div>
+        <div class="stat-lbl">South American Ballon d'Ors</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val">2</div>
+        <div class="stat-lbl">Bola de Ouro titles</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val">3</div>
+        <div class="stat-lbl">World Cups played</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val">82</div>
+        <div class="stat-lbl">The mythical World Cup</div>
+      </div>
+    </div>
+
+    <!-- WEIGHTLESS -->
+    <div class="section-heading fade-in">
+      <div class="section-heading-accent"></div>
+      <h2>Weightless Football</h2>
+    </div>
+
+    <div class="prose fade-in">
+      <p>Zico was the product of a South America still plagued by malnutrition — much like Garrincha, or Messi, whose growth hormone deficiency nearly ended his career before it began. He was skinny, barely had any muscle mass, and was small even by footballing standards. And yet, like the greatest of underdogs, he lifted the world on his shoulders through sheer quality.</p>
+      <p>Standing at just <strong>170 cm</strong>, he seemed utterly unsuited for the brutal football of the 1970s. And yet, he floated — effortlessly defying physics with his grace, balance, and technique.</p>
+    </div>
+
+    <div class="pull-quote fade-in">
+      <div class="pull-quote-text">Zico was pure joy, and playing alongside him was one of the greatest gifts life ever gave me as a footballer.</div>
+      <div class="pull-quote-attr">— Sócrates</div>
+    </div>
+
+    <div class="prose fade-in">
+      <p>Much like <strong>Iniesta</strong> — almost a midfield version of Zico — he played a type of football that seemed to transcend physicality. He abandoned the traditional notions of grit and tenacity in favor of a higher abstraction of the game, one built entirely on technique and finesse. His dominance was almost illogical, yet undeniable — whether as a prolific goal-scorer, a masterful playmaker, or a set-piece specialist whose free kicks were treated like penalty kicks, such was the inevitability of their accuracy.</p>
+    </div>
+
+    <!-- COMPARISON -->
+    <div class="comparison fade-in">
+      <div class="comparison-title">Zico vs Iniesta — Two Weightless Midfielders</div>
+      <div class="comparison-row">
+        <div class="comparison-label">Technique</div>
+        <div class="comparison-bar-wrap">
+          <div class="comparison-player">Zico</div>
+          <div class="comparison-track"><div class="comparison-fill fill-zico" style="width:0%" data-width="97%"></div></div>
+        </div>
+        <div class="comparison-bar-wrap">
+          <div class="comparison-player">Iniesta</div>
+          <div class="comparison-track"><div class="comparison-fill fill-iniesta" style="width:0%" data-width="96%"></div></div>
+        </div>
+      </div>
+      <div class="comparison-row">
+        <div class="comparison-label">Vision</div>
+        <div class="comparison-bar-wrap">
+          <div class="comparison-player">Zico</div>
+          <div class="comparison-track"><div class="comparison-fill fill-zico" style="width:0%" data-width="95%"></div></div>
+        </div>
+        <div class="comparison-bar-wrap">
+          <div class="comparison-player">Iniesta</div>
+          <div class="comparison-track"><div class="comparison-fill fill-iniesta" style="width:0%" data-width="97%"></div></div>
+        </div>
+      </div>
+      <div class="comparison-row">
+        <div class="comparison-label">Goals</div>
+        <div class="comparison-bar-wrap">
+          <div class="comparison-player">Zico</div>
+          <div class="comparison-track"><div class="comparison-fill fill-zico" style="width:0%" data-width="92%"></div></div>
+        </div>
+        <div class="comparison-bar-wrap">
+          <div class="comparison-player">Iniesta</div>
+          <div class="comparison-track"><div class="comparison-fill fill-iniesta" style="width:0%" data-width="68%"></div></div>
+        </div>
+      </div>
+      <div class="comparison-row">
+        <div class="comparison-label">Physique</div>
+        <div class="comparison-bar-wrap">
+          <div class="comparison-player">Zico</div>
+          <div class="comparison-track"><div class="comparison-fill fill-zico" style="width:0%" data-width="48%"></div></div>
+        </div>
+        <div class="comparison-bar-wrap">
+          <div class="comparison-player">Iniesta</div>
+          <div class="comparison-track"><div class="comparison-fill fill-iniesta" style="width:0%" data-width="52%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="prose-divider fade-in"></div>
+
+    <!-- 1982 -->
+    <div class="section-heading fade-in">
+      <div class="section-heading-accent"></div>
+      <h2>Spain 1982 — Football as an Art Form</h2>
+    </div>
+
+    <div class="prose fade-in">
+      <p>Perhaps no team seized a moment in time quite like <strong>Brazil in 1982</strong> — the team that embodied football as an art form, preached and perfected under Telê Santana. It hardly matters that Brazil's greatest post-war footballing moment carries, for them, a tragic name — the Disaster of Sarrià. Because even now, over 40 years later, football lovers around the world still have Zico's genius imprinted in their minds.</p>
+      <p>Four years earlier, in Argentina, he had endured a disappointing tournament — his free-flowing football clashing with the rigid, militaristic discipline of manager Cláudio Coutinho. But in Spain, Zico redeemed himself completely. Not only did he score, but he <em>recited</em> football, painting masterpieces with every touch.</p>
+    </div>
+
+    <div class="dark-quote fade-in">
+      <div class="dark-quote-label">An old football romantic once said</div>
+      <div class="dark-quote-text">"If those Brazilian teams had even half the competitive ruthlessness of West Germany or Italy, they would have won twice as much. But they wouldn't have been Brazilian anymore. And they wouldn't have earned the love of millions for their flaws as well as their genius."</div>
+    </div>
+
+    <!-- PARADOX -->
+    <div class="section-heading fade-in">
+      <div class="section-heading-accent"></div>
+      <h2>More Real and Less Real Than the Others</h2>
+    </div>
+
+    <div class="prose fade-in">
+      <p>Nicknamed <strong>"Galinho"</strong> — Little Rooster — for his thick, youthful curls but also for the graceful flamboyance of his game, Zico was a footballing aesthete's dream. His slight touch of narcissism, his poetic relationship with the ball, and his almost theatrical elegance made him a gift to lovers of football's beauty.</p>
+      <p>To borrow a brilliant phrase from David Foster Wallace, he was <em>at once more real and less real than the others</em>. His style, his pure aesthetic joy, made this contradiction not just possible, but inevitable. Zico looked ethereal, as if devoted purely to beauty — yet, paradoxically, he was also one of the most clinically decisive players of his era.</p>
+      <p>This is one of those paradoxes that only the greatest can embody without contradiction. In football, we often divide players into two rigid categories: the practical and the artistic. But I believe this is a very European way of thinking — one that Brazilian football, at least in Zico's era, would have dismissed outright.</p>
+    </div>
+
+    <div class="pull-quote fade-in">
+      <div class="pull-quote-text">For them, the beauty of a move was, in itself, its effectiveness.</div>
+    </div>
+
+    <!-- VALDANO QUOTE -->
+    <div class="dark-quote fade-in">
+      <div class="dark-quote-label">Jorge Valdano</div>
+      <div class="dark-quote-text">"Zico didn't just play football — he made you feel it. And that's what separates the great from the legendary."</div>
+      <div class="dark-quote-attr">Jorge Valdano — World Cup winner 1986</div>
+    </div>
+
+    <div class="prose-divider fade-in"></div>
+
+    <!-- CONCLUSION -->
+    <div class="section-heading fade-in">
+      <div class="section-heading-accent"></div>
+      <h2>The Skinny Kid from Rio</h2>
+    </div>
+
+    <div class="prose fade-in">
+      <p>From the moment he was a skinny little kid, playing in the streets of Rio in a Juventude jersey, surrounded by his brothers, he dominated the game through pure skill alone. He was blessed with talent, but also with passion, determination, and discipline — the things that turned an unlikely physique into one of the most beautiful players the game has ever seen.</p>
+      <p>Without his stint in Udine, Zico might have been remembered as an incomplete genius by the generalist fan — someone who never fully conquered Europe, who never lifted an international trophy, who never reached a World Cup final. That perception would have been a mistake. But thankfully, Zico defied the cold logic of result-driven football.</p>
+      <p>He was one of the few who could fill the world with beauty, almost effortlessly. And in his case, that's all that should ever matter.</p>
+    </div>
+
+    <div class="pull-quote fade-in">
+      <div class="pull-quote-text">History often downplays results and falls in love with moments. And no player embodied a moment quite like Zico in 1982.</div>
+    </div>
+
+    <a href="/player/zico" class="player-card-inline fade-in">
+      <div class="player-card-inline-badge">10</div>
+      <div class="player-card-inline-body">
+        <div class="player-card-inline-name">Explore Zico's full profile</div>
+        <div class="player-card-inline-sub">Stats, skills, ratings and career data on Legends Database</div>
+      </div>
+      <div class="player-card-inline-arrow">→</div>
+    </a>
+
+  </div>
+
+  <Footer/>
+
+  <script>
+    // Fade in on scroll
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.07 });
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+    // Animate comparison bars when visible
+    const barObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.querySelectorAll('.comparison-fill').forEach(bar => {
+            const target = bar.getAttribute('data-width');
+            if (target) setTimeout(() => { bar.style.width = target; }, 100);
+          });
+          barObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.3 });
+    const comparison = document.querySelector('.comparison');
+    if (comparison) barObserver.observe(comparison);
+  </script>
+</body>
+</html>
