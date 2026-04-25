@@ -1,0 +1,767 @@
+---
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+
+const title = "Matthew Le Tissier — Le God";
+const description = "The provincial genius. An Anglo-French anomaly who played like Riquelme in the wrong country and the wrong era, and yet became one of the most beloved players of the 1990s. A love letter to the most beautiful anachronism in football history.";
+const date = "May 2025";
+const readTime = "10 min read";
+const author = "Francesco B.";
+---
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>{title} – Legends Database</title>
+  <meta name="description" content={description}/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://legendsdatabase.com/articles/le-tissier-le-god"/>
+  <meta property="og:type"         content="article"/>
+  <meta property="og:url"          content="https://legendsdatabase.com/articles/le-tissier-le-god"/>
+  <meta property="og:title"        content={title}/>
+  <meta property="og:description"  content={description}/>
+  <meta property="og:image"        content="https://legendsdatabase.com/articles/letissier-article.jpg"/>
+  <meta property="og:image:width"  content="1200"/>
+  <meta property="og:image:height" content="630"/>
+  <meta property="og:locale"       content="en_US"/>
+  <meta name="twitter:card"        content="summary_large_image"/>
+  <meta name="twitter:title"       content={title}/>
+  <meta name="twitter:description" content={description}/>
+  <meta name="twitter:image"       content="https://legendsdatabase.com/articles/letissier-article.jpg"/>
+  <link rel="icon" type="image/png" href="/favicon.png"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet"/>
+  <style is:global>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, 'SF Pro Text', 'Inter', sans-serif;
+      background: #f2f2f7;
+      color: #1d1d1f;
+      padding-top: 44px;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ── HERO IMAGE ── */
+    .hero-image-wrap {
+      width: 100%;
+      height: clamp(320px, 55vw, 580px);
+      overflow: hidden;
+      position: relative;
+    }
+    .hero-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 20%;
+      display: block;
+      filter: brightness(0.65);
+      transition: transform 8s ease;
+    }
+    .hero-image-wrap:hover .hero-image { transform: scale(1.03); }
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, transparent 25%, rgba(0,0,0,0.65) 100%);
+    }
+    .hero-caption {
+      position: absolute;
+      bottom: 28px;
+      left: 40px;
+      right: 40px;
+    }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.65);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .hero-eyebrow-dot { width: 4px; height: 4px; border-radius: 50%; background: #0071e3; }
+    .hero-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(24px, 5vw, 52px);
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      line-height: 1.1;
+      color: #ffffff;
+      max-width: 700px;
+      margin-bottom: 14px;
+    }
+    .hero-title em { font-style: italic; color: rgba(255,255,255,0.75); }
+    .hero-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.45);
+      font-weight: 500;
+    }
+    .hero-meta-sep { opacity: 0.4; }
+    .hero-author { color: rgba(255,255,255,0.7); font-weight: 500; }
+
+    /* ── LAYOUT ── */
+    .article-wrap {
+      flex: 1;
+      max-width: 720px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 52px 40px 80px;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #6e6e73;
+      text-decoration: none;
+      margin-bottom: 40px;
+      transition: color 0.15s;
+    }
+    .back-link:hover { color: #0071e3; }
+
+    /* ── PROSE ── */
+    .prose p {
+      font-size: 16.5px;
+      line-height: 1.82;
+      color: #3a3a3c;
+      margin-bottom: 26px;
+    }
+    .prose p:last-child { margin-bottom: 0; }
+    .prose strong { color: #1d1d1f; font-weight: 600; }
+    .prose em { font-style: italic; color: #1d1d1f; }
+    .prose a {
+      color: #0071e3;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(0,113,227,0.3);
+      transition: border-color 0.15s;
+    }
+    .prose a:hover { border-color: #0071e3; }
+
+    /* ── SECTION HEADING ── */
+    .section-heading { margin: 52px 0 18px; }
+    .section-heading-accent {
+      display: inline-block;
+      width: 24px;
+      height: 3px;
+      background: #e30000;
+      border-radius: 2px;
+      margin-bottom: 10px;
+    }
+    .section-heading h2 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: #1d1d1f;
+      line-height: 1.25;
+    }
+
+    /* ── PULL QUOTE ── */
+    .pull-quote {
+      margin: 44px 0;
+      padding: 30px 36px;
+      background: #ffffff;
+      border-radius: 18px;
+      border-left: 4px solid #e30000;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+      position: relative;
+      overflow: hidden;
+    }
+    .pull-quote::before {
+      content: '"';
+      position: absolute;
+      top: 10px;
+      right: 24px;
+      font-family: Georgia, serif;
+      font-size: 80px;
+      color: #e30000;
+      opacity: 0.08;
+      line-height: 1;
+    }
+    .pull-quote-text {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 19px;
+      font-style: italic;
+      font-weight: 700;
+      line-height: 1.55;
+      color: #1d1d1f;
+      margin-bottom: 10px;
+    }
+    .pull-quote-attr {
+      font-size: 12px;
+      font-weight: 700;
+      color: #aeaeb2;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    /* ── DARK QUOTE ── */
+    .dark-quote {
+      background: linear-gradient(135deg, #0d1117, #1a1a2e);
+      border-radius: 18px;
+      padding: 30px 32px;
+      margin: 44px 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .dark-quote::after {
+      content: '';
+      position: absolute;
+      right: -30px;
+      bottom: -30px;
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: rgba(227,0,0,0.10);
+    }
+    .dark-quote-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #e30000;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .dark-quote-text {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 18px;
+      font-style: italic;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+    .dark-quote-attr {
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+      font-weight: 500;
+    }
+
+    /* ── PLAYER CARD INLINE ── */
+    .player-card-inline {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 18px 20px;
+      margin: 32px 0;
+      text-decoration: none;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      border: 1.5px solid transparent;
+      transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+    }
+    .player-card-inline:hover {
+      border-color: #e30000;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.09);
+    }
+    .player-card-inline-badge {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #e30000, #ff4444);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 800;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .player-card-inline-body { flex: 1; }
+    .player-card-inline-name { font-size: 14px; font-weight: 600; color: #1d1d1f; margin-bottom: 3px; }
+    .player-card-inline-sub { font-size: 12px; color: #aeaeb2; }
+    .player-card-inline-arrow { font-size: 16px; color: #aeaeb2; transition: color 0.15s, transform 0.15s; }
+    .player-card-inline:hover .player-card-inline-arrow { color: #e30000; transform: translateX(3px); }
+
+    /* ── STAT STRIP ── */
+    .stat-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 40px 0;
+    }
+    .stat-box {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 18px 14px;
+      text-align: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .stat-val {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -1px;
+      color: #e30000;
+      line-height: 1;
+      margin-bottom: 5px;
+    }
+    .stat-lbl {
+      font-size: 10px;
+      font-weight: 700;
+      color: #aeaeb2;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      line-height: 1.4;
+    }
+
+    /* ── CONTEXT GRID ── */
+    .context-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 40px 0;
+    }
+    .context-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 22px 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .context-card-flag { font-size: 28px; margin-bottom: 10px; }
+    .context-card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1d1d1f;
+      margin-bottom: 8px;
+      letter-spacing: -0.2px;
+    }
+    .context-card-body {
+      font-size: 12.5px;
+      color: #6e6e73;
+      line-height: 1.6;
+    }
+    .context-card.red { border-top: 3px solid #e30000; }
+    .context-card.blue { border-top: 3px solid #0071e3; }
+
+    /* ── TWIN PILLS ── */
+    .twin-comparison {
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 28px 24px;
+      margin: 40px 0;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .twin-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #aeaeb2;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 22px;
+    }
+    .twin-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .twin-row:last-child { margin-bottom: 0; }
+    .twin-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #6e6e73;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      text-align: center;
+    }
+    .twin-pill {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 20px;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .twin-pill.left { background: #fff0ee; color: #e30000; }
+    .twin-pill.right { background: #eef4ff; color: #0071e3; }
+
+    /* ── TIMELINE ── */
+    .career-timeline {
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 28px 24px;
+      margin: 40px 0;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .timeline-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #aeaeb2;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 22px;
+    }
+    .timeline-item {
+      display: flex;
+      gap: 16px;
+      padding-bottom: 20px;
+      position: relative;
+    }
+    .timeline-item:last-child { padding-bottom: 0; }
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: 11px;
+      top: 24px;
+      bottom: 0;
+      width: 1px;
+      background: #f0f0f5;
+    }
+    .timeline-item:last-child::before { display: none; }
+    .timeline-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #e30000;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+    }
+    .timeline-dot-inner {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ffffff;
+    }
+    .timeline-dot.dim { background: #e5e5ea; }
+    .timeline-content { flex: 1; }
+    .timeline-year {
+      font-size: 11px;
+      font-weight: 700;
+      color: #aeaeb2;
+      letter-spacing: 0.05em;
+      margin-bottom: 3px;
+    }
+    .timeline-event {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #1d1d1f;
+      margin-bottom: 2px;
+    }
+    .timeline-sub { font-size: 12px; color: #6e6e73; line-height: 1.5; }
+
+    /* ── HIGHLIGHT BOX ── */
+    .highlight-box {
+      background: linear-gradient(135deg, #0d1117, #1a1a2e);
+      border-radius: 18px;
+      padding: 28px 32px;
+      margin: 40px 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .highlight-box::after {
+      content: '';
+      position: absolute;
+      right: -20px;
+      top: -20px;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: rgba(227,0,0,0.12);
+    }
+    .highlight-box-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #e30000;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .highlight-box-text {
+      font-size: 17px;
+      font-weight: 600;
+      color: #ffffff;
+      line-height: 1.6;
+    }
+
+    /* ── DIVIDER ── */
+    .prose-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #e5e5ea, transparent);
+      margin: 52px 0;
+    }
+
+    /* ── FADE IN ── */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── MOBILE ── */
+    @media (max-width: 640px) {
+      .hero-caption { left: 20px; right: 20px; bottom: 20px; }
+      .hero-title { font-size: clamp(20px, 7vw, 32px); }
+      .article-wrap { padding: 32px 20px 64px; }
+      .prose p { font-size: 15.5px; }
+      .pull-quote { padding: 22px 20px; }
+      .pull-quote-text { font-size: 17px; }
+      .dark-quote { padding: 22px 20px; }
+      .dark-quote-text { font-size: 16px; }
+      .stat-strip { grid-template-columns: repeat(2, 1fr); }
+      .context-grid { grid-template-columns: 1fr; }
+      .twin-pill { font-size: 11px; padding: 5px 10px; }
+      .section-heading h2 { font-size: 22px; }
+      .highlight-box { padding: 22px 20px; }
+      .highlight-box-text { font-size: 15px; }
+    }
+  </style>
+</head>
+<body>
+  <Navbar/>
+
+  <!-- HERO -->
+  <div class="hero-image-wrap">
+    <img
+      src="/articles/letissier-article.jpg"
+      alt="Matthew Le Tissier - Le God"
+      class="hero-image"
+    />
+    <div class="hero-overlay"></div>
+    <div class="hero-caption">
+      <div class="hero-eyebrow">
+        <span class="hero-eyebrow-dot"></span>
+        Player Profile
+        <span class="hero-eyebrow-dot"></span>
+      </div>
+      <h1 class="hero-title">Matthew Le Tissier<br/><em>Le God</em></h1>
+      <div class="hero-meta">
+        <span class="hero-author">{author}</span>
+        <span class="hero-meta-sep">·</span>
+        <span>{date}</span>
+        <span class="hero-meta-sep">·</span>
+        <span>{readTime}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARTICLE -->
+  <div class="article-wrap">
+    <a href="/articles" class="back-link">← Articles</a>
+
+    <!-- INTRO -->
+    <div class="prose fade-in">
+      <p>In our culture, there exists a deep-rooted prejudice which, to be honest, has some basis: English football in the '90s was far from ours — Serie A — in terms of individual skills, team play, coolness, international success, and Ballon d'Or awards. The real money was circulating in Serie A, and the true superstars were almost all with us.</p>
+      <p>And yet. English football of the time had its own magical charm — a balance that has always represented its aesthetic key. And above all, it had allowed its large audience to admire the feats of some unforgettable champions. One of them was, and is, <strong>Matthew Le Tissier</strong>.</p>
+    </div>
+
+    <a href="/player/le-tissier-matt" class="player-card-inline fade-in">
+      <div class="player-card-inline-badge">10</div>
+      <div class="player-card-inline-body">
+        <div class="player-card-inline-name">Matthew Le Tissier</div>
+        <div class="player-card-inline-sub">AM · England · Southampton · 1986–2002</div>
+      </div>
+      <div class="player-card-inline-arrow">→</div>
+    </a>
+
+    <!-- STATS -->
+    <div class="stat-strip fade-in">
+      <div class="stat-box">
+        <div class="stat-val">8</div>
+        <div class="stat-lbl">England caps</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val">162</div>
+        <div class="stat-lbl">Premier League goals</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val">13</div>
+        <div class="stat-lbl">Consecutive PL seasons</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val">47/48</div>
+        <div class="stat-lbl">Penalties scored</div>
+      </div>
+    </div>
+
+    <!-- ANOMALY -->
+    <div class="section-heading fade-in">
+      <div class="section-heading-accent"></div>
+      <h2>An Atypical Englishman</h2>
+    </div>
+
+    <div class="prose fade-in">
+      <p>Matthew was an atypical Englishman from birth — born on a Channel Island that fell under the dominion of the Crown due to some ancient Norman decree, but which was in fact populated by the French. He was tall and big, like many British players, but in his case the word "big" also meant — to use a euphemism — not exactly in line with the dictatorship of competitiveness that dominated the football of the '90s.</p>
+      <p>In England, you run and hit. There's never a moment of respite. And yet Le Tissier, even as a young man, <strong>had a beer belly and seemed little inclined to run for ninety minutes</strong>. He played at his own pace — much more similar to the rhythmic, smooth, and anti-modern style of South American football.</p>
+    </div>
+
+    <!-- CONTEXT GRID -->
+    <div class="context-grid fade-in">
+      <div class="context-card red">
+        <div class="context-card-flag">🏴󠁧󠁢󠁥󠁮󠁧󠁿</div>
+        <div class="context-card-title">England in the '90s</div>
+        <div class="context-card-body">Post-Heysel ban. Recovering from exile. Physical, direct football. Run, fight, tackle. Glamour belonged to Serie A.</div>
+      </div>
+      <div class="context-card blue">
+        <div class="context-card-flag">🇮🇹</div>
+        <div class="context-card-title">Italy in the '90s</div>
+        <div class="context-card-body">The real money. The real superstars. Maldini, Baggio, Van Basten. The most beautiful championship in the world, bar none.</div>
+      </div>
+    </div>
+
+    <div class="prose fade-in">
+      <p>Le Tissier was an Anglo-Frenchman who resembled <strong>Raí and Riquelme, Valderrama</strong> — rather than the extraordinary all-rounders who have graced English football throughout its history. In other words, he was in the wrong country and also the wrong era, and moreover, he played in a football that, outside the borders of the Kingdom, many still snubbed as "minor".</p>
+    </div>
+
+    <!-- XAVI QUOTE -->
+    <div class="pull-quote fade-in">
+      <div class="pull-quote-text">"In a Catalan TV channel, there was a half-hour program every Monday where they showed the best goals of the Premier League. Le Tissier was always there, every week. He scored absurd goals. Even outrageous ones. I wondered: why does he stay at Southampton? He could play with anyone."</div>
+      <div class="pull-quote-attr">— Xavi Hernández</div>
+    </div>
+
+    <div class="prose-divider fade-in"></div>
+
+    <!-- TWIN COMPARISON -->
+    <div class="section-heading fade-in">
+      <div class="section-heading-accent"></div>
+      <h2>The Great Paradox</h2>
+    </div>
+
+    <div class="twin-comparison fade-in">
+      <div class="twin-title">Le Tissier — Where He Belonged vs Where He Played</div>
+      <div class="twin-row">
+        <div class="twin-pill left">South American rhythm</div>
+        <div class="twin-label">Style</div>
+        <div class="twin-pill right">English physicality</div>
+      </div>
+      <div class="twin-row">
+        <div class="twin-pill left">Poetry & artistry</div>
+        <div class="twin-label">Football</div>
+        <div class="twin-pill right">Run & fight</div>
+      </div>
+      <div class="twin-row">
+        <div class="twin-pill left">Riquelme era</div>
+        <div class="twin-label">His era</div>
+        <div class="twin-pill right">1990s Premier League</div>
+      </div>
+      <div class="twin-row">
+        <div class="twin-pill left">Barcelona / Napoli</div>
+        <div class="twin-label">His club</div>
+        <div class="twin-pill right">Southampton FC</div>
+      </div>
+    </div>
+
+    <div class="prose fade-in">
+      <p>Seeing Le God on the field was almost a surreal experience. Matthew was truly the son of an aesthetic that the world had already filed away — and yet, perhaps for this very reason, he was a wonderful and unpredictable player. There are players who come from the future and those who come from the past. Both may have misjudged their era, but for those from the past, establishing themselves is much more complicated, because history has in some way already surpassed them.</p>
+    </div>
+
+    <!-- THE DELL -->
+    <div class="highlight-box fade-in">
+      <div class="highlight-box-label">The Dell — His Theatre of Dreams</div>
+      <div class="highlight-box-text">The Dell was located right in the middle of the city and was a relic of the Victorian era, having been built in the late 1800s. Like Le Tissier, it was a survivor — an incomprehensible antique in the modern era. And it was beautiful that Matthew, in 2001, when he was practically a former player, took to the field to score the last goal on the grass of his old stadium.</div>
+    </div>
+
+    <!-- CAREER TIMELINE -->
+    <div class="career-timeline fade-in">
+      <div class="timeline-title">Career Highlights</div>
+      <div class="timeline-item">
+        <div class="timeline-dot"><div class="timeline-dot-inner"></div></div>
+        <div class="timeline-content">
+          <div class="timeline-year">1986</div>
+          <div class="timeline-event">Southampton debut — age 17</div>
+          <div class="timeline-sub">Begins a one-club career that will last 16 years.</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"><div class="timeline-dot-inner"></div></div>
+        <div class="timeline-content">
+          <div class="timeline-year">1989–90</div>
+          <div class="timeline-event">First 20-goal season</div>
+          <div class="timeline-sub">Establishes himself as one of the most creative players in England.</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"><div class="timeline-dot-inner"></div></div>
+        <div class="timeline-content">
+          <div class="timeline-year">1994</div>
+          <div class="timeline-event">England debut</div>
+          <div class="timeline-sub">One of only 8 caps — a national tragedy of under-selection.</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"><div class="timeline-dot-inner"></div></div>
+        <div class="timeline-content">
+          <div class="timeline-year">1997</div>
+          <div class="timeline-event">Last England cap — vs Italy at Wembley</div>
+          <div class="timeline-sub">Zola and Cannavaro seal a famous Italian win. Le Tissier's international career ends.</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot dim"><div class="timeline-dot-inner"></div></div>
+        <div class="timeline-content">
+          <div class="timeline-year">2001</div>
+          <div class="timeline-event">Last goal at The Dell</div>
+          <div class="timeline-sub">Against Arsenal's future Invincibles. The perfect farewell to his theatre of dreams.</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot dim"><div class="timeline-dot-inner"></div></div>
+        <div class="timeline-content">
+          <div class="timeline-year">2002</div>
+          <div class="timeline-event">Retirement</div>
+          <div class="timeline-sub">One club. One city. One God. 540 appearances, 209 goals.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="prose-divider fade-in"></div>
+
+    <!-- CONCLUSION -->
+    <div class="section-heading fade-in">
+      <div class="section-heading-accent"></div>
+      <h2>Le God, Forever</h2>
+    </div>
+
+    <div class="prose fade-in">
+      <p>The dark chapter of his career, unfortunately, was England. Also due to his limited physical resources, Matthew needed a team that played <em>for him</em> — and this was not possible when you had the best players of your country by your side. This is why Le Tissier was rarely called up by the various national team coaches throughout the '90s.</p>
+      <p>His last appearance in the Three Lions jersey coincided with the Azzurri's victory at Wembley in 1997 — marked by an inspired <a href="/player/zola-gianfranco">Zola</a> and a Cannavaro already in mastiff mode. His performance, to be honest, was not bad. Matthew even came close to scoring the equalizer. But the defeat blew the trumpets of those who saw him only as a provincial star, and condemned him to be definitively excluded from the national team.</p>
+      <p>No matter. For those who admired his sorcery during the '90s: Le Tissier will always be <strong>Le God</strong> — the provincial genius, one of the most beautiful and indecipherable anachronisms in the history of football.</p>
+    </div>
+
+    <div class="dark-quote fade-in">
+      <div class="dark-quote-label">The essence of Le God</div>
+      <div class="dark-quote-text">"There are players who come from the future and those who come from the past. Seeing Le Tissier on the field was almost a surreal experience — he was truly the son of an aesthetic the world had already filed away."</div>
+      <div class="dark-quote-attr">Francesco B. — Legends Database</div>
+    </div>
+
+    <a href="/player/le-tissier-matt" class="player-card-inline fade-in">
+      <div class="player-card-inline-badge">10</div>
+      <div class="player-card-inline-body">
+        <div class="player-card-inline-name">Explore Le Tissier's full profile</div>
+        <div class="player-card-inline-sub">Stats, skills, ratings and career data on Legends Database</div>
+      </div>
+      <div class="player-card-inline-arrow">→</div>
+    </a>
+
+  </div>
+
+  <Footer/>
+
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.07 });
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
