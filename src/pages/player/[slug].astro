@@ -704,6 +704,18 @@ const radarLabelData=radarAxes.map((ax,i)=>{
     }
 
   </style>
+<script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": p.name,
+    "url": "https://legendsdatabase.com/player/" + p.slug,
+    "nationality": p.nation ?? undefined,
+    "birthDate": p.birth_year ? String(p.birth_year) : undefined,
+    "height": p.height ? { "@type": "QuantitativeValue", "value": p.height, "unitCode": "CMT" } : undefined,
+    "jobTitle": "Professional Footballer",
+    "description": (p.role ?? '') + ' · ' + (p.nation ?? '') + ' · ' + (p.iconic_club ?? '') + '. Overall rating ' + p.overall_rating + '/99 on Legends Database.',
+    "sameAs": ["https://legendsdatabase.com/player/" + p.slug]
+  })}></script>
 </head>
 
 <body>
