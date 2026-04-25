@@ -862,7 +862,7 @@ const recentPlayers = [...(players ?? [])].sort((a, b) => b.id - a.id).slice(0, 
 
     <!-- TOOLBAR -->
     <div class="toolbar">
-      <input type="text" id="searchInput" placeholder="Search player..." />
+      <input type="text" id="pageSearchInput" placeholder="Search player..." />
 
       <!-- wrapper: su desktop è display:contents (trasparente),
            su mobile diventa riga scroll orizzontale -->
@@ -1095,7 +1095,7 @@ const recentPlayers = [...(players ?? [])].sort((a, b) => b.id - a.id).slice(0, 
 <script define:vars={{ players }}>
   const allPlayers = players;
   const tbody = document.getElementById('table-body');
-  const input = document.getElementById('searchInput');
+  const input = document.getElementById('pageSearchInput');
   const roleFilter = document.getElementById('filterRole');
   const nationFilter = document.getElementById('filterNation');
   const clubFilter = document.getElementById('filterClub');
