@@ -61,39 +61,57 @@ const articles = [
   },
 ];
 
-const TAG_STYLES: Record<string, { bg: string; color: string; activeBg: string }> = {
-  'All':             { bg: '#f5f5f7', color: '#1d1d1f', activeBg: '#1d1d1f' },
-  'Player Profile':  { bg: '#eef4ff', color: '#0071e3', activeBg: '#0071e3' },
-  'Football Culture':{ bg: '#efffee', color: '#1a7a1a', activeBg: '#1a7a1a' },
-  'Duels':           { bg: '#fff0ee', color: '#c0392b', activeBg: '#c0392b' },
+// Stili per tag — tutto precomputato qui, zero operazioni nel template
+const TAG_BG: Record<string, string> = {
+  'All': '#f5f5f7',
+  'Player Profile': '#eef4ff',
+  'Football Culture': '#efffee',
+  'Duels': '#fff0ee',
+};
+const TAG_COLOR: Record<string, string> = {
+  'All': '#1d1d1f',
+  'Player Profile': '#0071e3',
+  'Football Culture': '#1a7a1a',
+  'Duels': '#c0392b',
+};
+const TAG_ACTIVE: Record<string, string> = {
+  'All': '#1d1d1f',
+  'Player Profile': '#0071e3',
+  'Football Culture': '#1a7a1a',
+  'Duels': '#c0392b',
 };
 
-const allTags = ['All', ...Array.from(new Set(articles.map(a => a.tag)))];
+const allTags = ['All', 'Player Profile', 'Football Culture', 'Duels'];
 
-// Precalcolo tutti gli stili nel frontmatter — no + nel template
-const tagButtonStyles = allTags.map(tag => {
-  const s = TAG_STYLES[tag] ?? { bg: '#f5f5f7', color: '#1d1d1f', activeBg: '#1d1d1f' };
+// Pulsanti filtro — tutto precomputato
+const filterButtons = allTags.map(tag => {
   const count = tag === 'All' ? articles.length : articles.filter(a => a.tag === tag).length;
-  const isAll = tag === 'All';
+  const bg     = TAG_BG[tag]     ?? '#f5f5f7';
+  const color  = TAG_COLOR[tag]  ?? '#1d1d1f';
+  const active = TAG_ACTIVE[tag] ?? '#1d1d1f';
+  const isAll  = tag === 'All';
+  const styleStr = isAll
+    ? 'background:#1d1d1f;color:#ffffff;border-color:#1d1d1f;'
+    : `background:${bg};color:${color};border-color:${bg};`;
+  return { tag, count, styleStr, bg, color, active };
+});
+
+// Card articoli — tutto precomputato incluso href
+const articleCards = articles.map(a => {
+  const bg    = TAG_BG[a.tag]    ?? '#eef4ff';
+  const color = TAG_COLOR[a.tag] ?? '#0071e3';
   return {
-    tag,
-    count,
-    styleDefault: isAll
-      ? 'background:#1d1d1f;color:#fff;border-color:#1d1d1f;'
-      : `background:${s.bg};color:${s.color};border-color:${s.bg};`,
-    dataBg:     s.bg,
-    dataColor:  s.color,
-    dataActive: s.activeBg,
+    tag:      a.tag,
+    title:    a.title,
+    desc:     a.description,
+    date:     a.date,
+    readTime: a.readTime,
+    href:     `/articles/${a.slug}`,
+    tagStyle: `background:${bg};color:${color};`,
   };
 });
 
-const articleStyles = articles.map(a => {
-  const s = TAG_STYLES[a.tag] ?? { bg: '#eef4ff', color: '#0071e3', activeBg: '#0071e3' };
-  return {
-    ...a,
-    tagStyle: `background:${s.bg};color:${s.color};`,
-  };
-});
+const totalCount = articles.length;
 ---
 
 <html lang="en">
@@ -183,7 +201,12 @@ const articleStyles = articles.map(a => {
     }
     .filter-btn:hover { transform: translateY(-1px); }
     .filter-btn-count { font-size: 11px; font-weight: 500; opacity: 0.55; }
-    .filter-total { font-size: 12px; font-weight: 500; color: #aeaeb2; margin-left: 4px; }
+    .filter-total {
+      font-size: 12px;
+      font-weight: 500;
+      color: #aeaeb2;
+      margin-left: 4px;
+    }
     .articles-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -212,7 +235,10 @@ const articleStyles = articles.map(a => {
       transform-origin: left;
       transition: transform 0.25s ease;
     }
-    .article-card:hover { transform: translateY(-4px); box-shadow: 0 8px 32px rgba(0,0,0,0.10); }
+    .article-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+    }
     .article-card:hover::after { transform: scaleX(1); }
     .article-card.is-hidden { display: none; }
     .article-tag {
@@ -285,39 +311,40 @@ const articleStyles = articles.map(a => {
 <body>
   <Navbar/>
   <div class="page">
+
     <div class="page-eyebrow">Legends Database</div>
     <h1 class="page-title">Articles</h1>
     <p class="page-sub">In-depth essays on football culture, history, tactics and the legends who defined the game.</p>
 
-    <!-- FILTER -->
+    <!-- FILTRI — zero operazioni nel template, tutto da frontmatter -->
     <div class="filter-row" id="filterRow">
-      {tagButtonStyles.map(b => (
+      {filterButtons.map(b => (
         <button
           class="filter-btn"
           data-tag={b.tag}
-          data-bg={b.dataBg}
-          data-color={b.dataColor}
-          data-active={b.dataActive}
-          style={b.styleDefault}
+          data-bg={b.bg}
+          data-color={b.color}
+          data-active={b.active}
+          style={b.styleStr}
         >
           {b.tag}
           <span class="filter-btn-count">{b.count}</span>
         </button>
       ))}
-      <span class="filter-total" id="filterTotal">{articles.length} articles</span>
+      <span class="filter-total" id="filterTotal">{totalCount} articles</span>
     </div>
 
-    <!-- GRID -->
+    <!-- GRID — href e style precomputati nel frontmatter -->
     <div class="articles-grid" id="articlesGrid">
-      {articleStyles.map(a => (
+      {articleCards.map(a => (
         
-          href={'/articles/' + a.slug}
+          href={a.href}
           class="article-card"
           data-tag={a.tag}
         >
           <span class="article-tag" style={a.tagStyle}>{a.tag}</span>
           <div class="article-title">{a.title}</div>
-          <div class="article-desc">{a.description}</div>
+          <div class="article-desc">{a.desc}</div>
           <div class="article-meta">
             <span>{a.date}</span>
             <span class="article-meta-sep">·</span>
@@ -328,6 +355,7 @@ const articleStyles = articles.map(a => {
       ))}
       <div class="grid-empty" id="gridEmpty">No articles in this category yet.</div>
     </div>
+
   </div>
   <Footer/>
 
@@ -339,19 +367,22 @@ const articleStyles = articles.map(a => {
 
     btns.forEach(btn => {
       btn.addEventListener('click', () => {
-        const tag    = btn.getAttribute('data-tag');
+        const tag = btn.getAttribute('data-tag');
+
         btns.forEach(b => {
           const on = b === btn;
           b.style.background  = on ? b.getAttribute('data-active') : b.getAttribute('data-bg');
-          b.style.color       = on ? '#fff'                        : b.getAttribute('data-color');
+          b.style.color       = on ? '#ffffff'                     : b.getAttribute('data-color');
           b.style.borderColor = on ? b.getAttribute('data-active') : b.getAttribute('data-bg');
         });
+
         let visible = 0;
         cards.forEach(card => {
           const show = tag === 'All' || card.getAttribute('data-tag') === tag;
           card.classList.toggle('is-hidden', !show);
           if (show) visible++;
         });
+
         if (total) total.textContent = visible + (visible === 1 ? ' article' : ' articles');
         if (empty) empty.classList.toggle('visible', visible === 0);
       });
