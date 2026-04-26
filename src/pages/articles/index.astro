@@ -3,115 +3,44 @@ import Navbar from '../../components/Navbar.astro';
 import Footer from '../../components/Footer.astro';
 
 const articles = [
-  {
-    slug: 'italian-football-culture',
-    title: 'Football as a Cultural Phenomenon: The Italian Soul',
-    description: 'How centuries of history, the Renaissance, and a unique national mentality shaped Italian football into one of the most fascinating traditions in the world.',
-    date: 'May 2025',
-    readTime: '8 min read',
-    tag: 'Football Culture',
-  },
-  {
-    slug: 'zico-galinho',
-    title: 'Zico, O Galinho — The Little Rooster Who Conquered the World',
-    description: 'More than just a playmaker — a forward, a midfield maestro, a pure footballing artist. A love letter to one of the most beautiful players who ever lived.',
-    date: 'May 2025',
-    readTime: '11 min read',
-    tag: 'Player Profile',
-  },
-  {
-    slug: 'le-tissier-le-god',
-    title: 'Matthew Le Tissier — Le God',
-    description: 'The provincial genius. An Anglo-French anomaly who played like Riquelme in the wrong country and the wrong era — and yet became one of the most beloved players of the 1990s.',
-    date: 'May 2025',
-    readTime: '10 min read',
-    tag: 'Player Profile',
-  },
-  {
-    slug: 'magico-gonzalez',
-    title: 'Magico Gonzalez — Poetry Without Rules',
-    description: 'A perpetual fugitive, a man out of time. The Salvadoran maestro who played not to win, but because it was beautiful to do so.',
-    date: 'May 2025',
-    readTime: '10 min read',
-    tag: 'Player Profile',
-  },
-  {
-    slug: 'bobby-charlton',
-    title: 'Bobby Charlton — Every Cloud Has a Silver Lining',
-    description: 'He survived Munich at 21. He made a promise to fallen friends. A decade later, he kept it at Wembley. The story of resilience, dignity and the greatest English footballer of all time.',
-    date: 'May 2025',
-    readTime: '12 min read',
-    tag: 'Player Profile',
-  },
-  {
-    slug: 'duel-van-basten-ronaldo',
-    title: 'Van Basten vs Ronaldo — The Eternal Duel',
-    description: 'Two of the greatest centre-forwards ever, dissected across every dimension: physical, technical, tactical, mental, club and international. A duel for the ages.',
-    date: 'May 2025',
-    readTime: '18 min read',
-    tag: 'Duels',
-  },
-  {
-    slug: 'duel-figueroa-passarella',
-    title: 'Figueroa vs Passarella — The Soul of South American Defending',
-    description: 'Ice and flame. The philosopher and the warrior. A duel between the two greatest defenders South America has ever produced.',
-    date: 'May 2025',
-    readTime: '16 min read',
-    tag: 'Duels',
-  },
+  { slug: 'italian-football-culture', title: 'Football as a Cultural Phenomenon: The Italian Soul', description: 'How centuries of history, the Renaissance, and a unique national mentality shaped Italian football into one of the most fascinating traditions in the world.', date: 'May 2025', readTime: '8 min read', tag: 'Football Culture' },
+  { slug: 'zico-galinho', title: 'Zico, O Galinho — The Little Rooster Who Conquered the World', description: 'More than just a playmaker — a forward, a midfield maestro, a pure footballing artist. A love letter to one of the most beautiful players who ever lived.', date: 'May 2025', readTime: '11 min read', tag: 'Player Profile' },
+  { slug: 'le-tissier-le-god', title: 'Matthew Le Tissier — Le God', description: 'The provincial genius. An Anglo-French anomaly who played like Riquelme in the wrong country and the wrong era — and yet became one of the most beloved players of the 1990s.', date: 'May 2025', readTime: '10 min read', tag: 'Player Profile' },
+  { slug: 'magico-gonzalez', title: 'Magico Gonzalez — Poetry Without Rules', description: 'A perpetual fugitive, a man out of time. The Salvadoran maestro who played not to win, but because it was beautiful to do so.', date: 'May 2025', readTime: '10 min read', tag: 'Player Profile' },
+  { slug: 'bobby-charlton', title: 'Bobby Charlton — Every Cloud Has a Silver Lining', description: 'He survived Munich at 21. He made a promise to fallen friends. A decade later, he kept it at Wembley. The story of resilience, dignity and the greatest English footballer of all time.', date: 'May 2025', readTime: '12 min read', tag: 'Player Profile' },
+  { slug: 'duel-van-basten-ronaldo', title: 'Van Basten vs Ronaldo — The Eternal Duel', description: 'Two of the greatest centre-forwards ever, dissected across every dimension: physical, technical, tactical, mental, club and international. A duel for the ages.', date: 'May 2025', readTime: '18 min read', tag: 'Duels' },
+  { slug: 'duel-figueroa-passarella', title: 'Figueroa vs Passarella — The Soul of South American Defending', description: 'Ice and flame. The philosopher and the warrior. A duel between the two greatest defenders South America has ever produced.', date: 'May 2025', readTime: '16 min read', tag: 'Duels' },
 ];
 
-// Stili per tag — tutto precomputato qui, zero operazioni nel template
-const TAG_BG: Record<string, string> = {
-  'All': '#f5f5f7',
-  'Player Profile': '#eef4ff',
-  'Football Culture': '#efffee',
-  'Duels': '#fff0ee',
-};
-const TAG_COLOR: Record<string, string> = {
-  'All': '#1d1d1f',
-  'Player Profile': '#0071e3',
-  'Football Culture': '#1a7a1a',
-  'Duels': '#c0392b',
-};
-const TAG_ACTIVE: Record<string, string> = {
-  'All': '#1d1d1f',
-  'Player Profile': '#0071e3',
-  'Football Culture': '#1a7a1a',
-  'Duels': '#c0392b',
+const tagCssClass = {
+  'Football Culture': 'tc-culture',
+  'Player Profile':   'tc-profile',
+  'Duels':            'tc-duels',
 };
 
-const allTags = ['All', 'Player Profile', 'Football Culture', 'Duels'];
+const btnCssClass = {
+  'All':             'btn-all',
+  'Football Culture':'btn-culture',
+  'Player Profile':  'btn-profile',
+  'Duels':           'btn-duels',
+};
 
-// Pulsanti filtro — tutto precomputato
-const filterButtons = allTags.map(tag => {
-  const count = tag === 'All' ? articles.length : articles.filter(a => a.tag === tag).length;
-  const bg     = TAG_BG[tag]     ?? '#f5f5f7';
-  const color  = TAG_COLOR[tag]  ?? '#1d1d1f';
-  const active = TAG_ACTIVE[tag] ?? '#1d1d1f';
-  const isAll  = tag === 'All';
-  const styleStr = isAll
-    ? 'background:#1d1d1f;color:#ffffff;border-color:#1d1d1f;'
-    : `background:${bg};color:${color};border-color:${bg};`;
-  return { tag, count, styleStr, bg, color, active };
-});
+const filterBtns = [
+  { tag: 'All',             cls: 'filter-btn btn-all is-active', count: articles.length },
+  { tag: 'Player Profile',  cls: 'filter-btn btn-profile',       count: articles.filter(a => a.tag === 'Player Profile').length },
+  { tag: 'Football Culture',cls: 'filter-btn btn-culture',       count: articles.filter(a => a.tag === 'Football Culture').length },
+  { tag: 'Duels',           cls: 'filter-btn btn-duels',         count: articles.filter(a => a.tag === 'Duels').length },
+];
 
-// Card articoli — tutto precomputato incluso href
-const articleCards = articles.map(a => {
-  const bg    = TAG_BG[a.tag]    ?? '#eef4ff';
-  const color = TAG_COLOR[a.tag] ?? '#0071e3';
-  return {
-    tag:      a.tag,
-    title:    a.title,
-    desc:     a.description,
-    date:     a.date,
-    readTime: a.readTime,
-    href:     `/articles/${a.slug}`,
-    tagStyle: `background:${bg};color:${color};`,
-  };
-});
-
-const totalCount = articles.length;
+const preparedArticles = articles.map(a => ({
+  tag:      a.tag,
+  title:    a.title,
+  desc:     a.description,
+  date:     a.date,
+  readTime: a.readTime,
+  href:     '/articles/' + a.slug,
+  tagCls:   'article-tag ' + (tagCssClass[a.tag] || 'tc-profile'),
+}));
 ---
 
 <html lang="en">
@@ -119,21 +48,19 @@ const totalCount = articles.length;
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Articles – Legends Database</title>
-  <meta name="description" content="In-depth articles on football culture, history, tactics and the greatest legends of the game. Written by Legends Database."/>
+  <meta name="description" content="In-depth articles on football culture, history, tactics and the greatest legends of the game."/>
   <meta name="robots" content="index, follow"/>
   <link rel="canonical" href="https://legendsdatabase.com/articles"/>
-  <meta property="og:type"         content="website"/>
-  <meta property="og:url"          content="https://legendsdatabase.com/articles"/>
-  <meta property="og:title"        content="Articles – Legends Database"/>
-  <meta property="og:description"  content="In-depth articles on football culture, history, tactics and the greatest legends of the game."/>
-  <meta property="og:image"        content="https://legendsdatabase.com/og-image.jpg"/>
-  <meta property="og:image:width"  content="1200"/>
-  <meta property="og:image:height" content="630"/>
-  <meta property="og:locale"       content="en_US"/>
-  <meta name="twitter:card"        content="summary_large_image"/>
-  <meta name="twitter:title"       content="Articles – Legends Database"/>
-  <meta name="twitter:description" content="In-depth articles on football culture, history, tactics and the greatest legends of the game."/>
-  <meta name="twitter:image"       content="https://legendsdatabase.com/og-image.jpg"/>
+  <meta property="og:type"        content="website"/>
+  <meta property="og:url"         content="https://legendsdatabase.com/articles"/>
+  <meta property="og:title"       content="Articles – Legends Database"/>
+  <meta property="og:description" content="In-depth articles on football culture, history, tactics and the greatest legends of the game."/>
+  <meta property="og:image"       content="https://legendsdatabase.com/og-image.jpg"/>
+  <meta property="og:locale"      content="en_US"/>
+  <meta name="twitter:card"       content="summary_large_image"/>
+  <meta name="twitter:title"      content="Articles – Legends Database"/>
+  <meta name="twitter:description"content="In-depth articles on football culture, history, tactics and the greatest legends of the game."/>
+  <meta name="twitter:image"      content="https://legendsdatabase.com/og-image.jpg"/>
   <link rel="icon" type="image/png" href="/favicon.png"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <style is:global>
@@ -178,6 +105,8 @@ const totalCount = articles.length;
       margin-bottom: 28px;
       max-width: 480px;
     }
+
+    /* ── FILTER BUTTONS ── */
     .filter-row {
       display: flex;
       align-items: center;
@@ -193,25 +122,34 @@ const totalCount = articles.length;
       border-radius: 20px;
       border: 1.5px solid transparent;
       cursor: pointer;
-      transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.12s;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
       white-space: nowrap;
       display: inline-flex;
       align-items: center;
       gap: 5px;
     }
-    .filter-btn:hover { transform: translateY(-1px); }
+    .filter-btn:hover { opacity: 0.85; }
     .filter-btn-count { font-size: 11px; font-weight: 500; opacity: 0.55; }
-    .filter-total {
-      font-size: 12px;
-      font-weight: 500;
-      color: #aeaeb2;
-      margin-left: 4px;
-    }
+    .filter-total { font-size: 12px; font-weight: 500; color: #aeaeb2; margin-left: 4px; }
+
+    /* Button colors by type */
+    .btn-all             { background: #f5f5f7; color: #1d1d1f; border-color: #f5f5f7; }
+    .btn-all.is-active   { background: #1d1d1f; color: #ffffff; border-color: #1d1d1f; }
+    .btn-profile             { background: #eef4ff; color: #0071e3; border-color: #eef4ff; }
+    .btn-profile.is-active   { background: #0071e3; color: #ffffff; border-color: #0071e3; }
+    .btn-culture             { background: #efffee; color: #1a7a1a; border-color: #efffee; }
+    .btn-culture.is-active   { background: #1a7a1a; color: #ffffff; border-color: #1a7a1a; }
+    .btn-duels             { background: #fff0ee; color: #c0392b; border-color: #fff0ee; }
+    .btn-duels.is-active   { background: #c0392b; color: #ffffff; border-color: #c0392b; }
+
+    /* ── GRID ── */
     .articles-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 16px;
     }
+
+    /* ── CARD ── */
     .article-card {
       background: #ffffff;
       border-radius: 20px;
@@ -235,12 +173,11 @@ const totalCount = articles.length;
       transform-origin: left;
       transition: transform 0.25s ease;
     }
-    .article-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 32px rgba(0,0,0,0.10);
-    }
+    .article-card:hover { transform: translateY(-4px); box-shadow: 0 8px 32px rgba(0,0,0,0.10); }
     .article-card:hover::after { transform: scaleX(1); }
     .article-card.is-hidden { display: none; }
+
+    /* Tag badge colors */
     .article-tag {
       display: inline-flex;
       align-items: center;
@@ -252,6 +189,10 @@ const totalCount = articles.length;
       text-transform: uppercase;
       align-self: flex-start;
     }
+    .tc-profile { background: #eef4ff; color: #0071e3; }
+    .tc-culture { background: #efffee; color: #1a7a1a; }
+    .tc-duels   { background: #fff0ee; color: #c0392b; }
+
     .article-title {
       font-size: 17px;
       font-weight: 700;
@@ -286,6 +227,7 @@ const totalCount = articles.length;
       transition: gap 0.15s;
     }
     .article-card:hover .article-read-more { gap: 8px; }
+
     .grid-empty {
       grid-column: span 2;
       text-align: center;
@@ -295,6 +237,7 @@ const totalCount = articles.length;
       display: none;
     }
     .grid-empty.visible { display: block; }
+
     @media (max-width: 640px) {
       .page { padding: 32px 20px 64px; }
       .page-title { font-size: 30px; }
@@ -316,33 +259,22 @@ const totalCount = articles.length;
     <h1 class="page-title">Articles</h1>
     <p class="page-sub">In-depth essays on football culture, history, tactics and the legends who defined the game.</p>
 
-    <!-- FILTRI — zero operazioni nel template, tutto da frontmatter -->
+    <!-- FILTRI — solo classi CSS, zero style={} -->
     <div class="filter-row" id="filterRow">
-      {filterButtons.map(b => (
-        <button
-          class="filter-btn"
-          data-tag={b.tag}
-          data-bg={b.bg}
-          data-color={b.color}
-          data-active={b.active}
-          style={b.styleStr}
-        >
+      {filterBtns.map(b => (
+        <button class={b.cls} data-tag={b.tag}>
           {b.tag}
           <span class="filter-btn-count">{b.count}</span>
         </button>
       ))}
-      <span class="filter-total" id="filterTotal">{totalCount} articles</span>
+      <span class="filter-total" id="filterTotal">{articles.length} articles</span>
     </div>
 
-    <!-- GRID — href e style precomputati nel frontmatter -->
+    <!-- GRID — href e class precomputati, zero style={} -->
     <div class="articles-grid" id="articlesGrid">
-      {articleCards.map(a => (
-        
-          href={a.href}
-          class="article-card"
-          data-tag={a.tag}
-        >
-          <span class="article-tag" style={a.tagStyle}>{a.tag}</span>
+      {preparedArticles.map(a => (
+        <a href={a.href} class="article-card" data-tag={a.tag}>
+          <span class={a.tagCls}>{a.tag}</span>
           <div class="article-title">{a.title}</div>
           <div class="article-desc">{a.desc}</div>
           <div class="article-meta">
@@ -370,10 +302,7 @@ const totalCount = articles.length;
         const tag = btn.getAttribute('data-tag');
 
         btns.forEach(b => {
-          const on = b === btn;
-          b.style.background  = on ? b.getAttribute('data-active') : b.getAttribute('data-bg');
-          b.style.color       = on ? '#ffffff'                     : b.getAttribute('data-color');
-          b.style.borderColor = on ? b.getAttribute('data-active') : b.getAttribute('data-bg');
+          b.classList.toggle('is-active', b === btn);
         });
 
         let visible = 0;
