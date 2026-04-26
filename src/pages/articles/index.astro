@@ -30,7 +30,7 @@ const articles = [
   {
     slug: 'magico-gonzalez',
     title: 'Mágico González — Poetry Without Rules',
-    description: 'A perpetual fugitive, a man out of time. The Salvadoran maestro who played not to win, but because it was beautiful to do so — a meditation on the most irrational and sublime talent in football history.',
+    description: 'A perpetual fugitive, a man out of time. The Salvadoran maestro who played not to win, but because it was beautiful to do so.',
     date: 'May 2025',
     readTime: '10 min read',
     tag: 'Player Profile',
@@ -61,14 +61,14 @@ const articles = [
   },
 ];
 
-const tags = ['All', ...Array.from(new Set(articles.map(a => a.tag)))];
-
-const TAG_COLORS: Record<string, { bg: string; color: string; activeBg: string }> = {
+const TAG_STYLES: Record<string, { bg: string; color: string; activeBg: string }> = {
   'All':             { bg: '#f5f5f7', color: '#1d1d1f', activeBg: '#1d1d1f' },
   'Player Profile':  { bg: '#eef4ff', color: '#0071e3', activeBg: '#0071e3' },
   'Football Culture':{ bg: '#efffee', color: '#1a7a1a', activeBg: '#1a7a1a' },
   'Duels':           { bg: '#fff0ee', color: '#c0392b', activeBg: '#c0392b' },
 };
+
+const allTags = ['All', ...Array.from(new Set(articles.map(a => a.tag)))];
 ---
 
 <html lang="en">
@@ -79,18 +79,18 @@ const TAG_COLORS: Record<string, { bg: string; color: string; activeBg: string }
   <meta name="description" content="In-depth articles on football culture, history, tactics and the greatest legends of the game. Written by Legends Database."/>
   <meta name="robots" content="index, follow"/>
   <link rel="canonical" href="https://legendsdatabase.com/articles"/>
-  <meta property="og:type"         content="website"/>
-  <meta property="og:url"          content="https://legendsdatabase.com/articles"/>
-  <meta property="og:title"        content="Articles – Legends Database"/>
-  <meta property="og:description"  content="In-depth articles on football culture, history, tactics and the greatest legends of the game."/>
-  <meta property="og:image"        content="https://legendsdatabase.com/og-image.jpg"/>
-  <meta property="og:image:width"  content="1200"/>
-  <meta property="og:image:height" content="630"/>
-  <meta property="og:locale"       content="en_US"/>
-  <meta name="twitter:card"        content="summary_large_image"/>
-  <meta name="twitter:title"       content="Articles – Legends Database"/>
-  <meta name="twitter:description" content="In-depth articles on football culture, history, tactics and the greatest legends of the game."/>
-  <meta name="twitter:image"       content="https://legendsdatabase.com/og-image.jpg"/>
+  <meta property="og:type"          content="website"/>
+  <meta property="og:url"           content="https://legendsdatabase.com/articles"/>
+  <meta property="og:title"         content="Articles – Legends Database"/>
+  <meta property="og:description"   content="In-depth articles on football culture, history, tactics and the greatest legends of the game."/>
+  <meta property="og:image"         content="https://legendsdatabase.com/og-image.jpg"/>
+  <meta property="og:image:width"   content="1200"/>
+  <meta property="og:image:height"  content="630"/>
+  <meta property="og:locale"        content="en_US"/>
+  <meta name="twitter:card"         content="summary_large_image"/>
+  <meta name="twitter:title"        content="Articles – Legends Database"/>
+  <meta name="twitter:description"  content="In-depth articles on football culture, history, tactics and the greatest legends of the game."/>
+  <meta name="twitter:image"        content="https://legendsdatabase.com/og-image.jpg"/>
   <link rel="icon" type="image/png" href="/favicon.png"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <style is:global>
@@ -113,7 +113,7 @@ const TAG_COLORS: Record<string, { bg: string; color: string; activeBg: string }
       padding: 48px 40px 80px;
     }
 
-    /* HEADER */
+    /* ── HEADER ── */
     .page-eyebrow {
       font-size: 11px;
       font-weight: 700;
@@ -138,19 +138,13 @@ const TAG_COLORS: Record<string, { bg: string; color: string; activeBg: string }
       max-width: 480px;
     }
 
-    /* FILTER TABS */
+    /* ── FILTER ROW ── */
     .filter-row {
       display: flex;
       align-items: center;
       gap: 8px;
       flex-wrap: wrap;
       margin-bottom: 32px;
-    }
-    .filter-count {
-      font-size: 12px;
-      font-weight: 500;
-      color: #aeaeb2;
-      margin-left: 4px;
     }
     .filter-btn {
       font-family: inherit;
@@ -160,20 +154,33 @@ const TAG_COLORS: Record<string, { bg: string; color: string; activeBg: string }
       border-radius: 20px;
       border: 1.5px solid transparent;
       cursor: pointer;
-      transition: all 0.15s;
+      transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.12s;
       white-space: nowrap;
-      letter-spacing: 0.01em;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
     }
-    .filter-btn:hover { opacity: 0.85; }
+    .filter-btn:hover { transform: translateY(-1px); }
+    .filter-btn-count {
+      font-size: 11px;
+      font-weight: 500;
+      opacity: 0.55;
+    }
+    .filter-total {
+      font-size: 12px;
+      font-weight: 500;
+      color: #aeaeb2;
+      margin-left: 4px;
+    }
 
-    /* ARTICLE GRID */
+    /* ── GRID ── */
     .articles-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 16px;
     }
 
-    /* ARTICLE CARD */
+    /* ── CARD ── */
     .article-card {
       background: #ffffff;
       border-radius: 20px;
@@ -183,7 +190,7 @@ const TAG_COLORS: Record<string, { bg: string; color: string; activeBg: string }
       display: flex;
       flex-direction: column;
       gap: 12px;
-      transition: transform 0.18s, box-shadow 0.18s, opacity 0.22s;
+      transition: transform 0.18s, box-shadow 0.18s, opacity 0.2s;
       position: relative;
       overflow: hidden;
     }
@@ -202,7 +209,7 @@ const TAG_COLORS: Record<string, { bg: string; color: string; activeBg: string }
       box-shadow: 0 8px 32px rgba(0,0,0,0.10);
     }
     .article-card:hover::after { transform: scaleX(1); }
-    .article-card.hidden {
+    .article-card.is-hidden {
       display: none;
     }
 
@@ -252,16 +259,18 @@ const TAG_COLORS: Record<string, { bg: string; color: string; activeBg: string }
     }
     .article-card:hover .article-read-more { gap: 8px; }
 
-    /* EMPTY */
-    .empty {
-      text-align: center;
-      padding: 80px 20px;
-      color: #aeaeb2;
-      font-size: 15px;
+    /* ── EMPTY ── */
+    .grid-empty {
       grid-column: span 2;
+      text-align: center;
+      padding: 60px 20px;
+      color: #aeaeb2;
+      font-size: 14px;
+      display: none;
     }
+    .grid-empty.visible { display: block; }
 
-    /* MOBILE */
+    /* ── MOBILE ── */
     @media (max-width: 640px) {
       .page { padding: 32px 20px 64px; }
       .page-title { font-size: 30px; }
@@ -271,52 +280,55 @@ const TAG_COLORS: Record<string, { bg: string; color: string; activeBg: string }
       .articles-grid { grid-template-columns: 1fr; gap: 12px; }
       .article-card { padding: 22px 20px; }
       .article-title { font-size: 16px; }
-      .empty { grid-column: span 1; }
+      .grid-empty { grid-column: span 1; }
     }
   </style>
 </head>
 <body>
   <Navbar/>
   <div class="page">
+
     <div class="page-eyebrow">Legends Database</div>
     <h1 class="page-title">Articles</h1>
     <p class="page-sub">In-depth essays on football culture, history, tactics and the legends who defined the game.</p>
 
-    <!-- FILTER TABS -->
+    <!-- FILTER BUTTONS -->
     <div class="filter-row" id="filterRow">
-      {tags.map(tag => {
-        const c = TAG_COLORS[tag] ?? { bg: '#f5f5f7', color: '#1d1d1f', activeBg: '#1d1d1f' };
+      {allTags.map(tag => {
+        const s = TAG_STYLES[tag] ?? { bg: '#f5f5f7', color: '#1d1d1f', activeBg: '#1d1d1f' };
         const count = tag === 'All' ? articles.length : articles.filter(a => a.tag === tag).length;
+        const isAll = tag === 'All';
         return (
           <button
-            class={'filter-btn' + (tag === 'All' ? ' active' : '')}
+            class="filter-btn"
             data-tag={tag}
-            style={tag === 'All'
+            data-bg={s.bg}
+            data-color={s.color}
+            data-active={s.activeBg}
+            style={isAll
               ? 'background:#1d1d1f;color:#fff;border-color:#1d1d1f;'
-              : 'background:' + c.bg + ';color:' + c.color + ';border-color:' + c.bg + ';'
+              : 'background:' + s.bg + ';color:' + s.color + ';border-color:' + s.bg + ';'
             }
-            data-bg={c.bg}
-            data-color={c.color}
-            data-active-bg={c.activeBg}
           >
-            {tag} <span style="opacity:0.55;font-weight:500;margin-left:3px;">{count}</span>
+            {tag}
+            <span class="filter-btn-count">{count}</span>
           </button>
         );
       })}
-      <span class="filter-count" id="filterCount">{articles.length} articles</span>
+      <span class="filter-total" id="filterTotal">{articles.length} articles</span>
     </div>
 
-    <!-- ARTICLES GRID -->
+    <!-- GRID -->
     <div class="articles-grid" id="articlesGrid">
       {articles.map(a => {
-        const c = TAG_COLORS[a.tag] ?? { bg: '#eef4ff', color: '#0071e3' };
+        const s = TAG_STYLES[a.tag] ?? { bg: '#eef4ff', color: '#0071e3' };
         return (
           
             href={'/articles/' + a.slug}
             class="article-card"
             data-tag={a.tag}
           >
-            <span class="article-tag" style={'background:' + c.bg + ';color:' + c.color + ';'}>{a.tag}</span>
+            <span class="article-tag" style={'background:' + s.bg + ';color:' + s.color + ';'}>{a.tag}</span>
             <div class="article-title">{a.title}</div>
             <div class="article-desc">{a.description}</div>
             <div class="article-meta">
@@ -328,15 +340,17 @@ const TAG_COLORS: Record<string, { bg: string; color: string; activeBg: string }
           </a>
         );
       })}
+      <div class="grid-empty" id="gridEmpty">No articles in this category yet.</div>
     </div>
 
   </div>
   <Footer/>
 
   <script>
-    const btns = document.querySelectorAll('.filter-btn');
-    const cards = document.querySelectorAll('.article-card');
-    const countEl = document.getElementById('filterCount');
+    const btns   = document.querySelectorAll('.filter-btn');
+    const cards  = document.querySelectorAll('.article-card');
+    const total  = document.getElementById('filterTotal');
+    const empty  = document.getElementById('gridEmpty');
 
     btns.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -344,35 +358,26 @@ const TAG_COLORS: Record<string, { bg: string; color: string; activeBg: string }
 
         // Update button styles
         btns.forEach(b => {
-          const bg      = b.getAttribute('data-bg');
-          const color   = b.getAttribute('data-color');
-          const activeBg = b.getAttribute('data-active-bg');
-          if (b === btn) {
-            b.style.background   = activeBg;
-            b.style.color        = '#ffffff';
-            b.style.borderColor  = activeBg;
-            b.classList.add('active');
-          } else {
-            b.style.background  = bg;
-            b.style.color       = color;
-            b.style.borderColor = bg;
-            b.classList.remove('active');
-          }
+          const isActive = b === btn;
+          const bg     = b.getAttribute('data-bg');
+          const color  = b.getAttribute('data-color');
+          const active = b.getAttribute('data-active');
+          b.style.background  = isActive ? active  : bg;
+          b.style.color       = isActive ? '#fff'  : color;
+          b.style.borderColor = isActive ? active  : bg;
         });
 
         // Show/hide cards
         let visible = 0;
         cards.forEach(card => {
-          const cardTag = card.getAttribute('data-tag');
-          const show = tag === 'All' || cardTag === tag;
-          card.classList.toggle('hidden', !show);
+          const show = tag === 'All' || card.getAttribute('data-tag') === tag;
+          card.classList.toggle('is-hidden', !show);
           if (show) visible++;
         });
 
-        // Update count
-        if (countEl) {
-          countEl.textContent = visible + (visible === 1 ? ' article' : ' articles');
-        }
+        // Update count and empty state
+        if (total) total.textContent = visible + (visible === 1 ? ' article' : ' articles');
+        if (empty) empty.classList.toggle('visible', visible === 0);
       });
     });
   </script>
