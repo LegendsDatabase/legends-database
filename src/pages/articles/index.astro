@@ -11,55 +11,64 @@ const articles = [
     readTime: '8 min read',
     tag: 'Football Culture',
   },
- {
-  slug: 'zico-galinho',
-  title: 'Zico, O Galinho — The Little Rooster Who Conquered the World',
-  description: 'More than just a playmaker — a forward, a midfield maestro, a pure footballing artist. A love letter to one of the most beautiful players who ever lived.',
-  date: 'May 2025',
-  readTime: '11 min read',
-  tag: 'Player Profile',
-},
-{
-  slug: 'le-tissier-le-god',
-  title: 'Matthew Le Tissier — Le God',
-  description: 'The provincial genius. An Anglo-French anomaly who played like Riquelme in the wrong country and the wrong era — and yet became one of the most beloved players of the 1990s.',
-  date: 'May 2025',
-  readTime: '10 min read',
-  tag: 'Player Profile',
-},
-{
-  slug: 'magico-gonzalez',
-  title: 'Mágico González — Poetry Without Rules',
-  description: 'A perpetual fugitive, a man out of time. The Salvadoran maestro who played not to win, but because it was beautiful to do so — a meditation on the most irrational and sublime talent in football history.',
-  date: 'May 2025',
-  readTime: '10 min read',
-  tag: 'Player Profile',
-},
-{
-  slug: 'bobby-charlton',
-  title: 'Bobby Charlton — Every Cloud Has a Silver Lining',
-  description: 'He survived Munich at 21. He made a promise to fallen friends. A decade later, he kept it at Wembley. The story of resilience, dignity and the greatest English footballer of all time.',
-  date: 'May 2025',
-  readTime: '12 min read',
-  tag: 'Player Profile',
-},
-{
-  slug: 'duel-van-basten-ronaldo',
-  title: 'Van Basten vs Ronaldo — The Eternal Duel',
-  description: 'Two of the greatest centre-forwards ever, dissected across every dimension: physical, technical, tactical, mental, club and international. A duel for the ages.',
-  date: 'May 2025',
-  readTime: '18 min read',
-  tag: 'Duels',
-},
-{
-  slug: 'duel-figueroa-passarella',
-  title: 'Figueroa vs Passarella — The Soul of South American Defending',
-  description: 'Ice and flame. The philosopher and the warrior. A duel between the two greatest defenders South America has ever produced.',
-  date: 'May 2025',
-  readTime: '16 min read',
-  tag: 'Duels',
-},
+  {
+    slug: 'zico-galinho',
+    title: 'Zico, O Galinho — The Little Rooster Who Conquered the World',
+    description: 'More than just a playmaker — a forward, a midfield maestro, a pure footballing artist. A love letter to one of the most beautiful players who ever lived.',
+    date: 'May 2025',
+    readTime: '11 min read',
+    tag: 'Player Profile',
+  },
+  {
+    slug: 'le-tissier-le-god',
+    title: 'Matthew Le Tissier — Le God',
+    description: 'The provincial genius. An Anglo-French anomaly who played like Riquelme in the wrong country and the wrong era — and yet became one of the most beloved players of the 1990s.',
+    date: 'May 2025',
+    readTime: '10 min read',
+    tag: 'Player Profile',
+  },
+  {
+    slug: 'magico-gonzalez',
+    title: 'Mágico González — Poetry Without Rules',
+    description: 'A perpetual fugitive, a man out of time. The Salvadoran maestro who played not to win, but because it was beautiful to do so — a meditation on the most irrational and sublime talent in football history.',
+    date: 'May 2025',
+    readTime: '10 min read',
+    tag: 'Player Profile',
+  },
+  {
+    slug: 'bobby-charlton',
+    title: 'Bobby Charlton — Every Cloud Has a Silver Lining',
+    description: 'He survived Munich at 21. He made a promise to fallen friends. A decade later, he kept it at Wembley. The story of resilience, dignity and the greatest English footballer of all time.',
+    date: 'May 2025',
+    readTime: '12 min read',
+    tag: 'Player Profile',
+  },
+  {
+    slug: 'duel-van-basten-ronaldo',
+    title: 'Van Basten vs Ronaldo — The Eternal Duel',
+    description: 'Two of the greatest centre-forwards ever, dissected across every dimension: physical, technical, tactical, mental, club and international. A duel for the ages.',
+    date: 'May 2025',
+    readTime: '18 min read',
+    tag: 'Duels',
+  },
+  {
+    slug: 'duel-figueroa-passarella',
+    title: 'Figueroa vs Passarella — The Soul of South American Defending',
+    description: 'Ice and flame. The philosopher and the warrior. A duel between the two greatest defenders South America has ever produced.',
+    date: 'May 2025',
+    readTime: '16 min read',
+    tag: 'Duels',
+  },
 ];
+
+const tags = ['All', ...Array.from(new Set(articles.map(a => a.tag)))];
+
+const TAG_COLORS: Record<string, { bg: string; color: string; activeBg: string }> = {
+  'All':             { bg: '#f5f5f7', color: '#1d1d1f', activeBg: '#1d1d1f' },
+  'Player Profile':  { bg: '#eef4ff', color: '#0071e3', activeBg: '#0071e3' },
+  'Football Culture':{ bg: '#efffee', color: '#1a7a1a', activeBg: '#1a7a1a' },
+  'Duels':           { bg: '#fff0ee', color: '#c0392b', activeBg: '#c0392b' },
+};
 ---
 
 <html lang="en">
@@ -125,9 +134,37 @@ const articles = [
       font-size: 15px;
       color: #6e6e73;
       line-height: 1.6;
-      margin-bottom: 40px;
+      margin-bottom: 28px;
       max-width: 480px;
     }
+
+    /* FILTER TABS */
+    .filter-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 32px;
+    }
+    .filter-count {
+      font-size: 12px;
+      font-weight: 500;
+      color: #aeaeb2;
+      margin-left: 4px;
+    }
+    .filter-btn {
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 600;
+      padding: 6px 16px;
+      border-radius: 20px;
+      border: 1.5px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+      letter-spacing: 0.01em;
+    }
+    .filter-btn:hover { opacity: 0.85; }
 
     /* ARTICLE GRID */
     .articles-grid {
@@ -146,16 +183,14 @@ const articles = [
       display: flex;
       flex-direction: column;
       gap: 12px;
-      transition: transform 0.18s, box-shadow 0.18s;
+      transition: transform 0.18s, box-shadow 0.18s, opacity 0.22s;
       position: relative;
       overflow: hidden;
     }
     .article-card::after {
       content: '';
       position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
+      bottom: 0; left: 0; right: 0;
       height: 3px;
       background: linear-gradient(90deg, #0071e3, #34aadc);
       transform: scaleX(0);
@@ -166,9 +201,11 @@ const articles = [
       transform: translateY(-4px);
       box-shadow: 0 8px 32px rgba(0,0,0,0.10);
     }
-    .article-card:hover::after {
-      transform: scaleX(1);
+    .article-card:hover::after { transform: scaleX(1); }
+    .article-card.hidden {
+      display: none;
     }
+
     .article-tag {
       display: inline-flex;
       align-items: center;
@@ -176,8 +213,6 @@ const articles = [
       font-weight: 700;
       padding: 3px 10px;
       border-radius: 8px;
-      background: #eef4ff;
-      color: #0071e3;
       letter-spacing: 0.04em;
       text-transform: uppercase;
       align-self: flex-start;
@@ -215,26 +250,28 @@ const articles = [
       margin-top: 4px;
       transition: gap 0.15s;
     }
-    .article-card:hover .article-read-more {
-      gap: 8px;
-    }
+    .article-card:hover .article-read-more { gap: 8px; }
 
-    /* EMPTY STATE */
+    /* EMPTY */
     .empty {
       text-align: center;
       padding: 80px 20px;
       color: #aeaeb2;
       font-size: 15px;
+      grid-column: span 2;
     }
 
     /* MOBILE */
     @media (max-width: 640px) {
       .page { padding: 32px 20px 64px; }
       .page-title { font-size: 30px; }
-      .page-sub { font-size: 14px; margin-bottom: 28px; }
+      .page-sub { font-size: 14px; margin-bottom: 20px; }
+      .filter-row { gap: 6px; margin-bottom: 24px; }
+      .filter-btn { font-size: 12px; padding: 5px 13px; }
       .articles-grid { grid-template-columns: 1fr; gap: 12px; }
       .article-card { padding: 22px 20px; }
       .article-title { font-size: 16px; }
+      .empty { grid-column: span 1; }
     }
   </style>
 </head>
@@ -245,13 +282,41 @@ const articles = [
     <h1 class="page-title">Articles</h1>
     <p class="page-sub">In-depth essays on football culture, history, tactics and the legends who defined the game.</p>
 
-    {articles.length === 0 ? (
-      <div class="empty">No articles yet — check back soon.</div>
-    ) : (
-      <div class="articles-grid">
-        {articles.map(a => (
-          <a href={'/articles/' + a.slug} class="article-card">
-            <span class="article-tag">{a.tag}</span>
+    <!-- FILTER TABS -->
+    <div class="filter-row" id="filterRow">
+      {tags.map(tag => {
+        const c = TAG_COLORS[tag] ?? { bg: '#f5f5f7', color: '#1d1d1f', activeBg: '#1d1d1f' };
+        const count = tag === 'All' ? articles.length : articles.filter(a => a.tag === tag).length;
+        return (
+          <button
+            class={'filter-btn' + (tag === 'All' ? ' active' : '')}
+            data-tag={tag}
+            style={tag === 'All'
+              ? 'background:#1d1d1f;color:#fff;border-color:#1d1d1f;'
+              : 'background:' + c.bg + ';color:' + c.color + ';border-color:' + c.bg + ';'
+            }
+            data-bg={c.bg}
+            data-color={c.color}
+            data-active-bg={c.activeBg}
+          >
+            {tag} <span style="opacity:0.55;font-weight:500;margin-left:3px;">{count}</span>
+          </button>
+        );
+      })}
+      <span class="filter-count" id="filterCount">{articles.length} articles</span>
+    </div>
+
+    <!-- ARTICLES GRID -->
+    <div class="articles-grid" id="articlesGrid">
+      {articles.map(a => {
+        const c = TAG_COLORS[a.tag] ?? { bg: '#eef4ff', color: '#0071e3' };
+        return (
+          
+            href={'/articles/' + a.slug}
+            class="article-card"
+            data-tag={a.tag}
+          >
+            <span class="article-tag" style={'background:' + c.bg + ';color:' + c.color + ';'}>{a.tag}</span>
             <div class="article-title">{a.title}</div>
             <div class="article-desc">{a.description}</div>
             <div class="article-meta">
@@ -261,10 +326,55 @@ const articles = [
             </div>
             <div class="article-read-more">Read article →</div>
           </a>
-        ))}
-      </div>
-    )}
+        );
+      })}
+    </div>
+
   </div>
   <Footer/>
+
+  <script>
+    const btns = document.querySelectorAll('.filter-btn');
+    const cards = document.querySelectorAll('.article-card');
+    const countEl = document.getElementById('filterCount');
+
+    btns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tag = btn.getAttribute('data-tag');
+
+        // Update button styles
+        btns.forEach(b => {
+          const bg      = b.getAttribute('data-bg');
+          const color   = b.getAttribute('data-color');
+          const activeBg = b.getAttribute('data-active-bg');
+          if (b === btn) {
+            b.style.background   = activeBg;
+            b.style.color        = '#ffffff';
+            b.style.borderColor  = activeBg;
+            b.classList.add('active');
+          } else {
+            b.style.background  = bg;
+            b.style.color       = color;
+            b.style.borderColor = bg;
+            b.classList.remove('active');
+          }
+        });
+
+        // Show/hide cards
+        let visible = 0;
+        cards.forEach(card => {
+          const cardTag = card.getAttribute('data-tag');
+          const show = tag === 'All' || cardTag === tag;
+          card.classList.toggle('hidden', !show);
+          if (show) visible++;
+        });
+
+        // Update count
+        if (countEl) {
+          countEl.textContent = visible + (visible === 1 ? ' article' : ' articles');
+        }
+      });
+    });
+  </script>
 </body>
 </html>
