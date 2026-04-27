@@ -354,6 +354,10 @@ const radarLabelData=radarAxes.map((ax,i)=>{
   const pt=radarPoint(i,ax.value);
   return{lx,ly,anchor,label:ax.label,value:ax.value,color:ovrColor(ax.value),ptx:pt.x,pty:pt.y};
 });
+
+// Bio — precomputed for safe rendering
+const hasBio = !!(p.bio && p.bio.trim().length > 0);
+const bioRoleColor = ovrColor(p.overall_rating);
 ---
 
 <html lang="en">
@@ -361,23 +365,22 @@ const radarLabelData=radarAxes.map((ax,i)=>{
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
   <title>{p.name} – Legends Database</title>
-  <meta name="description" content={p.role + ' · ' + p.nation + ' · OVR ' + p.overall_rating + ' · ' + (p.iconic_club ?? '') + '. Full stats, skills and career profile on Legends Database.'}/>
+  <meta name="description" content={`${p.role} · ${p.nation} · OVR ${p.overall_rating} · ${p.iconic_club ?? ''}. Full stats, skills and career profile on Legends Database.`}/>
   <meta name="robots" content="index, follow"/>
-  <link rel="canonical" href={'https://legendsdatabase.com/player/' + p.slug}/>
+  <link rel="canonical" href={`https://legendsdatabase.com/player/${p.slug}`}/>
   <meta property="og:type"         content="profile"/>
-  <meta property="og:url"          content={'https://legendsdatabase.com/player/' + p.slug}/>
-  <meta property="og:title"        content={p.name + ' – Legends Database'}/>
-  <meta property="og:description"  content={p.role + ' · ' + p.nation + ' · OVR ' + p.overall_rating + '. Full stats and career profile on Legends Database.'}/>
+  <meta property="og:url"          content={`https://legendsdatabase.com/player/${p.slug}`}/>
+  <meta property="og:title"        content={`${p.name} – Legends Database`}/>
+  <meta property="og:description"  content={`${p.role} · ${p.nation} · OVR ${p.overall_rating}. Full stats and career profile on Legends Database.`}/>
   <meta property="og:image"        content="https://legendsdatabase.com/og-image.jpg"/>
   <meta property="og:image:width"  content="1200"/>
   <meta property="og:image:height" content="630"/>
   <meta property="og:locale"       content="en_US"/>
   <meta name="twitter:card"        content="summary_large_image"/>
-  <meta name="twitter:title"       content={p.name + ' – Legends Database'}/>
-  <meta name="twitter:description" content={p.role + ' · ' + p.nation + ' · OVR ' + p.overall_rating + '. Full stats and career profile on Legends Database.'}/>
+  <meta name="twitter:title"       content={`${p.name} – Legends Database`}/>
+  <meta name="twitter:description" content={`${p.role} · ${p.nation} · OVR ${p.overall_rating}. Full stats and career profile on Legends Database.`}/>
   <meta name="twitter:image"       content="https://legendsdatabase.com/og-image.jpg"/>
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-<link rel="icon" type="image/png" href="/favicon.png"/>
+  <link rel="icon" type="image/png" href="/favicon.png"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <style is:global>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -483,7 +486,7 @@ const radarLabelData=radarAxes.map((ax,i)=>{
     .stat-card .sv{font-size:20px;font-weight:600;color:#1d1d1f;letter-spacing:-0.5px;}
     .stat-card .sl{font-size:9.5px;font-weight:600;color:#aeaeb2;letter-spacing:0.05em;text-transform:uppercase;margin-top:2px;}
 
-    /* ─── VIZ ROW (heatmap + radar) ─── */
+    /* ─── VIZ ROW ─── */
     .viz-row{display:grid;grid-template-columns:220px 1fr;gap:12px;margin-bottom:20px;align-items:start;}
     .heatmap-card{background:#ffffff;border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
     .viz-header{display:flex;align-items:center;justify-content:space-between;padding:10px 12px 8px;}
@@ -538,6 +541,106 @@ const radarLabelData=radarAxes.map((ax,i)=>{
     .trait-icon img{width:60px;height:60px;display:block;object-fit:contain;}
     .trait-icon[data-tip]:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%);background:#1d1d1f;color:#fff;font-size:10px;font-weight:600;white-space:nowrap;padding:4px 9px;border-radius:6px;pointer-events:none;z-index:20;}
     .trait-icon[data-tip]:hover::before{content:'';position:absolute;bottom:calc(100% + 2px);left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:#1d1d1f;pointer-events:none;z-index:20;}
+
+    /* ─── BIO BOX ─── */
+    .player-bio-box {
+      margin-top: 20px;
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 26px 28px 22px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.04);
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .player-bio-box.bio-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .player-bio-box::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+      background: linear-gradient(to bottom, #0071e3, #34aadc);
+      border-radius: 4px 0 0 4px;
+    }
+    .player-bio-box::after {
+      content: '"';
+      position: absolute;
+      top: 8px; right: 20px;
+      font-family: Georgia, serif;
+      font-size: 80px;
+      line-height: 1;
+      color: #0071e3;
+      opacity: 0.06;
+      pointer-events: none;
+      user-select: none;
+    }
+    .bio-box-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .bio-box-eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      color: #0071e3;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .bio-box-dot {
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: #0071e3;
+      opacity: 0.4;
+    }
+    .bio-box-name {
+      font-size: 10px;
+      font-weight: 600;
+      color: #aeaeb2;
+      letter-spacing: 0.04em;
+    }
+    .bio-box-text {
+      font-size: 14px;
+      line-height: 1.78;
+      color: #3a3a3c;
+      white-space: pre-line;
+    }
+    .bio-box-text.bio-clamped {
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .bio-box-toggle {
+      display: none;
+      align-items: center;
+      gap: 5px;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #0071e3;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 10px 0 0;
+      transition: opacity 0.15s;
+      letter-spacing: 0.01em;
+    }
+    .bio-box-toggle:hover { opacity: 0.7; }
+    .bio-box-toggle.bio-toggle-visible { display: inline-flex; }
+    .bio-toggle-arrow {
+      display: inline-block;
+      transition: transform 0.25s ease;
+      font-size: 11px;
+    }
+    .bio-box-toggle.bio-expanded .bio-toggle-arrow {
+      transform: rotate(180deg);
+    }
 
     /* ─── SEE ALSO ─── */
     .see-also{margin-top:40px;}
@@ -598,10 +701,8 @@ const radarLabelData=radarAxes.map((ax,i)=>{
     @media(max-width:767px){
 
       .page{ padding:16px 14px 80px; }
-
       .back{ font-size:12px; margin-bottom:16px; }
 
-      /* HERO */
       .hero{ padding:16px; border-radius:14px; margin-bottom:10px; }
       .hero-top{ gap:12px; align-items:flex-start; margin-bottom:14px; }
       .avatar-ring{ width:62px; height:62px; }
@@ -617,7 +718,6 @@ const radarLabelData=radarAxes.map((ax,i)=>{
       .bio-label{ font-size:9px; }
       .bio-value{ font-size:12px; }
 
-      /* TEAMS STRIP — horizontal scroll */
       .teams-strip{
         flex-wrap:nowrap;
         overflow-x:auto;
@@ -631,7 +731,6 @@ const radarLabelData=radarAxes.map((ax,i)=>{
       .team-chip-text{ font-size:11px; }
       .team-chip-badge{ font-size:9px; }
 
-      /* STATS — 3 cols x 2 rows */
       .stats-row{
         grid-template-columns:repeat(3,1fr);
         gap:8px;
@@ -641,7 +740,6 @@ const radarLabelData=radarAxes.map((ax,i)=>{
       .stat-card .sv{ font-size:16px; }
       .stat-card .sl{ font-size:9px; }
 
-      /* VIZ — hide heatmap, radar full width */
       .viz-row{
         grid-template-columns:1fr;
         gap:10px;
@@ -651,7 +749,6 @@ const radarLabelData=radarAxes.map((ax,i)=>{
       .radar-card{ border-radius:12px; }
       .radar-svg{ max-width:220px; }
 
-      /* GAUGES — compact */
       .gauge-section{ gap:8px; margin-bottom:14px; }
       .gauge-item{ padding:14px 6px 10px; border-radius:12px; }
       .gauge-item svg{ max-width:100px; }
@@ -667,7 +764,6 @@ const radarLabelData=radarAxes.map((ax,i)=>{
       .gk-score-val{ font-size:15px; }
       .gk-score-sub{ font-size:8px; }
 
-      /* SKILLS — single column */
       .skills-grid{ grid-template-columns:1fr; gap:10px; }
       .skill-card.full-width{ grid-column:auto; }
       .skill-card{ padding:16px 14px 12px; border-radius:12px; }
@@ -676,12 +772,14 @@ const radarLabelData=radarAxes.map((ax,i)=>{
       .skill-abbr{ min-width:34px; font-size:9.5px; }
       .skill-val{ font-size:11px; min-width:22px; }
 
-      /* TRAITS */
       .traits-section{ padding:16px 14px 18px; border-radius:12px; }
       .traits-grid{ grid-template-columns:repeat(5,50px); gap:10px; }
       .trait-icon,.trait-icon img{ width:50px; height:50px; }
 
-      /* SEE ALSO — horizontal scroll */
+      /* BIO BOX mobile */
+      .player-bio-box { padding:18px 18px 16px; border-radius:14px; margin-top:16px; }
+      .bio-box-text { font-size:13.5px; }
+
       .see-also{ margin-top:28px; }
       .see-also-grid{
         flex-wrap:nowrap;
@@ -704,17 +802,17 @@ const radarLabelData=radarAxes.map((ax,i)=>{
     }
 
   </style>
-<script type="application/ld+json" set:html={JSON.stringify({
+  <script type="application/ld+json" set:html={JSON.stringify({
     "@context": "https://schema.org",
     "@type": "Person",
     "name": p.name,
-    "url": "https://legendsdatabase.com/player/" + p.slug,
+    "url": `https://legendsdatabase.com/player/${p.slug}`,
     "nationality": p.nation ?? undefined,
     "birthDate": p.birth_year ? String(p.birth_year) : undefined,
     "height": p.height ? { "@type": "QuantitativeValue", "value": p.height, "unitCode": "CMT" } : undefined,
     "jobTitle": "Professional Footballer",
-    "description": (p.role ?? '') + ' · ' + (p.nation ?? '') + ' · ' + (p.iconic_club ?? '') + '. Overall rating ' + p.overall_rating + '/99 on Legends Database.',
-    "sameAs": ["https://legendsdatabase.com/player/" + p.slug]
+    "description": `${p.role ?? ''} · ${p.nation ?? ''} · ${p.iconic_club ?? ''}. Overall rating ${p.overall_rating}/99 on Legends Database.`,
+    "sameAs": [`https://legendsdatabase.com/player/${p.slug}`]
   })}></script>
 </head>
 
@@ -802,10 +900,8 @@ const radarLabelData=radarAxes.map((ax,i)=>{
     <div class="stat-card"><div class="sv">{p.nat_goal_ratio}</div><div class="sl">Nat Ratio</div></div>
   </div>
 
-  <!-- ─── VIZ ROW: heatmap (desktop) + radar ─── -->
+  <!-- ─── VIZ ROW ─── -->
   <div class="viz-row">
-
-    <!-- HEATMAP (hidden on mobile via CSS) -->
     <div class="heatmap-card">
       <div class="viz-header">
         <span class="viz-title">Positional Heatmap</span>
@@ -876,7 +972,6 @@ const radarLabelData=radarAxes.map((ax,i)=>{
       </svg>
     </div>
 
-    <!-- RADAR -->
     <div class="radar-card">
       <div class="viz-header">
         <span class="viz-title">Skill Radar</span>
@@ -933,7 +1028,6 @@ const radarLabelData=radarAxes.map((ax,i)=>{
         </svg>
       </div>
     </div>
-
   </div>
 
   <!-- ─── GAUGES OUTFIELD ─── -->
@@ -1094,6 +1188,21 @@ const radarLabelData=radarAxes.map((ax,i)=>{
     </div>
   )}
 
+  <!-- ─── BIO BOX ─── -->
+  {hasBio && (
+    <div class="player-bio-box" id="playerBioBox">
+      <div class="bio-box-header">
+        <span class="bio-box-eyebrow">Player Profile</span>
+        <span class="bio-box-dot"></span>
+        <span class="bio-box-name">{p.name}</span>
+      </div>
+      <div class="bio-box-text bio-clamped" id="bioBoxText">{p.bio}</div>
+      <button class="bio-box-toggle" id="bioBoxToggle" type="button">
+        Read more <span class="bio-toggle-arrow">↓</span>
+      </button>
+    </div>
+  )}
+
   <!-- ─── SEE ALSO ─── -->
   {related.length>0 && (
     <div class="see-also">
@@ -1159,6 +1268,44 @@ const SKILL_SECTIONS=[
   {label:'Tactical',skills:[{key:'vision',label:'VIS'},{key:'off_the_ball',label:'OFB'},{key:'def_positioning',label:'DEF'},{key:'teamwork',label:'TMW'},{key:'anticipation',label:'ANT'},{key:'marking',label:'MAR'}]},
   {label:'Goalkeeping',skills:[{key:'reflexes',label:'REF'},{key:'positioning',label:'POS'},{key:'handling',label:'HAN'},{key:'kicking',label:'KIC'}]},
 ];
+
+// ─── BIO BOX expand/collapse ───
+const bioBox    = document.getElementById('playerBioBox');
+const bioText   = document.getElementById('bioBoxText');
+const bioToggle = document.getElementById('bioBoxToggle');
+
+if (bioBox && bioText && bioToggle) {
+  // Fade in on scroll
+  const bioObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        bioBox.classList.add('bio-visible');
+        bioObserver.unobserve(bioBox);
+      }
+    });
+  }, { threshold: 0.1 });
+  bioObserver.observe(bioBox);
+
+  // Show toggle only if text is actually clamped
+  requestAnimationFrame(() => {
+    if (bioText.scrollHeight > bioText.clientHeight + 2) {
+      bioToggle.classList.add('bio-toggle-visible');
+    }
+  });
+
+  let expanded = false;
+  bioToggle.addEventListener('click', () => {
+    expanded = !expanded;
+    bioText.classList.toggle('bio-clamped', !expanded);
+    bioToggle.classList.toggle('bio-expanded', expanded);
+    const arrow = bioToggle.querySelector('.bio-toggle-arrow');
+    if (bioToggle.childNodes[0]) {
+      bioToggle.childNodes[0].textContent = expanded ? 'Show less ' : 'Read more ';
+    }
+  });
+}
+
+// ─── COMPARE MODAL ───
 const overlay=document.getElementById('cmpOverlay');
 const searchPhase=document.getElementById('cmpSearchPhase');
 const comparePhase=document.getElementById('cmpComparePhase');
