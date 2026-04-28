@@ -234,11 +234,12 @@ const players = (raw ?? []).map(p => ({
     .formation-btn:hover:not(.active):not(.active-b) { border-color: #aeaeb2; color: #1d1d1f; background: #f0f0f5; }
 
     /* ── PITCH ── */
-    .pitch-wrap {
-      position: relative;
-      width: 100%;
-      margin-bottom: 14px;
-    }
+  .pitch-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto 14px;
+}
     .pitch-svg { width: 100%; height: auto; display: block; border-radius: 10px; }
 
     /* ── PLAYER SLOTS ── */
