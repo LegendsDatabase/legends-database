@@ -879,7 +879,7 @@ function drawPitch(svgId,side){
     const tc=!p?'rgba(255,255,255,0.13)':isDup?'#e07800':fit>=0.9?ac:fit>=0.65?'#c8a800':'#e07800';
     const name=p?p.n.split(',')[0].trim().slice(0,10):sr;
     const stroke=!p?'transparent':fit>=0.82?'rgba(255,255,255,0.28)':'rgba(255,190,0,0.5)';
-    svg.innerHTML+='<g transform="translate('+x+','+y+'">'
+    svg.innerHTML+='<g transform="translate('+x+','+y+')">'
       +'<circle r="17" fill="'+tc+'" opacity="'+(p?'1':'0.6')+'"/>'
       +(p?'<circle r="17" fill="none" stroke="'+stroke+'" stroke-width="1.2"/>':'')
       +'<text y="1" text-anchor="middle" dominant-baseline="middle" font-family="-apple-system,Inter,sans-serif" font-size="7.5" font-weight="700" fill="white">'+name+'</text>'
