@@ -62,8 +62,15 @@ const allDecades = [1950,1960,1970,1980,1990,2000,2010];
     .sim-eyebrow{font-size:9.5px;font-weight:800;color:#0071e3;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:4px;}
     .sim-title{font-size:24px;font-weight:800;letter-spacing:-0.5px;color:#fff;line-height:1.1;margin-bottom:2px;}
     .sim-sub{font-size:11px;color:rgba(255,255,255,0.36);}
-    .match-settings-bar{background:#fff;border-bottom:1px solid #e5e5ea;padding:12px 40px;display:grid;grid-template-columns:repeat(7,1fr);gap:9px;align-items:end;}
-    .match-settings-bar.row2{border-top:none;padding-top:5px;padding-bottom:10px;grid-template-columns:1fr 1fr 1fr 4fr;}
+    .match-settings-shell{background:linear-gradient(180deg,#fff,#f7f7fb);border-bottom:1px solid #e5e5ea;padding:14px 40px 12px;display:grid;grid-template-columns:1.25fr 1fr;gap:12px;align-items:stretch;}
+    .settings-card{position:relative;overflow:hidden;background:rgba(255,255,255,0.86);border:1px solid rgba(220,220,228,0.95);border-radius:16px;padding:12px 13px;box-shadow:0 10px 30px rgba(0,0,0,0.045);backdrop-filter:blur(14px);}
+    .settings-card::before{content:'';position:absolute;inset:-40% -20% auto auto;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(0,113,227,0.10),transparent 68%);pointer-events:none;}
+    .settings-card.control::before{background:radial-gradient(circle,rgba(46,139,46,0.10),transparent 68%);}
+    .settings-card-head{position:relative;display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;}
+    .settings-card-title{font-size:9px;font-weight:900;color:#8e8e93;letter-spacing:0.13em;text-transform:uppercase;}
+    .settings-card-sub{font-size:9.5px;font-weight:700;color:#aeaeb2;}
+    .settings-card-grid{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+    .settings-card.control .settings-card-grid{grid-template-columns:repeat(3,1fr);}
     .mset-group{display:flex;flex-direction:column;gap:3px;}
     .mset-label{font-size:8.5px;font-weight:700;color:#aeaeb2;letter-spacing:0.08em;text-transform:uppercase;}
     .mset-select{font-family:inherit;font-size:10.5px;font-weight:500;color:#1d1d1f;background:#f9f9fb;border:1.5px solid #e5e5ea;border-radius:7px;padding:5px 6px;outline:none;cursor:pointer;transition:border-color 0.14s;}
@@ -97,6 +104,8 @@ const allDecades = [1950,1960,1970,1980,1990,2000,2010];
     .formation-btn.active-b{background:#c0392b;color:#fff;border-color:#c0392b;}
     .formation-btn:hover:not(.active):not(.active-b){border-color:#aeaeb2;color:#1d1d1f;}
     .tb-tactics-row{display:flex;align-items:center;gap:7px;margin-bottom:8px;}
+    .tb-coach-row{display:flex;align-items:center;gap:7px;margin-bottom:8px;padding:7px 8px;border:1px solid #ececf1;border-radius:10px;background:linear-gradient(180deg,#fbfbfd,#f5f5f7);}
+    .tb-coach-row .mset-select{flex:1;background:#fff;font-size:10.5px;font-weight:600;padding:5px 7px;}
     .tactics-select{font-family:inherit;font-size:10.5px;font-weight:600;color:#1d1d1f;background:#f5f5f7;border:1.5px solid #e5e5ea;border-radius:7px;padding:4px 7px;outline:none;cursor:pointer;flex:1;transition:border-color 0.14s;}
     .tactics-select:focus{border-color:#0071e3;}
     .coach-fit-badge{font-size:8.5px;font-weight:700;padding:2px 6px;border-radius:5px;flex-shrink:0;white-space:nowrap;}
@@ -417,7 +426,13 @@ const allDecades = [1950,1960,1970,1980,1990,2000,2010];
     </div>
   </div>
   <div id="phase-setup">
-    <div class="match-settings-bar">
+    <div class="match-settings-shell">
+      <div class="settings-card">
+        <div class="settings-card-head">
+          <span class="settings-card-title">Match Context</span>
+          <span class="settings-card-sub">venue, weather, format</span>
+        </div>
+        <div class="settings-card-grid">
       <div class="mset-group"><label class="mset-label">Competition</label>
         <select class="mset-select" id="setCompetition">
           <option value="friendly">⚽ Friendly</option>
@@ -456,27 +471,31 @@ const allDecades = [1950,1960,1970,1980,1990,2000,2010];
           <option value="et">Extra Time + Pens</option>
           <option value="golden">Golden Goal</option>
         </select></div>
-      <div class="mset-group"><label class="mset-label">Substitutions</label>
-        <select class="mset-select" id="setSubs">
-          <option value="3">3 Subs</option>
-          <option value="5">5 Subs</option>
-        </select></div>
-      <div class="mset-group"><label class="mset-label">Coach A ✱</label>
-        <select class="mset-select coach-req" id="setCoachA"><option value="">— Select —</option></select></div>
-      <div class="mset-group"><label class="mset-label">Coach B ✱</label>
-        <select class="mset-select coach-req" id="setCoachB"><option value="">— Select —</option></select></div>
-    </div>
-    <div class="match-settings-bar row2">
-      <div class="mset-group"><label class="mset-label">Referee</label>
-        <select class="mset-select" id="setReferee"></select></div>
-      <div></div><div></div>
-      <div style="display:flex;align-items:flex-end;">
-        <div class="validation-row">
-          <div class="val-dot" id="valGkA"></div><span class="val-label" id="valGkALbl">A:GK</span>
-          <div class="val-dot" style="margin-left:8px;" id="valGkB"></div><span class="val-label" id="valGkBLbl">B:GK</span>
-          <div class="val-dot" style="margin-left:8px;" id="valFullA"></div><span class="val-label" id="valFullALbl">A:11</span>
-          <div class="val-dot" style="margin-left:8px;" id="valFullB"></div><span class="val-label" id="valFullBLbl">B:11</span>
-          <div class="val-dot" style="margin-left:8px;" id="valCoach"></div><span class="val-label" id="valCoachLbl">Coaches</span>
+        </div>
+      </div>
+      <div class="settings-card control">
+        <div class="settings-card-head">
+          <span class="settings-card-title">Match Control</span>
+          <span class="settings-card-sub">referee, subs, readiness</span>
+        </div>
+        <div class="settings-card-grid">
+          <div class="mset-group"><label class="mset-label">Referee</label>
+            <select class="mset-select" id="setReferee"></select></div>
+          <div class="mset-group"><label class="mset-label">Substitutions</label>
+            <select class="mset-select" id="setSubs">
+              <option value="3">3 Subs</option>
+              <option value="5">5 Subs</option>
+            </select></div>
+          <div class="mset-group">
+            <label class="mset-label">Readiness</label>
+            <div class="validation-row">
+              <div class="val-dot" id="valGkA"></div><span class="val-label" id="valGkALbl">A:GK</span>
+              <div class="val-dot" id="valGkB"></div><span class="val-label" id="valGkBLbl">B:GK</span>
+              <div class="val-dot" id="valFullA"></div><span class="val-label" id="valFullALbl">A:11</span>
+              <div class="val-dot" id="valFullB"></div><span class="val-label" id="valFullBLbl">B:11</span>
+              <div class="val-dot" id="valCoach"></div><span class="val-label" id="valCoachLbl">Coaches</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -501,6 +520,10 @@ const allDecades = [1950,1960,1970,1980,1990,2000,2010];
         <div class="tb-formation-row">
           <span class="tb-label">Formation</span>
           <div id="formationBtnsA" class="tb-formation-row" style="flex-wrap:wrap;gap:4px;margin:0;"></div>
+        </div>
+        <div class="tb-coach-row">
+          <span class="tb-label">Coach</span>
+          <select class="mset-select coach-req" id="setCoachA"><option value="">— Select —</option></select>
         </div>
         <div class="tb-tactics-row">
           <span class="tb-label">Tactics</span>
@@ -546,6 +569,10 @@ const allDecades = [1950,1960,1970,1980,1990,2000,2010];
         <div class="tb-formation-row">
           <span class="tb-label">Formation</span>
           <div id="formationBtnsB" class="tb-formation-row" style="flex-wrap:wrap;gap:4px;margin:0;"></div>
+        </div>
+        <div class="tb-coach-row">
+          <span class="tb-label">Coach</span>
+          <select class="mset-select coach-req" id="setCoachB"><option value="">— Select —</option></select>
         </div>
         <div class="tb-tactics-row">
           <span class="tb-label">Tactics</span>
@@ -620,6 +647,8 @@ const allDecades = [1950,1960,1970,1980,1990,2000,2010];
         <span class="mhb-item" id="mhStadium">🏟 Wembley</span>
         <span class="mhb-item" id="mhWeather">☀️ Perfect</span>
         <span class="mhb-personality mp-open" id="mhPersonality">Open Game</span>
+        <span class="mhb-item" id="mhAttendance">Attendance —</span>
+        <span class="mhb-item" id="mhCommentator">Commentary —</span>
         <span class="mhb-item" id="mhRunCount">Simulation #1</span>
         <span class="mhb-ref" id="mhReferee">⚖️ Collina · Authoritative</span>
       </div>
@@ -856,6 +885,7 @@ const COACHES=[
   {id:'santana', name:'Telê Santana',bonus:{cre:15,dri:10,otb:8}, style:'Attack'},
   {id:'menotti', name:'Menotti',     bonus:{cre:8,vis:5,sps:8},   style:'Fluid'},
   {id:'happel',  name:'Happel',      bonus:{tmw:10,dep:5,sta:8,con:6},style:'Tactical'},
+  {id:'mourinho',name:'Mourinho',    bonus:{dep:10,com:8,con:7,agg:5},style:'Pragmatic'},
 ];
 
 const COACH_FIT={
@@ -868,7 +898,35 @@ const COACH_FIT={
   'santana':   {pref:['4-3-3','3-4-3','4-3-1-2'],                    bonus:0.09},
   'menotti':   {pref:['4-3-3','4-4-2','3-4-3'],                      bonus:0.06},
   'happel':    {pref:['3-5-2','4-2-3-1','4-4-1-1','3-4-1-2'],       bonus:0.07},
+  'mourinho':  {pref:['4-2-3-1','4-4-1-1','4-5-1','5-3-2'],         bonus:0.08},
 };
+
+const STADIUMS={
+  maracana:{nation:'Brazil',capacity:78838,homeLabel:'Brazilian home edge'},
+  wembley:{nation:'England',capacity:90000,homeLabel:'English home edge'},
+  bernabeu:{nation:'Spain',capacity:81044,homeLabel:'Spanish home edge'},
+  sansiro:{nation:'Italy',capacity:80018,homeLabel:'Italian home edge'},
+  campnou:{nation:'Spain',capacity:99354,homeLabel:'Spanish home edge'},
+  azteca:{nation:'Mexico',capacity:87523,homeLabel:'Mexican home edge'},
+  anfield:{nation:'England',capacity:61276,homeLabel:'English home edge'},
+  bombonera:{nation:'Argentina',capacity:54000,homeLabel:'Argentine home edge'},
+  iduna:{nation:'Germany',capacity:81365,homeLabel:'German home edge'},
+  centenario:{nation:'Uruguay',capacity:60235,homeLabel:'Uruguayan home edge'},
+  oldtrafford:{nation:'England',capacity:74310,homeLabel:'English home edge'},
+  allianz:{nation:'Germany',capacity:75024,homeLabel:'German home edge'},
+  psg:{nation:'France',capacity:47929,homeLabel:'French home edge'},
+};
+
+const COMMENTATORS=[
+  'John Motson',
+  'Peter Drury',
+  'José Ángel de la Casa',
+  'Clive Tyldesley',
+  'Andrés Cantor',
+  'Brian Moore',
+  'Bruno Pizzul',
+  'Nicolò Carosio',
+];
 
 const REFEREES=[
   {id:'collina',   name:'Pierluigi Collina',  strictness:0.80,profile:'Authoritative',cardRisk:'Medium'},
@@ -931,6 +989,11 @@ const CMT={
   miss:['{A} snatches at it, and drags it wide.','{A} had the opening, but the finish is off target.','{A} leans back and sends it over the bar.','{A} has blazed that over, and he knows it.','{A} gets the angle wrong and misses the target.','{A} had more time than that finish suggested.','Big chance, honestly. {A} will want that one back.','That was the moment for {A}, and the stadium knows it.'],
   tackle:['{A} times that tackle to absolute perfection on {B}!','{A} gets across and strips {B} of the ball!','{A} comes flying in and wins it cleanly!','{A} judges it beautifully and halts the danger.','{A} makes a saving tackle in the nick of time!'],
   dribble:['{A} dances past one, glides past another, and keeps going!','{A} leaves {B} clutching at shadows!','{A} turns {B} inside out there.','{A} beats the defender with a shimmy and a burst!'],
+  chance:['{A} finds a pocket of space, but the final ball never quite arrives.','Nice move from {T}, but it dies just as the crowd starts to rise.','{A} tries to thread it through. Good idea, not quite the execution.','There is a moment there for {T}, then it just gets crowded out.'],
+  blocked:['{B} throws himself in front of {A} and blocks it. Proper defending.','{A} lines it up, but {B} reads it and takes the sting out of the shot.','Important block from {B}. That was travelling.','{B} gets a body in the way, and {T} have to start again.'],
+  cross:['{A} bends one into a dangerous area, but nobody attacks it.','{A} puts it across the six-yard box. Brilliant ball, no touch.','The delivery from {A} has real pace, but it flashes through everyone.','{A} looks up and crosses early. Half a chance, nothing more.'],
+  sterile:['Plenty of names on the pitch, not much rhythm right now.','The tempo drops for a spell. Lots of possession, very little bite.','This has gone a bit flat. The crowd wants more than careful passes.','A neat spell, but too neat. Someone has to take a risk.'],
+  interception:['{A} reads the pass beautifully and kills the attack before it starts.','Smart positioning from {A}. That looked simple, but it mattered.','{A} steps in at exactly the right time. No drama, just class.'],
   freekick:['{A} curls it over the wall and inches wide!','{A} bends one with menace from the dead ball.','{A} catches the outside of the post with a wicked free-kick!'],
   freekick_goal:['{A} curls it perfectly around the wall — GOAL!','{A} rifles the free-kick into the top corner!','{A} bends it in with stunning precision — {T} score from the dead ball!'],
   injury:['{A} is down here, and that does not look good at all.','{A} has pulled up sharply, and the game stops around him.','{A} is receiving treatment, and the stadium has gone quiet.','{A} may have to come off here after that knock.'],
@@ -950,7 +1013,28 @@ const CMT={
 function pick(a){return a[Math.floor(Math.random()*a.length)];}
 function rnd(mn,mx){return mn+Math.random()*(mx-mn);}
 function rndInt(mn,mx){return Math.floor(rnd(mn,mx+1));}
-function bc(t,v){return t.replace(/{A}/g,v.A||'?').replace(/{B}/g,v.B||'?').replace(/{T}/g,v.T||'?').replace(/{GK}/g,v.GK||'?');}
+function matchName(name){
+  const raw=(name||'?').toString().trim();
+  if(!raw)return'?';
+  if(raw.includes(','))return raw.split(',')[0].trim()||raw;
+  const parts=raw.split(/\s+/).filter(Boolean);
+  return parts.length>1?parts[parts.length-1]:raw;
+}
+function fmtNum(n){return Math.round(n).toLocaleString('en-US');}
+function stadiumInfo(id){return STADIUMS[id]||STADIUMS.maracana;}
+function homeBoostFor(st,stadiumId){
+  const homeNation=stadiumInfo(stadiumId).nation;
+  const homeCount=st.filter(p=>p&&p.nat===homeNation).length;
+  return 1+Math.min(0.035,homeCount*0.0045);
+}
+function estimateAttendance(stA,stB,formA,formB,stadiumId,competition){
+  const stadium=stadiumInfo(stadiumId);
+  const avg=(computeAvgOvr(stA,formA)+computeAvgOvr(stB,formB))/2;
+  const compBoost={friendly:0.00,worldcup:0.09,champions:0.07,libertadores:0.08}[competition]||0;
+  const fill=Math.max(0.52,Math.min(0.995,0.58+((avg-70)/30)*0.30+compBoost+rnd(-0.015,0.015)));
+  return Math.min(stadium.capacity,Math.round(stadium.capacity*fill/100)*100);
+}
+function bc(t,v){return t.replace(/{A}/g,matchName(v.A)).replace(/{B}/g,matchName(v.B)).replace(/{T}/g,v.T||'?').replace(/{GK}/g,matchName(v.GK));}
 function ovrColor(v){if(v>=93)return'#0071e3';if(v>=88)return'#1a5e1a';if(v>=82)return'#2e8b2e';if(v>=74)return'#6aaa2a';if(v>=65)return'#c8a800';return'#c0392b';}
 function showToast(msg){
   const el=document.getElementById('buildToast');if(!el)return;
@@ -1182,8 +1266,9 @@ function updateWinProb(){
   wrap.classList.add('visible');
   const ovrA=computeAvgOvr(stA,fA),ovrB=computeAvgOvr(stB,fB);
   const gelA=computeGel(stA),gelB=computeGel(stB);
-  const powA=(1+(ovrA-80)*0.040)*(1+(gelA/80)*0.10);
-  const powB=(1+(ovrB-80)*0.040)*(1+(gelB/80)*0.10);
+  const stadiumId=document.getElementById('setStadium').value;
+  const powA=(1+(ovrA-80)*0.040)*(1+(gelA/80)*0.10)*homeBoostFor(stA,stadiumId);
+  const powB=(1+(ovrB-80)*0.040)*(1+(gelB/80)*0.10)*homeBoostFor(stB,stadiumId);
   const pA=Math.min(82,Math.max(18,Math.round(powA/(powA+powB)*100)));const pB=100-pA;
   const nA=document.getElementById('nameA').value||'Legends XI';const nB=document.getElementById('nameB').value||'Rival XI';
   document.getElementById('wpTeamA').textContent=nA;document.getElementById('wpTeamB').textContent=nB;
@@ -1204,6 +1289,9 @@ function updateWinProb(){
     if(!isA&&gelB>gelA+20)reasons.push('stronger team chemistry');
     if(isA&&midA>midB+5)reasons.push('midfield control advantage');
     if(!isA&&midB>midA+5)reasons.push('midfield control advantage');
+    const homeNation=stadiumInfo(stadiumId).nation;
+    if(isA&&stA.filter(p=>p&&p.nat===homeNation).length>=2)reasons.push('stadium familiarity');
+    if(!isA&&stB.filter(p=>p&&p.nat===homeNation).length>=2)reasons.push('stadium familiarity');
     if(!reasons.length)reasons.push('slight overall advantage');
   }
   document.getElementById('wpEdge').textContent=edge;
@@ -1233,13 +1321,17 @@ function updateMatchPreview(){
   const risk=(ref.strictness>0.72||Math.max(aggA,aggB)>77)?'Cards could matter':'Low card pressure';
   const weatherKey=document.getElementById('setWeather').value;
   const weather=weatherKey==='random'?'Random weather':(WEATHER[weatherKey]?.label||'Perfect');
+  const stadiumId=document.getElementById('setStadium').value;
+  const homeNation=stadiumInfo(stadiumId).nation;
+  const homeA=stA.filter(p=>p&&p.nat===homeNation).length,homeB=stB.filter(p=>p&&p.nat===homeNation).length;
+  const homeEdge=(homeA||homeB)?' · Home edge '+homeNation+' '+homeA+'-'+homeB:'';
   const coachA=document.getElementById('setCoachA').value,coachB=document.getElementById('setCoachB').value;
   const fitA=COACH_FIT[coachA]?.pref.includes(state.formationA),fitB=COACH_FIT[coachB]?.pref.includes(state.formationB);
   document.getElementById('previewReadiness').textContent=(fldA===11&&fldB===11)?'Ready':'Partial preview';
   document.getElementById('previewEdge').textContent=edge;
   document.getElementById('previewKeys').textContent=keyA+' vs '+keyB;
   document.getElementById('previewRisk').textContent=risk;
-  document.getElementById('previewContext').textContent=weather+' · Coach fit '+(fitA?'A':'-')+'/'+(fitB?'B':'-');
+  document.getElementById('previewContext').textContent=weather+homeEdge+' · Coach fit '+(fitA?'A':'-')+'/'+(fitB?'B':'-');
 }
 
 function computeAndShowTacticalClash(){
@@ -1321,7 +1413,7 @@ function applyCoach(pls,cid){
   const c=COACHES.find(x=>x.id===cid);if(!c)return pls;
   return pls.map(p=>{if(!p)return p;const cl={...p};Object.entries(c.bonus).forEach(([k,v])=>{if(cl[k]!==undefined)cl[k]=Math.min(99,cl[k]+v);});return cl;});
 }
-function teamStr(st,fk,weather,cid,tactic){
+function teamStr(st,fk,weather,cid,tactic,stadiumId){
   const boosted=applyCoach(st,cid);const f=FORMATIONS[fk];const w=WEATHER[weather]||WEATHER.sun;
   const ti=TACTICAL_INSTRUCTIONS[tactic]||TACTICAL_INSTRUCTIONS['balanced'];
   let att=0,def=0;const gk=boosted[0];const gkS=gk?((gk.ref+gk.pos+gk.han)/3)*w.physMod:60;
@@ -1331,9 +1423,11 @@ function teamStr(st,fk,weather,cid,tactic){
   deps.def.forEach(({p,role})=>{const fit=roleFit(p.r,role,p.alt);def+=(p.tac*0.28+p.mar*0.25+p.dep*0.22+p.ant*0.15+p.hea*0.10)*fit*w.physMod;});
   const cfFit=COACH_FIT[cid];const coachBonus=(cfFit&&cfFit.pref.includes(fk))?cfFit.bonus:0;
   att*=ti.attMod*(1+coachBonus);def*=ti.defMod*(1+coachBonus);
+  const homeBoost=homeBoostFor(boosted,stadiumId);
+  att*=homeBoost;def*=homeBoost;
   const avgSta=boosted.filter(Boolean).reduce((s,p)=>s+p.sta,0)/(boosted.filter(Boolean).length||1);
   const attCount=deps.att.length+deps.mid.length*0.45||5;const defCount=deps.def.length+deps.mid.length*0.45||5;
-  return{att:Math.max(40,att/attCount),def:Math.max(40,def/defCount+gkS*0.3),gkS,gk,avgSta,tiPosMod:ti.posMod};
+  return{att:Math.max(40,att/attCount),def:Math.max(40,def/defCount+gkS*0.3),gkS,gk,avgSta,tiPosMod:ti.posMod,homeBoost};
 }
 function identifyKeyDuels(stA,stB,fA,fB){
   const dA=getTeamDepartments(stA,fA),dB=getTeamDepartments(stB,fB);const duels=[];
@@ -1368,11 +1462,11 @@ function pickFK(st){const c=st.filter(Boolean);if(!c.length)return null;return w
 function wPick(arr,w){let t=w.reduce((s,x)=>s+x,0),r=Math.random()*t;for(let i=0;i<arr.length;i++){r-=w[i];if(r<=0)return arr[i];}return arr[arr.length-1];}
 
 function runSimulation(cfg){
-  let{stA,stB,formA,formB,coachA,coachB,weather,matchType,maxSubs,refereeId,tacticA,tacticB}=cfg;
+  let{stA,stB,formA,formB,coachA,coachB,weather,matchType,maxSubs,refereeId,tacticA,tacticB,stadiumId}=cfg;
   stA=[...stA];stB=[...stB];
   const ref=REFEREES.find(r=>r.id===refereeId)||REFEREES[0];
   const w=WEATHER[weather]||WEATHER.sun;
-  const sA=teamStr(stA,formA,weather,coachA,tacticA);const sB=teamStr(stB,formB,weather,coachB,tacticB);
+  const sA=teamStr(stA,formA,weather,coachA,tacticA,stadiumId);const sB=teamStr(stB,formB,weather,coachB,tacticB,stadiumId);
   const avgOvrA=computeAvgOvr(stA,formA),avgOvrB=computeAvgOvr(stB,formB);
   const gelA=computeGel(stA),gelB=computeGel(stB);
   const fA=FORMATIONS[formA],fB=FORMATIONS[formB];
@@ -1419,15 +1513,24 @@ function runSimulation(cfg){
     if(isA)stats.shotsA++;else stats.shotsB++;
     if(Math.random()>goalProb){
       const gk=isA?sB.gk:sA.gk;const scorer=pickGoalscorer(attSt,attF);
+      const defender=pickDef(activeSt(!isA),isA?fB:fA);
       if(Math.random()<0.09*mp.woodMult&&scorer){
         addEv(minute,'woodwork',bc(pick(CMT.woodwork),{A:scorer.n,GK:gk?.n}));
         if(isA)stats.woodA++;else stats.woodB++;
         if(isA)stats.cornersA+=Math.random()<0.5?1:0;else stats.cornersB+=Math.random()<0.5?1:0;
         updMom(isA,'wood');return 0;
       }
-      if(gk&&Math.random()<0.58){
+      const shotOutcome=Math.random();
+      if(defender&&shotOutcome<0.24){
+        addEv(minute,'blocked',bc(pick(CMT.blocked),{A:scorer?.n,B:defender.n,T:teamName}));
+        const dRat=oppRat.find(r=>r.p===defender);if(dRat){dRat.base+=0.16;dRat.motmScore+=0.25;}
+        if(isA)stats.cornersA+=Math.random()<0.30?1:0;else stats.cornersB+=Math.random()<0.30?1:0;
+      }else if(scorer&&shotOutcome<0.40){
+        const creator=pickAssist(attSt,attF,scorer.id)||scorer;
+        addEv(minute,'chance',bc(pick(CMT.chance),{A:creator.n,T:teamName}));
+      }else if(gk&&shotOutcome<0.73){
         if(isA)stats.onTargetA++;else stats.onTargetB++;
-        const mir=Math.random()<0.26;
+        const mir=Math.random()<0.18;
         addEv(minute,mir?'save_miracle':'save',bc(pick(mir?CMT.save_miracle:CMT.save_normal),{A:scorer?.n,GK:gk.n,T:teamName}));
         const gkRat=oppRat.find(r=>r.p===gk);if(gkRat){gkRat.base+=mir?0.95:0.35;gkRat.motmScore+=mir?2:0.5;}
         if(mir)updMom(!isA,'miracle');
@@ -1453,7 +1556,7 @@ function runSimulation(cfg){
     if(wasLevel)cmt='⚽ GOAL! '+bc(pick(CMT.equaliser),{A:scorer.n,T:teamName,GK:oppGk?.n});
     else if(isET)cmt='⚽ GOAL! '+bc(pick(CMT.goal_et),{A:scorer.n,T:teamName,GK:oppGk?.n});
     else cmt='⚽ GOAL! '+bc(pick(gArr),{A:scorer.n,T:teamName,GK:oppGk?.n});
-    if(assister)cmt+=' Assisted by '+assister.n+'.';
+    if(assister)cmt+=' Assisted by '+matchName(assister.n)+'.';
     addEv(minute,'goal',cmt,isA,!isA);
     stats.goalScorers.push({min:minute,name:scorer.n,team:teamName,type:goalType});
     updMom(isA,'goal');
@@ -1477,6 +1580,9 @@ function runSimulation(cfg){
     if(Math.random()<(0.65+ratioB*0.25)){const r=attemptGoal(false,minute,false);if(r<0)scoreB++;}
     if(Math.random()<0.20*mp.foulMult){const isADef=Math.random()<0.5;const df=pickDef(activeSt(isADef),isADef?fA:fB);const att=pickGoalscorer(activeSt(!isADef),isADef?fB:fA);if(df&&att){addEv(minute,'tackle',bc(pick(CMT.tackle),{A:df.n,B:att.n}));const rat=(isADef?ratA:ratB).find(r=>r.p===df);if(rat){rat.base+=0.14;rat.motmScore+=0.3;}}}
     if(Math.random()<0.12*mp.dribMult){const isA=Math.random()<0.5;const drb=pickDrb(activeSt(isA),isA?fA:fB);const opp=pickDef(activeSt(!isA),isA?fB:fA);if(drb&&opp&&drb.dri>75)addEv(minute,'dribble',bc(pick(CMT.dribble),{A:drb.n,B:opp.n}));}
+    if(Math.random()<0.10){const isA=Math.random()<0.5;const crosser=pickAssist(activeSt(isA),isA?fA:fB,null)||pickDrb(activeSt(isA),isA?fA:fB);if(crosser)addEv(minute,'cross',bc(pick(CMT.cross),{A:crosser.n,T:isA?'A':'B'}));}
+    if(Math.random()<0.08){const isA=Math.random()<0.5;const stopper=pickDef(activeSt(isA),isA?fA:fB);if(stopper)addEv(minute,'interception',bc(pick(CMT.interception),{A:stopper.n,T:isA?'A':'B'}));}
+    if(Math.random()<0.055){addEv(minute,'sterile',pick(CMT.sterile));}
     if(Math.random()<0.08){const isA=Math.random()<0.5;const fk=pickFK(activeSt(isA));if(fk){if(fk.frk>85&&Math.random()<0.38&&reserveGoalMinute(minute)){addEv(minute,'goal','⚽ FREE KICK GOAL! '+bc(pick(CMT.freekick_goal),{A:fk.n,T:isA?'A':'B',GK:isA?sB.gk?.n:sA.gk?.n}),isA,!isA);if(isA){scoreA++;stats.onTargetA++;stats.goalScorers.push({min:minute,name:fk.n,team:'A',type:'fk'});const r=ratA.find(r=>r.p===fk);if(r){r.base+=1.0;r.motmScore+=2.5;r.events.push('⚽🎯');}}else{scoreB++;stats.onTargetB++;stats.goalScorers.push({min:minute,name:fk.n,team:'B',type:'fk'});const r=ratB.find(r=>r.p===fk);if(r){r.base+=1.0;r.motmScore+=2.5;r.events.push('⚽🎯');}}updMom(isA,'goal');}else{addEv(minute,'freekick',bc(pick(CMT.freekick),{A:fk.n}));if(isA)stats.cornersA++;else stats.cornersB++;}}}
     if(Math.random()<0.14){if(ratioA>0.5)stats.cornersA++;else stats.cornersB++;}
     if(Math.random()<0.12){if(Math.random()<0.5)stats.offsetA++;else stats.offsetB++;}
@@ -1568,6 +1674,8 @@ function simPens(stA,stB,ratA,ratB,events){
 function runMatch(){
   const ws=document.getElementById('setWeather').value;
   const aw=ws==='random'?['sun','light_rain','heavy_rain','storm','snow'][rndInt(0,4)]:ws;
+  const stadiumId=document.getElementById('setStadium').value;
+  const competition=document.getElementById('setCompetition').value;
   state.simCount++;
   const cfg={stA:state.startersA,stB:state.startersB,formA:state.formationA,formB:state.formationB,
     coachA:document.getElementById('setCoachA').value,coachB:document.getElementById('setCoachB').value,
@@ -1575,6 +1683,9 @@ function runMatch(){
     weather:aw,matchType:document.getElementById('setMatchType').value,
     maxSubs:parseInt(document.getElementById('setSubs').value),
     refereeId:document.getElementById('setReferee').value,
+    stadiumId,competition,
+    attendance:estimateAttendance(state.startersA,state.startersB,state.formationA,state.formationB,stadiumId,competition),
+    commentator:pick(COMMENTATORS),
     simNo:state.simCount};
   document.getElementById('loadingOverlay').classList.add('active');
   setTimeout(()=>{const result=runSimulation(cfg);document.getElementById('loadingOverlay').classList.remove('active');displayMatch(result,cfg,WEATHER[aw]||WEATHER.sun);},80);
@@ -1595,6 +1706,8 @@ function displayMatch(result,cfg,wData){
   document.getElementById('mhCompetition').textContent=comp.options[comp.selectedIndex].text;
   document.getElementById('mhStadium').textContent=stad.options[stad.selectedIndex].text;
   document.getElementById('mhWeather').textContent=wData.label;
+  document.getElementById('mhAttendance').textContent='Attendance '+fmtNum(cfg.attendance||0);
+  document.getElementById('mhCommentator').textContent='Commentary '+(cfg.commentator||pick(COMMENTATORS));
   document.getElementById('mhRunCount').textContent='Simulation #'+(cfg.simNo||1);
   const pBadge=document.getElementById('mhPersonality');pBadge.textContent=result.personality;pBadge.className='mhb-personality '+mp.cssClass;
   document.getElementById('mhReferee').textContent=ref.name+' · '+ref.profile;
@@ -1673,7 +1786,7 @@ function displayMatch(result,cfg,wData){
     else if(ev.type==='sub')cls+=' sub-event';
     else if(ev.type==='weather')cls+=' weather-event';
     else if(ev.type==='momentum')cls+=' momentum-event';
-    else if(['freekick','tackle'].includes(ev.type))cls+=' danger-event';
+    else if(['freekick','tackle','blocked','chance','cross','interception'].includes(ev.type))cls+=' danger-event';
     textEl.className=cls;textEl.textContent=ev.text;
     item.appendChild(minEl);item.appendChild(textEl);feed.appendChild(item);
     requestAnimationFrame(()=>requestAnimationFrame(()=>item.classList.add('visible')));
@@ -1774,6 +1887,7 @@ function buildShareSummary(result,nA,nB,cfg){
     nA+' '+score+pens+' '+nB,
     'Winner: '+winner,
     'MOTM: '+motm,
+    'Attendance: '+fmtNum(cfg.attendance||0)+' · Commentator: '+(cfg.commentator||'Random'),
     'Scorers: '+scorers,
     'Shots: '+st.shotsA+'-'+st.shotsB+' · On target: '+st.onTargetA+'-'+st.onTargetB+' · Possession: '+st.possA+'%-'+st.possB+'%',
     'Generated on Legends Database.'
@@ -1802,7 +1916,7 @@ function showResults(result,nA,nB,cfg){
   document.getElementById('stickyScore').textContent=scoreText;
   document.getElementById('stickyDetail').textContent=(result.winner==='draw'?'Draw':'Winner: '+winnerName)+' · MOTM: '+motmName;
   const winPill=document.getElementById('resWinnerPill');winPill.textContent=result.winner==='draw'?'Draw':'Winner · '+winnerName;winPill.className='result-meta-pill '+(result.winner==='A'?'win-a':result.winner==='B'?'win-b':'');
-  document.getElementById('resVenuePill').textContent=document.getElementById('mhStadium').textContent;
+  document.getElementById('resVenuePill').textContent=document.getElementById('mhStadium').textContent+' · '+fmtNum(cfg.attendance||0);
   document.getElementById('resWeatherPill').textContent=document.getElementById('mhWeather').textContent;
   document.getElementById('resMotmPill').textContent='MOTM · '+motmName;
   document.getElementById('resComment').textContent=buildMatchComment(result,nA,nB);
@@ -1900,7 +2014,7 @@ function showResults(result,nA,nB,cfg){
   document.getElementById('resetSquad'+side).addEventListener('click',()=>resetSquad(side));
   document.getElementById('tactics'+side).addEventListener('change',()=>{updateCoachFitBadge();updateMatchPreview();});
 });
-['setWeather','setReferee','setMatchType','setSubs'].forEach(id=>document.getElementById(id).addEventListener('change',updateMatchPreview));
+['setCompetition','setStadium','setWeather','setReferee','setMatchType','setSubs'].forEach(id=>document.getElementById(id).addEventListener('change',()=>{updateWinProb();updateMatchPreview();}));
 document.getElementById('btnSimulate').addEventListener('click',runMatch);
 document.getElementById('btnReset').addEventListener('click',()=>{
   document.getElementById('phase-setup').style.display='';
