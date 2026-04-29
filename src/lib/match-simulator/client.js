@@ -1,7 +1,7 @@
 import { FORMATIONS, roleFit, strictRoleFit, roleStatus, getTeamDepartments, computeGel, computeAvgOvr } from './formations.js';
 import { COACHES, COACH_FIT, TACTICAL_INSTRUCTIONS, coachName } from './coaches.js';
 import { COMMENTATORS, BROADCASTERS } from './commentary.js';
-import { TEAM_PALETTES, REFEREES, WEATHER, RANDOM_ARCHETYPES, stadiumInfo, homeBoostFor, estimateAttendance } from './config.js';
+import { TEAM_PALETTES, REFEREES, WEATHER, MATCH_PERSONALITIES, RANDOM_ARCHETYPES, stadiumInfo, homeBoostFor, estimateAttendance } from './config.js';
 import { runSimulation } from './match-engine.js';
 import { pick, rndInt, matchName, fmtNum, ovrColor, topPlayerName } from './utils.js';
 
