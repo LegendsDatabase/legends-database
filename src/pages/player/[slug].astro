@@ -175,6 +175,7 @@ const GAUGE_R=45,HALF_CIRC=Math.PI*GAUGE_R,FULL_CIRC=2*Math.PI*GAUGE_R;
 function gaugeDash(v){const f=(Math.max(0,Math.min(v,99))/99)*HALF_CIRC;return`${f} ${FULL_CIRC}`;}
 
 const initials=p.name.split(',').map(s=>s.trim()[0]).join('').toUpperCase().slice(0,2);
+const playerPhoto=`/players/${p.slug}.jpg`;
 function roleColor(role){
   const att=['ST','FW','RW','LW'],mid=['AM','CM','DM','RM','LM'],def=['CB','SW','RB','LB'];
   if(att.includes(role))return{bg:'#fff0ee',text:'#c0392b'};
@@ -422,7 +423,14 @@ const bioRoleColor = ovrColor(p.overall_rating);
       width:74px;height:74px;border-radius:50%;
       background:#e8e8ed;display:flex;align-items:center;justify-content:center;
       font-size:22px;font-weight:600;color:#6e6e73;letter-spacing:-0.5px;
+      overflow:hidden;position:relative;
     }
+    .avatar-img{
+      position:absolute;inset:0;width:100%;height:100%;
+      object-fit:cover;object-position:center 38%;
+      display:block;
+    }
+    .avatar-initials{ position:relative;z-index:1; }
     .hero-info{flex:1;min-width:0;}
     .hero-name{font-size:24px;font-weight:600;letter-spacing:-0.4px;color:#1d1d1f;margin-bottom:8px;}
     .hero-tags{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:0;}
@@ -827,15 +835,24 @@ const bioRoleColor = ovrColor(p.overall_rating);
     <div class="hero-top">
       {hasGradientBorder ? (
         <div class="avatar-ring" style={`background:conic-gradient(${gradientStops});border-radius:50%;`}>
-          <div class="avatar">{initials}</div>
+          <div class="avatar">
+            <span class="avatar-initials">{initials}</span>
+            <img class="avatar-img" src={playerPhoto} alt={p.name} loading="eager" decoding="async" fetchpriority="high" onerror="this.style.display='none'"/>
+          </div>
         </div>
       ) : hasSolidBorder ? (
         <div class="avatar-ring" style={`background:${solidColor};`}>
-          <div class="avatar">{initials}</div>
+          <div class="avatar">
+            <span class="avatar-initials">{initials}</span>
+            <img class="avatar-img" src={playerPhoto} alt={p.name} loading="eager" decoding="async" fetchpriority="high" onerror="this.style.display='none'"/>
+          </div>
         </div>
       ) : (
         <div class="avatar-ring" style="background:#e8e8ed;">
-          <div class="avatar">{initials}</div>
+          <div class="avatar">
+            <span class="avatar-initials">{initials}</span>
+            <img class="avatar-img" src={playerPhoto} alt={p.name} loading="eager" decoding="async" fetchpriority="high" onerror="this.style.display='none'"/>
+          </div>
         </div>
       )}
 
