@@ -63,6 +63,19 @@ const simulatorData = JSON.stringify({ players, allNations, allDecades }).replac
     .sim-eyebrow{font-size:9.5px;font-weight:800;color:#0071e3;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:4px;}
     .sim-title{font-size:24px;font-weight:800;letter-spacing:-0.5px;color:#fff;line-height:1.1;margin-bottom:2px;}
     .sim-sub{font-size:11px;color:rgba(255,255,255,0.36);}
+    .sim-header-row{display:flex;align-items:center;justify-content:space-between;gap:18px;}
+    .sim-header-actions{display:flex;gap:8px;align-items:center;flex-shrink:0;}
+    .header-cta{font-family:inherit;font-size:11px;font-weight:800;border:none;border-radius:999px;padding:9px 14px;cursor:pointer;transition:transform .15s,box-shadow .15s,opacity .15s;}
+    .header-cta.primary{color:#fff;background:linear-gradient(135deg,#0071e3,#0057b8);box-shadow:0 10px 28px rgba(0,113,227,.26);}
+    .header-cta.surprise{color:#fff;background:linear-gradient(135deg,#c0392b,#ff5a4f);box-shadow:0 10px 28px rgba(192,57,43,.25);}
+    .header-cta:hover{transform:translateY(-1px);}
+    .calc-info{display:none;background:#fff;border-bottom:1px solid #e5e5ea;padding:14px 40px;}
+    .calc-info.open{display:block;}
+    .calc-card{border:1px solid #e5e5ea;border-radius:16px;background:linear-gradient(180deg,#fff,#f8f8fb);padding:15px 17px;box-shadow:0 10px 28px rgba(0,0,0,.045);}
+    .calc-title{font-size:12px;font-weight:900;letter-spacing:-.2px;margin-bottom:7px;color:#1d1d1f;}
+    .calc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;}
+    .calc-item{font-size:10.5px;line-height:1.55;color:#6e6e73;background:#fff;border:1px solid #ececf1;border-radius:12px;padding:10px;}
+    .calc-item strong{display:block;color:#1d1d1f;font-size:10px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;}
     .match-settings-shell{background:linear-gradient(180deg,#fff,#f7f7fb);border-bottom:1px solid #e5e5ea;padding:14px 40px 12px;display:grid;grid-template-columns:1.25fr 1fr;gap:12px;align-items:stretch;}
     .settings-card{position:relative;overflow:hidden;background:rgba(255,255,255,0.86);border:1px solid rgba(220,220,228,0.95);border-radius:16px;padding:12px 13px;box-shadow:0 10px 30px rgba(0,0,0,0.045);backdrop-filter:blur(14px);}
     .settings-card::before{content:'';position:absolute;inset:-40% -20% auto auto;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(0,113,227,0.10),transparent 68%);pointer-events:none;}
@@ -96,6 +109,15 @@ const simulatorData = JSON.stringify({ players, allNations, allDecades }).replac
     .tb-header-left{display:flex;align-items:center;gap:7px;flex:1;}
     .tb-name-input{font-family:inherit;font-size:14px;font-weight:700;color:#1d1d1f;background:transparent;border:none;outline:none;letter-spacing:-0.2px;width:160px;}
     .tb-name-input:focus{border-bottom:2px solid #0071e3;}
+    .save-roster-btn{width:27px;height:27px;border-radius:8px;border:1.5px solid #e5e5ea;background:#fff;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .14s;}
+    .save-roster-btn:hover{border-color:#0071e3;box-shadow:0 6px 18px rgba(0,113,227,.12);}
+    .roster-save-panel{display:none;margin:-2px 0 9px;padding:8px;border:1px solid #ececf1;background:#fbfbfd;border-radius:12px;}
+    .roster-save-panel.open{display:block;}
+    .save-slot-row{display:grid;grid-template-columns:1fr auto auto auto;gap:5px;align-items:center;margin-bottom:5px;}
+    .save-slot-row:last-child{margin-bottom:0;}
+    .save-slot-row span{font-size:9.5px;font-weight:700;color:#6e6e73;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .save-slot-row button{font-family:inherit;font-size:9px;font-weight:800;border:1px solid #e5e5ea;background:#fff;border-radius:7px;padding:4px 6px;cursor:pointer;}
+    .save-slot-row button:disabled{opacity:.35;cursor:not-allowed;}
     .btn-reset-squad{font-family:inherit;font-size:10px;font-weight:600;padding:3px 9px;border-radius:6px;border:1.5px solid #e5e5ea;background:#f9f9fb;color:#aeaeb2;cursor:pointer;transition:all 0.13s;white-space:nowrap;}
     .btn-reset-squad:hover{border-color:#c0392b;color:#c0392b;background:#fff5f5;}
     .tb-formation-row{display:flex;align-items:center;gap:5px;margin-bottom:8px;flex-wrap:wrap;}
@@ -105,6 +127,9 @@ const simulatorData = JSON.stringify({ players, allNations, allDecades }).replac
     .formation-btn.active-b{background:#c0392b;color:#fff;border-color:#c0392b;}
     .formation-btn:hover:not(.active):not(.active-b){border-color:#aeaeb2;color:#1d1d1f;}
     .tb-tactics-row{display:flex;align-items:center;gap:7px;margin-bottom:8px;}
+    .captain-row{display:flex;align-items:center;gap:7px;margin-bottom:8px;padding:7px 8px;border:1px solid #ececf1;border-radius:10px;background:linear-gradient(180deg,#fffdf3,#fff);}
+    .captain-select{font-family:inherit;font-size:10.5px;font-weight:700;color:#1d1d1f;background:#fff;border:1.5px solid #e5e5ea;border-radius:7px;padding:5px 7px;outline:none;cursor:pointer;flex:1;}
+    .captain-hint{font-size:8.5px;font-weight:800;color:#b7950b;white-space:nowrap;}
     .tb-coach-row{display:flex;align-items:center;gap:7px;margin-bottom:8px;padding:7px 8px;border:1px solid #ececf1;border-radius:10px;background:linear-gradient(180deg,#fbfbfd,#f5f5f7);}
     .tb-coach-row .mset-select{flex:1;background:#fff;font-size:10.5px;font-weight:600;padding:5px 7px;}
     .team-color-row{display:flex;align-items:center;gap:7px;margin-bottom:8px;padding:7px 8px;border:1px solid #ececf1;border-radius:10px;background:#fff;}
@@ -119,6 +144,9 @@ const simulatorData = JSON.stringify({ players, allNations, allDecades }).replac
     .pitch-wrap{position:relative;width:100%;max-width:300px;margin:0 auto 10px;}
     .pitch-svg{width:100%;height:auto;display:block;border-radius:10px;}
     .slot-filters{display:flex;gap:5px;margin-bottom:7px;align-items:center;}
+    .preset-row{display:grid;grid-template-columns:1fr auto;gap:5px;margin-bottom:7px;}
+    .preset-select{font-family:inherit;font-size:9.5px;font-weight:700;color:#6e6e73;background:#fff;border:1.5px solid #e5e5ea;border-radius:7px;padding:4px 6px;outline:none;}
+    .preset-apply{font-family:inherit;font-size:9px;font-weight:900;border:1.5px solid #e5e5ea;background:#f9f9fb;border-radius:7px;padding:4px 8px;cursor:pointer;color:#0071e3;}
     .slot-filter-lbl{font-size:9px;font-weight:700;color:#aeaeb2;letter-spacing:0.06em;text-transform:uppercase;white-space:nowrap;}
     .slot-filter-select{font-family:inherit;font-size:9.5px;font-weight:600;color:#6e6e73;background:#f9f9fb;border:1.5px solid #e5e5ea;border-radius:5px;padding:2px 5px;outline:none;cursor:pointer;flex:1;max-width:110px;}
     .slots-area{display:flex;flex-direction:column;gap:4px;max-height:230px;overflow-y:auto;scrollbar-width:thin;padding-right:3px;}
@@ -218,6 +246,14 @@ const simulatorData = JSON.stringify({ players, allNations, allDecades }).replac
     @keyframes spin{to{transform:rotate(360deg);}}
     .loading-text{font-size:13px;font-weight:600;color:rgba(255,255,255,0.70);}
     .loading-sub{font-size:10.5px;color:rgba(255,255,255,0.32);}
+    .final-reveal{position:fixed;inset:0;background:#020208;z-index:420;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .55s ease;}
+    .final-reveal.active{opacity:1;pointer-events:auto;}
+    .final-reveal-card{text-align:center;color:#fff;transform:scale(.94);opacity:0;transition:transform .65s ease,opacity .65s ease;}
+    .final-reveal.active .final-reveal-card{transform:scale(1);opacity:1;}
+    .final-reveal-cup{font-size:10px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.34);margin-bottom:10px;}
+    .final-reveal-teams{font-size:18px;font-weight:800;color:rgba(255,255,255,.76);margin-bottom:8px;}
+    .final-reveal-score{font-size:96px;font-weight:950;letter-spacing:-5px;line-height:1;background:linear-gradient(90deg,var(--team-a-live),#fff,var(--team-b-live));-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 22px 70px rgba(255,255,255,.10);}
+    .final-reveal-winner{font-size:13px;font-weight:800;color:rgba(255,255,255,.62);margin-top:9px;}
     #phase-match{flex:1;display:flex;flex-direction:column;background:#0a0a1a;}
     #phase-match.hidden{display:none;}
     .match-header-bar{padding:12px 40px;background:linear-gradient(180deg,#0f0f1e,#0a0a1a);border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
@@ -355,6 +391,12 @@ const simulatorData = JSON.stringify({ players, allNations, allDecades }).replac
     .tv-fact::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(to right,var(--team-a-live),var(--team-b-live));opacity:0.85;}
     .tv-fact-k{font-size:8px;font-weight:900;color:#aeaeb2;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:7px;}
     .tv-fact-v{font-size:11px;font-weight:700;color:#1d1d1f;line-height:1.45;}
+    .pundit-focus{max-width:820px;margin:0 auto 20px;background:linear-gradient(135deg,#ffffff,#f6f7fb);border:1px solid #e8e8ef;border-radius:18px;padding:18px 20px;box-shadow:0 8px 26px rgba(0,0,0,.07);display:grid;grid-template-columns:auto 1fr;gap:15px;align-items:center;}
+    .pundit-avatar{width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid #fff;box-shadow:0 8px 22px rgba(0,0,0,.16);}
+    .pundit-kicker{font-size:8.5px;font-weight:900;color:#aeaeb2;letter-spacing:.12em;text-transform:uppercase;margin-bottom:3px;}
+    .pundit-name{font-size:16px;font-weight:900;color:#1d1d1f;letter-spacing:-.25px;}
+    .pundit-role{font-size:10px;font-weight:700;color:#8e8e93;margin:2px 0 8px;}
+    .pundit-quote{font-size:12.5px;line-height:1.75;color:#303034;font-weight:500;}
     .event-map-section{max-width:820px;margin:0 auto 20px;background:#fff;border-radius:15px;padding:17px 20px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
     .event-map-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
     .event-map-title{font-size:9.5px;font-weight:900;color:#aeaeb2;letter-spacing:0.1em;text-transform:uppercase;}
@@ -454,6 +496,14 @@ const simulatorData = JSON.stringify({ players, allNations, allDecades }).replac
   <div class="loading-text">Simulating the match…</div>
   <div class="loading-sub">Processing gelling, momentum, key duels &amp; chaos</div>
 </div>
+<div class="final-reveal" id="finalReveal">
+  <div class="final-reveal-card">
+    <div class="final-reveal-cup" id="finalRevealCup">Full Time</div>
+    <div class="final-reveal-teams" id="finalRevealTeams">Legends XI vs Rival XI</div>
+    <div class="final-reveal-score" id="finalRevealScore">0 - 0</div>
+    <div class="final-reveal-winner" id="finalRevealWinner">Winner</div>
+  </div>
+</div>
 <div id="mobileWall">
   <h2>⚽ Desktop Only Feature</h2>
   <p>The Legendary Match Simulator requires a larger screen.</p>
@@ -465,9 +515,28 @@ const simulatorData = JSON.stringify({ players, allNations, allDecades }).replac
   </div>
   <div class="sim-header">
     <div class="sim-header-inner">
-      <div class="sim-eyebrow">Legends Database</div>
-      <div class="sim-title">Create Your Legendary Game</div>
-      <div class="sim-sub">Build two all-time squads and simulate the match of the century</div>
+      <div class="sim-header-row">
+        <div>
+          <div class="sim-eyebrow">Legends Database</div>
+          <div class="sim-title">Create Your Legendary Game</div>
+          <div class="sim-sub">Build two all-time squads and simulate the match of the century</div>
+        </div>
+        <div class="sim-header-actions">
+          <button class="header-cta surprise" id="btnSurpriseMe" type="button">Surprise Me</button>
+          <button class="header-cta primary" id="calcToggle" type="button">How is the result calculated?</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="calc-info" id="calcInfo">
+    <div class="calc-card">
+      <div class="calc-title">The simulator is not pure random: it layers football logic with controlled chaos.</div>
+      <div class="calc-grid">
+        <div class="calc-item"><strong>Squad strength</strong>Overall rating, role fit, attack/defence departments, goalkeeper value and chemistry shape the baseline.</div>
+        <div class="calc-item"><strong>Coach and tactics</strong>Coach bonuses improve specific attributes; a coach aligned with the formation gives an extra tactical bump.</div>
+        <div class="calc-item"><strong>Context</strong>Weather changes technique/physicality, stadium gives a small home-nation edge, referee affects cards and chaos.</div>
+        <div class="calc-item"><strong>Match flow</strong>Momentum, fatigue, substitutions, red cards, woodwork and randomness decide the final story.</div>
+      </div>
     </div>
   </div>
   <div id="phase-setup">
@@ -558,9 +627,11 @@ const simulatorData = JSON.stringify({ players, allNations, allDecades }).replac
           <div class="tb-header-left">
             <input type="text" class="tb-name-input" id="nameA" value="Legends XI" maxlength="24"/>
             <span id="attitudeA" class="attitude-badge att-bal">⚖️ Balanced</span>
+            <button class="save-roster-btn" id="saveRosterA" type="button" title="Save or load this roster">💾</button>
           </div>
           <button class="btn-reset-squad" id="resetSquadA" type="button">↺ Clear</button>
         </div>
+        <div class="roster-save-panel" id="savePanelA"></div>
         <div class="random-row" id="randomRowA"></div>
         <div class="tb-formation-row">
           <span class="tb-label">Formation</span>
@@ -587,7 +658,16 @@ const simulatorData = JSON.stringify({ players, allNations, allDecades }).replac
           </select>
           <span class="coach-fit-badge cfit-med" id="coachFitA">—</span>
         </div>
+        <div class="captain-row">
+          <span class="tb-label">Captain</span>
+          <select class="captain-select" id="captainA"></select>
+          <span class="captain-hint" id="captainHintA">Highest work rate is suggested</span>
+        </div>
         <div class="pitch-wrap"><svg id="pitchA" class="pitch-svg" viewBox="0 0 240 340" xmlns="http://www.w3.org/2000/svg"></svg></div>
+        <div class="preset-row">
+          <select class="preset-select" id="presetA"></select>
+          <button class="preset-apply" id="applyPresetA" type="button">Apply XI</button>
+        </div>
         <div class="slot-filters">
           <span class="slot-filter-lbl">Filter:</span>
           <select class="slot-filter-select" id="filterNatA"><option value="">All Nations</option></select>
@@ -612,9 +692,11 @@ const simulatorData = JSON.stringify({ players, allNations, allDecades }).replac
           <div class="tb-header-left">
             <input type="text" class="tb-name-input" id="nameB" value="Rival XI" maxlength="24"/>
             <span id="attitudeB" class="attitude-badge att-bal">⚖️ Balanced</span>
+            <button class="save-roster-btn" id="saveRosterB" type="button" title="Save or load this roster">💾</button>
           </div>
           <button class="btn-reset-squad" id="resetSquadB" type="button">↺ Clear</button>
         </div>
+        <div class="roster-save-panel" id="savePanelB"></div>
         <div class="random-row" id="randomRowB"></div>
         <div class="tb-formation-row">
           <span class="tb-label">Formation</span>
@@ -641,7 +723,16 @@ const simulatorData = JSON.stringify({ players, allNations, allDecades }).replac
           </select>
           <span class="coach-fit-badge cfit-med" id="coachFitB">—</span>
         </div>
+        <div class="captain-row">
+          <span class="tb-label">Captain</span>
+          <select class="captain-select" id="captainB"></select>
+          <span class="captain-hint" id="captainHintB">Highest work rate is suggested</span>
+        </div>
         <div class="pitch-wrap"><svg id="pitchB" class="pitch-svg" viewBox="0 0 240 340" xmlns="http://www.w3.org/2000/svg"></svg></div>
+        <div class="preset-row">
+          <select class="preset-select" id="presetB"></select>
+          <button class="preset-apply" id="applyPresetB" type="button">Apply XI</button>
+        </div>
         <div class="slot-filters">
           <span class="slot-filter-lbl">Filter:</span>
           <select class="slot-filter-select" id="filterNatB"><option value="">All Nations</option></select>
@@ -820,6 +911,15 @@ const simulatorData = JSON.stringify({ players, allNations, allDecades }).replac
         <div class="tv-fact"><div class="tv-fact-k">Worst Problem</div><div class="tv-fact-v" id="factProblem">—</div></div>
         <div class="tv-fact"><div class="tv-fact-k">Broadcast Angle</div><div class="tv-fact-v" id="factBroadcast">—</div></div>
         <div class="tv-fact"><div class="tv-fact-k">Crowd Mood</div><div class="tv-fact-v" id="factCrowd">—</div></div>
+      </div>
+      <div class="pundit-focus" id="punditFocus">
+        <img class="pundit-avatar" id="punditImg" src="/pundit/Buffa.png" alt="Pundit"/>
+        <div>
+          <div class="pundit-kicker">Post-match desk</div>
+          <div class="pundit-name" id="punditName">Federico Buffa</div>
+          <div class="pundit-role" id="punditRole">The cinematic storyteller</div>
+          <div class="pundit-quote" id="punditQuote">—</div>
+        </div>
       </div>
       <div class="event-map-section">
         <div class="event-map-head">
