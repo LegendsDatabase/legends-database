@@ -304,6 +304,7 @@ const clubTeams     = enriched.filter(t => t.type === 'club team'     || t.type 
     @media (max-width: 767px) {
       .page {
         padding: 20px 14px 80px;
+        overflow-x: hidden;
       }
       h1 {
         font-size: 22px;
@@ -323,11 +324,23 @@ const clubTeams     = enriched.filter(t => t.type === 'club team'     || t.type 
 
       /* Hide table, show cards */
       .table-wrap { display: none; }
-      .card-grid  { display: grid; }
-    }
-
-    @media (max-width: 380px) {
-      .card-grid { grid-template-columns: 1fr; }
+      .card-grid  {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
+        width: 100%;
+        max-width: 100%;
+      }
+      .team-card {
+        width: 100%;
+        min-width: 0;
+      }
+      .tc-stats {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+      .tc-stat {
+        min-width: 0;
+      }
     }
   </style>
 </head>

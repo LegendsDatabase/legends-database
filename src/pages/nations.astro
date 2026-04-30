@@ -274,7 +274,7 @@ const continents = [...new Set((nations ?? []).map(n => n.continent).filter(Bool
 
     /* ─── RESPONSIVE ─── */
     @media (max-width: 767px) {
-      .page        { padding: 20px 14px 80px; }
+      .page        { padding: 20px 14px 80px; overflow-x: hidden; }
       .page-title  { font-size: 26px; letter-spacing: -0.5px; }
       .page-sub    { font-size: 13px; margin-bottom: 20px; }
       .controls    { gap: 8px; margin-bottom: 12px; }
@@ -283,11 +283,24 @@ const continents = [...new Set((nations ?? []).map(n => n.continent).filter(Bool
 
       /* Hide table, show cards */
       .table-wrap { display: none; }
-      .card-grid  { display: grid; }
-    }
-
-    @media (max-width: 380px) {
-      .card-grid { grid-template-columns: 1fr; }
+      .card-grid  {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
+        width: 100%;
+        max-width: 100%;
+      }
+      .nation-card {
+        width: 100%;
+        min-width: 0;
+      }
+      .card-stats {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+      .card-stat {
+        min-width: 0;
+      }
     }
   </style>
 </head>
