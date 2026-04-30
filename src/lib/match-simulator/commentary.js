@@ -24,6 +24,14 @@ export const BROADCASTERS=[
   'Eurosport',
 ];
 
+export const PUNDITS=[
+  {id:'glanville',name:'Brian Glanville',short:'Glanville',image:'/pundit/Glanville.png',role:'The historian with a knife under the pen'},
+  {id:'buffa',name:'Federico Buffa',short:'Buffa',image:'/pundit/Buffa.png',role:'The cinematic storyteller'},
+  {id:'wilson',name:'Jonathan Wilson',short:'Wilson',image:'/pundit/Wilson.png',role:'The tactical cartographer'},
+  {id:'galeano',name:'Eduardo Galeano',short:'Galeano',image:'/pundit/Galeano.png',role:'The poet of football memory'},
+  {id:'goldblatt',name:'David Goldblatt',short:'Goldblatt',image:'/pundit/Goldblatt.png',role:'The global social historian'},
+];
+
 export const WEATHER_CMT={
   light_rain:'The rain is beginning to affect the surface — technical teams are finding it harder to keep possession.',
   heavy_rain:'Treacherous conditions. The technical sides are struggling, and the more physical teams are thriving in the mud.',
@@ -45,7 +53,7 @@ export const CMT={
   chance:['{A} finds a pocket of space, but the final ball never quite arrives.','Nice move from {T}, but it dies just as the crowd starts to rise.','{A} tries to thread it through. Good idea, not quite the execution.','There is a moment there for {T}, then it just gets crowded out.'],
   blocked:['{B} throws himself in front of {A} and blocks it. Proper defending.','{A} lines it up, but {B} reads it and takes the sting out of the shot.','Important block from {B}. That was travelling.','{B} gets a body in the way, and {T} have to start again.'],
   cross:['{A} bends one into a dangerous area, but nobody attacks it.','{A} puts it across the six-yard box. Brilliant ball, no touch.','The delivery from {A} has real pace, but it flashes through everyone.','{A} looks up and crosses early. Half a chance, nothing more.'],
-  sterile:['Plenty of names on the pitch, not much rhythm right now.','The tempo drops for a spell. Lots of possession, very little bite.','This has gone a bit flat. The crowd wants more than careful passes.','A neat spell, but too neat. Someone has to take a risk.'],
+  sterile:['Plenty of names on the pitch, not much rhythm right now.','The tempo drops for a spell. Lots of possession, very little bite.','This has gone a bit flat. The crowd wants more than careful passes.','A neat spell, but too neat. Someone has to take a risk.','Boring? A little, yes. Too many safe passes for this much talent.','The crowd is patient for now, but only just. These legends owe them a spark.'],
   interception:['{A} reads the pass beautifully and kills the attack before it starts.','Smart positioning from {A}. That looked simple, but it mattered.','{A} steps in at exactly the right time. No drama, just class.'],
   freekick:['{A} curls it over the wall and inches wide!','{A} bends one with menace from the dead ball.','{A} catches the outside of the post with a wicked free-kick!'],
   freekick_goal:['{A} curls it perfectly around the wall — GOAL!','{A} rifles the free-kick into the top corner!','{A} bends it in with stunning precision — {T} score from the dead ball!'],
@@ -61,4 +69,8 @@ export const CMT={
   pen_save:['{GK} saves the penalty! An enormous moment!','{GK} guesses right and keeps it out!','{GK} with a huge stop from the penalty spot!','{GK} dives full length and makes the save!'],
   momentum_a:['The momentum has shifted — {T} are sensing blood now.','A burst of energy from {T}. The crowd can sense something changing.'],
   momentum_b:['This is {T}\'s moment. The tide has turned completely.'],
+  early:['No need to panic, but the first few touches already tell us who wants the ball.','Opening minutes, and both sides are trying to find the temperature of the night.','The shape is interesting early on: nobody wants to blink first.'],
+  chasing:['{T} have to gamble now. The safe pass is no use anymore.','{T} are pushing bodies forward. It is brave, or reckless, depending on the next five minutes.','You can feel it now: {T} need something, and they need it quickly.'],
+  late_tension:['Every loose touch feels louder now. This is the part of the match where legs and nerve start arguing.','Damn, the tension is thick. One clean shot could decide the whole thing.','Nobody is playing with complete freedom anymore. The clock has joined the defence.'],
+  late_miss:['Damn! That was the shot. {A} knows it immediately.','What a chance for {A}. In the 82nd minute, those hurt more.','That is the kind of miss players replay in their head on the bus home.'],
 };

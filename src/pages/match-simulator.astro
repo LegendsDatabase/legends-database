@@ -5,7 +5,7 @@ import Footer from '../components/Footer.astro';
 
 const { data: raw } = await supabase
   .from('players')
-  .select(`id,slug,name,role,nation,iconic_club,overall_rating,decade,
+  .select(`id,slug,name,role,nation,iconic_club,overall_rating,decade,League,Continent,
            acceleration,pace,agility,strength,balance,jumping,stamina,fitness,
            dribbling,short_passing,long_passing,finishing,shot_accuracy,shot_power,
            heading,tackling,free_kick,penalties,composure,aggression,consistency,
@@ -17,7 +17,7 @@ const { data: raw } = await supabase
 const players = (raw ?? []).map(p => ({
   id:p.id, slug:p.slug||'', n:p.name??'', r:(p.role??'CM').toUpperCase(),
   nat:p.nation??'', club:p.iconic_club??'', ovr:p.overall_rating??70,
-  dec:p.decade??0, alt:p.alt_roles??'',
+  dec:p.decade??0, league:p.League??p.league??'', cont:p.Continent??p.continent??'', alt:p.alt_roles??'',
   acc:p.acceleration??70, pac:p.pace??70, agi:p.agility??70, str:p.strength??70,
   bal:p.balance??70, jmp:p.jumping??70, sta:p.stamina??70, fit:p.fitness??70,
   dri:p.dribbling??70, sps:p.short_passing??70, lps:p.long_passing??70,
@@ -69,6 +69,9 @@ const simulatorData = JSON.stringify({ players, allNations, allDecades }).replac
     .header-cta.primary{color:#fff;background:linear-gradient(135deg,#0071e3,#0057b8);box-shadow:0 10px 28px rgba(0,113,227,.26);}
     .header-cta.surprise{color:#fff;background:linear-gradient(135deg,#c0392b,#ff5a4f);box-shadow:0 10px 28px rgba(192,57,43,.25);}
     .header-cta:hover{transform:translateY(-1px);}
+    .setup-cta-row{background:#fff;border-bottom:1px solid #e5e5ea;padding:12px 40px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+    .setup-cta-title{font-size:11px;font-weight:900;color:#1d1d1f;letter-spacing:-.1px;text-transform:uppercase;}
+    .setup-cta-sub{font-size:10.5px;color:#8e8e93;margin-top:2px;}
     .calc-info{display:none;background:#fff;border-bottom:1px solid #e5e5ea;padding:14px 40px;}
     .calc-info.open{display:block;}
     .calc-card{border:1px solid #e5e5ea;border-radius:16px;background:linear-gradient(180deg,#fff,#f8f8fb);padding:15px 17px;box-shadow:0 10px 28px rgba(0,0,0,.045);}
@@ -515,31 +518,33 @@ const simulatorData = JSON.stringify({ players, allNations, allDecades }).replac
   </div>
   <div class="sim-header">
     <div class="sim-header-inner">
-      <div class="sim-header-row">
-        <div>
-          <div class="sim-eyebrow">Legends Database</div>
-          <div class="sim-title">Create Your Legendary Game</div>
-          <div class="sim-sub">Build two all-time squads and simulate the match of the century</div>
-        </div>
-        <div class="sim-header-actions">
-          <button class="header-cta surprise" id="btnSurpriseMe" type="button">Surprise Me</button>
-          <button class="header-cta primary" id="calcToggle" type="button">How is the result calculated?</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="calc-info" id="calcInfo">
-    <div class="calc-card">
-      <div class="calc-title">The simulator is not pure random: it layers football logic with controlled chaos.</div>
-      <div class="calc-grid">
-        <div class="calc-item"><strong>Squad strength</strong>Overall rating, role fit, attack/defence departments, goalkeeper value and chemistry shape the baseline.</div>
-        <div class="calc-item"><strong>Coach and tactics</strong>Coach bonuses improve specific attributes; a coach aligned with the formation gives an extra tactical bump.</div>
-        <div class="calc-item"><strong>Context</strong>Weather changes technique/physicality, stadium gives a small home-nation edge, referee affects cards and chaos.</div>
-        <div class="calc-item"><strong>Match flow</strong>Momentum, fatigue, substitutions, red cards, woodwork and randomness decide the final story.</div>
-      </div>
+      <div class="sim-eyebrow">Legends Database</div>
+      <div class="sim-title">Create Your Legendary Game</div>
+      <div class="sim-sub">Build two all-time squads and simulate the match of the century</div>
     </div>
   </div>
   <div id="phase-setup">
+    <div class="setup-cta-row">
+      <div>
+        <div class="setup-cta-title">Fast start</div>
+        <div class="setup-cta-sub">Generate a balanced match or inspect the simulator logic before kick-off.</div>
+      </div>
+      <div class="sim-header-actions">
+        <button class="header-cta surprise" id="btnSurpriseMe" type="button">Surprise Me</button>
+        <button class="header-cta primary" id="calcToggle" type="button">How is the result calculated?</button>
+      </div>
+    </div>
+    <div class="calc-info" id="calcInfo">
+      <div class="calc-card">
+        <div class="calc-title">The simulator is not pure random: it layers football logic with controlled chaos.</div>
+        <div class="calc-grid">
+          <div class="calc-item"><strong>Squad strength</strong>Overall rating, role fit, attack/defence departments, goalkeeper value and chemistry shape the baseline.</div>
+          <div class="calc-item"><strong>Coach and tactics</strong>Coach bonuses improve specific attributes; a coach aligned with the formation gives an extra tactical bump.</div>
+          <div class="calc-item"><strong>Context</strong>Weather changes technique/physicality, stadium gives a small home-nation edge, referee affects cards and chaos.</div>
+          <div class="calc-item"><strong>Match flow</strong>Momentum, fatigue, substitutions, red cards, woodwork and randomness decide the final story.</div>
+        </div>
+      </div>
+    </div>
     <div class="match-settings-shell">
       <div class="settings-card">
         <div class="settings-card-head">

@@ -9,6 +9,7 @@ export const COACHES=[
   {id:'menotti', name:'Menotti',     bonus:{cre:8,vis:5,sps:8},   style:'Fluid'},
   {id:'happel',  name:'Happel',      bonus:{tmw:10,dep:5,sta:8,con:6},style:'Tactical'},
   {id:'mourinho',name:'Mourinho',    bonus:{dep:10,com:8,con:7,agg:5},style:'Pragmatic'},
+  {id:'lobanovsky',name:'Lobanovsky',bonus:{sta:10,wrt:10,dep:8,tmw:8},style:'Scientific Press'},
 ];
 
 export const COACH_FIT={
@@ -22,6 +23,7 @@ export const COACH_FIT={
   'menotti':   {pref:['4-3-3','4-4-2','3-4-3'],                      bonus:0.06},
   'happel':    {pref:['3-5-2','4-2-3-1','4-4-1-1','3-4-1-2'],       bonus:0.07},
   'mourinho':  {pref:['4-2-3-1','4-4-1-1','4-5-1','5-3-2'],         bonus:0.08},
+  'lobanovsky':{pref:['4-3-3','4-1-4-1','4-4-2','4-5-1'],           bonus:0.08},
 };
 
 export const TACTICAL_INSTRUCTIONS={

@@ -143,7 +143,7 @@ export function runSimulation(cfg){
         const gkRat=oppRat.find(r=>r.p===gk);if(gkRat){gkRat.base+=mir?0.95:0.35;gkRat.motmScore+=mir?2:0.5;}
         if(mir)updMom(!isA,'miracle');
         if(isA)stats.cornersA+=Math.random()<0.4?1:0;else stats.cornersB+=Math.random()<0.4?1:0;
-      }else{if(scorer)addEv(minute,'miss',bc(pick(CMT.miss),{A:scorer.n,T:teamName}));const rat=myRat.find(r=>r.p===scorer);if(rat)rat.base-=(100-scorer.com)/230;}
+      }else{if(scorer)addEv(minute,'miss',bc(pick(minute>78&&Math.abs(scoreA-scoreB)<=1?CMT.late_miss:CMT.miss),{A:scorer.n,T:teamName}));const rat=myRat.find(r=>r.p===scorer);if(rat)rat.base-=(100-scorer.com)/230;}
       return 0;
     }
     if(isA)stats.onTargetA++;else stats.onTargetB++;
@@ -184,6 +184,9 @@ export function runSimulation(cfg){
     if(momentumA>prevMomA+18&&seg>3)addEv(minute,'momentum',bc(pick(CMT.momentum_a),{T:'A'}));
     else if(momentumB>prevMomB+18&&seg>3)addEv(minute,'momentum',bc(pick(CMT.momentum_b),{T:'B'}));
     prevMomA=momentumA;prevMomB=momentumB;
+    if(seg<2&&Math.random()<0.35)addEv(minute,'tension',pick(CMT.early));
+    if(minute>68&&scoreA!==scoreB&&Math.random()<0.16)addEv(minute,'momentum',bc(pick(CMT.chasing),{T:scoreA>scoreB?'B':'A'}));
+    if(minute>80&&Math.abs(scoreA-scoreB)<=1&&Math.random()<0.14)addEv(minute,'tension',pick(CMT.late_tension));
     if(Math.random()<(0.65+ratioA*0.25)){const r=attemptGoal(true,minute,false);if(r>0)scoreA++;}
     if(Math.random()<(0.65+ratioB*0.25)){const r=attemptGoal(false,minute,false);if(r<0)scoreB++;}
     if(Math.random()<0.20*mp.foulMult){const isADef=Math.random()<0.5;const df=pickDef(activeSt(isADef),isADef?fA:fB);const att=pickGoalscorer(activeSt(!isADef),isADef?fB:fA);if(df&&att){addEv(minute,'tackle',bc(pick(CMT.tackle),{A:df.n,B:att.n}));const rat=(isADef?ratA:ratB).find(r=>r.p===df);if(rat){rat.base+=0.14;rat.motmScore+=0.3;}}}
