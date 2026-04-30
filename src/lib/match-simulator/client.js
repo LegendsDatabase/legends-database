@@ -23,6 +23,7 @@ const state={
   filterNatA:'',filterDecA:0,filterNatB:'',filterDecB:0,
   colorA:'emerald',colorB:'crimson',
   captainA:null,captainB:null,
+  liveSpeed:'normal',
   simCount:0,
 };
 
@@ -69,6 +70,27 @@ function initCoachSelect(id){
 function initRefereeSelect(){
   const s=document.getElementById('setReferee');
   REFEREES.forEach(r=>{const o=document.createElement('option');o.value=r.id;o.textContent=r.name+' · '+r.profile;s.appendChild(o);});
+  updateRefereeInsight();
+}
+function refereeLens(ref){
+  if(ref.controversial)return ref.name+' can turn a quiet match into theatre: low control, high controversy risk.';
+  if(ref.strictness>=0.76)return ref.name+' is authoritative. Expect fewer cheap duels and a higher card threshold for reckless sides.';
+  if(ref.strictness>=0.68)return ref.name+' keeps a firm line but usually lets football breathe.';
+  if(ref.strictness>=0.58)return ref.name+' is balanced-to-lenient: physical teams may get a little more rope.';
+  return ref.name+' lets a lot go. The match may feel wilder, especially with aggressive squads.';
+}
+function updateRefereeInsight(){
+  const ref=REFEREES.find(r=>r.id===document.getElementById('setReferee')?.value)||REFEREES[0];
+  const insight=document.getElementById('refereeInsight');
+  if(insight)insight.textContent=refereeLens(ref);
+}
+function liveSpeedFactor(){
+  return state.liveSpeed==='cinematic'?1.35:state.liveSpeed==='fast'?0.58:1;
+}
+function syncLiveSpeedButtons(){
+  document.querySelectorAll('[data-live-speed]').forEach(btn=>{
+    btn.classList.toggle('active',btn.dataset.liveSpeed===state.liveSpeed);
+  });
 }
 function initFilterSelects(){
   ['A','B'].forEach(side=>{
@@ -477,15 +499,34 @@ function presetPool(type,value){
 function presetTeamName(type,value){
   return(type==='decade'?value+'s':value)+' All-Time';
 }
+function presetTypeLabel(type){
+  return{nation:'All-Time Nations',club:'All-Time Clubs',decade:'All-Time Decades',league:'All-Time Leagues',continent:'All-Time Continents'}[type]||'Preset Teams';
+}
+function updatePresetHint(side){
+  const sel=document.getElementById('preset'+side),hint=document.getElementById('presetHint'+side);
+  if(!sel||!hint)return;
+  if(!sel.value){hint.textContent='All-time nations, clubs, decades and more';return;}
+  const [type,value]=sel.value.split('|');
+  const count=presetPool(type,value).length;
+  hint.textContent=presetTypeLabel(type).replace('All-Time ','')+' pool · '+count+' players';
+}
 function initPresetControls(){
   const presets=getPresetDefinitions();
   const hasLeagueOrContinent=presets.some(p=>p.type==='league'||p.type==='continent');
   ['A','B'].forEach(side=>{
     const sel=document.getElementById('preset'+side);if(!sel)return;
     sel.innerHTML='<option value="">Preset teams...</option>';
-    presets.forEach(p=>{const o=document.createElement('option');o.value=p.type+'|'+p.value;o.textContent=p.label+' ('+p.count+')';sel.appendChild(o);});
+    ['nation','club','decade','league','continent'].forEach(type=>{
+      const groupItems=presets.filter(p=>p.type===type);
+      if(!groupItems.length)return;
+      const group=document.createElement('optgroup');group.label=presetTypeLabel(type);
+      groupItems.forEach(p=>{const o=document.createElement('option');o.value=p.type+'|'+p.value;o.textContent=p.value+' ('+p.count+')';group.appendChild(o);});
+      sel.appendChild(group);
+    });
     if(!hasLeagueOrContinent){const future=document.createElement('option');future.disabled=true;future.textContent='League/continent presets need DB fields';sel.appendChild(future);}
+    sel.addEventListener('change',()=>updatePresetHint(side));
     document.getElementById('applyPreset'+side)?.addEventListener('click',()=>applyPreset(side));
+    updatePresetHint(side);
   });
 }
 function applyPreset(side){
@@ -499,6 +540,7 @@ function applyPreset(side){
   document.getElementById('name'+side).value=presetTeamName(type,value);
   document.getElementById('mibName'+side).textContent=document.getElementById('name'+side).value;
   updateWinProb();updateMatchPreview();
+  updatePresetHint(side);
   const missing=11-data.starters.filter(Boolean).length;
   const typeLabel={club:'Club',nation:'Nation',decade:'Decade',league:'League',continent:'Continent'}[type]||'Preset';
   showToast(typeLabel+' preset loaded.'+(missing>0?' '+missing+' starting slots need more DB depth.':''));
@@ -658,7 +700,9 @@ function displayMatch(result,cfg,wData){
   document.getElementById('mhCommentator').textContent=(cfg.broadcaster||'Broadcast')+' · '+(cfg.commentator||pick(COMMENTATORS));
   document.getElementById('mhRunCount').textContent='Simulation #'+(cfg.simNo||1);
   const pBadge=document.getElementById('mhPersonality');pBadge.textContent=result.personality;pBadge.className='mhb-personality '+mp.cssClass;
-  document.getElementById('mhReferee').textContent=ref.name+' · '+ref.profile;
+  const refEl=document.getElementById('mhReferee');
+  refEl.textContent=ref.name+' · '+ref.profile+' · Cards '+ref.cardRisk;
+  refEl.title=refereeLens(ref);
   document.getElementById('sbNameA').textContent=nA;document.getElementById('sbNameB').textContent=nB;
   document.getElementById('sbMetaA').textContent=cfg.formA+' · '+tiA.label;
   document.getElementById('sbMetaB').textContent=cfg.formB+' · '+tiB.label;
@@ -739,6 +783,7 @@ function displayMatch(result,cfg,wData){
     if(lastMomentum)setMomentum(lastMomentum.momA,lastMomentum.momB);
     setTimeout(()=>showFinalReveal(result,nA,nB,cfg,()=>showResults(result,nA,nB,cfg)),delay);
   }
+  syncLiveSpeedButtons();
   skipBtn.disabled=false;resetBtn.disabled=true;rematchBtn.disabled=true;skipBtn.textContent='⏩ Skip to Result';skipBtn.onclick=()=>finishMatch(120);
   function next(){
     if(resultShown)return;
@@ -768,9 +813,9 @@ function displayMatch(result,cfg,wData){
     requestAnimationFrame(()=>requestAnimationFrame(()=>item.classList.add('visible')));
     feed.scrollTop=feed.scrollHeight;
     const delay=ev.type==='goal'?2400:ev.type==='woodwork'?1800:ev.type==='save_miracle'?1900:ev.type==='ht'||ev.type==='weather'?2300:ev.type==='ft'?2800:['penalty_goal','penalty_save'].includes(ev.type)?1900:ev.type==='red'?1900:ev.type==='momentum'?1600:1350;
-    nextTimer=setTimeout(next,delay);
+    nextTimer=setTimeout(next,Math.round(delay*liveSpeedFactor()));
   }
-  nextTimer=setTimeout(()=>{pre.classList.remove('active');next();},8500);
+  nextTimer=setTimeout(()=>{pre.classList.remove('active');next();},Math.round(8500*liveSpeedFactor()));
 }
 
 // ── CINEMATIC REPORT ──
@@ -843,7 +888,7 @@ function buildPostMatchNotes(result,nA,nB){
     else if(loseShots>winShots)wrong=loserName+' created enough to ask questions, but the finishing was not at the level of the build-up.';
     else wrong=loserName+' never quite turned possession or territory into sustained danger.';
   }
-  let hidden='Possession finished '+st.possA+'%-'+st.possB+'%, but shots on target were '+st.onTargetA+'-'+st.onTargetB+'. That tells you more than the ball share.';
+  let hidden='Possession finished '+st.possA+'%-'+st.possB+'%, but chance quality was '+(st.xgA||0).toFixed(2)+'-'+(st.xgB||0).toFixed(2)+' xG. That tells you more than the ball share.';
   if(st.woodA+st.woodB>0)hidden='The woodwork was hit '+(st.woodA+st.woodB)+' time'+(st.woodA+st.woodB===1?'':'s')+'. Tiny margins, very real swing.';
   else if(st.yellowsA+st.yellowsB+st.redsA+st.redsB>=4)hidden='Discipline shaped the rhythm: '+(st.yellowsA+st.yellowsB)+' yellows and '+(st.redsA+st.redsB)+' reds in total.';
   return{why,wrong,hidden};
@@ -853,7 +898,7 @@ function buildTVFacts(result,nA,nB,cfg){
   const st=result.stats;
   const winnerName=result.winner==='A'?nA:result.winner==='B'?nB:'Nobody';
   const loserName=result.winner==='A'?nB:result.winner==='B'?nA:'Both sides';
-  let stat='Shots on target finished '+st.onTargetA+'-'+st.onTargetB+'. That was the cleanest measure of threat.';
+  let stat='Chance quality finished '+(st.xgA||0).toFixed(2)+'-'+(st.xgB||0).toFixed(2)+' xG, with big chances '+(st.bigChancesA||0)+'-'+(st.bigChancesB||0)+'.';
   if(st.redsA+st.redsB>0)stat='The red card changed the whole texture of the match.';
   else if(st.woodA+st.woodB>0)stat='The woodwork mattered: '+(st.woodA+st.woodB)+' huge swing moment'+(st.woodA+st.woodB===1?'':'s')+'.';
   else if(Math.abs(st.possA-st.possB)>14)stat='Possession was lopsided at '+st.possA+'-'+st.possB+'%, but control and danger were not always the same thing.';
@@ -861,9 +906,10 @@ function buildTVFacts(result,nA,nB,cfg){
   let coach='Coach fit: '+(fitA?coachName(cfg.coachA)+' looked aligned':'Team A had tactical friction')+'; '+(fitB?coachName(cfg.coachB)+' matched the setup':'Team B looked less natural tactically')+'.';
   let problem=result.winner==='draw'?'Neither side found enough penalty-box clarity. Lots of quality, not enough separation.':loserName+' never solved the decisive phase often enough.';
   if(result.winner!=='draw'&&(result.winner==='A'?st.shotsB>st.shotsA:st.shotsA>st.shotsB))problem=loserName+' had volume, but not enough quality. That is the painful part.';
-  const broadcast=(cfg.broadcaster||'The broadcast')+' framed it as '+result.personality.toLowerCase()+', with '+(cfg.commentator||'the commentator')+' on the call.';
+  const ref=REFEREES.find(r=>r.id===cfg.refereeId)||REFEREES[0];
+  const referee=ref.profile+' referee, card risk '+ref.cardRisk+'. '+(st.yellowsA+st.yellowsB+st.redsA+st.redsB>2?'He was part of the story.':'He mostly stayed out of the way.');
   const crowd=fmtNum(cfg.attendance||0)+' in attendance, and the noise followed every momentum swing.';
-  return{stat,coach,problem,broadcast,crowd};
+  return{stat,coach,problem,referee,crowd};
 }
 
 function buildPunditQuote(pundit,result,nA,nB,cfg){
@@ -872,29 +918,35 @@ function buildPunditQuote(pundit,result,nA,nB,cfg){
   const loser=result.winner==='A'?nB:result.winner==='B'?nA:null;
   const score=result.scoreA+'-'+result.scoreB;
   const motm=matchName(result.motm?.p?.n||'the decisive player');
+  const xgLine='The chance quality was '+(st.xgA||0).toFixed(2)+'-'+(st.xgB||0).toFixed(2)+' xG, big chances '+(st.bigChancesA||0)+'-'+(st.bigChancesB||0)+'.';
+  const capLine=result.captainMorale
+    ? ' The captains mattered in the margins: '+matchName(result.captainMorale.A?.name||'Team A')+' and '+matchName(result.captainMorale.B?.name||'Team B')+' set the emotional temperature.'
+    : '';
+  const ref=REFEREES.find(r=>r.id===cfg.refereeId)||REFEREES[0];
+  const refLine=' '+ref.profile+' officiating gave this match '+(ref.strictness>0.72?'a stricter edge.':'room to breathe.');
   if(pundit?.id==='wilson'){
     return winner
-      ? 'The scoreline says '+score+', but the real story is structural. '+winner+' protected the central lanes better, then used '+motm+' as the release point when the game stretched. The goal is only the final line of an equation that began much earlier.'
-      : 'A draw is not a lack of story. It is a tactical stalemate: both teams found moments of access, neither created enough clean superiority in the final third.';
+      ? 'The scoreline says '+score+', but the real story is structural. '+winner+' protected the central lanes better, then used '+motm+' as the release point when the game stretched. '+xgLine+refLine
+      : 'A draw is not a lack of story. It is a tactical stalemate: both teams found moments of access, neither created enough clean superiority in the final third. '+xgLine;
   }
   if(pundit?.id==='buffa'){
     return winner
-      ? 'And here you have to stop for a second. '+winner+' did not just win a match; they found the one man, '+motm+', who could turn a collection of legends into a story with an ending. '+loser+' will remember the little moments, because football always hides destiny in the little moments.'
-      : 'This is one of those nights where the game refuses the easy ending. The names are enormous, the score is '+score+', and somewhere inside the draw there is still a small, stubborn piece of theatre.';
+      ? 'And here you have to stop for a second. '+winner+' did not just win a match; they found the one man, '+motm+', who could turn a collection of legends into a story with an ending. '+loser+' will remember the little moments, because football always hides destiny in the little moments.'+capLine
+      : 'This is one of those nights where the game refuses the easy ending. The names are enormous, the score is '+score+', and somewhere inside the draw there is still a small, stubborn piece of theatre. '+xgLine;
   }
   if(pundit?.id==='galeano'){
     return winner
-      ? winner+' won, yes, but the ball also left a few ghosts behind. In the feet of '+motm+' there was a flash of street football: brief, disobedient, and enough to enter memory before it entered the net.'
+      ? winner+' won, yes, but the ball also left a few ghosts behind. In the feet of '+motm+' there was a flash of street football: brief, disobedient, and enough to enter memory before it entered the net. '+xgLine
       : 'The match ended level, but not empty. The ball wandered between order and desire, and for a few seconds at a time it remembered why people fall in love with this impossible game.';
   }
   if(pundit?.id==='goldblatt'){
     return winner
-      ? 'This was not merely a technical victory for '+winner+'. In a stadium of '+fmtNum(cfg.attendance||0)+', identity, memory and hierarchy all had a role. The stronger side imposed not only play, but meaning.'
+      ? 'This was not merely a technical victory for '+winner+'. In a stadium of '+fmtNum(cfg.attendance||0)+', identity, memory and hierarchy all had a role. The stronger side imposed not only play, but meaning.'+refLine
       : 'A drawn match can still reveal a social fact: two squads full of inherited prestige, trying to convert memory into authority, and discovering that history does not always choose a winner.';
   }
   return winner
-    ? 'A curious match, and not without old lessons. '+winner+' were sharper where it mattered, while '+loser+' repeated that familiar footballing sin: attractive passages, insufficient grammar. '+motm+', at least, understood the assignment.'
-    : 'One has seen worse draws, certainly, but also better uses of genius. A great deal of talent was present; rather less clarity accompanied it.';
+    ? 'A curious match, and not without old lessons. '+winner+' were sharper where it mattered, while '+loser+' repeated that familiar footballing sin: attractive passages, insufficient grammar. '+motm+', at least, understood the assignment. '+xgLine
+    : 'One has seen worse draws, certainly, but also better uses of genius. A great deal of talent was present; rather less clarity accompanied it. '+xgLine;
 }
 function renderPunditFocus(result,nA,nB,cfg){
   const pundit=cfg.pundit||pick(PUNDITS);
@@ -993,7 +1045,7 @@ function showResults(result,nA,nB,cfg){
   document.getElementById('factStat').textContent=facts.stat;
   document.getElementById('factCoach').textContent=facts.coach;
   document.getElementById('factProblem').textContent=facts.problem;
-  document.getElementById('factBroadcast').textContent=facts.broadcast;
+  document.getElementById('factReferee').textContent=facts.referee;
   document.getElementById('factCrowd').textContent=facts.crowd;
   renderPunditFocus(result,nA,nB,cfg);
   renderEventMap(result);
@@ -1045,6 +1097,8 @@ function showResults(result,nA,nB,cfg){
   const st=result.stats;
   function setBar(idA,idB,vA,vB){const t=vA+vB||1;document.getElementById(idA).style.width=(vA/t*100)+'%';document.getElementById(idB).style.width=(vB/t*100)+'%';}
   document.getElementById('stShotsA').textContent=st.shotsA;document.getElementById('stShotsB').textContent=st.shotsB;setBar('stShotsBarA','stShotsBarB',st.shotsA,st.shotsB);
+  document.getElementById('stXgA').textContent=(st.xgA||0).toFixed(2);document.getElementById('stXgB').textContent=(st.xgB||0).toFixed(2);setBar('stXgBarA','stXgBarB',st.xgA||0,st.xgB||0);
+  document.getElementById('stBigA').textContent=st.bigChancesA||0;document.getElementById('stBigB').textContent=st.bigChancesB||0;
   document.getElementById('stOnTargetA').textContent=st.onTargetA;document.getElementById('stOnTargetB').textContent=st.onTargetB;setBar('stOnTargetBarA','stOnTargetBarB',st.onTargetA,st.onTargetB);
   document.getElementById('stCornersA').textContent=st.cornersA;document.getElementById('stCornersB').textContent=st.cornersB;setBar('stCornersBarA','stCornersBarB',st.cornersA,st.cornersB);
   document.getElementById('stPossA').textContent=st.possA+'%';document.getElementById('stPossB').textContent=st.possB+'%';setBar('stPossBarA','stPossBarB',st.possA,st.possB);
@@ -1077,7 +1131,7 @@ function showResults(result,nA,nB,cfg){
   document.getElementById('captain'+side)?.addEventListener('change',e=>{state['captain'+side]=e.target.value||null;buildCaptainSelect(side);drawPitch('pitch'+side,side);});
   initRosterSave(side);
 });
-['setCompetition','setStadium','setWeather','setReferee','setMatchType','setSubs'].forEach(id=>document.getElementById(id).addEventListener('change',()=>{updateWinProb();updateMatchPreview();}));
+['setCompetition','setStadium','setWeather','setReferee','setMatchType','setSubs'].forEach(id=>document.getElementById(id).addEventListener('change',()=>{if(id==='setReferee')updateRefereeInsight();updateWinProb();updateMatchPreview();}));
 document.getElementById('btnSimulate').addEventListener('click',runMatch);
 document.getElementById('btnSurpriseMe')?.addEventListener('click',runSurpriseMe);
 document.getElementById('calcToggle')?.addEventListener('click',()=>{
@@ -1108,6 +1162,13 @@ document.querySelectorAll('[data-collapse-target]').forEach(btn=>{
     target.classList.toggle('collapsed');
     const label=btn.querySelector('span');
     if(label)label.textContent=target.classList.contains('collapsed')?'Show':'Hide';
+  });
+});
+document.querySelectorAll('[data-live-speed]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    state.liveSpeed=btn.dataset.liveSpeed||'normal';
+    syncLiveSpeedButtons();
+    showToast('Live speed: '+btn.textContent.trim()+'.');
   });
 });
 

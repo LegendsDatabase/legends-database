@@ -69,6 +69,15 @@ export function pickFK(st){const c=st.filter(Boolean);if(!c.length)return null;r
 
 export function wPick(arr,w){let t=w.reduce((s,x)=>s+x,0),r=Math.random()*t;for(let i=0;i<arr.length;i++){r-=w[i];if(r<=0)return arr[i];}return arr[arr.length-1];}
 
+function captainMorale(st,captainId){
+  const cap=st.find(p=>p&&String(p.id)===String(captainId||''));
+  if(!cap)return{mult:1,score:70,name:null,label:'No named captain'};
+  const score=cap.wrt*0.45+cap.com*0.35+cap.con*0.20;
+  const mult=1+Math.max(-0.008,Math.min(0.035,(score-72)*0.0013));
+  const label=score>=84?'Elite dressing-room presence':score>=77?'Strong leadership':score>=70?'Steady captaincy':'Quiet captaincy';
+  return{mult,score,name:cap.n,label};
+}
+
 export function runSimulation(cfg){
   let{stA,stB,formA,formB,coachA,coachB,weather,matchType,maxSubs,refereeId,tacticA,tacticB,stadiumId}=cfg;
   stA=[...stA];stB=[...stB];
@@ -81,9 +90,10 @@ export function runSimulation(cfg){
   const personality=determineMatchPersonality(stA,stB,weather,formA,formB);
   const mp=MATCH_PERSONALITIES[personality]||MATCH_PERSONALITIES['Open Game'];
   const keyDuels=identifyKeyDuels(stA,stB,fA,fB);
+  const capA=captainMorale(stA,cfg.captainA),capB=captainMorale(stB,cfg.captainB);
   function basePow(str,avgOvr,gel){return str.att*(1+(avgOvr-80)*0.040)*(1+(gel/80)*0.10);}
   function baseDefPow(str,avgOvr,gel){return str.def*(1+(avgOvr-80)*0.035)*(1+(gel/80)*0.08);}
-  let redPenA=1.0,redPenB=1.0,momentumA=50,momentumB=50;
+  let redPenA=1.0,redPenB=1.0,momentumA=50+(capA.mult-1)*120,momentumB=50+(capB.mult-1)*120;
   const inactiveA=new Set(),inactiveB=new Set();
   function activeSt(isA){const inactive=isA?inactiveA:inactiveB;return (isA?stA:stB).map(p=>p&&!inactive.has(p.id)?p:null);}
   function markInactive(isA,p){if(p)(isA?inactiveA:inactiveB).add(p.id);}
@@ -101,7 +111,7 @@ export function runSimulation(cfg){
   function reserveGoalMinute(min){if(goalMinutes.has(min))return false;goalMinutes.add(min);return true;}
   const ratA=stA.map(p=>({p,base:p?6.5+rnd(-0.65,0.85):6.5,events:[],motmScore:0}));
   const ratB=stB.map(p=>({p,base:p?6.5+rnd(-0.65,0.85):6.5,events:[],motmScore:0}));
-  const stats={shotsA:0,shotsB:0,onTargetA:0,onTargetB:0,cornersA:0,cornersB:0,foulsA:0,foulsB:0,yellowsA:0,yellowsB:0,redsA:0,redsB:0,offsetA:0,offsetB:0,woodA:0,woodB:0,goalScorers:[]};
+  const stats={shotsA:0,shotsB:0,onTargetA:0,onTargetB:0,xgA:0,xgB:0,bigChancesA:0,bigChancesB:0,cornersA:0,cornersB:0,foulsA:0,foulsB:0,yellowsA:0,yellowsB:0,redsA:0,redsB:0,offsetA:0,offsetB:0,woodA:0,woodB:0,goalScorers:[]};
   let subsUsedA=0,subsUsedB=0,subBoostA=1.0,subBoostB=1.0;
   const benchA=[...(cfg.benchA||[])],benchB=[...(cfg.benchB||[])];
   function addEv(min,type,text,isGA,isGB){
@@ -113,15 +123,18 @@ export function runSimulation(cfg){
     const attSt=activeSt(isA),attF=isA?fA:fB;
     const myPen=isA?redPenA:redPenB,mySubBoost=isA?subBoostA:subBoostB,myMom=isA?momentumA:momentumB;
     const oppPen=isA?redPenB:redPenA;
+    const myCap=isA?capA:capB,oppCap=isA?capB:capA;
     let fatigueMod=1.0;
     if(!isET&&minute>65){const avgSta=isA?sA.avgSta:sB.avgSta;fatigueMod=Math.max(0.88,1-((minute-65)*(100-avgSta)*0.0003));}
     if(isET&&etSeg!==undefined){const avgSta=isA?sA.avgSta:sB.avgSta;fatigueMod=Math.max(0.78,1-(etSeg*(100-avgSta)*0.004));}
-    const attPow=basePow(isA?sA:sB,isA?avgOvrA:avgOvrB,isA?gelA:gelB)*myPen*fatigueMod*mySubBoost;
-    const defPow=baseDefPow(isA?sB:sA,isA?avgOvrB:avgOvrA,isA?gelB:gelA)*oppPen;
+    const attPow=basePow(isA?sA:sB,isA?avgOvrA:avgOvrB,isA?gelA:gelB)*myPen*fatigueMod*mySubBoost*myCap.mult;
+    const defPow=baseDefPow(isA?sB:sA,isA?avgOvrB:avgOvrA,isA?gelB:gelA)*oppPen*(1+(oppCap.mult-1)*0.65);
     const momMod=1+(myMom-50)/220;
     const baseProb=isET?0.28:0.32;const goalProb=baseProb*(attPow/(attPow+defPow))*momMod*mp.goalMult;
     const teamName=isA?'A':'B';const oppGk=isA?sB.gk:sA.gk;const myRat=isA?ratA:ratB;const oppRat=isA?ratB:ratA;
     if(isA)stats.shotsA++;else stats.shotsB++;
+    const shotXg=Math.max(0.02,Math.min(0.45,goalProb*0.86+rnd(0.005,0.055)));
+    if(isA){stats.xgA+=shotXg;if(shotXg>=0.24)stats.bigChancesA++;}else{stats.xgB+=shotXg;if(shotXg>=0.24)stats.bigChancesB++;}
     if(Math.random()>goalProb){
       const gk=isA?sB.gk:sA.gk;const scorer=pickGoalscorer(attSt,attF);
       const defender=pickDef(activeSt(!isA),isA?fB:fA);
@@ -181,8 +194,8 @@ export function runSimulation(cfg){
   for(let seg=0;seg<18;seg++){
     const minute=Math.max(1,seg*5+rndInt(0,4));
     if(seg===9){addEv(45,'ht',pick(CMT.ht));const wLine=WEATHER_CMT[weather];if(wLine)addEv(45,'weather',wLine);}
-    const pAttA=basePow(sA,avgOvrA,gelA)*redPenA,pAttB=basePow(sB,avgOvrB,gelB)*redPenB;
-    const pDefA=baseDefPow(sA,avgOvrA,gelA)*redPenA,pDefB=baseDefPow(sB,avgOvrB,gelB)*redPenB;
+    const pAttA=basePow(sA,avgOvrA,gelA)*redPenA*capA.mult,pAttB=basePow(sB,avgOvrB,gelB)*redPenB*capB.mult;
+    const pDefA=baseDefPow(sA,avgOvrA,gelA)*redPenA*(1+(capA.mult-1)*0.65),pDefB=baseDefPow(sB,avgOvrB,gelB)*redPenB*(1+(capB.mult-1)*0.65);
     const ratioA=pAttA/(pAttA+pDefB),ratioB=pAttB/(pAttB+pDefA);
     if(momentumA>prevMomA+18&&seg>3)addEv(minute,'momentum',bc(pick(CMT.momentum_a),{T:'A'}));
     else if(momentumB>prevMomB+18&&seg>3)addEv(minute,'momentum',bc(pick(CMT.momentum_b),{T:'B'}));
@@ -212,7 +225,7 @@ export function runSimulation(cfg){
   if(scoreA===scoreB){
     if(matchType==='et'){
       addEv(90,'ht','🕐 Full time: '+scoreA+'-'+scoreB+'. Extra time!');
-      for(let seg=0;seg<4;seg++){const m=90+seg*5+rndInt(1,4);const pA=basePow(sA,avgOvrA,gelA)*redPenA,pB=basePow(sB,avgOvrB,gelB)*redPenB,pdA=baseDefPow(sA,avgOvrA,gelA)*redPenA,pdB=baseDefPow(sB,avgOvrB,gelB)*redPenB;if(Math.random()<(0.65+(pA/(pA+pdB))*0.25)){const r=attemptGoal(true,m,true,seg);if(r>0){scoreA++;break;}}if(scoreA>scoreB)break;if(Math.random()<(0.65+(pB/(pB+pdA))*0.25)){const r=attemptGoal(false,m,true,seg);if(r<0){scoreB++;break;}}if(scoreB>scoreA)break;}
+      for(let seg=0;seg<4;seg++){const m=90+seg*5+rndInt(1,4);const pA=basePow(sA,avgOvrA,gelA)*redPenA*capA.mult,pB=basePow(sB,avgOvrB,gelB)*redPenB*capB.mult,pdA=baseDefPow(sA,avgOvrA,gelA)*redPenA*(1+(capA.mult-1)*0.65),pdB=baseDefPow(sB,avgOvrB,gelB)*redPenB*(1+(capB.mult-1)*0.65);if(Math.random()<(0.65+(pA/(pA+pdB))*0.25)){const r=attemptGoal(true,m,true,seg);if(r>0){scoreA++;break;}}if(scoreA>scoreB)break;if(Math.random()<(0.65+(pB/(pB+pdA))*0.25)){const r=attemptGoal(false,m,true,seg);if(r<0){scoreB++;break;}}if(scoreB>scoreA)break;}
       if(scoreA===scoreB){addEv(120,'ht','⚡ Still level. PENALTY SHOOTOUT!');penShootout=simPens(activeSt(true),activeSt(false),ratA,ratB,events);shootoutWinner=penShootout.winner;}
     }else if(matchType==='golden'){
       addEv(90,'ht','🥇 Golden Goal period begins!');let done=false;
@@ -231,6 +244,9 @@ export function runSimulation(cfg){
   const winner=shootoutWinner||(scoreA>scoreB?'A':scoreA<scoreB?'B':'draw');
   ratA.forEach(r=>{if(!r.p)return;r.base+=winner==='A'?0.40:winner==='B'?-0.30:0;r.base+=rnd(-0.12,0.12);r.base=Math.max(4.5,Math.min(9.5,r.base));});
   ratB.forEach(r=>{if(!r.p)return;r.base+=winner==='B'?0.40:winner==='A'?-0.30:0;r.base+=rnd(-0.12,0.12);r.base=Math.max(4.5,Math.min(9.5,r.base));});
+  const capRatA=ratA.find(r=>r.p&&String(r.p.id)===String(cfg.captainA||''));if(capRatA){capRatA.base=Math.min(9.5,capRatA.base+(capA.mult-1)*8);capRatA.events.push('C');}
+  const capRatB=ratB.find(r=>r.p&&String(r.p.id)===String(cfg.captainB||''));if(capRatB){capRatB.base=Math.min(9.5,capRatB.base+(capB.mult-1)*8);capRatB.events.push('C');}
+  stats.xgA=Number(stats.xgA.toFixed(2));stats.xgB=Number(stats.xgB.toFixed(2));
 
   const duelResults=keyDuels.map(duel=>{
     const rA=(duel.sA==='A'?ratA:ratB).find(r=>r.p?.id===duel.pA.id);
@@ -244,7 +260,7 @@ export function runSimulation(cfg){
   const all=[...ratA.map(r=>({...r,side:'A'})),...ratB.map(r=>({...r,side:'B'}))].filter(r=>r.p);
   const winnerRat=winner!=='draw'?all.filter(r=>r.side===winner):all;
   const motm=winnerRat.sort((a,b)=>(b.base+b.motmScore*0.3)-(a.base+a.motmScore*0.3))[0];
-  return{scoreA,scoreB,events,ratA,ratB,motm,penShootout,winner,stats,personality,duelResults,weather:w};
+  return{scoreA,scoreB,events,ratA,ratB,motm,penShootout,winner,stats,personality,duelResults,weather:w,captainMorale:{A:capA,B:capB}};
 }
 
 export function simPens(stA,stB,ratA,ratB,events){

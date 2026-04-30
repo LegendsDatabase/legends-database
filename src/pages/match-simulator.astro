@@ -147,9 +147,14 @@ const simulatorData = JSON.stringify({ players, allNations, allDecades }).replac
     .pitch-wrap{position:relative;width:100%;max-width:300px;margin:0 auto 10px;}
     .pitch-svg{width:100%;height:auto;display:block;border-radius:10px;}
     .slot-filters{display:flex;gap:5px;margin-bottom:7px;align-items:center;}
-    .preset-row{display:grid;grid-template-columns:1fr auto;gap:5px;margin-bottom:7px;}
-    .preset-select{font-family:inherit;font-size:9.5px;font-weight:700;color:#6e6e73;background:#fff;border:1.5px solid #e5e5ea;border-radius:7px;padding:4px 6px;outline:none;}
-    .preset-apply{font-family:inherit;font-size:9px;font-weight:900;border:1.5px solid #e5e5ea;background:#f9f9fb;border-radius:7px;padding:4px 8px;cursor:pointer;color:#0071e3;}
+    .preset-row{display:grid;grid-template-columns:1.05fr 1.5fr auto;gap:6px;margin-bottom:8px;align-items:center;padding:7px 8px;border:1px solid #ececf1;border-radius:10px;background:linear-gradient(180deg,#fbfdff,#fff);}
+    .preset-copy{display:flex;flex-direction:column;gap:1px;min-width:0;}
+    .preset-copy span{font-size:8.5px;font-weight:900;color:#aeaeb2;letter-spacing:0.1em;text-transform:uppercase;}
+    .preset-copy small{font-size:8.5px;font-weight:700;color:#6e6e73;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .preset-select{font-family:inherit;font-size:9.5px;font-weight:700;color:#3a3a3c;background:#fff;border:1.5px solid #e5e5ea;border-radius:8px;padding:5px 7px;outline:none;min-width:0;}
+    .preset-select:focus{border-color:#0071e3;box-shadow:0 0 0 3px rgba(0,113,227,0.08);}
+    .preset-apply{font-family:inherit;font-size:9px;font-weight:900;border:1.5px solid #cfe4ff;background:#eef6ff;border-radius:8px;padding:5px 9px;cursor:pointer;color:#0071e3;white-space:nowrap;}
+    .preset-apply:hover{border-color:#0071e3;background:#e1f0ff;}
     .slot-filter-lbl{font-size:9px;font-weight:700;color:#aeaeb2;letter-spacing:0.06em;text-transform:uppercase;white-space:nowrap;}
     .slot-filter-select{font-family:inherit;font-size:9.5px;font-weight:600;color:#6e6e73;background:#f9f9fb;border:1.5px solid #e5e5ea;border-radius:5px;padding:2px 5px;outline:none;cursor:pointer;flex:1;max-width:110px;}
     .slots-area{display:flex;flex-direction:column;gap:4px;max-height:230px;overflow-y:auto;scrollbar-width:thin;padding-right:3px;}
@@ -243,6 +248,7 @@ const simulatorData = JSON.stringify({ players, allNations, allDecades }).replac
     .val-dot.warn{background:#c8a800;}
     .val-dot.err{background:#c0392b;}
     .val-label{font-size:9.5px;color:#6e6e73;}
+    .referee-insight{margin-top:5px;font-size:9.5px;font-weight:650;color:#8e8e93;line-height:1.45;}
     .loading-overlay{position:fixed;inset:0;background:rgba(10,10,26,0.90);backdrop-filter:blur(12px);z-index:300;display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;}
     .loading-overlay.active{display:flex;}
     .loading-spinner{width:44px;height:44px;border:3px solid rgba(255,255,255,0.10);border-top-color:#0071e3;border-radius:50%;animation:spin 0.8s linear infinite;}
@@ -296,6 +302,11 @@ const simulatorData = JSON.stringify({ players, allNations, allDecades }).replac
     .momentum-bar-a{height:100%;background:linear-gradient(to right,var(--team-a),var(--team-a-live));transition:width 0.55s ease;}
     .momentum-bar-b{height:100%;background:linear-gradient(to left,var(--team-b),var(--team-b-live));transition:width 0.55s ease;}
     .momentum-narrative{font-size:9.5px;font-weight:600;color:rgba(255,255,255,0.32);text-align:center;line-height:1.45;}
+    .live-speed{display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:wrap;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:7px 9px;}
+    .live-speed-label{font-size:8px;font-weight:900;color:rgba(255,255,255,0.30);letter-spacing:0.12em;text-transform:uppercase;margin-right:3px;}
+    .speed-btn{font-family:inherit;font-size:9px;font-weight:800;color:rgba(255,255,255,0.52);background:rgba(255,255,255,0.055);border:1px solid rgba(255,255,255,0.08);border-radius:999px;padding:4px 8px;cursor:pointer;transition:all .14s;}
+    .speed-btn:hover{background:rgba(255,255,255,0.10);color:rgba(255,255,255,0.78);}
+    .speed-btn.active{background:rgba(255,215,0,0.14);border-color:rgba(255,215,0,0.28);color:#ffd700;}
     .timeline-live{height:22px;padding:3px 0;}
     .timeline-track{position:relative;height:16px;border-radius:999px;background:rgba(255,255,255,0.055);border:1px solid rgba(255,255,255,0.055);}
     .timeline-dot{position:absolute;top:50%;width:8px;height:8px;border-radius:50%;transform:translate(-50%,-50%);opacity:0.35;background:rgba(255,255,255,0.30);transition:opacity 0.25s,transform 0.25s,box-shadow 0.25s;}
@@ -599,7 +610,9 @@ const simulatorData = JSON.stringify({ players, allNations, allDecades }).replac
         </div>
         <div class="settings-card-grid">
           <div class="mset-group"><label class="mset-label">Referee</label>
-            <select class="mset-select" id="setReferee"></select></div>
+            <select class="mset-select" id="setReferee"></select>
+            <div class="referee-insight" id="refereeInsight">Referee personality will shape cards, rhythm and controversy.</div>
+          </div>
           <div class="mset-group"><label class="mset-label">Substitutions</label>
             <select class="mset-select" id="setSubs">
               <option value="3">3 Subs</option>
@@ -670,6 +683,7 @@ const simulatorData = JSON.stringify({ players, allNations, allDecades }).replac
         </div>
         <div class="pitch-wrap"><svg id="pitchA" class="pitch-svg" viewBox="0 0 240 340" xmlns="http://www.w3.org/2000/svg"></svg></div>
         <div class="preset-row">
+          <div class="preset-copy"><span>Preset XI</span><small id="presetHintA">All-time nations, clubs, decades and more</small></div>
           <select class="preset-select" id="presetA"></select>
           <button class="preset-apply" id="applyPresetA" type="button">Apply XI</button>
         </div>
@@ -735,6 +749,7 @@ const simulatorData = JSON.stringify({ players, allNations, allDecades }).replac
         </div>
         <div class="pitch-wrap"><svg id="pitchB" class="pitch-svg" viewBox="0 0 240 340" xmlns="http://www.w3.org/2000/svg"></svg></div>
         <div class="preset-row">
+          <div class="preset-copy"><span>Preset XI</span><small id="presetHintB">All-time nations, clubs, decades and more</small></div>
           <select class="preset-select" id="presetB"></select>
           <button class="preset-apply" id="applyPresetB" type="button">Apply XI</button>
         </div>
@@ -874,6 +889,12 @@ const simulatorData = JSON.stringify({ players, allNations, allDecades }).replac
       <div class="penalty-row" id="penRowB"></div>
     </div>
     <div class="match-actions">
+      <div class="live-speed" aria-label="Live commentary speed">
+        <span class="live-speed-label">Live Speed</span>
+        <button class="speed-btn" type="button" data-live-speed="cinematic">Cinematic</button>
+        <button class="speed-btn active" type="button" data-live-speed="normal">Normal</button>
+        <button class="speed-btn" type="button" data-live-speed="fast">Fast</button>
+      </div>
       <button class="action-btn skip" id="btnSkipResult">⏩ Skip to Result</button>
       <button class="action-btn secondary" id="btnReset">← Back to Setup</button>
       <button class="action-btn primary" id="btnRematch">↻ Rematch</button>
@@ -914,7 +935,7 @@ const simulatorData = JSON.stringify({ players, allNations, allDecades }).replac
         <div class="tv-fact"><div class="tv-fact-k">Decisive Stat</div><div class="tv-fact-v" id="factStat">—</div></div>
         <div class="tv-fact"><div class="tv-fact-k">Coach Impact</div><div class="tv-fact-v" id="factCoach">—</div></div>
         <div class="tv-fact"><div class="tv-fact-k">Worst Problem</div><div class="tv-fact-v" id="factProblem">—</div></div>
-        <div class="tv-fact"><div class="tv-fact-k">Broadcast Angle</div><div class="tv-fact-v" id="factBroadcast">—</div></div>
+        <div class="tv-fact"><div class="tv-fact-k">Referee Lens</div><div class="tv-fact-v" id="factReferee">—</div></div>
         <div class="tv-fact"><div class="tv-fact-k">Crowd Mood</div><div class="tv-fact-v" id="factCrowd">—</div></div>
       </div>
       <div class="pundit-focus" id="punditFocus">
@@ -976,6 +997,8 @@ const simulatorData = JSON.stringify({ players, allNations, allDecades }).replac
         <div class="stat-row-group">
           <div class="stat-group-title">Attacking</div>
           <div class="stat-row"><div class="stat-val" id="stShotsA">0</div><div><div style="font-size:8.5px;font-weight:600;color:#aeaeb2;text-align:center;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:3px;">Shots</div><div class="stat-bar-wrap"><div class="stat-bar-a" id="stShotsBarA"></div><div class="stat-bar-b" id="stShotsBarB"></div></div></div><div class="stat-val right" id="stShotsB">0</div></div>
+          <div class="stat-row"><div class="stat-val" id="stXgA">0.00</div><div><div style="font-size:8.5px;font-weight:600;color:#aeaeb2;text-align:center;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:3px;">Chance Quality (xG)</div><div class="stat-bar-wrap"><div class="stat-bar-a" id="stXgBarA"></div><div class="stat-bar-b" id="stXgBarB"></div></div></div><div class="stat-val right" id="stXgB">0.00</div></div>
+          <div class="stat-row-full" style="margin-top:8px;"><span class="stat-row-full-label">Big Chances</span><div class="stat-row-full-vals"><span class="stat-chip a" id="stBigA">0</span><span style="font-size:9px;color:#aeaeb2;">vs</span><span class="stat-chip b" id="stBigB">0</span></div></div>
           <div class="stat-row"><div class="stat-val" id="stOnTargetA">0</div><div><div style="font-size:8.5px;font-weight:600;color:#aeaeb2;text-align:center;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:3px;">On Target</div><div class="stat-bar-wrap"><div class="stat-bar-a" id="stOnTargetBarA"></div><div class="stat-bar-b" id="stOnTargetBarB"></div></div></div><div class="stat-val right" id="stOnTargetB">0</div></div>
           <div class="stat-row"><div class="stat-val" id="stCornersA">0</div><div><div style="font-size:8.5px;font-weight:600;color:#aeaeb2;text-align:center;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:3px;">Corners</div><div class="stat-bar-wrap"><div class="stat-bar-a" id="stCornersBarA"></div><div class="stat-bar-b" id="stCornersBarB"></div></div></div><div class="stat-val right" id="stCornersB">0</div></div>
           <div class="stat-row-full" style="margin-top:8px;"><span class="stat-row-full-label">Woodwork</span><div class="stat-row-full-vals"><span class="stat-chip a" id="stWoodA">0</span><span style="font-size:9px;color:#aeaeb2;">vs</span><span class="stat-chip b" id="stWoodB">0</span></div></div>
