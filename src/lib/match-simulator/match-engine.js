@@ -104,7 +104,10 @@ export function runSimulation(cfg){
   const stats={shotsA:0,shotsB:0,onTargetA:0,onTargetB:0,cornersA:0,cornersB:0,foulsA:0,foulsB:0,yellowsA:0,yellowsB:0,redsA:0,redsB:0,offsetA:0,offsetB:0,woodA:0,woodB:0,goalScorers:[]};
   let subsUsedA=0,subsUsedB=0,subBoostA=1.0,subBoostB=1.0;
   const benchA=[...(cfg.benchA||[])],benchB=[...(cfg.benchB||[])];
-  function addEv(min,type,text,isGA,isGB){events.push({min,type,text,isGoalA:!!isGA,isGoalB:!!isGB,momA:Math.round(momentumA),momB:Math.round(momentumB)});}
+  function addEv(min,type,text,isGA,isGB){
+    const safeMin=Math.max(1,Math.round(min||1));
+    events.push({min:safeMin,type,text,isGoalA:!!isGA,isGoalB:!!isGB,momA:Math.round(momentumA),momB:Math.round(momentumB)});
+  }
 
   function attemptGoal(isA,minute,isET,etSeg){
     const attSt=activeSt(isA),attF=isA?fA:fB;
@@ -176,7 +179,7 @@ export function runSimulation(cfg){
 
   let prevMomA=50,prevMomB=50;
   for(let seg=0;seg<18;seg++){
-    const minute=seg*5+rndInt(0,4);
+    const minute=Math.max(1,seg*5+rndInt(0,4));
     if(seg===9){addEv(45,'ht',pick(CMT.ht));const wLine=WEATHER_CMT[weather];if(wLine)addEv(45,'weather',wLine);}
     const pAttA=basePow(sA,avgOvrA,gelA)*redPenA,pAttB=basePow(sB,avgOvrB,gelB)*redPenB;
     const pDefA=baseDefPow(sA,avgOvrA,gelA)*redPenA,pDefB=baseDefPow(sB,avgOvrB,gelB)*redPenB;

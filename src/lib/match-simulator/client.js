@@ -458,18 +458,33 @@ function buildSquadFromPool(formKey,pool,initialUsed=new Set()){
   });
   return{starters,bench,used};
 }
-function initPresetControls(){
+function getPresetDefinitions(){
   const nations=allNations.map(n=>({type:'nation',value:n,label:'Nation | '+n,count:players.filter(p=>p.nat===n).length})).filter(x=>x.count>=8);
   const clubs=[...new Set(players.map(p=>p.club).filter(Boolean))].sort().map(c=>({type:'club',value:c,label:'Club | '+c,count:players.filter(p=>p.club===c).length})).filter(x=>x.count>=8);
   const decades=allDecades.map(d=>({type:'decade',value:String(d),label:'Decade | '+d+'s',count:players.filter(p=>p.dec===d).length})).filter(x=>x.count>=8);
   const leagues=[...new Set(players.map(p=>p.league).filter(Boolean))].sort().map(l=>({type:'league',value:l,label:'League | '+l,count:players.filter(p=>p.league===l).length})).filter(x=>x.count>=8);
   const continents=[...new Set(players.map(p=>p.cont).filter(Boolean))].sort().map(c=>({type:'continent',value:c,label:'Continent | '+c,count:players.filter(p=>p.cont===c).length})).filter(x=>x.count>=8);
-  const presets=[...nations,...clubs,...decades,...leagues,...continents];
+  return[...nations,...clubs,...decades,...leagues,...continents];
+}
+function presetPool(type,value){
+  if(type==='nation')return players.filter(p=>p.nat===value);
+  if(type==='club')return players.filter(p=>p.club===value);
+  if(type==='decade')return players.filter(p=>String(p.dec)===value);
+  if(type==='league')return players.filter(p=>p.league===value);
+  if(type==='continent')return players.filter(p=>p.cont===value);
+  return players;
+}
+function presetTeamName(type,value){
+  return(type==='decade'?value+'s':value)+' All-Time';
+}
+function initPresetControls(){
+  const presets=getPresetDefinitions();
+  const hasLeagueOrContinent=presets.some(p=>p.type==='league'||p.type==='continent');
   ['A','B'].forEach(side=>{
     const sel=document.getElementById('preset'+side);if(!sel)return;
     sel.innerHTML='<option value="">Preset teams...</option>';
     presets.forEach(p=>{const o=document.createElement('option');o.value=p.type+'|'+p.value;o.textContent=p.label+' ('+p.count+')';sel.appendChild(o);});
-    if(!leagues.length&&!continents.length){const future=document.createElement('option');future.disabled=true;future.textContent='League/continent presets need DB fields';sel.appendChild(future);}
+    if(!hasLeagueOrContinent){const future=document.createElement('option');future.disabled=true;future.textContent='League/continent presets need DB fields';sel.appendChild(future);}
     document.getElementById('applyPreset'+side)?.addEventListener('click',()=>applyPreset(side));
   });
 }
@@ -478,15 +493,10 @@ function applyPreset(side){
   const [type,value]=sel.value.split('|');
   const other=side==='A'?'B':'A';
   const used=new Set([...state['starters'+other],...state['bench'+other]].filter(Boolean).map(p=>p.id));
-  let pool=players;
-  if(type==='nation')pool=players.filter(p=>p.nat===value);
-  else if(type==='club')pool=players.filter(p=>p.club===value);
-  else if(type==='decade')pool=players.filter(p=>String(p.dec)===value);
-  else if(type==='league')pool=players.filter(p=>p.league===value);
-  else if(type==='continent')pool=players.filter(p=>p.cont===value);
+  const pool=presetPool(type,value);
   const data=buildSquadFromPool(state['formation'+side],pool,used);
   applySquadData(side,data);
-  document.getElementById('name'+side).value=(type==='decade'?value+'s':value)+' All-Time';
+  document.getElementById('name'+side).value=presetTeamName(type,value);
   document.getElementById('mibName'+side).textContent=document.getElementById('name'+side).value;
   updateWinProb();updateMatchPreview();
   const missing=11-data.starters.filter(Boolean).length;
@@ -498,27 +508,50 @@ function compatibleCoachFor(formKey){
   return pick(fits.length?fits:COACHES).id;
 }
 function runSurpriseMe(){
-  const forms=Object.keys(FORMATIONS),archs=['dream','technical','physical','attack','random'];
+  const forms=Object.keys(FORMATIONS);
+  const presetDefs=getPresetDefinitions().filter(p=>p.count>=11);
   let best=null;
-  for(let i=0;i<90;i++){
+  for(let i=0;i<220;i++){
     const formA=pick(forms),formB=pick(forms);
-    const dataA=generateSquadForFormation(formA,pick(archs),new Set());
+    const presetA=pick(presetDefs);
+    if(!presetA)break;
+    const presetBCandidates=presetDefs.filter(p=>p.type+'|'+p.value!==presetA.type+'|'+presetA.value);
+    const presetB=pick(presetBCandidates.length?presetBCandidates:presetDefs);
+    if(!presetA||!presetB)break;
+    const dataA=buildSquadFromPool(formA,presetPool(presetA.type,presetA.value),new Set());
     const usedA=new Set([...dataA.starters,...dataA.bench].filter(Boolean).map(p=>p.id));
-    const dataB=generateSquadForFormation(formB,pick(archs),usedA);
+    const dataB=buildSquadFromPool(formB,presetPool(presetB.type,presetB.value),usedA);
     if(dataA.starters.filter(Boolean).length<11||dataB.starters.filter(Boolean).length<11)continue;
     const diff=Math.abs(computeAvgOvr(dataA.starters,formA)-computeAvgOvr(dataB.starters,formB));
-    if(!best||diff<best.diff)best={formA,formB,dataA,dataB,diff};
+    if(!best||diff<best.diff)best={formA,formB,dataA,dataB,diff,presetA,presetB};
     if(diff<=3)break;
+  }
+  if(!best){
+    const archs=['dream','technical','physical','attack','random'];
+    for(let i=0;i<90;i++){
+      const formA=pick(forms),formB=pick(forms);
+      const dataA=generateSquadForFormation(formA,pick(archs),new Set());
+      const usedA=new Set([...dataA.starters,...dataA.bench].filter(Boolean).map(p=>p.id));
+      const dataB=generateSquadForFormation(formB,pick(archs),usedA);
+      if(dataA.starters.filter(Boolean).length<11||dataB.starters.filter(Boolean).length<11)continue;
+      const diff=Math.abs(computeAvgOvr(dataA.starters,formA)-computeAvgOvr(dataB.starters,formB));
+      if(!best||diff<best.diff)best={formA,formB,dataA,dataB,diff,presetA:null,presetB:null};
+      if(diff<=3)break;
+    }
   }
   if(!best){showToast('Could not build two complete balanced squads yet.');return;}
   state.formationA=best.formA;state.formationB=best.formB;
   initFormationBtns('A');initFormationBtns('B');
   applySquadData('A',best.dataA);applySquadData('B',best.dataB);
+  document.getElementById('nameA').value=best.presetA?presetTeamName(best.presetA.type,best.presetA.value):'Surprise XI';
+  document.getElementById('nameB').value=best.presetB?presetTeamName(best.presetB.type,best.presetB.value):'Mystery XI';
+  document.getElementById('mibNameA').textContent=document.getElementById('nameA').value;
+  document.getElementById('mibNameB').textContent=document.getElementById('nameB').value;
   document.getElementById('setCoachA').value=compatibleCoachFor(best.formA);
   document.getElementById('setCoachB').value=compatibleCoachFor(best.formB);
   document.getElementById('tacticsA').value=pick(['balanced','possession','counter','direct']);
   document.getElementById('tacticsB').value=pick(['balanced','high_press','low_block','counter']);
-  updateCoachFitBadge();updateValidation();updateMatchPreview();
+  updateCoachFitBadge();updateValidation();updateWinProb();updateMatchPreview();
   showToast('Surprise match ready. Balanced OVR diff: '+best.diff.toFixed(1)+'.');
   setTimeout(()=>{if(!document.getElementById('btnSimulate').disabled)runMatch();},450);
 }
