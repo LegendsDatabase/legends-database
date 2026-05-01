@@ -27,6 +27,19 @@ const state={
   simCount:0,
 };
 
+const HISTORIC_BALLS=[
+  {id:'santiago',label:'Adidas Santiago'},
+  {id:'telstar',label:'Adidas Telstar'},
+  {id:'tango',label:'Adidas Tango'},
+  {id:'azteca',label:'Adidas Azteca'},
+  {id:'tricolore',label:'Adidas Tricolore'},
+  {id:'fevernova',label:'Adidas Fevernova'},
+  {id:'teamgeist',label:'Adidas Teamgeist'},
+];
+
+function ballById(id){return HISTORIC_BALLS.find(b=>b.id===id)||null;}
+function ballDisplay(ball){return ball?.label||'Auto ball';}
+
 // ── UI INIT ──
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
 function teamPalette(side){return TEAM_PALETTES[state['color'+side]]||TEAM_PALETTES[side==='A'?'emerald':'crimson'];}
@@ -372,6 +385,8 @@ function updateMatchPreview(){
   const risk=(ref.strictness>0.72||Math.max(aggA,aggB)>77)?'Cards could matter':'Low card pressure';
   const weatherKey=document.getElementById('setWeather').value;
   const weather=weatherKey==='random'?'Random weather':(WEATHER[weatherKey]?.label||'Perfect');
+  const ballChoice=document.getElementById('setBall')?.value||'';
+  const ballText=ballChoice?ballDisplay(ballById(ballChoice)):'Auto ball';
   const stadiumId=document.getElementById('setStadium').value;
   const homeNation=stadiumInfo(stadiumId).nation;
   const homeA=stA.filter(p=>p&&p.nat===homeNation).length,homeB=stB.filter(p=>p&&p.nat===homeNation).length;
@@ -382,7 +397,7 @@ function updateMatchPreview(){
   document.getElementById('previewEdge').textContent=edge;
   document.getElementById('previewKeys').textContent=keyA+' vs '+keyB;
   document.getElementById('previewRisk').textContent=risk;
-  document.getElementById('previewContext').textContent=weather+homeEdge+' · Coach fit '+(fitA?'A':'-')+'/'+(fitB?'B':'-');
+  document.getElementById('previewContext').textContent=weather+homeEdge+' · '+ballText+' · Coach fit '+(fitA?'A':'-')+'/'+(fitB?'B':'-');
 }
 
 function computeAndShowTacticalClash(){
@@ -651,6 +666,8 @@ function runMatch(){
   const aw=ws==='random'?['sun','light_rain','heavy_rain','storm','snow'][rndInt(0,4)]:ws;
   const stadiumId=document.getElementById('setStadium').value;
   const competition=document.getElementById('setCompetition').value;
+  const ballChoice=document.getElementById('setBall')?.value||'';
+  const ball=ballById(ballChoice)||pick(HISTORIC_BALLS);
   state.simCount++;
   const cfg={stA:state.startersA,stB:state.startersB,formA:state.formationA,formB:state.formationB,
     coachA:document.getElementById('setCoachA').value,coachB:document.getElementById('setCoachB').value,
@@ -660,6 +677,7 @@ function runMatch(){
     benchA:state.benchA,benchB:state.benchB,
     refereeId:document.getElementById('setReferee').value,
     stadiumId,competition,
+    ball,
     attendance:estimateAttendance(state.startersA,state.startersB,state.formationA,state.formationB,stadiumId,competition),
     commentator:pick(COMMENTATORS),
     broadcaster:pick(BROADCASTERS),
@@ -696,6 +714,7 @@ function displayMatch(result,cfg,wData){
   document.getElementById('mhCompetition').textContent=comp.options[comp.selectedIndex].text;
   document.getElementById('mhStadium').textContent=stad.options[stad.selectedIndex].text;
   document.getElementById('mhWeather').textContent=wData.label;
+  document.getElementById('mhBall').textContent='Ball · '+ballDisplay(cfg.ball);
   document.getElementById('mhAttendance').textContent='Attendance '+fmtNum(cfg.attendance||0);
   document.getElementById('mhCommentator').textContent=(cfg.broadcaster||'Broadcast')+' · '+(cfg.commentator||pick(COMMENTATORS));
   document.getElementById('mhRunCount').textContent='Simulation #'+(cfg.simNo||1);
@@ -715,6 +734,7 @@ function displayMatch(result,cfg,wData){
   document.getElementById('broadcastTitle').textContent=nA+' vs '+nB;
   document.getElementById('broadcastSub').textContent=comp.options[comp.selectedIndex].text+' · '+wData.label+' · '+result.personality;
   document.getElementById('broadcastVenue').textContent=stad.options[stad.selectedIndex].text;
+  document.getElementById('broadcastBall').textContent=ballDisplay(cfg.ball);
   document.getElementById('broadcastCrowd').textContent=fmtNum(cfg.attendance||0);
   document.getElementById('broadcastCoaches').textContent=coachName(cfg.coachA)+' vs '+coachName(cfg.coachB);
   document.getElementById('broadcastKeyMen').textContent=topPlayerName(cfg.stA)+' vs '+topPlayerName(cfg.stB);
@@ -1022,7 +1042,7 @@ function showResults(result,nA,nB,cfg){
   document.getElementById('stickyDetail').textContent=(result.winner==='draw'?'Draw':'Winner: '+winnerName)+' · MOTM: '+motmName;
   const winPill=document.getElementById('resWinnerPill');winPill.textContent=result.winner==='draw'?'Draw':'Winner · '+winnerName;winPill.className='result-meta-pill '+(result.winner==='A'?'win-a':result.winner==='B'?'win-b':'');
   document.getElementById('resVenuePill').textContent=document.getElementById('mhStadium').textContent+' · '+fmtNum(cfg.attendance||0);
-  document.getElementById('resWeatherPill').textContent=document.getElementById('mhWeather').textContent;
+  document.getElementById('resWeatherPill').textContent=document.getElementById('mhWeather').textContent+' · '+ballDisplay(cfg.ball);
   document.getElementById('resMotmPill').textContent='MOTM · '+motmName;
   document.getElementById('resComment').textContent=buildMatchComment(result,nA,nB);
   const copyBtn=document.getElementById('btnCopySummary');
@@ -1131,7 +1151,7 @@ function showResults(result,nA,nB,cfg){
   document.getElementById('captain'+side)?.addEventListener('change',e=>{state['captain'+side]=e.target.value||null;buildCaptainSelect(side);drawPitch('pitch'+side,side);});
   initRosterSave(side);
 });
-['setCompetition','setStadium','setWeather','setReferee','setMatchType','setSubs'].forEach(id=>document.getElementById(id).addEventListener('change',()=>{if(id==='setReferee')updateRefereeInsight();updateWinProb();updateMatchPreview();}));
+['setCompetition','setStadium','setWeather','setBall','setReferee','setMatchType','setSubs'].forEach(id=>document.getElementById(id).addEventListener('change',()=>{if(id==='setReferee')updateRefereeInsight();updateWinProb();updateMatchPreview();}));
 document.getElementById('btnSimulate').addEventListener('click',runMatch);
 document.getElementById('btnSurpriseMe')?.addEventListener('click',runSurpriseMe);
 document.getElementById('calcToggle')?.addEventListener('click',()=>{

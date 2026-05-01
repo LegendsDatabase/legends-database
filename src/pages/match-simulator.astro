@@ -87,6 +87,7 @@ const simulatorData = JSON.stringify({ players, allNations, allDecades }).replac
     .settings-card-title{font-size:9px;font-weight:900;color:#8e8e93;letter-spacing:0.13em;text-transform:uppercase;}
     .settings-card-sub{font-size:9.5px;font-weight:700;color:#aeaeb2;}
     .settings-card-grid{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+    .settings-card.match-context .settings-card-grid{grid-template-columns:repeat(5,1fr);}
     .settings-card.control .settings-card-grid{grid-template-columns:repeat(3,1fr);}
     .mset-group{display:flex;flex-direction:column;gap:3px;}
     .mset-label{font-size:8.5px;font-weight:700;color:#aeaeb2;letter-spacing:0.08em;text-transform:uppercase;}
@@ -286,7 +287,7 @@ const simulatorData = JSON.stringify({ players, allNations, allDecades }).replac
     .broadcast-commentator{font-size:10.5px;font-weight:700;color:rgba(255,255,255,0.54);}
     .broadcast-title{position:relative;font-size:24px;font-weight:900;letter-spacing:-0.8px;color:#fff;margin-bottom:4px;}
     .broadcast-sub{position:relative;font-size:11px;color:rgba(255,255,255,0.48);line-height:1.55;}
-    .broadcast-grid{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px;}
+    .broadcast-grid{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:14px;}
     .broadcast-stat{background:rgba(0,0,0,0.18);border:1px solid rgba(255,255,255,0.075);border-radius:12px;padding:9px 10px;}
     .broadcast-k{font-size:8px;font-weight:900;color:rgba(255,255,255,0.30);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:4px;}
     .broadcast-v{font-size:11px;font-weight:800;color:rgba(255,255,255,0.82);line-height:1.35;}
@@ -563,7 +564,7 @@ const simulatorData = JSON.stringify({ players, allNations, allDecades }).replac
       </div>
     </div>
     <div class="match-settings-shell">
-      <div class="settings-card">
+      <div class="settings-card match-context">
         <div class="settings-card-head">
           <span class="settings-card-title">Match Context</span>
           <span class="settings-card-sub">venue, weather, format</span>
@@ -606,6 +607,17 @@ const simulatorData = JSON.stringify({ players, allNations, allDecades }).replac
           <option value="90">90 Minutes</option>
           <option value="et">Extra Time + Pens</option>
           <option value="golden">Golden Goal</option>
+        </select></div>
+      <div class="mset-group"><label class="mset-label">Ball</label>
+        <select class="mset-select" id="setBall">
+          <option value="">Auto ball</option>
+          <option value="santiago">Adidas Santiago</option>
+          <option value="telstar">Adidas Telstar</option>
+          <option value="tango">Adidas Tango</option>
+          <option value="azteca">Adidas Azteca</option>
+          <option value="tricolore">Adidas Tricolore</option>
+          <option value="fevernova">Adidas Fevernova</option>
+          <option value="teamgeist">Adidas Teamgeist</option>
         </select></div>
         </div>
       </div>
@@ -818,6 +830,7 @@ const simulatorData = JSON.stringify({ players, allNations, allDecades }).replac
       <div class="mhb-meta">
         <span class="mhb-item" id="mhStadium">🏟 Wembley</span>
         <span class="mhb-item" id="mhWeather">☀️ Perfect</span>
+        <span class="mhb-item" id="mhBall">Ball —</span>
         <span class="mhb-personality mp-open" id="mhPersonality">Open Game</span>
         <span class="mhb-item" id="mhAttendance">Attendance —</span>
         <span class="mhb-item" id="mhCommentator">Commentary —</span>
@@ -835,6 +848,7 @@ const simulatorData = JSON.stringify({ players, allNations, allDecades }).replac
         <div class="broadcast-sub" id="broadcastSub">The teams are out, the lights are up, and the simulator is ready to roll.</div>
         <div class="broadcast-grid">
           <div class="broadcast-stat"><div class="broadcast-k">Venue</div><div class="broadcast-v" id="broadcastVenue">Wembley</div></div>
+          <div class="broadcast-stat"><div class="broadcast-k">Ball</div><div class="broadcast-v" id="broadcastBall">Auto</div></div>
           <div class="broadcast-stat"><div class="broadcast-k">Crowd</div><div class="broadcast-v" id="broadcastCrowd">—</div></div>
           <div class="broadcast-stat"><div class="broadcast-k">Coaches</div><div class="broadcast-v" id="broadcastCoaches">—</div></div>
           <div class="broadcast-stat"><div class="broadcast-k">Key Men</div><div class="broadcast-v" id="broadcastKeyMen">—</div></div>
