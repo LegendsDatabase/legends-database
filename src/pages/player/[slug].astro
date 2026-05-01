@@ -660,7 +660,10 @@ const bioRoleColor = ovrColor(p.overall_rating);
     .see-also-grid{display:flex;gap:10px;flex-wrap:wrap;}
     .see-also-card{text-decoration:none;display:flex;align-items:center;gap:12px;background:#ffffff;border-radius:14px;padding:14px 18px;box-shadow:0 1px 3px rgba(0,0,0,0.06);transition:box-shadow 0.15s,transform 0.15s;flex:1;min-width:160px;max-width:calc(20% - 8px);}
     .see-also-card:hover{box-shadow:0 3px 12px rgba(0,0,0,0.10);transform:translateY(-1px);}
-    .sa-avatar{width:36px;height:36px;border-radius:50%;background:#e8e8ed;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#6e6e73;flex-shrink:0;}
+    .sa-avatar{width:36px;height:36px;border-radius:50%;background:#e8e8ed;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#6e6e73;flex-shrink:0;position:relative;overflow:hidden;}
+    .sa-avatar-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 38%;display:none;pointer-events:none;-webkit-user-drag:none;user-select:none;}
+    .sa-avatar.has-photo .sa-avatar-img{display:block;}
+    .sa-avatar.has-photo .sa-initials{display:none;}
     .sa-body{flex:1;min-width:0;}
     .sa-name{font-size:12.5px;font-weight:600;color:#1d1d1f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;margin-bottom:4px;}
     .sa-meta{display:flex;align-items:center;gap:6px;}
@@ -1234,7 +1237,19 @@ const bioRoleColor = ovrColor(p.overall_rating);
           const qr=roleColor(q.role);
           return(
             <a href={`/player/${q.slug}`} class="see-also-card">
-              <div class="sa-avatar">{qi}</div>
+              <div class="sa-avatar">
+                <span class="sa-initials">{qi}</span>
+                <img
+                  class="sa-avatar-img"
+                  src={`/players/${q.slug}.jpg`}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  draggable="false"
+                  onload="this.parentElement.classList.add('has-photo')"
+                  onerror="this.remove()"
+                />
+              </div>
               <div class="sa-body">
                 <div class="sa-name">{q.name}</div>
                 <div class="sa-meta">

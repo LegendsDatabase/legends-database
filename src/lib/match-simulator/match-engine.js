@@ -93,6 +93,7 @@ export function runSimulation(cfg){
   const capA=captainMorale(stA,cfg.captainA),capB=captainMorale(stB,cfg.captainB);
   function basePow(str,avgOvr,gel){return str.att*(1+(avgOvr-80)*0.040)*(1+(gel/80)*0.10);}
   function baseDefPow(str,avgOvr,gel){return str.def*(1+(avgOvr-80)*0.035)*(1+(gel/80)*0.08);}
+  function clamp(v,min,max){return Math.max(min,Math.min(max,v));}
   let redPenA=1.0,redPenB=1.0,momentumA=50+(capA.mult-1)*120,momentumB=50+(capB.mult-1)*120;
   const inactiveA=new Set(),inactiveB=new Set();
   function activeSt(isA){const inactive=isA?inactiveA:inactiveB;return (isA?stA:stB).map(p=>p&&!inactive.has(p.id)?p:null);}
@@ -106,17 +107,52 @@ export function runSimulation(cfg){
     momentumA=momentumA*0.88+50*0.12;momentumB=momentumB*0.88+50*0.12;
     stampLastMomentum();
   }
-  const events=[];let scoreA=0,scoreB=0;
+  const events=[];let scoreA=0,scoreB=0,eventSeq=0;
   const goalMinutes=new Set();
   function reserveGoalMinute(min){if(goalMinutes.has(min))return false;goalMinutes.add(min);return true;}
-  const ratA=stA.map(p=>({p,base:p?6.5+rnd(-0.65,0.85):6.5,events:[],motmScore:0}));
-  const ratB=stB.map(p=>({p,base:p?6.5+rnd(-0.65,0.85):6.5,events:[],motmScore:0}));
+  const ratA=stA.map((p,i)=>({p,base:p?6.5+rnd(-0.65,0.85):6.5,events:[],motmScore:0,role:fA.pos[i]}));
+  const ratB=stB.map((p,i)=>({p,base:p?6.5+rnd(-0.65,0.85):6.5,events:[],motmScore:0,role:fB.pos[i]}));
   const stats={shotsA:0,shotsB:0,onTargetA:0,onTargetB:0,xgA:0,xgB:0,bigChancesA:0,bigChancesB:0,cornersA:0,cornersB:0,foulsA:0,foulsB:0,yellowsA:0,yellowsB:0,redsA:0,redsB:0,offsetA:0,offsetB:0,woodA:0,woodB:0,goalScorers:[]};
   let subsUsedA=0,subsUsedB=0,subBoostA=1.0,subBoostB=1.0;
   const benchA=[...(cfg.benchA||[])],benchB=[...(cfg.benchB||[])];
+  const minuteLoads=new Map();
+  const fixedEventTypes=new Set(['ht','ft','weather','penalty_goal','penalty_save']);
+  function eventMinute(min,type){
+    const base=Math.max(1,Math.round(min||1));
+    if(type==='goal'){minuteLoads.set(base,(minuteLoads.get(base)||0)+1);return base;}
+    if(fixedEventTypes.has(type))return base;
+    const max=matchType==='90'?90:125;
+    const candidates=[base,base+1,base-1,base+2,base-2,base+3].map(m=>clamp(m,1,max));
+    for(const cand of candidates){
+      const load=minuteLoads.get(cand)||0;
+      if(load<1){minuteLoads.set(cand,load+1);return cand;}
+    }
+    const load=minuteLoads.get(base)||0;minuteLoads.set(base,load+1);
+    return base;
+  }
   function addEv(min,type,text,isGA,isGB){
-    const safeMin=Math.max(1,Math.round(min||1));
-    events.push({min:safeMin,type,text,isGoalA:!!isGA,isGoalB:!!isGB,momA:Math.round(momentumA),momB:Math.round(momentumB)});
+    const safeMin=eventMinute(min,type);
+    events.push({min:safeMin,type,text,isGoalA:!!isGA,isGoalB:!!isGB,momA:Math.round(momentumA),momB:Math.round(momentumB),_ord:eventSeq++});
+  }
+  function applySub(isA,sub,outgoing,minute,reason,boostAdd,boostMax){
+    if(!sub)return null;
+    const st=isA?stA:stB,bench=isA?benchA:benchB,rats=isA?ratA:ratB,form=isA?fA:fB;
+    const idx=outgoing?st.findIndex(p=>p&&p.id===outgoing.id):-1;
+    const role=idx>=0?form.pos[idx]:sub.r;
+    const benchIdx=bench.findIndex(p=>p&&p.id===sub.id);
+    if(benchIdx>=0)bench[benchIdx]=null;
+    if(idx>=0)st[idx]=sub;
+    const outRat=outgoing?rats.find(r=>r.p&&r.p.id===outgoing.id&&!r.sub):null;
+    if(outRat){
+      outRat.outMin=minute;
+      outRat.events.push("OUT "+minute+"'");
+      if(reason==='injury')outRat.base-=0.25;
+    }
+    const subRat={p:sub,base:6.15+rnd(-0.30,0.35),events:["IN "+minute+"'"],motmScore:0,sub:true,inMin:minute,outFor:outgoing?.n||'',role};
+    rats.push(subRat);
+    if(isA){subsUsedA++;subBoostA=Math.min(subBoostA+boostAdd,boostMax);}
+    else{subsUsedB++;subBoostB=Math.min(subBoostB+boostAdd,boostMax);}
+    return subRat;
   }
 
   function attemptGoal(isA,minute,isET,etSeg){
@@ -144,15 +180,19 @@ export function runSimulation(cfg){
         if(isA)stats.cornersA+=Math.random()<0.5?1:0;else stats.cornersB+=Math.random()<0.5?1:0;
         updMom(isA,'wood');return 0;
       }
+      const qualityEdge=(attPow-defPow)/(attPow+defPow);
+      const blockCut=clamp(0.22-qualityEdge*0.05,0.14,0.30);
+      const chanceCut=blockCut+clamp(0.14+qualityEdge*0.08,0.08,0.24);
+      const saveCut=chanceCut+clamp(0.30+goalProb*0.58+qualityEdge*0.18,0.24,0.60);
       const shotOutcome=Math.random();
-      if(defender&&shotOutcome<0.24){
+      if(defender&&shotOutcome<blockCut){
         addEv(minute,'blocked',bc(pick(CMT.blocked),{A:scorer?.n,B:defender.n,T:teamName}));
         const dRat=oppRat.find(r=>r.p===defender);if(dRat){dRat.base+=0.16;dRat.motmScore+=0.25;}
         if(isA)stats.cornersA+=Math.random()<0.30?1:0;else stats.cornersB+=Math.random()<0.30?1:0;
-      }else if(scorer&&shotOutcome<0.40){
+      }else if(scorer&&shotOutcome<chanceCut){
         const creator=pickAssist(attSt,attF,scorer.id)||scorer;
         addEv(minute,'chance',bc(pick(CMT.chance),{A:creator.n,T:teamName}));
-      }else if(gk&&shotOutcome<0.73){
+      }else if(gk&&shotOutcome<saveCut){
         if(isA)stats.onTargetA++;else stats.onTargetB++;
         const mir=Math.random()<0.18;
         addEv(minute,mir?'save_miracle':'save',bc(pick(mir?CMT.save_miracle:CMT.save_normal),{A:scorer?.n,GK:gk.n,T:teamName}));
@@ -203,8 +243,16 @@ export function runSimulation(cfg){
     if(seg<2&&Math.random()<0.35)addEv(minute,'tension',pick(CMT.early));
     if(minute>68&&scoreA!==scoreB&&Math.random()<0.16)addEv(minute,'momentum',bc(pick(CMT.chasing),{T:scoreA>scoreB?'B':'A'}));
     if(minute>80&&Math.abs(scoreA-scoreB)<=1&&Math.random()<0.14)addEv(minute,'tension',pick(CMT.late_tension));
-    if(Math.random()<(0.65+ratioA*0.25)){const r=attemptGoal(true,minute,false);if(r>0)scoreA++;}
-    if(Math.random()<(0.65+ratioB*0.25)){const r=attemptGoal(false,minute,false);if(r<0)scoreB++;}
+    const chaseA=scoreB>scoreA?(scoreB-scoreA)*0.035:scoreA>scoreB?-(scoreA-scoreB)*0.018:0;
+    const chaseB=scoreA>scoreB?(scoreA-scoreB)*0.035:scoreB>scoreA?-(scoreB-scoreA)*0.018:0;
+    const qualityTiltA=(avgOvrA-avgOvrB)*0.006,qualityTiltB=(avgOvrB-avgOvrA)*0.006;
+    const initA=ratioA+(momentumA-50)/180+qualityTiltA+chaseA+rnd(-0.08,0.08);
+    const initB=ratioB+(momentumB-50)/180+qualityTiltB+chaseB+rnd(-0.08,0.08);
+    const gap=clamp(Math.abs(initA-initB),0,0.24);
+    const chanceA=clamp(0.31+ratioA*0.58+(initA>=initB?0.14+gap*0.45:-0.11-gap*0.35),0.22,0.93);
+    const chanceB=clamp(0.31+ratioB*0.58+(initB>initA?0.14+gap*0.45:-0.11-gap*0.35),0.22,0.93);
+    if(Math.random()<chanceA){const r=attemptGoal(true,minute,false);if(r>0)scoreA++;}
+    if(Math.random()<chanceB){const r=attemptGoal(false,minute,false);if(r<0)scoreB++;}
     if(Math.random()<0.20*mp.foulMult){const isADef=Math.random()<0.5;const df=pickDef(activeSt(isADef),isADef?fA:fB);const att=pickGoalscorer(activeSt(!isADef),isADef?fB:fA);if(df&&att){addEv(minute,'tackle',bc(pick(CMT.tackle),{A:df.n,B:att.n}));const rat=(isADef?ratA:ratB).find(r=>r.p===df);if(rat){rat.base+=0.14;rat.motmScore+=0.3;}}}
     if(Math.random()<0.12*mp.dribMult){const isA=Math.random()<0.5;const drb=pickDrb(activeSt(isA),isA?fA:fB);const opp=pickDef(activeSt(!isA),isA?fB:fA);if(drb&&opp&&drb.dri>75)addEv(minute,'dribble',bc(pick(CMT.dribble),{A:drb.n,B:opp.n}));}
     if(Math.random()<0.10){const isA=Math.random()<0.5;const crosser=pickAssist(activeSt(isA),isA?fA:fB,null)||pickDrb(activeSt(isA),isA?fA:fB);if(crosser)addEv(minute,'cross',bc(pick(CMT.cross),{A:crosser.n,T:isA?'A':'B'}));}
@@ -214,10 +262,39 @@ export function runSimulation(cfg){
     if(Math.random()<0.14){if(ratioA>0.5)stats.cornersA++;else stats.cornersB++;}
     if(Math.random()<0.12){if(Math.random()<0.5)stats.offsetA++;else stats.offsetB++;}
     ['A','B'].forEach(s=>{const isA=s==='A';const pool=activeSt(isA);const avgAgg=pool.filter(Boolean).reduce((sum,p)=>sum+p.agg,0)/(pool.filter(Boolean).length||1);if(Math.random()<(0.35+(avgAgg-70)/190)*mp.foulMult){if(isA)stats.foulsA++;else stats.foulsB++;}});
-    if(Math.random()<0.034*ref.strictness){const isA=Math.random()<0.5;const pool=activeSt(isA);const cands=pool.filter(p=>p&&p.r!=='GK');const injured=cands[rndInt(0,cands.length-1)];if(injured){markInactive(isA,injured);addEv(minute,'injury',bc(pick(CMT.injury),{A:injured.n}));const injRat=(isA?ratA:ratB).find(r=>r.p===injured);if(injRat){injRat.base-=0.55;injRat.events.push('🤕');}const curSubs=isA?subsUsedA:subsUsedB;if(curSubs<maxSubs){const bp=isA?benchA:benchB;const sub=bp.find(p=>p&&p.r===injured.r&&p.r!=='GK')||bp.find(p=>p&&p.r!=='GK');if(sub){addEv(minute+1,'sub',bc(pick(CMT.sub),{A:sub.n,B:injured.n,T:isA?'A':'B'}));if(isA){subsUsedA++;subBoostA=Math.min(subBoostA+0.030,1.14);}else{subsUsedB++;subBoostB=Math.min(subBoostB+0.030,1.14);}}}else{if(isA)redPenA=Math.max(0.82,redPenA*0.93);else redPenB=Math.max(0.82,redPenB*0.93);}}}
+    if(Math.random()<0.034*ref.strictness){
+      const isA=Math.random()<0.5;const pool=activeSt(isA);const cands=pool.filter(p=>p&&p.r!=='GK');
+      if(cands.length){
+        const injured=cands[rndInt(0,cands.length-1)];
+        if(injured){
+        markInactive(isA,injured);addEv(minute,'injury',bc(pick(CMT.injury),{A:injured.n}));
+        const injRat=(isA?ratA:ratB).find(r=>r.p===injured);if(injRat){injRat.base-=0.55;injRat.events.push('🤕');}
+        const curSubs=isA?subsUsedA:subsUsedB;
+        if(curSubs<maxSubs){
+          const bp=isA?benchA:benchB;
+          const sub=bp.find(p=>p&&p.r===injured.r&&p.r!=='GK')||bp.find(p=>p&&p.r!=='GK');
+          if(sub){const subMinute=minute+1;addEv(subMinute,'sub',bc(pick(CMT.sub),{A:sub.n,B:injured.n,T:isA?'A':'B'}));applySub(isA,sub,injured,subMinute,'injury',0.030,1.14);}
+        }else{if(isA)redPenA=Math.max(0.82,redPenA*0.93);else redPenB=Math.max(0.82,redPenB*0.93);}
+        }
+      }
+    }
     if(Math.random()<0.06*ref.strictness*mp.foulMult){const isA=Math.random()<0.5;const pool=activeSt(isA);const cands=pool.filter(p=>p&&p.agg>68);if(cands.length){const yp=cands[rndInt(0,cands.length-1)];const tgt=pickGoalscorer(activeSt(!isA),isA?fB:fA);addEv(minute,'yellow',bc(pick(CMT.yellow),{A:yp.n,B:tgt?.n||'?'}));if(isA){stats.yellowsA++;stats.foulsA++;}else{stats.yellowsB++;stats.foulsB++;}}}
     if(Math.random()<0.007*ref.strictness*mp.redMult+(ref.controversial?0.006:0)){const isA=Math.random()<0.5;const pool=activeSt(isA);const cands=pool.filter(p=>p&&p.agg>80&&p.r!=='GK');if(cands.length){const rp=cands[rndInt(0,cands.length-1)];markInactive(isA,rp);addEv(minute,'red',bc(pick(CMT.red),{A:rp.n,T:isA?'A':'B'}));if(isA){stats.redsA++;redPenA=Math.max(0.70,redPenA*0.84);}else{stats.redsB++;redPenB=Math.max(0.70,redPenB*0.84);}updMom(isA,'red');const rat=(isA?ratA:ratB).find(r=>r.p===rp);if(rat){rat.base-=1.8;rat.events.push('🟥');}}}
-    if(minute>=55&&minute<=68){['A','B'].forEach(s=>{const cur=s==='A'?subsUsedA:subsUsedB;if(cur<maxSubs&&cur<Math.ceil(maxSubs/2)){const bp=s==='A'?benchA:benchB;const st2=activeSt(s==='A');const si=bp.find(p=>p&&p.r!=='GK');const so=st2.filter(p=>p&&p.r!=='GK')[rndInt(0,st2.filter(p=>p&&p.r!=='GK').length-1)];if(si&&so){addEv(minute+rndInt(0,3),'sub',bc(pick(CMT.sub),{A:si.n,B:so.n,T:s}));if(s==='A'){subsUsedA++;subBoostA=Math.min(subBoostA+0.015,1.12);}else{subsUsedB++;subBoostB=Math.min(subBoostB+0.015,1.12);}}}});}
+    if(minute>=55&&minute<=68){
+      ['A','B'].forEach(s=>{
+        const isA=s==='A',cur=isA?subsUsedA:subsUsedB;
+        if(cur>=maxSubs||cur>=Math.ceil(maxSubs/2))return;
+        const bp=isA?benchA:benchB,st2=activeSt(isA),form=isA?fA:fB,live=isA?stA:stB;
+        const outPool=st2.filter(p=>p&&p.r!=='GK');
+        if(!outPool.length)return;
+        const so=outPool[rndInt(0,outPool.length-1)];
+        if(!so)return;
+        const idx=live.findIndex(p=>p&&p.id===so.id);
+        const role=idx>=0?form.pos[idx]:so.r;
+        const si=bp.find(p=>p&&p.r!=='GK'&&roleFit(p.r,role,p.alt)>=0.65)||bp.find(p=>p&&p.r!=='GK');
+        if(si){const subMinute=minute+rndInt(0,3);addEv(subMinute,'sub',bc(pick(CMT.sub),{A:si.n,B:so.n,T:s}));applySub(isA,si,so,subMinute,'tactical',0.015,1.12);}
+      });
+    }
   }
 
   if(!events.find(e=>e.type==='ht'))events.splice(Math.floor(events.length/2),0,{min:45,type:'ht',text:pick(CMT.ht),momA:Math.round(momentumA),momB:Math.round(momentumB)});
@@ -256,7 +333,7 @@ export function runSimulation(cfg){
     return{...duel,scoreA:sA2,scoreB:sB2,duelWinner:dw};
   });
 
-  events.sort((a,b)=>a.min-b.min);
+  events.sort((a,b)=>a.min-b.min||((a._ord||0)-(b._ord||0)));
   const all=[...ratA.map(r=>({...r,side:'A'})),...ratB.map(r=>({...r,side:'B'}))].filter(r=>r.p);
   const winnerRat=winner!=='draw'?all.filter(r=>r.side===winner):all;
   const motm=winnerRat.sort((a,b)=>(b.base+b.motmScore*0.3)-(a.base+a.motmScore*0.3))[0];
