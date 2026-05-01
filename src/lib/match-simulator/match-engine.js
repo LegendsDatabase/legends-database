@@ -145,10 +145,10 @@ export function runSimulation(cfg){
     const outRat=outgoing?rats.find(r=>r.p&&r.p.id===outgoing.id&&!r.sub):null;
     if(outRat){
       outRat.outMin=minute;
-      outRat.events.push("OUT "+minute+"'");
+      outRat.replacedBy=sub.n;
       if(reason==='injury')outRat.base-=0.25;
     }
-    const subRat={p:sub,base:6.15+rnd(-0.30,0.35),events:["IN "+minute+"'"],motmScore:0,sub:true,inMin:minute,outFor:outgoing?.n||'',role};
+    const subRat={p:sub,base:6.15+rnd(-0.30,0.35),events:[],motmScore:0,sub:true,inMin:minute,outFor:outgoing?.n||'',role};
     rats.push(subRat);
     if(isA){subsUsedA++;subBoostA=Math.min(subBoostA+boostAdd,boostMax);}
     else{subsUsedB++;subBoostB=Math.min(subBoostB+boostAdd,boostMax);}
