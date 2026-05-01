@@ -418,17 +418,20 @@ const bioRoleColor = ovrColor(p.overall_rating);
     .avatar-ring{
       flex-shrink:0;width:80px;height:80px;
       border-radius:50%;display:flex;align-items:center;justify-content:center;padding:3px;
+      pointer-events:none;user-select:none;-webkit-user-select:none;
     }
     .avatar{
       width:74px;height:74px;border-radius:50%;
       background:#e8e8ed;display:flex;align-items:center;justify-content:center;
       font-size:22px;font-weight:600;color:#6e6e73;letter-spacing:-0.5px;
       overflow:hidden;position:relative;
+      pointer-events:none;user-select:none;-webkit-user-select:none;
     }
     .avatar-img{
       position:absolute;inset:0;width:100%;height:100%;
       object-fit:cover;object-position:center 38%;
       display:block;
+      pointer-events:none;user-select:none;-webkit-user-select:none;-webkit-user-drag:none;
     }
     .avatar-initials{ position:relative;z-index:1; }
     .avatar.has-photo .avatar-initials{ display:none; }
@@ -838,21 +841,21 @@ const bioRoleColor = ovrColor(p.overall_rating);
         <div class="avatar-ring" style={`background:conic-gradient(${gradientStops});border-radius:50%;`}>
           <div class="avatar">
             <span class="avatar-initials">{initials}</span>
-            <img class="avatar-img" src={playerPhoto} alt={p.name} loading="eager" decoding="async" fetchpriority="high" onload="this.parentElement.classList.add('has-photo')" onerror="this.style.display='none'"/>
+            <img class="avatar-img" src={playerPhoto} alt={p.name} loading="eager" decoding="async" fetchpriority="high" draggable="false" oncontextmenu="return false" onload="this.parentElement.classList.add('has-photo')" onerror="this.style.display='none'"/>
           </div>
         </div>
       ) : hasSolidBorder ? (
         <div class="avatar-ring" style={`background:${solidColor};`}>
           <div class="avatar">
             <span class="avatar-initials">{initials}</span>
-            <img class="avatar-img" src={playerPhoto} alt={p.name} loading="eager" decoding="async" fetchpriority="high" onload="this.parentElement.classList.add('has-photo')" onerror="this.style.display='none'"/>
+            <img class="avatar-img" src={playerPhoto} alt={p.name} loading="eager" decoding="async" fetchpriority="high" draggable="false" oncontextmenu="return false" onload="this.parentElement.classList.add('has-photo')" onerror="this.style.display='none'"/>
           </div>
         </div>
       ) : (
         <div class="avatar-ring" style="background:#e8e8ed;">
           <div class="avatar">
             <span class="avatar-initials">{initials}</span>
-            <img class="avatar-img" src={playerPhoto} alt={p.name} loading="eager" decoding="async" fetchpriority="high" onload="this.parentElement.classList.add('has-photo')" onerror="this.style.display='none'"/>
+            <img class="avatar-img" src={playerPhoto} alt={p.name} loading="eager" decoding="async" fetchpriority="high" draggable="false" oncontextmenu="return false" onload="this.parentElement.classList.add('has-photo')" onerror="this.style.display='none'"/>
           </div>
         </div>
       )}
