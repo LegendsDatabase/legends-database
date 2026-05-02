@@ -6,10 +6,12 @@ const title = "Messi vs Maradona — The Question That Has No Answer";
 const description = "Two Argentines, one left foot seemingly touched by God, one impossible comparison that divided Italy and united the world. The deepest duel in football history, dissected across every dimension.";
 const slug = "duel-messi-maradona";
 const canonicalUrl = "https://legendsdatabase.com/articles/" + slug;
-const ogImage = "https://legendsdatabase.com/articles/duel-van-basten-ronaldo.jpg";
+const heroImage = "/articles/duel-vanbasten-ronaldo.jpg";
+const ogImage = "https://legendsdatabase.com" + heroImage;
 const date = "May 2025";
 const readTime = "20 min read";
 const tag = "Duels";
+const author = "Francesco B.";
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -38,9 +40,9 @@ const tag = "Duels";
     "@type": "Article",
     "headline": "Messi vs Maradona — The Question That Has No Answer",
     "description": "Two Argentines, one left foot seemingly touched by God, one impossible comparison that divided Italy and united the world.",
-    "image": "https://legendsdatabase.com/articles/duel-van-basten-ronaldo.jpg",
+    "image": "https://legendsdatabase.com/articles/duel-vanbasten-ronaldo.jpg",
     "datePublished": "2025-05-01",
-    "author": { "@type": "Organization", "name": "Legends Database" },
+    "author": { "@type": "Person", "name": "Francesco B." },
     "publisher": { "@type": "Organization", "name": "Legends Database", "url": "https://legendsdatabase.com" }
   }
   </script>
@@ -85,9 +87,11 @@ const tag = "Duels";
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(ellipse at 20% 50%, rgba(26,26,46,0.95) 0%, transparent 60%),
-        radial-gradient(ellipse at 80% 50%, rgba(10,61,98,0.95) 0%, transparent 60%),
-        radial-gradient(ellipse at 50% 100%, rgba(201,168,76,0.12) 0%, transparent 50%);
+        radial-gradient(ellipse at 20% 50%, rgba(26,26,46,0.72) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 50%, rgba(10,61,98,0.72) 0%, transparent 60%),
+        radial-gradient(ellipse at 50% 100%, rgba(201,168,76,0.12) 0%, transparent 50%),
+        linear-gradient(rgba(10,10,20,0.76), rgba(10,10,20,0.86)),
+        url("/articles/duel-vanbasten-ronaldo.jpg") center/cover no-repeat;
     }
     .hero-divider {
       position: absolute;
@@ -196,6 +200,10 @@ const tag = "Duels";
       object-fit: cover;
       object-position: top center;
       filter: grayscale(15%) contrast(1.05);
+    }
+    .article-author {
+      color: rgba(255,255,255,0.56);
+      font-weight: 700;
     }
     .player-photo-overlay {
       position: absolute;
@@ -785,14 +793,14 @@ const tag = "Duels";
     <!-- PLAYER PHOTOS -->
     <div class="player-photos">
       <div class="player-photo-wrap diego-wrap">
-        <img src="/diego-maradona.jpg" alt="Diego Maradona" class="player-photo-img"
+        <img src="/players/maradona-diego.jpg" alt="Diego Maradona" class="player-photo-img"
              onerror="this.parentElement.style.background='linear-gradient(135deg,#1a1a2e,#2d2d4a)';this.style.display='none'"/>
         <div class="player-photo-overlay"></div>
         <span class="player-photo-years">1976 – 1997</span>
         <span class="player-photo-name">Maradona</span>
       </div>
       <div class="player-photo-wrap leo-wrap">
-        <img src="/lionel-messi.jpg" alt="Lionel Messi" class="player-photo-img"
+        <img src="/players/messi-lionel.jpg" alt="Lionel Messi" class="player-photo-img"
              onerror="this.parentElement.style.background='linear-gradient(135deg,#0a3d62,#1a6596)';this.style.display='none'"/>
         <div class="player-photo-overlay"></div>
         <span class="player-photo-years">2004 – present</span>
@@ -808,6 +816,8 @@ const tag = "Duels";
     <p class="hero-subtitle">The question that has no answer — and the one football will never stop asking</p>
     <div class="hero-meta">
       <span>Duels</span>
+      <span class="hero-meta-sep">·</span>
+      <span class="article-author">By {author}</span>
       <span class="hero-meta-sep">·</span>
       <span>{date}</span>
       <span class="hero-meta-sep">·</span>
