@@ -1,0 +1,424 @@
+---
+import { supabase } from '../lib/supabase.js';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import { COACHES } from '../lib/match-simulator/coaches.js';
+
+const { data: rawTeams } = await supabase
+  .from('teams')
+  .select('id,name,slug,type,confederation,rivalries,world_cup_enabled,default_formation,default_tactic,default_coach_id,seed_weight,sim_profile')
+  .eq('world_cup_enabled', true)
+  .order('seed_weight', { ascending: false });
+
+function titleName(name = '') {
+  return name
+    .split(/[\s-]+/)
+    .filter(Boolean)
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+}
+
+function profileOf(team) {
+  const raw = team?.sim_profile ?? {};
+  if (typeof raw === 'string') {
+    try { return JSON.parse(raw); } catch { return {}; }
+  }
+  return raw || {};
+}
+
+const teams = (rawTeams ?? []).map(t => {
+  const profile = profileOf(t);
+  return {
+    id: t.id,
+    name: titleName(t.name),
+    slug: t.slug,
+    confederation: t.confederation ?? '',
+    rivalries: t.rivalries ?? '',
+    formation: t.default_formation ?? '4-3-3',
+    tactic: t.default_tactic ?? 'balanced',
+    coachId: t.default_coach_id ?? '',
+    seed: t.seed_weight ?? 50,
+    identity: profile.identity ?? 'All-time national identity',
+    shortLabel: profile.short_label ?? 'Tournament profile',
+    style: profile.style ?? 'A legendary side built for the biggest stage.',
+    pressure: profile.pressure ?? 80,
+    tempo: profile.tempo ?? 70,
+    risk: profile.risk ?? 55,
+    knockoutNerve: profile.knockout_nerve ?? 80,
+    strengths: Array.isArray(profile.strengths) ? profile.strengths : [],
+    vulnerabilities: Array.isArray(profile.vulnerabilities) ? profile.vulnerabilities : [],
+    tags: Array.isArray(profile.tags) ? profile.tags : [],
+    logo: `/teams/${t.slug}.svg`,
+  };
+});
+
+const hosts = [
+  { id: 'england', label: 'England', venue: 'Wembley nights', mood: 'Tradition, rain, pressure, noise.', accent: '#b61f2e' },
+  { id: 'italy', label: 'Italy', venue: 'San Siro & Rome', mood: 'Tactical theatre under warm floodlights.', accent: '#1a7a1a' },
+  { id: 'germany', label: 'Germany', venue: 'Munich & Dortmund', mood: 'Order, full stadiums, ruthless tempo.', accent: '#111111' },
+  { id: 'spain', label: 'Spain', venue: 'Madrid & Barcelona', mood: 'Technical football, dry pitches, control.', accent: '#c28a00' },
+  { id: 'brazil', label: 'Brazil', venue: 'Maracana dream', mood: 'Heat, rhythm, myth and expectation.', accent: '#178a38' },
+  { id: 'argentina', label: 'Argentina', venue: 'Buenos Aires roar', mood: 'Emotion, edge, rivalry and drama.', accent: '#5aa7d8' },
+];
+
+const pageData = JSON.stringify({ teams, coaches: COACHES, hosts }).replace(/</g, '\\u003c');
+const defaultTeam = teams[0] ?? null;
+const defaultCoach = COACHES.find(c => c.id === defaultTeam?.coachId) ?? COACHES[0];
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>All-Time World Cup - Legends Database</title>
+  <meta name="description" content="Build your path through an all-time national-team World Cup featuring the greatest football nations ever."/>
+  <meta name="robots" content="noindex, nofollow, noarchive"/>
+  <link rel="canonical" href="https://legendsdatabase.com/all-time-world-cup"/>
+  <link rel="icon" type="image/png" href="/favicon.png"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style is:global>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --ink:#f7f4ee;
+      --muted:rgba(247,244,238,.62);
+      --dim:rgba(247,244,238,.38);
+      --panel:rgba(255,255,255,.82);
+      --panel-strong:#fff;
+      --line:rgba(255,255,255,.16);
+      --gold:#d8b76a;
+      --blue:#0071e3;
+      --red:#c0392b;
+    }
+    body{font-family:-apple-system,'SF Pro Text','Inter',sans-serif;background:#05050a;color:#1d1d1f;padding-top:44px;-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column;}
+    .wc-page{position:relative;overflow:hidden;min-height:calc(100vh - 44px);background:
+      radial-gradient(circle at 18% 8%,rgba(216,183,106,.22),transparent 28%),
+      radial-gradient(circle at 78% 10%,rgba(0,113,227,.18),transparent 28%),
+      linear-gradient(180deg,#080811 0%,#12121d 44%,#f2f2f7 44%,#f2f2f7 100%);
+    }
+    .wc-page::before{content:'';position:absolute;inset:0;background:
+      linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+      background-size:64px 64px;mask-image:linear-gradient(to bottom,#000,transparent 58%);pointer-events:none;
+    }
+    .wc-shell{position:relative;max-width:1180px;margin:0 auto;padding:42px 32px 72px;}
+    .wc-hero{display:grid;grid-template-columns:minmax(0,1.05fr) 420px;gap:34px;align-items:center;color:var(--ink);padding:24px 0 38px;}
+    .wc-kicker{display:inline-flex;align-items:center;gap:8px;font-size:10px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:rgba(247,244,238,.58);margin-bottom:18px;}
+    .wc-kicker::before{content:'';width:28px;height:1px;background:linear-gradient(to right,var(--gold),transparent);}
+    .wc-title{font-size:clamp(44px,7vw,92px);line-height:.88;letter-spacing:-.075em;font-weight:900;max-width:740px;}
+    .wc-title span{display:block;color:var(--gold);letter-spacing:-.06em;}
+    .wc-sub{font-size:18px;line-height:1.58;color:var(--muted);max-width:650px;margin-top:22px;font-weight:500;}
+    .wc-hero-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:28px;}
+    .wc-cta{border:none;border-radius:999px;padding:13px 18px;font-family:inherit;font-weight:900;font-size:13px;cursor:pointer;transition:transform .16s,box-shadow .16s,opacity .16s;}
+    .wc-cta.primary{color:#fff;background:linear-gradient(135deg,#c0392b,#e85d4f);box-shadow:0 18px 44px rgba(192,57,43,.34);}
+    .wc-cta.secondary{color:var(--ink);background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(18px);}
+    .wc-cta:hover{transform:translateY(-2px);}
+    .wc-hero-card{position:relative;border-radius:34px;min-height:420px;overflow:hidden;background:#111;box-shadow:0 34px 90px rgba(0,0,0,.42),inset 0 0 0 1px rgba(255,255,255,.14);}
+    .wc-hero-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(1.05) contrast(1.06);}
+    .wc-hero-card::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.04),rgba(0,0,0,.62));}
+    .wc-logo-caption{position:absolute;left:22px;right:22px;bottom:20px;z-index:2;display:flex;align-items:flex-end;justify-content:space-between;gap:16px;color:#fff;}
+    .wc-logo-caption strong{font-size:22px;font-weight:900;letter-spacing:-.04em;}
+    .wc-logo-caption span{font-size:10px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.58);}
+    .wc-score-pill{flex-shrink:0;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.12);backdrop-filter:blur(18px);border-radius:18px;padding:11px 13px;text-align:right;}
+    .wc-score-pill b{display:block;font-size:24px;line-height:1;color:var(--gold);}
+    .wc-score-pill small{font-size:8px;font-weight:900;color:rgba(255,255,255,.52);letter-spacing:.12em;text-transform:uppercase;}
+    .wc-board{margin-top:10px;display:grid;grid-template-columns:1fr;gap:18px;}
+    .setup-card{position:relative;overflow:hidden;background:var(--panel-strong);border:1px solid rgba(220,220,228,.95);border-radius:32px;padding:28px;box-shadow:0 22px 60px rgba(20,20,30,.09);}
+    .setup-card.dark{background:linear-gradient(135deg,#11121d,#1b1b29);color:#fff;border-color:rgba(255,255,255,.1);}
+    .setup-card::before{content:'';position:absolute;right:-80px;top:-100px;width:250px;height:250px;border-radius:50%;background:radial-gradient(circle,rgba(0,113,227,.12),transparent 68%);}
+    .setup-card.dark::before{background:radial-gradient(circle,rgba(216,183,106,.20),transparent 68%);}
+    .setup-head{position:relative;display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:22px;}
+    .setup-step{font-size:10px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:#8e8e93;margin-bottom:7px;}
+    .setup-card.dark .setup-step{color:rgba(255,255,255,.40);}
+    .setup-title{font-size:30px;font-weight:900;letter-spacing:-.055em;line-height:1;}
+    .setup-copy{margin-top:8px;font-size:14px;line-height:1.55;color:#6e6e73;max-width:660px;font-weight:500;}
+    .setup-card.dark .setup-copy{color:rgba(255,255,255,.58);}
+    .selection-badge{flex-shrink:0;border-radius:999px;background:#f5f5f7;border:1px solid #e5e5ea;color:#6e6e73;padding:8px 12px;font-size:11px;font-weight:900;}
+    .setup-card.dark .selection-badge{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.12);color:rgba(255,255,255,.72);}
+    .team-grid{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+    .team-card{position:relative;border:1.5px solid #ececf1;border-radius:22px;background:linear-gradient(180deg,#fff,#fbfbfd);padding:15px;min-height:154px;text-align:left;cursor:pointer;font-family:inherit;transition:transform .16s,border-color .16s,box-shadow .16s;background-clip:padding-box;}
+    .team-card:hover{transform:translateY(-3px);box-shadow:0 18px 36px rgba(0,0,0,.08);}
+    .team-card.active{border-color:#0071e3;box-shadow:0 0 0 4px rgba(0,113,227,.10),0 18px 42px rgba(0,113,227,.14);}
+    .team-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px;}
+    .team-logo{width:40px;height:40px;object-fit:contain;filter:drop-shadow(0 6px 12px rgba(0,0,0,.08));}
+    .team-seed{font-size:28px;line-height:1;font-weight:900;color:#1a7a1a;letter-spacing:-.06em;}
+    .team-name{font-size:16px;font-weight:900;letter-spacing:-.035em;color:#1d1d1f;margin-bottom:3px;}
+    .team-meta{font-size:9px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#aeaeb2;}
+    .team-style{font-size:11px;line-height:1.45;color:#6e6e73;margin-top:10px;font-weight:650;}
+    .info-grid{position:relative;display:grid;grid-template-columns:1.1fr .9fr;gap:18px;align-items:stretch;}
+    .identity-panel{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:24px;padding:20px;min-height:220px;}
+    .identity-label{font-size:10px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.38);margin-bottom:8px;}
+    .identity-title{font-size:30px;line-height:1.05;font-weight:900;letter-spacing:-.055em;margin-bottom:10px;}
+    .identity-text{font-size:14px;line-height:1.65;color:rgba(255,255,255,.68);font-weight:500;}
+    .identity-tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:16px;}
+    .identity-tags span{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;border-radius:999px;padding:6px 8px;background:rgba(216,183,106,.14);color:#e8ce8f;border:1px solid rgba(216,183,106,.16);}
+    .manager-panel{background:#fff;border-radius:24px;padding:20px;color:#1d1d1f;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06);}
+    .manager-select{width:100%;font-family:inherit;border:1.5px solid #e5e5ea;border-radius:14px;background:#f9f9fb;padding:12px 12px;font-size:14px;font-weight:800;outline:none;margin-bottom:16px;}
+    .manager-select:focus{border-color:#0071e3;box-shadow:0 0 0 4px rgba(0,113,227,.09);}
+    .manager-name{font-size:28px;font-weight:900;letter-spacing:-.055em;margin-bottom:4px;}
+    .manager-style{font-size:11px;font-weight:900;color:#0071e3;letter-spacing:.12em;text-transform:uppercase;margin-bottom:13px;}
+    .manager-copy{font-size:13px;line-height:1.6;color:#6e6e73;font-weight:500;}
+    .fit-pill{display:inline-flex;margin-top:14px;border-radius:999px;padding:8px 10px;background:#efffee;color:#1a7a1a;font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;}
+    .host-grid{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+    .host-card{position:relative;overflow:hidden;border:none;border-radius:24px;min-height:172px;text-align:left;padding:18px;background:#fff;cursor:pointer;font-family:inherit;box-shadow:inset 0 0 0 1px #ececf1;transition:transform .16s,box-shadow .16s;}
+    .host-card::before{content:'';position:absolute;right:-45px;top:-54px;width:130px;height:130px;border-radius:50%;background:var(--host-accent,#0071e3);opacity:.13;}
+    .host-card:hover{transform:translateY(-3px);box-shadow:inset 0 0 0 1px #d8d8df,0 18px 36px rgba(0,0,0,.08);}
+    .host-card.active{box-shadow:inset 0 0 0 2px var(--host-accent,#0071e3),0 0 0 4px rgba(0,113,227,.08),0 20px 42px rgba(0,0,0,.08);}
+    .host-country{position:relative;font-size:25px;font-weight:900;letter-spacing:-.055em;margin-bottom:5px;color:#1d1d1f;}
+    .host-venue{position:relative;font-size:10px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:var(--host-accent,#0071e3);margin-bottom:16px;}
+    .host-mood{position:relative;font-size:13px;line-height:1.55;color:#6e6e73;font-weight:600;max-width:230px;}
+    .summary-bar{margin-top:18px;background:rgba(255,255,255,.86);border:1px solid rgba(220,220,228,.95);border-radius:28px;padding:18px;display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center;box-shadow:0 20px 54px rgba(20,20,30,.10);backdrop-filter:blur(20px);}
+    .summary-title{font-size:20px;font-weight:900;letter-spacing:-.04em;margin-bottom:4px;}
+    .summary-copy{font-size:13px;line-height:1.5;color:#6e6e73;font-weight:600;}
+    .summary-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
+    .start-btn{border:none;border-radius:999px;background:linear-gradient(135deg,#111827,#1f2937);color:#fff;padding:13px 18px;font-family:inherit;font-size:13px;font-weight:900;cursor:pointer;box-shadow:0 16px 36px rgba(17,24,39,.24);transition:transform .16s,box-shadow .16s;}
+    .start-btn:hover{transform:translateY(-2px);box-shadow:0 22px 46px rgba(17,24,39,.30);}
+    .ghost-note{font-size:11px;font-weight:800;color:#8e8e93;}
+    .wc-toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,18px);opacity:0;pointer-events:none;z-index:50;background:rgba(20,20,28,.86);color:#fff;border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(20px);border-radius:999px;padding:12px 16px;font-size:12px;font-weight:800;box-shadow:0 20px 50px rgba(0,0,0,.28);transition:opacity .2s,transform .2s;}
+    .wc-toast.visible{opacity:1;transform:translate(-50%,0);}
+    @media(max-width:980px){
+      .wc-shell{padding:30px 20px 54px;}
+      .wc-hero{grid-template-columns:1fr;gap:22px;}
+      .wc-hero-card{min-height:320px;}
+      .team-grid{grid-template-columns:repeat(2,1fr);}
+      .info-grid{grid-template-columns:1fr;}
+      .host-grid{grid-template-columns:repeat(2,1fr);}
+      .summary-bar{grid-template-columns:1fr;}
+      .summary-actions{justify-content:flex-start;}
+    }
+    @media(max-width:620px){
+      body{padding-top:44px;}
+      .wc-page{background:linear-gradient(180deg,#080811 0%,#12121d 34%,#f2f2f7 34%,#f2f2f7 100%);}
+      .wc-shell{padding:24px 16px 44px;}
+      .wc-hero{padding-top:8px;}
+      .wc-title{font-size:48px;}
+      .wc-sub{font-size:15px;}
+      .wc-hero-card{min-height:260px;border-radius:26px;}
+      .setup-card{border-radius:24px;padding:20px;}
+      .setup-head{flex-direction:column;}
+      .setup-title{font-size:26px;}
+      .team-grid,.host-grid{grid-template-columns:1fr;}
+      .team-card{min-height:132px;}
+      .identity-title,.manager-name{font-size:24px;}
+      .selection-badge{align-self:flex-start;}
+    }
+  </style>
+</head>
+<body>
+<Navbar/>
+<main class="wc-page">
+  <div class="wc-shell">
+    <section class="wc-hero">
+      <div>
+        <div class="wc-kicker">Premium Beta · Legends Database</div>
+        <h1 class="wc-title">All-Time <span>World Cup</span></h1>
+        <p class="wc-sub">Sixteen immortal national teams. Four groups. One knockout road. A tournament built for pressure, rivalries, managers and football mythology.</p>
+        <div class="wc-hero-actions">
+          <a class="wc-cta primary" href="#pick-team">Build your tournament</a>
+          <a class="wc-cta secondary" href="/match-simulator">Single match simulator</a>
+        </div>
+      </div>
+      <div class="wc-hero-card" aria-label="All-Time World Cup logo">
+        <img src="/world-cup/logo-hero.jpg" alt="All-Time World Cup" loading="eager"/>
+        <div class="wc-logo-caption">
+          <div>
+            <span>Coming mode</span>
+            <strong>Premium tournament experience</strong>
+          </div>
+          <div class="wc-score-pill">
+            <b>16</b>
+            <small>nations</small>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="wc-board" id="pick-team">
+      <div class="setup-card">
+        <div class="setup-head">
+          <div>
+            <div class="setup-step">Step 01</div>
+            <h2 class="setup-title">Pick your team</h2>
+            <p class="setup-copy">Choose one of the sixteen all-time national teams. Every side carries its own tactical identity, pressure profile and tournament DNA.</p>
+          </div>
+          <div class="selection-badge" id="teamBadge">{defaultTeam?.name ?? 'Choose nation'}</div>
+        </div>
+        <div class="team-grid" id="teamGrid">
+          {teams.map((team, index) => (
+            <button class={'team-card' + (index === 0 ? ' active' : '')} type="button" data-team={team.slug}>
+              <div class="team-top">
+                <img class="team-logo" src={team.logo} alt="" loading="lazy"/>
+                <div class="team-seed">{team.seed}</div>
+              </div>
+              <div class="team-name">{team.name}</div>
+              <div class="team-meta">{team.confederation} · {team.formation}</div>
+              <div class="team-style">{team.shortLabel}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div class="setup-card dark">
+        <div class="setup-head">
+          <div>
+            <div class="setup-step">Step 02</div>
+            <h2 class="setup-title">Pick your coach</h2>
+            <p class="setup-copy">The suggested manager follows the national identity where possible. You can override it: the tournament will remember your choice.</p>
+          </div>
+          <div class="selection-badge" id="coachBadge">{defaultCoach?.name ?? 'Select manager'}</div>
+        </div>
+        <div class="info-grid">
+          <div class="identity-panel">
+            <div class="identity-label">Selected nation DNA</div>
+            <div class="identity-title" id="identityTitle">{defaultTeam?.identity ?? 'Tournament identity'}</div>
+            <p class="identity-text" id="identityText">{defaultTeam?.style ?? 'Pick a team to reveal its tactical profile.'}</p>
+            <div class="identity-tags" id="identityTags">
+              {(defaultTeam?.tags ?? []).map(tag => <span>{tag}</span>)}
+            </div>
+          </div>
+          <div class="manager-panel">
+            <select class="manager-select" id="coachSelect" aria-label="Pick your coach">
+              {COACHES.map(coach => (
+                <option value={coach.id} selected={coach.id === defaultTeam?.coachId}>{coach.name} · {coach.style}</option>
+              ))}
+            </select>
+            <div class="manager-name" id="managerName">{defaultCoach?.name ?? 'Manager'}</div>
+            <div class="manager-style" id="managerStyle">{defaultCoach?.style ?? 'Style'}</div>
+            <p class="manager-copy" id="managerCopy">This manager sets the emotional and tactical tone before the first draw ball is opened.</p>
+            <div class="fit-pill" id="fitPill">Recommended profile</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-card">
+        <div class="setup-head">
+          <div>
+            <div class="setup-step">Step 03</div>
+            <h2 class="setup-title">Pick your host country</h2>
+            <p class="setup-copy">The host shapes the atmosphere: stadium feel, weather tendencies, crowd pressure and narrative texture.</p>
+          </div>
+          <div class="selection-badge" id="hostBadge">England</div>
+        </div>
+        <div class="host-grid" id="hostGrid">
+          {hosts.map((host, index) => (
+            <button class={'host-card' + (index === 0 ? ' active' : '')} type="button" data-host={host.id} style={`--host-accent:${host.accent};`}>
+              <div class="host-country">{host.label}</div>
+              <div class="host-venue">{host.venue}</div>
+              <p class="host-mood">{host.mood}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div class="summary-bar">
+        <div>
+          <div class="summary-title" id="summaryTitle">{defaultTeam?.name ?? 'Your nation'} in {hosts[0].label}</div>
+          <p class="summary-copy" id="summaryCopy">Your tournament setup is being prepared. Next: seeded draw, group stage calendar and knockout bracket.</p>
+        </div>
+        <div class="summary-actions">
+          <span class="ghost-note">Draw engine coming next</span>
+          <button class="start-btn" type="button" id="startTournament">Prepare tournament</button>
+        </div>
+      </div>
+    </section>
+  </div>
+  <div class="wc-toast" id="wcToast">Tournament setup saved.</div>
+</main>
+<Footer/>
+<script type="application/json" id="wcData" set:html={pageData}></script>
+<script>
+  const data = JSON.parse(document.getElementById('wcData')?.textContent || '{}');
+  const teams = data.teams || [];
+  const coaches = data.coaches || [];
+  const hosts = data.hosts || [];
+  const state = {
+    teamSlug: teams[0]?.slug || '',
+    coachId: teams[0]?.coachId || coaches[0]?.id || '',
+    hostId: hosts[0]?.id || 'england',
+  };
+
+  const $ = id => document.getElementById(id);
+  const byTeam = slug => teams.find(t => t.slug === slug) || teams[0];
+  const byCoach = id => coaches.find(c => c.id === id) || coaches[0];
+  const byHost = id => hosts.find(h => h.id === id) || hosts[0];
+
+  function toast(msg) {
+    const el = $('wcToast');
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add('visible');
+    clearTimeout(toast.t);
+    toast.t = setTimeout(() => el.classList.remove('visible'), 1900);
+  }
+
+  function coachText(coach, team) {
+    if (!coach) return 'Choose a manager to define the touchline personality.';
+    const fit = coach.id === team?.coachId ? 'This is the recommended profile for this nation.' : 'A custom appointment: interesting, risky, and very much part of the story.';
+    return `${coach.name} brings a ${coach.style.toLowerCase()} identity. ${fit}`;
+  }
+
+  function render() {
+    const team = byTeam(state.teamSlug);
+    const coach = byCoach(state.coachId);
+    const host = byHost(state.hostId);
+    document.querySelectorAll('.team-card').forEach(btn => btn.classList.toggle('active', btn.dataset.team === state.teamSlug));
+    document.querySelectorAll('.host-card').forEach(btn => btn.classList.toggle('active', btn.dataset.host === state.hostId));
+    if ($('teamBadge')) $('teamBadge').textContent = team?.name || 'Choose nation';
+    if ($('coachBadge')) $('coachBadge').textContent = coach?.name || 'Select manager';
+    if ($('hostBadge')) $('hostBadge').textContent = host?.label || 'Host country';
+    if ($('identityTitle')) $('identityTitle').textContent = team?.identity || 'Tournament identity';
+    if ($('identityText')) $('identityText').textContent = team?.style || 'Pick a team to reveal its tactical profile.';
+    if ($('identityTags')) $('identityTags').innerHTML = (team?.tags || []).map(tag => `<span>${tag}</span>`).join('');
+    if ($('coachSelect')) $('coachSelect').value = state.coachId;
+    if ($('managerName')) $('managerName').textContent = coach?.name || 'Manager';
+    if ($('managerStyle')) $('managerStyle').textContent = coach?.style || 'Style';
+    if ($('managerCopy')) $('managerCopy').textContent = coachText(coach, team);
+    if ($('fitPill')) {
+      const recommended = coach?.id === team?.coachId;
+      $('fitPill').textContent = recommended ? 'Recommended profile' : 'Custom appointment';
+      $('fitPill').style.background = recommended ? '#efffee' : '#fff8df';
+      $('fitPill').style.color = recommended ? '#1a7a1a' : '#9a6a00';
+    }
+    if ($('summaryTitle')) $('summaryTitle').textContent = `${team?.name || 'Your nation'} in ${host?.label || 'the host country'}`;
+    if ($('summaryCopy')) {
+      $('summaryCopy').textContent = `${team?.shortLabel || 'Tournament profile'} · ${coach?.name || 'Manager'} · ${host?.venue || 'Host venues'}. Next step: seeded draw and group-stage calendar.`;
+    }
+    localStorage.setItem('ld_world_cup_setup', JSON.stringify(state));
+  }
+
+  try {
+    const saved = JSON.parse(localStorage.getItem('ld_world_cup_setup') || 'null');
+    if (saved?.teamSlug && teams.some(t => t.slug === saved.teamSlug)) state.teamSlug = saved.teamSlug;
+    if (saved?.coachId && coaches.some(c => c.id === saved.coachId)) state.coachId = saved.coachId;
+    if (saved?.hostId && hosts.some(h => h.id === saved.hostId)) state.hostId = saved.hostId;
+  } catch {}
+
+  document.querySelectorAll('.team-card').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const team = byTeam(btn.dataset.team);
+      state.teamSlug = team.slug;
+      state.coachId = team.coachId || state.coachId;
+      render();
+    });
+  });
+
+  document.querySelectorAll('.host-card').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.hostId = btn.dataset.host;
+      render();
+    });
+  });
+
+  $('coachSelect')?.addEventListener('change', e => {
+    state.coachId = e.target.value;
+    render();
+  });
+
+  $('startTournament')?.addEventListener('click', () => {
+    render();
+    toast('Setup saved. Seeded draw is the next build step.');
+  });
+
+  render();
+</script>
+</body>
+</html>
