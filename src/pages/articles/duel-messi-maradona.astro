@@ -1,0 +1,1341 @@
+---
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+
+const title = "Messi vs Maradona — The Question That Has No Answer";
+const description = "Two Argentines, one left foot seemingly touched by God, one impossible comparison that divided Italy and united the world. The deepest duel in football history, dissected across every dimension.";
+const slug = "duel-messi-maradona";
+const canonicalUrl = "https://legendsdatabase.com/articles/" + slug;
+const ogImage = "https://legendsdatabase.com/articles/duel-van-basten-ronaldo.jpg";
+const date = "May 2025";
+const readTime = "20 min read";
+const tag = "Duels";
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>{title} – Legends Database</title>
+  <meta name="description" content={description}/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href={canonicalUrl}/>
+  <meta property="og:type" content="article"/>
+  <meta property="og:url" content={canonicalUrl}/>
+  <meta property="og:title" content={title}/>
+  <meta property="og:description" content={description}/>
+  <meta property="og:image" content={ogImage}/>
+  <meta property="og:locale" content="en_US"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content={title}/>
+  <meta name="twitter:description" content={description}/>
+  <meta name="twitter:image" content={ogImage}/>
+  <link rel="icon" type="image/png" href="/favicon.png"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Messi vs Maradona — The Question That Has No Answer",
+    "description": "Two Argentines, one left foot seemingly touched by God, one impossible comparison that divided Italy and united the world.",
+    "image": "https://legendsdatabase.com/articles/duel-van-basten-ronaldo.jpg",
+    "datePublished": "2025-05-01",
+    "author": { "@type": "Organization", "name": "Legends Database" },
+    "publisher": { "@type": "Organization", "name": "Legends Database", "url": "https://legendsdatabase.com" }
+  }
+  </script>
+  <style is:global>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --diego: #1a1a2e;
+      --leo: #0a3d62;
+      --gold: #c9a84c;
+      --gold-light: #e8d5a3;
+      --cream: #f9f6f0;
+      --ink: #1a1a1a;
+      --muted: #6b6b6b;
+      --border: rgba(0,0,0,0.08);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      padding-top: 44px;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      min-height: 92vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #0a0a14;
+      padding: 60px 24px 80px;
+    }
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(26,26,46,0.95) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 50%, rgba(10,61,98,0.95) 0%, transparent 60%),
+        radial-gradient(ellipse at 50% 100%, rgba(201,168,76,0.12) 0%, transparent 50%);
+    }
+    .hero-divider {
+      position: absolute;
+      top: 0; bottom: 0;
+      left: 50%;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent 0%, rgba(201,168,76,0.5) 30%, rgba(201,168,76,0.5) 70%, transparent 100%);
+    }
+    .hero-noise {
+      position: absolute;
+      inset: 0;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      background-size: 128px;
+    }
+    .hero-inner {
+      position: relative;
+      text-align: center;
+      max-width: 860px;
+      width: 100%;
+    }
+    .hero-tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      border: 1px solid rgba(201,168,76,0.35);
+      padding: 5px 14px;
+      border-radius: 100px;
+      margin-bottom: 32px;
+      background: rgba(201,168,76,0.06);
+    }
+    .hero-names {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .hero-name {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(42px, 7vw, 80px);
+      font-weight: 900;
+      line-height: 0.95;
+      letter-spacing: -2px;
+    }
+    .hero-name.diego { color: #ffffff; }
+    .hero-name.leo { color: rgba(255,255,255,0.92); }
+    .hero-vs {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(18px, 3vw, 28px);
+      font-weight: 700;
+      font-style: italic;
+      color: var(--gold);
+      padding: 0 20px;
+      position: relative;
+      top: -4px;
+    }
+    .hero-subtitle {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(14px, 2vw, 19px);
+      font-style: italic;
+      color: rgba(255,255,255,0.42);
+      max-width: 540px;
+      margin: 0 auto 40px;
+      line-height: 1.6;
+      font-weight: 400;
+    }
+    .hero-meta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.32);
+      letter-spacing: 0.04em;
+    }
+    .hero-meta-sep { color: var(--gold); opacity: 0.5; }
+
+    /* ── PLAYER PHOTOS ROW ── */
+    .player-photos {
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 0;
+      margin-bottom: 48px;
+    }
+    .player-photo-wrap {
+      position: relative;
+      width: 180px;
+      height: 200px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .player-photo-wrap.diego-wrap { border-radius: 14px 0 0 14px; }
+    .player-photo-wrap.leo-wrap   { border-radius: 0 14px 14px 0; }
+    .player-photo-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      filter: grayscale(15%) contrast(1.05);
+    }
+    .player-photo-overlay {
+      position: absolute;
+      inset: 0;
+    }
+    .diego-wrap .player-photo-overlay {
+      background: linear-gradient(to right, rgba(26,26,46,0.4) 0%, transparent 70%),
+                  linear-gradient(to top, rgba(26,26,46,0.7) 0%, transparent 50%);
+    }
+    .leo-wrap .player-photo-overlay {
+      background: linear-gradient(to left, rgba(10,61,98,0.4) 0%, transparent 70%),
+                  linear-gradient(to top, rgba(10,61,98,0.7) 0%, transparent 50%);
+    }
+    .player-photo-name {
+      position: absolute;
+      bottom: 10px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+    }
+    .diego-wrap .player-photo-name { left: 12px; }
+    .leo-wrap .player-photo-name { right: 12px; }
+    .player-photo-years {
+      position: absolute;
+      top: 10px;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--gold);
+      opacity: 0.8;
+    }
+    .diego-wrap .player-photo-years { left: 12px; }
+    .leo-wrap .player-photo-years { right: 12px; }
+
+    /* ── ARTICLE WRAPPER ── */
+    .article-wrap {
+      max-width: 740px;
+      margin: 0 auto;
+      padding: 72px 24px 100px;
+    }
+
+    /* ── PROSE ── */
+    .prose p {
+      font-size: 17px;
+      line-height: 1.82;
+      color: #2a2a2a;
+      margin-bottom: 28px;
+      font-weight: 400;
+    }
+    .prose h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: var(--ink);
+      margin: 64px 0 20px;
+      line-height: 1.2;
+    }
+    .prose h3 {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin: 48px 0 16px;
+    }
+
+    /* ── PULL QUOTE ── */
+    .pull-quote {
+      margin: 56px -40px;
+      padding: 32px 40px;
+      border-left: 3px solid var(--gold);
+      background: linear-gradient(135deg, rgba(201,168,76,0.04) 0%, transparent 70%);
+    }
+    .pull-quote p {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-style: italic;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1.5;
+      margin: 0;
+    }
+    .pull-quote cite {
+      display: block;
+      margin-top: 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-style: normal;
+    }
+
+    /* ── SECTION HEADER ── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 72px 0 32px;
+    }
+    .section-header-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, var(--border), transparent);
+    }
+    .section-header-label {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    /* ── RADAR CHART INFOGRAPHIC ── */
+    .radar-section {
+      margin: 64px 0;
+      background: #fff;
+      border-radius: 20px;
+      padding: 40px 32px;
+      box-shadow: 0 2px 24px rgba(0,0,0,0.07);
+      border: 1px solid var(--border);
+    }
+    .radar-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--ink);
+      text-align: center;
+      margin-bottom: 6px;
+    }
+    .radar-sub {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 32px;
+      letter-spacing: 0.02em;
+    }
+    .radar-legend {
+      display: flex;
+      justify-content: center;
+      gap: 28px;
+      margin-bottom: 24px;
+    }
+    .radar-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .radar-legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .dot-diego { background: #1a1a2e; }
+    .dot-leo { background: #0071e3; }
+    .radar-svg-wrap {
+      display: flex;
+      justify-content: center;
+    }
+
+    /* ── STAT COMPARISON ── */
+    .stat-compare {
+      margin: 64px 0;
+      background: #fff;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 2px 24px rgba(0,0,0,0.07);
+      border: 1px solid var(--border);
+    }
+    .stat-compare-header {
+      display: grid;
+      grid-template-columns: 1fr 200px 1fr;
+      background: var(--ink);
+      padding: 16px 24px;
+      gap: 12px;
+      align-items: center;
+    }
+    .sc-team-a {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+    }
+    .sc-team-b {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+      text-align: right;
+    }
+    .sc-label-center {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      text-align: center;
+    }
+    .stat-row-item {
+      display: grid;
+      grid-template-columns: 1fr 200px 1fr;
+      padding: 14px 24px;
+      border-bottom: 1px solid var(--border);
+      align-items: center;
+      gap: 12px;
+    }
+    .stat-row-item:last-child { border-bottom: none; }
+    .stat-row-item:hover { background: #fafaf9; }
+    .stat-val-a {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--diego);
+      font-variant-numeric: tabular-nums;
+    }
+    .stat-val-b {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--leo);
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+    }
+    .stat-val-a.winner { font-size: 22px; color: #1a1a1a; }
+    .stat-val-b.winner { font-size: 22px; color: #1a1a1a; }
+    .stat-label-mid {
+      text-align: center;
+    }
+    .stat-label-name {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 4px;
+      letter-spacing: 0.02em;
+    }
+    .stat-bar-track {
+      height: 4px;
+      background: #f0f0f0;
+      border-radius: 2px;
+      overflow: hidden;
+      display: flex;
+    }
+    .stat-bar-fill-a {
+      height: 100%;
+      background: var(--diego);
+      border-radius: 2px 0 0 2px;
+      transition: width 0.8s ease;
+    }
+    .stat-bar-fill-b {
+      height: 100%;
+      background: #0071e3;
+      border-radius: 0 2px 2px 0;
+      transition: width 0.8s ease;
+    }
+    .stat-context {
+      display: block;
+      font-size: 9.5px;
+      color: var(--muted);
+      margin-top: 3px;
+      font-style: italic;
+    }
+
+    /* ── DIMENSION CARDS ── */
+    .dimension-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 48px 0;
+    }
+    .dim-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 8px rgba(0,0,0,0.05);
+    }
+    .dim-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .dim-label {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .dim-verdict {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 100px;
+    }
+    .verdict-diego { background: rgba(26,26,46,0.08); color: var(--diego); }
+    .verdict-leo { background: rgba(0,113,227,0.08); color: #0057b8; }
+    .verdict-draw { background: rgba(201,168,76,0.12); color: #8a6d00; }
+    .dim-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+    .dim-text {
+      font-size: 13.5px;
+      line-height: 1.7;
+      color: #444;
+    }
+    .dim-score-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .dim-score {
+      flex: 1;
+      text-align: center;
+      padding: 10px 8px;
+      border-radius: 10px;
+    }
+    .dim-score.side-a { background: rgba(26,26,46,0.05); }
+    .dim-score.side-b { background: rgba(0,113,227,0.05); }
+    .dim-score-name {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .dim-score-val {
+      font-size: 22px;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+    .dim-score-val.a { color: var(--diego); }
+    .dim-score-val.b { color: #0071e3; }
+
+    /* ── TIMELINE ── */
+    .timeline {
+      margin: 64px 0;
+      position: relative;
+    }
+    .timeline-line {
+      position: absolute;
+      left: 50%;
+      top: 0; bottom: 0;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, var(--border) 10%, var(--border) 90%, transparent);
+      transform: translateX(-50%);
+    }
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 1fr 48px 1fr;
+      gap: 0;
+      margin-bottom: 32px;
+      align-items: start;
+    }
+    .timeline-side {
+      padding: 16px 24px 16px 0;
+    }
+    .timeline-side.right {
+      padding: 16px 0 16px 24px;
+    }
+    .timeline-dot-wrap {
+      display: flex;
+      justify-content: center;
+      padding-top: 18px;
+    }
+    .timeline-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      box-shadow: 0 0 0 2px var(--border);
+    }
+    .tl-dot-diego { background: var(--diego); box-shadow: 0 0 0 2px rgba(26,26,46,0.2); }
+    .tl-dot-leo { background: #0071e3; box-shadow: 0 0 0 2px rgba(0,113,227,0.2); }
+    .tl-dot-gold { background: var(--gold); box-shadow: 0 0 0 2px rgba(201,168,76,0.3); }
+    .timeline-year {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 4px;
+    }
+    .timeline-event {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 4px;
+      line-height: 1.4;
+    }
+    .timeline-detail {
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .timeline-side.right .timeline-year,
+    .timeline-side.right .timeline-event,
+    .timeline-side.right .timeline-detail { text-align: left; }
+
+    /* ── FINAL VERDICT ── */
+    .final-verdict {
+      margin: 72px 0 0;
+      padding: 48px 40px;
+      background: linear-gradient(135deg, var(--diego) 0%, #0a1628 50%, var(--leo) 100%);
+      border-radius: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .final-verdict::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.14) 0%, transparent 60%);
+    }
+    .fv-inner { position: relative; }
+    .fv-tag {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 20px;
+      display: block;
+    }
+    .fv-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 20px;
+      line-height: 1.2;
+    }
+    .fv-text {
+      font-size: 15.5px;
+      line-height: 1.8;
+      color: rgba(255,255,255,0.72);
+      max-width: 580px;
+      margin-bottom: 32px;
+    }
+    .fv-score-row {
+      display: flex;
+      gap: 1px;
+      border-radius: 12px;
+      overflow: hidden;
+      max-width: 460px;
+    }
+    .fv-score-block {
+      flex: 1;
+      padding: 16px 20px;
+      text-align: center;
+    }
+    .fv-score-block.a { background: rgba(255,255,255,0.07); }
+    .fv-score-block.b { background: rgba(255,255,255,0.07); }
+    .fv-score-name {
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 6px;
+    }
+    .fv-score-num {
+      font-size: 36px;
+      font-weight: 900;
+      color: var(--gold);
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+    .fv-score-label {
+      font-size: 10px;
+      color: rgba(255,255,255,0.38);
+      margin-top: 4px;
+    }
+    .fv-score-sep {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.04);
+      padding: 0 16px;
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-style: italic;
+      color: rgba(255,255,255,0.25);
+    }
+
+    /* ── BACK LINK ── */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-decoration: none;
+      margin-bottom: 56px;
+      letter-spacing: 0.02em;
+      transition: color 0.15s;
+    }
+    .back-link:hover { color: var(--ink); }
+    .back-arrow { font-size: 14px; }
+
+    /* ── FOOTNOTE ── */
+    .footnote {
+      margin-top: 64px;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .footnote strong { color: var(--ink); font-weight: 600; }
+
+    /* ── ANIMATE ON SCROLL ── */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── MOBILE ── */
+    @media (max-width: 768px) {
+      .hero { min-height: 80vh; padding: 48px 20px 60px; }
+      .player-photos { gap: 0; }
+      .player-photo-wrap { width: 130px; height: 150px; }
+      .hero-name { font-size: clamp(32px, 9vw, 48px); }
+      .hero-vs { font-size: 18px; padding: 0 12px; }
+      .article-wrap { padding: 48px 20px 80px; }
+      .prose p { font-size: 16px; }
+      .prose h2 { font-size: 22px; }
+      .pull-quote { margin: 40px -8px; padding: 24px 20px; }
+      .pull-quote p { font-size: 18px; }
+      .dimension-grid { grid-template-columns: 1fr; }
+      .stat-compare-header { grid-template-columns: 80px 1fr 80px; padding: 12px 16px; }
+      .stat-row-item { grid-template-columns: 80px 1fr 80px; padding: 12px 16px; }
+      .stat-val-a, .stat-val-b { font-size: 15px; }
+      .stat-val-a.winner, .stat-val-b.winner { font-size: 17px; }
+      .timeline-item { grid-template-columns: 1fr 36px 1fr; }
+      .timeline-side { padding: 14px 14px 14px 0; }
+      .timeline-side.right { padding: 14px 0 14px 14px; }
+      .final-verdict { padding: 32px 24px; border-radius: 16px; }
+      .fv-title { font-size: 22px; }
+      .fv-text { font-size: 14.5px; }
+      .fv-score-row { max-width: 100%; }
+      .radar-section { padding: 28px 20px; }
+    }
+
+    @media (max-width: 480px) {
+      .hero-names { flex-direction: column; gap: 4px; }
+      .hero-vs { padding: 8px 0; }
+      .player-photos { display: none; }
+      .fv-score-num { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+<Navbar/>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-noise"></div>
+  <div class="hero-divider"></div>
+  <div class="hero-inner">
+    <div class="hero-tag">Legends Database · The Great Duel</div>
+
+    <!-- PLAYER PHOTOS -->
+    <div class="player-photos">
+      <div class="player-photo-wrap diego-wrap">
+        <img src="/diego-maradona.jpg" alt="Diego Maradona" class="player-photo-img"
+             onerror="this.parentElement.style.background='linear-gradient(135deg,#1a1a2e,#2d2d4a)';this.style.display='none'"/>
+        <div class="player-photo-overlay"></div>
+        <span class="player-photo-years">1976 – 1997</span>
+        <span class="player-photo-name">Maradona</span>
+      </div>
+      <div class="player-photo-wrap leo-wrap">
+        <img src="/lionel-messi.jpg" alt="Lionel Messi" class="player-photo-img"
+             onerror="this.parentElement.style.background='linear-gradient(135deg,#0a3d62,#1a6596)';this.style.display='none'"/>
+        <div class="player-photo-overlay"></div>
+        <span class="player-photo-years">2004 – present</span>
+        <span class="player-photo-name">Messi</span>
+      </div>
+    </div>
+
+    <div class="hero-names">
+      <h1 class="hero-name diego">Maradona</h1>
+      <span class="hero-vs">vs</span>
+      <h1 class="hero-name leo">Messi</h1>
+    </div>
+    <p class="hero-subtitle">The question that has no answer — and the one football will never stop asking</p>
+    <div class="hero-meta">
+      <span>Duels</span>
+      <span class="hero-meta-sep">·</span>
+      <span>{date}</span>
+      <span class="hero-meta-sep">·</span>
+      <span>{readTime}</span>
+    </div>
+  </div>
+</section>
+
+<!-- ARTICLE BODY -->
+<div class="article-wrap">
+  <a href="/articles" class="back-link">
+    <span class="back-arrow">←</span> All Articles
+  </a>
+
+  <div class="prose">
+
+    <p>Some comparisons in football are debates. This one is a religion. In Italy for decades, siding with Maradona or Messi was not a question of football — it was a question of identity, of generation, of how you understood the game and your own past. On one side stood devotees of the pure gesture, nostalgics of a brilliant, reckless era, people who had grown up watching Diego as the symbol of something larger than sport. On the other stood admirers of numbers, sustained excellence, and an efficiency borrowed from the analytics culture of the NBA. Between them lay a sea of mutual suspicion that seems almost inexplicable outside Italy — because in Spain, England, and even Argentina, the comparison never reached the same mythological intensity.</p>
+
+    <p>What follows is not an attempt to settle the debate. The debate cannot be settled. What it is, instead, is a careful dissection of two careers across every meaningful dimension — technique, numbers, peak moments, longevity, leadership, the weight of their nations on their backs — with the honesty to say what the data shows and the humility to acknowledge what numbers cannot capture.</p>
+
+    <div class="section-header fade-up">
+      <div class="section-header-line"></div>
+      <span class="section-header-label">I · The Starting Point</span>
+      <div class="section-header-line"></div>
+    </div>
+
+    <h2>Two Left Feet, One God</h2>
+
+    <p>The most obvious premise must come first: we are discussing two of the greatest players in history, two prodigies who may have exceeded even the expectations placed on them at the start of their careers and who shaped, for decades, the very meaning of football worldwide.</p>
+
+    <p>Both Argentine. Both number tens. Neither particularly tall. Both left-footed, physically strong despite their size, explosive, balanced, and quick. With a left foot that seems — in both cases — to have been touched by something beyond technique. When talent was distributed, whoever was responsible was clearly generous when forging the left side of these two men.</p>
+
+    <div class="pull-quote fade-up">
+      <p>"They share the same architecture of genius. What separates them is not quality — it is the era in which that quality was expressed, and the shape it was allowed to take."</p>
+      <cite>— Legends Database Analysis</cite>
+    </div>
+
+    <div class="section-header fade-up">
+      <div class="section-header-line"></div>
+      <span class="section-header-label">II · Technique</span>
+      <div class="section-header-line"></div>
+    </div>
+
+    <h2>Ball Control, Vision, and the Art of the Impossible</h2>
+
+    <p>Strictly on technique — ball control, passing, dribbling, shooting — this must be called a draw. Assigning anything less than perfection to either in this department would be absurd. Both may have equals in individual sub-categories, but neither has superiors as complete technical footballers.</p>
+
+    <p>A slight edge might be credited to Maradona in the creativity of his shooting — he produced moments of genuinely supernatural improvisation, plays that defied not just defenders but the laws of geometry, enacted with pure instinct and zero hesitation. Messi could produce similar moments, but rarely with the same jaw-dropping unpredictability, the sense that what you just witnessed should not have been possible.</p>
+
+    <p>In dribbling, the edge is microscopic. Maradona in his prime was a wrecking ball at low speed and a phantom at high speed — he absorbed contact in a way that suggested his centre of gravity was located several feet underground. Messi, lighter and faster, operated with a different kind of invincibility: the impossibility of stopping him lay not in his physicality but in the speed of his decision-making, the acceleration that collapsed space before defenders could fill it.</p>
+
+  </div>
+
+  <!-- RADAR CHART -->
+  <div class="radar-section fade-up">
+    <div class="radar-title">Technical & Athletic Profile</div>
+    <div class="radar-sub">Comparative assessment across six core dimensions (0–100)</div>
+    <div class="radar-legend">
+      <div class="radar-legend-item"><div class="radar-legend-dot dot-diego"></div>Maradona</div>
+      <div class="radar-legend-item"><div class="radar-legend-dot dot-leo"></div>Messi</div>
+    </div>
+    <div class="radar-svg-wrap">
+      <svg width="340" height="320" viewBox="0 0 340 320" id="radarSvg" aria-label="Radar chart comparing Maradona and Messi across six dimensions">
+        <!-- Background grid -->
+        <g transform="translate(170,165)" id="radarGrid"></g>
+        <!-- Data polygons -->
+        <g transform="translate(170,165)" id="radarPolygons"></g>
+        <!-- Labels -->
+        <g id="radarLabels"></g>
+      </svg>
+    </div>
+  </div>
+
+  <div class="prose">
+
+    <div class="section-header fade-up">
+      <div class="section-header-line"></div>
+      <span class="section-header-label">III · Numbers</span>
+      <div class="section-header-line"></div>
+    </div>
+
+    <h2>Statistics, Context, and the Problem of Eras</h2>
+
+    <p>Messi has the advantage in numbers — clearly. But the context matters enormously. In Maradona's era, matches were fewer, the game was more defensive, and Serie A in the 1980s was saturated with tactical marking that made individual scoring output almost impossible to compare with the high-tempo, space-rich football of the 2000s and 2010s. Maradona's Napoli years, in particular, were played in a league specifically designed to neutralise his influence.</p>
+
+    <p>Despite that, what stands out about Messi is not merely the volume of his goals — extraordinary as that is — but the dual nature of his contribution. He is simultaneously the most dangerous finisher and the most creative provider of his generation. That combination is genuinely unprecedented.</p>
+
+  </div>
+
+  <!-- STATS TABLE -->
+  <div class="stat-compare fade-up">
+    <div class="stat-compare-header">
+      <div class="sc-team-a">Maradona</div>
+      <div class="sc-label-center">Career Statistics</div>
+      <div class="sc-team-b">Messi</div>
+    </div>
+
+    <div class="stat-row-item">
+      <div class="stat-val-a">345</div>
+      <div class="stat-label-mid">
+        <span class="stat-label-name">Career Goals</span>
+        <div class="stat-bar-track">
+          <div class="stat-bar-fill-a" style="width:37%"></div>
+          <div class="stat-bar-fill-b" style="width:63%"></div>
+        </div>
+        <span class="stat-context">Adj. for era & matches played</span>
+      </div>
+      <div class="stat-val-b winner">850+</div>
+    </div>
+
+    <div class="stat-row-item">
+      <div class="stat-val-a">~250</div>
+      <div class="stat-label-mid">
+        <span class="stat-label-name">Career Assists</span>
+        <div class="stat-bar-track">
+          <div class="stat-bar-fill-a" style="width:35%"></div>
+          <div class="stat-bar-fill-b" style="width:65%"></div>
+        </div>
+        <span class="stat-context">Assists tracked inconsistently pre-1990</span>
+      </div>
+      <div class="stat-val-b winner">350+</div>
+    </div>
+
+    <div class="stat-row-item">
+      <div class="stat-val-a winner">1</div>
+      <div class="stat-label-mid">
+        <span class="stat-label-name">World Cups Won</span>
+        <div class="stat-bar-track">
+          <div class="stat-bar-fill-a" style="width:50%"></div>
+          <div class="stat-bar-fill-b" style="width:50%"></div>
+        </div>
+        <span class="stat-context">Both winners with Argentina</span>
+      </div>
+      <div class="stat-val-b winner">1</div>
+    </div>
+
+    <div class="stat-row-item">
+      <div class="stat-val-a">2</div>
+      <div class="stat-label-mid">
+        <span class="stat-label-name">League Titles</span>
+        <div class="stat-bar-track">
+          <div class="stat-bar-fill-a" style="width:24%"></div>
+          <div class="stat-bar-fill-b" style="width:76%"></div>
+        </div>
+        <span class="stat-context">Napoli ×2 vs Barcelona ×10 + others</span>
+      </div>
+      <div class="stat-val-b winner">15+</div>
+    </div>
+
+    <div class="stat-row-item">
+      <div class="stat-val-a">0</div>
+      <div class="stat-label-mid">
+        <span class="stat-label-name">Ballon d'Or</span>
+        <div class="stat-bar-track">
+          <div class="stat-bar-fill-a" style="width:0%"></div>
+          <div class="stat-bar-fill-b" style="width:100%"></div>
+        </div>
+        <span class="stat-context">Award restructured after Diego's era</span>
+      </div>
+      <div class="stat-val-b winner">8</div>
+    </div>
+
+    <div class="stat-row-item">
+      <div class="stat-val-a winner">14</div>
+      <div class="stat-label-mid">
+        <span class="stat-label-name">Int'l Peak Age</span>
+        <div class="stat-bar-track">
+          <div class="stat-bar-fill-a" style="width:58%"></div>
+          <div class="stat-bar-fill-b" style="width:42%"></div>
+        </div>
+        <span class="stat-context">Age at first world-class recognition</span>
+      </div>
+      <div class="stat-val-b">17</div>
+    </div>
+  </div>
+
+  <div class="prose">
+
+    <div class="section-header fade-up">
+      <div class="section-header-line"></div>
+      <span class="section-header-label">IV · The Dimensions</span>
+      <div class="section-header-line"></div>
+    </div>
+
+    <h2>Six Arenas, Six Verdicts</h2>
+    <p>No single number decides this. The comparison must be broken into dimensions — each carrying its own verdict, its own weight, its own truth.</p>
+
+  </div>
+
+  <!-- DIMENSION CARDS -->
+  <div class="dimension-grid fade-up">
+
+    <div class="dim-card">
+      <div class="dim-card-header">
+        <span class="dim-label">Dimension I</span>
+        <span class="dim-verdict verdict-draw">Draw</span>
+      </div>
+      <div class="dim-title">Pure Technique</div>
+      <p class="dim-text">Ball control, dribbling, passing, shooting — both are at absolute peak. Maradona edges in raw improvisation and shooting creativity. Messi edges in decision speed and positional intelligence.</p>
+      <div class="dim-score-row">
+        <div class="dim-score side-a"><div class="dim-score-name">Maradona</div><div class="dim-score-val a">9.9</div></div>
+        <div class="dim-score side-b"><div class="dim-score-name">Messi</div><div class="dim-score-val b">9.9</div></div>
+      </div>
+    </div>
+
+    <div class="dim-card">
+      <div class="dim-card-header">
+        <span class="dim-label">Dimension II</span>
+        <span class="dim-verdict verdict-leo">Messi</span>
+      </div>
+      <div class="dim-title">Career Output & Numbers</div>
+      <p class="dim-text">Messi's statistical dominance is undeniable. Even adjusted for era, fewer matches, and defensive football, the gap in goals and assists is real and significant.</p>
+      <div class="dim-score-row">
+        <div class="dim-score side-a"><div class="dim-score-name">Maradona</div><div class="dim-score-val a">9.1</div></div>
+        <div class="dim-score side-b"><div class="dim-score-name">Messi</div><div class="dim-score-val b">9.8</div></div>
+      </div>
+    </div>
+
+    <div class="dim-card">
+      <div class="dim-card-header">
+        <span class="dim-label">Dimension III</span>
+        <span class="dim-verdict verdict-leo">Messi</span>
+      </div>
+      <div class="dim-title">Longevity & Consistency</div>
+      <p class="dim-text">Messi's elite-level continuity from 2005 to the present is without precedent. Maradona's career was disrupted by injury, suspension, and the physical toll of playing in a brutal era.</p>
+      <div class="dim-score-row">
+        <div class="dim-score side-a"><div class="dim-score-name">Maradona</div><div class="dim-score-val a">8.4</div></div>
+        <div class="dim-score side-b"><div class="dim-score-name">Messi</div><div class="dim-score-val b">9.7</div></div>
+      </div>
+    </div>
+
+    <div class="dim-card">
+      <div class="dim-card-header">
+        <span class="dim-label">Dimension IV</span>
+        <span class="dim-verdict verdict-draw">Near Draw</span>
+      </div>
+      <div class="dim-title">International Pinnacle</div>
+      <p class="dim-text">1986 Maradona remains arguably the single greatest individual World Cup performance ever. Messi's 2022 redemption arc was extraordinary — and yet Diego's peak in Mexico may still be the ceiling.</p>
+      <div class="dim-score-row">
+        <div class="dim-score side-a"><div class="dim-score-name">Maradona</div><div class="dim-score-val a">9.8</div></div>
+        <div class="dim-score side-b"><div class="dim-score-name">Messi</div><div class="dim-score-val b">9.6</div></div>
+      </div>
+    </div>
+
+    <div class="dim-card">
+      <div class="dim-card-header">
+        <span class="dim-label">Dimension V</span>
+        <span class="dim-verdict verdict-diego">Maradona</span>
+      </div>
+      <div class="dim-title">Leadership & Charisma</div>
+      <p class="dim-text">Maradona was a natural-born leader — capable of changing the emotional temperature of a match with a single look. Messi grew into leadership, but it came late and often struggled under pressure of expectation.</p>
+      <div class="dim-score-row">
+        <div class="dim-score side-a"><div class="dim-score-name">Maradona</div><div class="dim-score-val a">9.7</div></div>
+        <div class="dim-score side-b"><div class="dim-score-name">Messi</div><div class="dim-score-val b">8.9</div></div>
+      </div>
+    </div>
+
+    <div class="dim-card">
+      <div class="dim-card-header">
+        <span class="dim-label">Dimension VI</span>
+        <span class="dim-verdict verdict-diego">Maradona</span>
+      </div>
+      <div class="dim-title">Carrying Weaker Teams</div>
+      <p class="dim-text">Maradona took Napoli — a club never designed to win Serie A — to back-to-back Italian titles. Messi's challenge was to stand out among other generational talents. He did. Diego's challenge was to do everything alone.</p>
+      <div class="dim-score-row">
+        <div class="dim-score side-a"><div class="dim-score-name">Maradona</div><div class="dim-score-val a">9.9</div></div>
+        <div class="dim-score side-b"><div class="dim-score-name">Messi</div><div class="dim-score-val b">9.2</div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="section-header fade-up">
+    <div class="section-header-line"></div>
+    <span class="section-header-label">V · The Career Arc</span>
+    <div class="section-header-line"></div>
+  </div>
+
+  <div class="timeline fade-up">
+    <div class="timeline-line"></div>
+
+    <div class="timeline-item">
+      <div class="timeline-side">
+        <div class="timeline-year">1976</div>
+        <div class="timeline-event">Maradona debuts at 15</div>
+        <div class="timeline-detail">Already Argentina's finest young player — a prodigy without precedent in South American football.</div>
+      </div>
+      <div class="timeline-dot-wrap"><div class="timeline-dot tl-dot-diego"></div></div>
+      <div class="timeline-side right"></div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-side"></div>
+      <div class="timeline-dot-wrap"><div class="timeline-dot tl-dot-leo"></div></div>
+      <div class="timeline-side right">
+        <div class="timeline-year">2004</div>
+        <div class="timeline-event">Messi debuts at 17</div>
+        <div class="timeline-detail">Arriving later but into a club designed around talent — Barça's La Masia had prepared the world for him.</div>
+      </div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-side">
+        <div class="timeline-year">1982–1984</div>
+        <div class="timeline-event">Barcelona, Napoli</div>
+        <div class="timeline-detail">Brutal marking. Two seasons at Camp Nou under immense pressure. Then the move to Naples — and transformation.</div>
+      </div>
+      <div class="timeline-dot-wrap"><div class="timeline-dot tl-dot-diego"></div></div>
+      <div class="timeline-side right"></div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-side"></div>
+      <div class="timeline-dot-wrap"><div class="timeline-dot tl-dot-gold"></div></div>
+      <div class="timeline-side right">
+        <div class="timeline-year">1986</div>
+        <div class="timeline-event">Mexico. The ceiling.</div>
+        <div class="timeline-detail">Quarter-final vs England: the Hand of God and the Goal of the Century in the same game. Possibly the most astonishing individual performance in World Cup history.</div>
+      </div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-side">
+        <div class="timeline-year">1987–1990</div>
+        <div class="timeline-event">Napoli: two Scudetti</div>
+        <div class="timeline-detail">He took a club from the South — historically marginalised, resource-poor — to the top of Italian football. Twice. Alone.</div>
+      </div>
+      <div class="timeline-dot-wrap"><div class="timeline-dot tl-dot-diego"></div></div>
+      <div class="timeline-side right"></div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-side"></div>
+      <div class="timeline-dot-wrap"><div class="timeline-dot tl-dot-gold"></div></div>
+      <div class="timeline-side right">
+        <div class="timeline-year">2009–2015</div>
+        <div class="timeline-event">Messi's absolute peak</div>
+        <div class="timeline-detail">Five Ballons d'Or in six years. 73 goals in a calendar year. The finest sustained individual period in the sport's modern era.</div>
+      </div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-side">
+        <div class="timeline-year">2021</div>
+        <div class="timeline-event">Copa América — redemption</div>
+        <div class="timeline-detail">After years of finals lost, Messi finally lifted an international trophy with Argentina. A weight — decades in the making — was lifted.</div>
+      </div>
+      <div class="timeline-dot-wrap"><div class="timeline-dot tl-dot-leo"></div></div>
+      <div class="timeline-side right"></div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-side"></div>
+      <div class="timeline-dot-wrap"><div class="timeline-dot tl-dot-gold"></div></div>
+      <div class="timeline-side right">
+        <div class="timeline-year">2022</div>
+        <div class="timeline-event">Qatar. The closing act.</div>
+        <div class="timeline-detail">The World Cup final against France. A performance for the ages. His greatest tournament — and arguably the greatest World Cup final ever played.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="prose">
+
+    <div class="section-header fade-up">
+      <div class="section-header-line"></div>
+      <span class="section-header-label">VI · What Numbers Cannot Capture</span>
+      <div class="section-header-line"></div>
+    </div>
+
+    <h2>The Ineffable</h2>
+
+    <p>Here is what the data cannot show. When Maradona played, the opposing team knew exactly what he was going to do — dribble, hold, create — and they sent two, three, sometimes four players specifically to prevent it. The physical contact in Serie A in the 1980s was extraordinary: brutal, systematic, often violent by modern standards. Maradona played through it, and through it, and through it. His left knee was destroyed. His body was treated with contempt. He kept producing.</p>
+
+    <p>Messi, by contrast, was protected more — by the rules of a more sanitised modern game, by the infrastructure of Barcelona, by the teammates who surrounded him. This is not a criticism. Every player operates within their context. But it means that the two careers cannot be placed on the same scale without acknowledging the different weight each was asked to carry.</p>
+
+    <p>What the data also cannot capture is the emotional register of each player's genius. Maradona played football as if it were theatre — dramatic, unpredictable, occasionally chaotic, always on the edge. Every match with him felt genuinely dangerous in the best sense: you never knew what might happen. Messi plays as if football were mathematics — logical, precise, devastating. His movements are so efficient they can seem invisible until suddenly they have won the game.</p>
+
+    <div class="pull-quote fade-up">
+      <p>"With Maradona, you watched to see what was possible. With Messi, you watched to see how he would make the impossible look inevitable."</p>
+      <cite>— Legends Database Analysis</cite>
+    </div>
+
+    <p>Both descriptions are forms of perfection. They are just different forms.</p>
+
+  </div>
+
+  <!-- FINAL VERDICT -->
+  <div class="final-verdict fade-up">
+    <div class="fv-inner">
+      <span class="fv-tag">Final Assessment · Legends Database</span>
+      <div class="fv-title">At Peak, Equal. Across a Career, Messi.</div>
+      <p class="fv-text">In terms of pure talent and absolute peak level, the two are essentially tied — a draw that no honest analysis can resolve. But when the comparison widens to cover careers, sustained excellence at the highest level, statistical output adjusted for era, and the ability to define what it means to be the best in the world across two decades, the balance tips toward Messi. It tips — it does not collapse. Maradona remains the more dramatic case: the player who produced the most extraordinary moments, who carried more with less, who played in conditions that would have broken almost anyone else. The fact that he was not the better player across a career is simply a reflection of circumstances — not of what he was capable of when he had the ball at his feet, and the world was watching.</p>
+      <div class="fv-score-row">
+        <div class="fv-score-block a">
+          <div class="fv-score-name">Maradona</div>
+          <div class="fv-score-num">9.7</div>
+          <div class="fv-score-label">All-time</div>
+        </div>
+        <div class="fv-score-sep">vs</div>
+        <div class="fv-score-block b">
+          <div class="fv-score-name">Messi</div>
+          <div class="fv-score-num">9.9</div>
+          <div class="fv-score-label">All-time</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="prose">
+    <div class="footnote">
+      <strong>Methodology note.</strong> Scores across all dimensions are qualitative assessments based on available statistics, contextual analysis, and comparative historical record. Statistical figures for Maradona's assists are approximate, as comprehensive tracking was not standard before 1990. Era adjustments for scoring rates reflect the documented shift in goals per game between the 1980s Italian league and the modern game. Player images, where visible, are pulled from the Legends Database player library.
+    </div>
+  </div>
+
+</div>
+
+<Footer/>
+
+<script>
+// ── RADAR CHART ──
+(function() {
+  const dims = [
+    { label: 'Technique', diego: 99, leo: 99 },
+    { label: 'Athleticism', diego: 88, leo: 90 },
+    { label: 'Goals', diego: 87, leo: 99 },
+    { label: 'Leadership', diego: 97, leo: 89 },
+    { label: 'Longevity', diego: 82, leo: 97 },
+    { label: 'Intl. Peak', diego: 98, leo: 96 },
+  ];
+  const cx = 170, cy = 165, R = 110, levels = 4;
+  const n = dims.length;
+  const angle = (i) => (Math.PI * 2 * i / n) - Math.PI / 2;
+  const toXY = (val, i) => ({
+    x: Math.cos(angle(i)) * (R * val / 100),
+    y: Math.sin(angle(i)) * (R * val / 100),
+  });
+
+  const grid = document.getElementById('radarGrid');
+  const polys = document.getElementById('radarPolygons');
+  const labels = document.getElementById('radarLabels');
+
+  // Grid rings
+  for (let l = 1; l <= levels; l++) {
+    const r = R * l / levels;
+    const pts = dims.map((_, i) => {
+      const x = Math.cos(angle(i)) * r;
+      const y = Math.sin(angle(i)) * r;
+      return x + ',' + y;
+    }).join(' ');
+    const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    poly.setAttribute('points', pts);
+    poly.setAttribute('fill', 'none');
+    poly.setAttribute('stroke', l === levels ? 'rgba(0,0,0,0.12)' : 'rgba(0,0,0,0.06)');
+    poly.setAttribute('stroke-width', '1');
+    grid.appendChild(poly);
+    // Spokes
+    dims.forEach((_, i) => {
+      if (l === levels) {
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', 0); line.setAttribute('y1', 0);
+        line.setAttribute('x2', Math.cos(angle(i)) * R);
+        line.setAttribute('y2', Math.sin(angle(i)) * R);
+        line.setAttribute('stroke', 'rgba(0,0,0,0.08)');
+        line.setAttribute('stroke-width', '1');
+        grid.appendChild(line);
+      }
+    });
+  }
+
+  // Polygons
+  function makePolygon(data, color, opacity) {
+    const pts = data.map((val, i) => {
+      const p = toXY(val, i);
+      return p.x + ',' + p.y;
+    }).join(' ');
+    const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    poly.setAttribute('points', pts);
+    poly.setAttribute('fill', color);
+    poly.setAttribute('fill-opacity', opacity);
+    poly.setAttribute('stroke', color);
+    poly.setAttribute('stroke-width', '2');
+    poly.setAttribute('stroke-opacity', '0.9');
+    return poly;
+  }
+
+  polys.appendChild(makePolygon(dims.map(d => d.diego), '#1a1a2e', 0.18));
+  polys.appendChild(makePolygon(dims.map(d => d.leo), '#0071e3', 0.18));
+
+  // Dots
+  ['diego', 'leo'].forEach(who => {
+    dims.forEach((d, i) => {
+      const p = toXY(d[who], i);
+      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circle.setAttribute('cx', cx + p.x);
+      circle.setAttribute('cy', cy + p.y);
+      circle.setAttribute('r', '4');
+      circle.setAttribute('fill', who === 'diego' ? '#1a1a2e' : '#0071e3');
+      document.getElementById('radarSvg').appendChild(circle);
+    });
+  });
+
+  // Labels
+  dims.forEach((d, i) => {
+    const x = cx + Math.cos(angle(i)) * (R + 22);
+    const y = cy + Math.sin(angle(i)) * (R + 22);
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', x);
+    text.setAttribute('y', y + 5);
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('font-family', 'Inter, sans-serif');
+    text.setAttribute('font-size', '11');
+    text.setAttribute('font-weight', '700');
+    text.setAttribute('fill', '#444');
+    text.textContent = d.label;
+    labels.appendChild(text);
+  });
+})();
+
+// ── SCROLL FADE ──
+const fadeEls = document.querySelectorAll('.fade-up');
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+}, { threshold: 0.1 });
+fadeEls.forEach(el => io.observe(el));
+</script>
+
+</body>
+</html>
