@@ -10,6 +10,20 @@ export const COACHES=[
   {id:'happel',  name:'Happel',      bonus:{tmw:10,dep:5,sta:8,con:6},style:'Tactical'},
   {id:'mourinho',name:'Mourinho',    bonus:{dep:10,com:8,con:7,agg:5},style:'Pragmatic'},
   {id:'lobanovsky',name:'Lobanovsky',bonus:{sta:10,wrt:10,dep:8,tmw:8},style:'Scientific Press'},
+  {id:'feola',name:'Feola',bonus:{cre:8,tmw:8,com:6,otb:5},style:'Samba Balance',nation:'Brazil',scope:'world_cup'},
+  {id:'bearzot',name:'Bearzot',bonus:{com:10,con:8,tmw:7,dep:5},style:'Tournament Calm',nation:'Italy',scope:'world_cup'},
+  {id:'schoen',name:'Schoen',bonus:{tmw:10,con:8,vis:5,sta:5},style:'German Harmony',nation:'Germany',scope:'world_cup'},
+  {id:'bilardo',name:'Bilardo',bonus:{dep:8,com:8,agg:6,con:6},style:'Streetwise',nation:'Argentina',scope:'world_cup'},
+  {id:'jacquet',name:'Jacquet',bonus:{dep:8,tmw:8,com:8,con:6},style:'Balanced Block',nation:'France',scope:'world_cup'},
+  {id:'delbosque',name:'Del Bosque',bonus:{com:9,sps:8,tmw:8,vis:6},style:'Calm Possession',nation:'Spain',scope:'world_cup'},
+  {id:'ramsey',name:'Ramsey',bonus:{dep:7,tmw:9,con:7,wrt:6},style:'Tournament Discipline',nation:'England',scope:'world_cup'},
+  {id:'fernando-santos',name:'Fernando Santos',bonus:{dep:9,com:8,con:7},style:'Pragmatic Control',nation:'Portugal',scope:'world_cup'},
+  {id:'tabarez',name:'Tabarez',bonus:{agg:8,tmw:10,con:8,com:6},style:'Garra Structure',nation:'Uruguay',scope:'world_cup'},
+  {id:'blazevic',name:'Blazevic',bonus:{com:8,vis:6,wrt:8,con:7},style:'Emotional Resilience',nation:'Croatia',scope:'world_cup'},
+  {id:'lagerback',name:'Lagerback',bonus:{dep:9,tmw:9,con:7},style:'Nordic Compact',nation:'Sweden',scope:'world_cup'},
+  {id:'moller-nielsen',name:'Moller Nielsen',bonus:{com:8,tmw:9,cre:5,con:7},style:'Underdog Balance',nation:'Denmark',scope:'world_cup'},
+  {id:'goethals',name:'Goethals',bonus:{dep:8,tmw:8,ant:7,con:6},style:'Tactical Mischief',nation:'Belgium',scope:'world_cup'},
+  {id:'osim',name:'Osim',bonus:{sps:8,vis:8,com:6,cre:6},style:'Balkan Craft',nation:'Serbia',scope:'world_cup'},
 ];
 
 export const COACH_FIT={
@@ -24,6 +38,20 @@ export const COACH_FIT={
   'happel':    {pref:['3-5-2','4-2-3-1','4-4-1-1','3-4-1-2'],       bonus:0.07},
   'mourinho':  {pref:['4-2-3-1','4-4-1-1','4-5-1','5-3-2'],         bonus:0.08},
   'lobanovsky':{pref:['4-3-3','4-1-4-1','4-4-2','4-5-1'],           bonus:0.08},
+  'feola':     {pref:['4-3-3','4-2-3-1','4-3-1-2'],                 bonus:0.07},
+  'bearzot':   {pref:['4-4-2','4-3-3','4-1-4-1'],                   bonus:0.07},
+  'schoen':    {pref:['4-2-3-1','4-3-3','4-4-2'],                   bonus:0.07},
+  'bilardo':   {pref:['3-5-2','4-3-1-2','4-4-2'],                   bonus:0.08},
+  'jacquet':   {pref:['4-2-3-1','4-3-3','4-4-2'],                   bonus:0.07},
+  'delbosque': {pref:['4-2-3-1','4-3-3','4-3-1-2'],                 bonus:0.08},
+  'ramsey':    {pref:['4-4-2','4-1-4-1','4-2-3-1'],                 bonus:0.07},
+  'fernando-santos':{pref:['4-2-3-1','4-4-1-1','4-5-1'],            bonus:0.07},
+  'tabarez':   {pref:['4-4-2','4-2-3-1','5-3-2'],                   bonus:0.08},
+  'blazevic':  {pref:['4-3-3','3-5-2','4-2-3-1'],                   bonus:0.07},
+  'lagerback': {pref:['4-4-2','4-2-3-1','4-5-1'],                   bonus:0.07},
+  'moller-nielsen':{pref:['4-2-3-1','4-4-2','4-3-3'],               bonus:0.07},
+  'goethals':  {pref:['3-4-3','4-2-3-1','3-5-2'],                   bonus:0.07},
+  'osim':      {pref:['3-5-2','4-3-3','4-2-3-1'],                   bonus:0.07},
 };
 
 export const TACTICAL_INSTRUCTIONS={
