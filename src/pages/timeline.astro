@@ -597,7 +597,19 @@ function renderPanel(data, col) {
       av.className = 'tl-avatar';
       av.style.background = col.from;
       av.style.boxShadow = '0 4px 14px ' + col.glow;
-      av.innerHTML = '<img class="tl-avatar-img" src="/players/' + player.slug + '.jpg" alt="" loading="lazy" decoding="async" onload="this.parentElement.classList.add(\'has-photo\')" onerror="this.remove()"><span class="tl-avatar-initials">' + getInitials(player.name) + '</span>';
+      const img = document.createElement('img');
+      img.className = 'tl-avatar-img';
+      img.alt = '';
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.addEventListener('load', () => av.classList.add('has-photo'), { once: true });
+      img.addEventListener('error', () => img.remove(), { once: true });
+      img.src = '/players/' + player.slug + '.jpg';
+      const initials = document.createElement('span');
+      initials.className = 'tl-avatar-initials';
+      initials.textContent = getInitials(player.name);
+      av.appendChild(img);
+      av.appendChild(initials);
       card.appendChild(av);
 
       const nm = document.createElement('div');
