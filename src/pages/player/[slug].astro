@@ -133,6 +133,10 @@ const mentalSkills=[
   {key:'consistency',label:'CON',full:'Consistency'},{key:'creativity',label:'CREA',full:'Creativity'},
   {key:'work_rate',label:'WRT',full:'Work Rate'},
 ];
+const gkMentalSkills=[
+  {key:'composure',label:'COM',full:'Composure'},
+  {key:'consistency',label:'CON',full:'Consistency'},
+];
 const tacticalSkills=[
   {key:'vision',label:'VIS',full:'Vision'},{key:'off_the_ball',label:'OFB',full:'Off the Ball'},
   {key:'def_positioning',label:'DEF',full:'Def. Positioning'},{key:'teamwork',label:'TMW',full:'Teamwork'},
@@ -147,8 +151,9 @@ const isGK = p.role === 'GK';
 
 const athleticAvg  = avg(athleticSkills.map(s=>p[s.key]));
 const technicalAvg = isGK?avg(technicalSkills.map(s=>p[s.key])):weightedAvg(technicalSkills.map(s=>p[s.key]),TECH_W[p.role]??TECH_W['CM']);
-const mentalAvg    = isGK?avg(mentalSkills.map(s=>p[s.key])):weightedAvg(mentalSkills.map(s=>p[s.key]),MEN_W[p.role]??MEN_W['CM']);
-const tacticalAvg  = isGK?avg(tacticalSkills.map(s=>p[s.key])):weightedAvg(tacticalSkills.map(s=>p[s.key]),TACT_W[p.role]??TACT_W['CM']);
+const displayedMentalSkills = isGK ? gkMentalSkills : mentalSkills;
+const mentalAvg    = isGK?weightedAvg([p.composure,p.consistency],[1.0,0.6]):weightedAvg(mentalSkills.map(s=>p[s.key]),MEN_W[p.role]??MEN_W['CM']);
+const tacticalAvg  = isGK?0:weightedAvg(tacticalSkills.map(s=>p[s.key]),TACT_W[p.role]??TACT_W['CM']);
 const gkAvg        = avg(gkSkills.map(s=>p[s.key]));
 
 const attAvg        = avg([p.finishing,p.off_the_ball,p.composure,p.anticipation,p.shot_accuracy]);
@@ -1162,7 +1167,7 @@ const bioRoleColor = ovrColor(p.overall_rating);
         <span>Mental</span>
         <span style={`font-weight:600;font-size:13px;color:${skillColor(mentalAvg)};`}>{mentalAvg}</span>
       </div>
-      {mentalSkills.map(s=>(
+      {displayedMentalSkills.map(s=>(
         <div class="skill-row">
           <span class="skill-abbr" title={s.full}>{s.label}</span>
           <div class="skill-bar-wrap"><div class="skill-bar-fill" style={`width:${p[s.key]}%;background:${skillColor(p[s.key])};`}></div></div>
@@ -1170,19 +1175,21 @@ const bioRoleColor = ovrColor(p.overall_rating);
         </div>
       ))}
     </div>
-    <div class="skill-card">
-      <div class="skill-cat" style="display:flex;justify-content:space-between;align-items:center;">
-        <span>Tactical</span>
-        <span style={`font-weight:600;font-size:13px;color:${skillColor(tacticalAvg)};`}>{tacticalAvg}</span>
+    {!isGK && (
+      <div class="skill-card">
+        <div class="skill-cat" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>Tactical</span>
+          <span style={`font-weight:600;font-size:13px;color:${skillColor(tacticalAvg)};`}>{tacticalAvg}</span>
+        </div>
+        {tacticalSkills.map(s=>(
+          <div class="skill-row">
+            <span class="skill-abbr" title={s.full}>{s.label}</span>
+            <div class="skill-bar-wrap"><div class="skill-bar-fill" style={`width:${p[s.key]}%;background:${skillColor(p[s.key])};`}></div></div>
+            <span class="skill-val">{p[s.key]}</span>
+          </div>
+        ))}
       </div>
-      {tacticalSkills.map(s=>(
-        <div class="skill-row">
-          <span class="skill-abbr" title={s.full}>{s.label}</span>
-          <div class="skill-bar-wrap"><div class="skill-bar-fill" style={`width:${p[s.key]}%;background:${skillColor(p[s.key])};`}></div></div>
-          <span class="skill-val">{p[s.key]}</span>
-        </div>
-      ))}
-    </div>
+    )}
     {isGK && (
       <div class="skill-card full-width">
         <div class="skill-cat" style="display:flex;justify-content:space-between;align-items:center;">
