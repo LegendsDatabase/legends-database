@@ -182,6 +182,8 @@ const rosterData = roster.map(p=>({
     .section-row td{font-size:10px;font-weight:700;color:#aeaeb2;letter-spacing:0.07em;text-transform:uppercase;padding:16px 12px 6px;background:#ffffff;}
     .player-row td{padding:10px 12px;border-bottom:1px solid #f5f5f7;font-size:12.5px;vertical-align:middle;}
     .player-row:last-child td{border-bottom:none;} .player-row:hover td{background:#f7f7f9;}
+    .player-cell{display:inline-flex;align-items:center;gap:9px;min-width:0;}
+    .player-mini-photo{width:30px;height:30px;border-radius:50%;object-fit:cover;flex-shrink:0;background:#f5f5f7;border:1px solid #e5e5ea;box-shadow:0 1px 2px rgba(0,0,0,0.06);}
     .player-link{color:#1d1d1f;text-decoration:none;font-weight:500;transition:color 0.12s;} .player-link:hover{color:#0071e3;}
     .role-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;letter-spacing:0.04em;display:inline-block;}
     .role-gk{background:#f5f0e8;color:#b07800;} .role-def{background:#eeffee;color:#1a7a1a;} .role-mid{background:#eef4ff;color:#0071e3;} .role-att{background:#fff0ee;color:#c0392b;}
@@ -267,6 +269,8 @@ const rosterData = roster.map(p=>({
       /* Roster table */
       .roster-table thead th{padding:0 8px 10px;font-size:9.5px;}
       .player-row td{padding:9px 8px;font-size:12px;}
+      .player-cell{gap:7px;}
+      .player-mini-photo{width:26px;height:26px;}
       .section-row td{padding:14px 8px 5px;}
       .role-badge{font-size:9.5px;padding:2px 6px;}
       .col-mob-hide{display:none;}
@@ -565,7 +569,7 @@ function renderRoster(data){
 }
 function makeRow(p){
   const tr=document.createElement('tr');tr.className='player-row';const isGK=p.role==='GK';
-  tr.innerHTML=`<td><a href="/player/${p.slug}" class="player-link">${p.name}</a></td><td><span class="role-badge ${roleCls(p.role)}">${p.role}</span></td><td class="col-ovr" style="color:${ovrColor(p.ovr)}">${p.ovr}</td><td class="col-stat${isGK?' muted':''}" style="${isGK?'':` color:${skillColor(p.def)}`}">${isGK?'—':p.def}</td><td class="col-stat${isGK?' muted':''}" style="${isGK?'':` color:${skillColor(p.play)}`}">${isGK?'—':p.play}</td><td class="col-stat${isGK?' muted':''}" style="${isGK?'':` color:${skillColor(p.att)}`}">${isGK?'—':p.att}</td>`;
+  tr.innerHTML=`<td><span class="player-cell"><img class="player-mini-photo" src="/players/${p.slug}.jpg" alt="" loading="lazy" decoding="async" width="30" height="30" onerror="this.remove()"><a href="/player/${p.slug}" class="player-link">${p.name}</a></span></td><td><span class="role-badge ${roleCls(p.role)}">${p.role}</span></td><td class="col-ovr" style="color:${ovrColor(p.ovr)}">${p.ovr}</td><td class="col-stat${isGK?' muted':''}" style="${isGK?'':` color:${skillColor(p.def)}`}">${isGK?'—':p.def}</td><td class="col-stat${isGK?' muted':''}" style="${isGK?'':` color:${skillColor(p.play)}`}">${isGK?'—':p.play}</td><td class="col-stat${isGK?' muted':''}" style="${isGK?'':` color:${skillColor(p.att)}`}">${isGK?'—':p.att}</td>`;
   return tr;
 }
 document.querySelectorAll('#rosterTable thead th').forEach(th=>{th.addEventListener('click',()=>{const col=th.getAttribute('data-col');if(!col)return;if(currentSort.col===col){currentSort.dir===1?currentSort.dir=-1:(currentSort={col:null,dir:1});}else{currentSort={col,dir:1};}document.querySelectorAll('#rosterTable thead th').forEach(h=>{const c=h.getAttribute('data-col');const s=h.querySelector('span');h.classList.remove('sorted');if(s)s.textContent='';if(c===currentSort.col){h.classList.add('sorted');if(s)s.textContent=currentSort.dir===1?' ↑':' ↓';}});renderRoster(rosterData);});});

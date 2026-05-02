@@ -228,8 +228,20 @@ const decadeData = DECADES.map(d => {
       color: #ffffff;
       margin: 0 auto 10px;
       letter-spacing: -0.3px;
+      position: relative;
+      overflow: hidden;
     }
     .tl-pcard.is-first .tl-avatar { width: 58px; height: 58px; font-size: 17px; }
+    .tl-avatar-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+    .tl-avatar.has-photo .tl-avatar-img { display: block; }
+    .tl-avatar.has-photo .tl-avatar-initials { display: none; }
 
     .tl-pname {
       font-size: 12px;
@@ -585,7 +597,7 @@ function renderPanel(data, col) {
       av.className = 'tl-avatar';
       av.style.background = col.from;
       av.style.boxShadow = '0 4px 14px ' + col.glow;
-      av.textContent = getInitials(player.name);
+      av.innerHTML = '<img class="tl-avatar-img" src="/players/' + player.slug + '.jpg" alt="" loading="lazy" decoding="async" onload="this.parentElement.classList.add(\'has-photo\')" onerror="this.remove()"><span class="tl-avatar-initials">' + getInitials(player.name) + '</span>';
       card.appendChild(av);
 
       const nm = document.createElement('div');
