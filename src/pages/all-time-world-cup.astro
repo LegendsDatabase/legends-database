@@ -170,6 +170,8 @@ const defaultCoach = COACHES.find(c => c.id === defaultTeam?.coachId) ?? COACHES
     .summary-title{font-size:20px;font-weight:900;letter-spacing:-.04em;margin-bottom:4px;}
     .summary-copy{font-size:13px;line-height:1.5;color:#6e6e73;font-weight:600;}
     .summary-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
+    .draw-link{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border-radius:999px;background:linear-gradient(135deg,#111827,#1f2937);color:#fff;padding:13px 18px;font-family:inherit;font-size:13px;font-weight:900;box-shadow:0 16px 36px rgba(17,24,39,.24);transition:transform .16s,box-shadow .16s;}
+    .draw-link:hover{transform:translateY(-2px);box-shadow:0 22px 46px rgba(17,24,39,.30);}
     .start-btn{border:none;border-radius:999px;background:linear-gradient(135deg,#111827,#1f2937);color:#fff;padding:13px 18px;font-family:inherit;font-size:13px;font-weight:900;cursor:pointer;box-shadow:0 16px 36px rgba(17,24,39,.24);transition:transform .16s,box-shadow .16s;}
     .start-btn:hover{transform:translateY(-2px);box-shadow:0 22px 46px rgba(17,24,39,.30);}
     .ghost-note{font-size:11px;font-weight:800;color:#8e8e93;}
@@ -315,9 +317,9 @@ const defaultCoach = COACHES.find(c => c.id === defaultTeam?.coachId) ?? COACHES
           <div class="summary-title" id="summaryTitle">{defaultTeam?.name ?? 'Your nation'} in {hosts[0].label}</div>
           <p class="summary-copy" id="summaryCopy">Your tournament setup is being prepared. Next: seeded draw, group stage calendar and knockout bracket.</p>
         </div>
-        <div class="summary-actions">
-          <span class="ghost-note">Draw engine coming next</span>
-          <button class="start-btn" type="button" id="startTournament">Prepare tournament</button>
+      <div class="summary-actions">
+          <span class="ghost-note">Seeded draw ready</span>
+          <a class="draw-link" href="/all-time-world-cup/draw" id="startTournament">Prepare draw</a>
         </div>
       </div>
     </section>
@@ -416,7 +418,7 @@ const defaultCoach = COACHES.find(c => c.id === defaultTeam?.coachId) ?? COACHES
 
   $('startTournament')?.addEventListener('click', () => {
     render();
-    toast('Setup saved. Seeded draw is the next build step.');
+    toast('Setup saved. Opening the draw.');
   });
 
   render();

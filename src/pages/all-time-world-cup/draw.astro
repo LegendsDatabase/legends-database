@@ -1,0 +1,517 @@
+---
+import { supabase } from '../../lib/supabase.js';
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+
+const POT_DEFS = [
+  {
+    id: 1,
+    label: 'Pot 1',
+    tone: 'Seeded giants',
+    slugs: ['all-time-brazil','all-time-germany','all-time-italy','all-time-spain'],
+  },
+  {
+    id: 2,
+    label: 'Pot 2',
+    tone: 'Elite contenders',
+    slugs: ['all-time-france','all-time-portugal','all-time-argentina','all-time-netherlands'],
+  },
+  {
+    id: 3,
+    label: 'Pot 3',
+    tone: 'Dangerous floaters',
+    slugs: ['all-time-uruguay','all-time-croatia','all-time-england','all-time-denmark'],
+  },
+  {
+    id: 4,
+    label: 'Pot 4',
+    tone: 'Underdogs with teeth',
+    slugs: ['all-time-serbia','all-time-belgium','all-time-scotland','all-time-sweden'],
+  },
+];
+
+const { data: rawTeams } = await supabase
+  .from('teams')
+  .select('id,name,slug,type,confederation,world_cup_enabled,default_formation,default_tactic,default_coach_id,seed_weight,sim_profile')
+  .eq('world_cup_enabled', true);
+
+function titleName(name = '') {
+  return name
+    .split(/[\s-]+/)
+    .filter(Boolean)
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+}
+
+function profileOf(team) {
+  const raw = team?.sim_profile ?? {};
+  if (typeof raw === 'string') {
+    try { return JSON.parse(raw); } catch { return {}; }
+  }
+  return raw || {};
+}
+
+const teams = (rawTeams ?? []).map(t => {
+  const profile = profileOf(t);
+  return {
+    id: t.id,
+    name: titleName(t.name),
+    slug: t.slug,
+    confederation: t.confederation ?? '',
+    formation: t.default_formation ?? '4-3-3',
+    tactic: t.default_tactic ?? 'balanced',
+    coachId: t.default_coach_id ?? '',
+    seed: t.seed_weight ?? 50,
+    identity: profile.identity ?? 'All-time national identity',
+    shortLabel: profile.short_label ?? 'Tournament profile',
+    tags: Array.isArray(profile.tags) ? profile.tags : [],
+    logo: `/teams/${t.slug}.svg`,
+  };
+});
+
+const bySlug = new Map(teams.map(t => [t.slug, t]));
+const pots = POT_DEFS.map(pot => ({
+  ...pot,
+  teams: pot.slugs.map(slug => bySlug.get(slug)).filter(Boolean),
+}));
+
+const pageData = JSON.stringify({ pots, teams }).replace(/</g, '\\u003c');
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>All-Time World Cup Draw - Legends Database</title>
+  <meta name="description" content="Watch the seeded draw for the Legends Database All-Time World Cup."/>
+  <meta name="robots" content="noindex, nofollow, noarchive"/>
+  <link rel="canonical" href="https://legendsdatabase.com/all-time-world-cup/draw"/>
+  <link rel="icon" type="image/png" href="/favicon.png"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style is:global>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --ink:#f7f4ee;
+      --muted:rgba(247,244,238,.62);
+      --dim:rgba(247,244,238,.36);
+      --panel:#fff;
+      --line:rgba(255,255,255,.15);
+      --gold:#d8b76a;
+      --blue:#0071e3;
+      --red:#c0392b;
+      --green:#1a7a1a;
+    }
+    body{font-family:-apple-system,'SF Pro Text','Inter',sans-serif;background:#05050a;color:#1d1d1f;padding-top:44px;-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column;}
+    .draw-page{position:relative;overflow:hidden;min-height:calc(100vh - 44px);background:
+      radial-gradient(circle at 18% 6%,rgba(216,183,106,.24),transparent 30%),
+      radial-gradient(circle at 84% 12%,rgba(0,113,227,.18),transparent 28%),
+      linear-gradient(180deg,#070711 0%,#11111d 58%,#f2f2f7 58%,#f2f2f7 100%);
+    }
+    .draw-page::before{content:'';position:absolute;inset:0;background:
+      linear-gradient(rgba(255,255,255,.034) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(255,255,255,.034) 1px,transparent 1px);
+      background-size:70px 70px;mask-image:linear-gradient(to bottom,#000,transparent 62%);pointer-events:none;
+    }
+    .draw-shell{position:relative;max-width:1220px;margin:0 auto;padding:38px 32px 72px;}
+    .draw-hero{color:var(--ink);display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:34px;align-items:end;padding:18px 0 30px;}
+    .draw-kicker{font-size:10px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-bottom:14px;}
+    .draw-title{font-size:clamp(42px,6.8vw,86px);line-height:.9;letter-spacing:-.075em;font-weight:900;max-width:760px;}
+    .draw-title span{display:block;color:var(--gold);}
+    .draw-sub{font-size:17px;line-height:1.6;color:var(--muted);max-width:700px;margin-top:18px;font-weight:500;}
+    .hero-status{border-radius:30px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.13);backdrop-filter:blur(24px);padding:20px;box-shadow:0 30px 80px rgba(0,0,0,.26);}
+    .status-label{font-size:9px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.38);margin-bottom:10px;}
+    .status-team{display:flex;align-items:center;gap:12px;}
+    .status-logo{width:52px;height:52px;object-fit:contain;filter:drop-shadow(0 12px 20px rgba(0,0,0,.22));}
+    .status-name{font-size:25px;font-weight:900;letter-spacing:-.055em;color:#fff;line-height:1;}
+    .status-copy{font-size:12px;line-height:1.45;color:rgba(255,255,255,.54);font-weight:650;margin-top:5px;}
+    .draw-board{display:grid;grid-template-columns:350px minmax(0,1fr);gap:18px;align-items:start;}
+    .ceremony-card,.rules-card,.groups-card,.pots-card{background:rgba(255,255,255,.88);border:1px solid rgba(225,225,232,.92);border-radius:30px;box-shadow:0 22px 64px rgba(20,20,30,.10);backdrop-filter:blur(22px);}
+    .ceremony-card{position:sticky;top:62px;padding:22px;overflow:hidden;}
+    .ceremony-card::before{content:'';position:absolute;right:-90px;top:-90px;width:230px;height:230px;border-radius:50%;background:radial-gradient(circle,rgba(216,183,106,.24),transparent 68%);}
+    .card-step{font-size:9px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:#aeaeb2;margin-bottom:8px;}
+    .card-title{font-size:25px;font-weight:900;letter-spacing:-.055em;line-height:1.05;}
+    .card-copy{font-size:13px;line-height:1.55;color:#6e6e73;font-weight:600;margin-top:8px;}
+    .draw-ball-stage{position:relative;display:flex;align-items:center;justify-content:center;min-height:224px;margin:20px 0 16px;border-radius:28px;background:linear-gradient(145deg,#111827,#1f2937);overflow:hidden;}
+    .draw-ball-stage::before{content:'';position:absolute;inset:-80px;background:conic-gradient(from 120deg,rgba(216,183,106,.08),rgba(255,255,255,.05),rgba(0,113,227,.10),rgba(216,183,106,.08));animation:stageSweep 6s linear infinite;}
+    @keyframes stageSweep{to{transform:rotate(360deg);}}
+    .draw-ball{position:relative;z-index:2;width:154px;height:154px;border-radius:50%;background:
+      radial-gradient(circle at 34% 28%,#fff,#f6f2e8 48%,#d8b76a 100%);
+      box-shadow:inset -18px -22px 40px rgba(130,91,20,.25),0 26px 54px rgba(0,0,0,.32);display:flex;align-items:center;justify-content:center;transform:scale(.92);transition:transform .35s,filter .35s;}
+    .draw-ball.active{transform:scale(1.04);filter:saturate(1.1);}
+    .draw-ball img{width:76px;height:76px;object-fit:contain;filter:drop-shadow(0 8px 14px rgba(0,0,0,.20));}
+    .draw-ball.idle img{opacity:.34;}
+    .ball-glint{position:absolute;left:28px;top:24px;width:38px;height:22px;border-radius:50%;background:rgba(255,255,255,.56);filter:blur(3px);transform:rotate(-22deg);}
+    .ball-caption{text-align:center;}
+    .ball-team{font-size:22px;font-weight:900;letter-spacing:-.055em;color:#1d1d1f;margin-top:7px;}
+    .ball-meta{font-size:10px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#6e6e73;margin-top:4px;}
+    .draw-actions{position:relative;display:flex;gap:9px;flex-wrap:wrap;}
+    .draw-btn{border:none;border-radius:999px;padding:12px 14px;font-family:inherit;font-size:12px;font-weight:900;cursor:pointer;transition:transform .16s,box-shadow .16s,opacity .16s;}
+    .draw-btn.primary{background:linear-gradient(135deg,#c0392b,#e85d4f);color:#fff;box-shadow:0 18px 40px rgba(192,57,43,.28);}
+    .draw-btn.dark{background:#111827;color:#fff;}
+    .draw-btn.light{background:#f5f5f7;color:#3a3a3c;border:1px solid #e5e5ea;}
+    .draw-btn:hover:not(:disabled){transform:translateY(-2px);}
+    .draw-btn:disabled{opacity:.42;cursor:not-allowed;}
+    .rules-card{padding:20px;margin-top:14px;}
+    .rules-list{display:grid;gap:9px;margin-top:14px;}
+    .rule-row{display:flex;gap:10px;align-items:flex-start;font-size:12px;line-height:1.45;color:#3a3a3c;font-weight:650;}
+    .rule-num{width:22px;height:22px;border-radius:50%;background:#eef4ff;color:#0071e3;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;flex-shrink:0;}
+    .right-stack{display:grid;gap:18px;}
+    .pots-card{padding:20px;}
+    .pots-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px;}
+    .pot{border-radius:22px;background:#fff;border:1px solid #ececf1;padding:13px;min-height:164px;}
+    .pot-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;}
+    .pot-title{font-size:13px;font-weight:900;color:#1d1d1f;}
+    .pot-tone{font-size:8px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#aeaeb2;}
+    .pot-team{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid #f2f2f6;}
+    .pot-team:first-of-type{border-top:none;}
+    .pot-team img{width:22px;height:22px;object-fit:contain;}
+    .pot-team span{font-size:12px;font-weight:800;color:#3a3a3c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .pot-team.user span{color:#0071e3;}
+    .groups-card{padding:20px;}
+    .groups-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px;}
+    .draw-state{font-size:11px;font-weight:900;color:#6e6e73;background:#f5f5f7;border:1px solid #e5e5ea;border-radius:999px;padding:8px 11px;white-space:nowrap;}
+    .groups-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+    .group-card{overflow:hidden;border-radius:24px;background:#fff;border:1px solid #ececf1;box-shadow:0 12px 30px rgba(20,20,30,.04);}
+    .group-title{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:linear-gradient(135deg,#111827,#1f2937);color:#fff;}
+    .group-title strong{font-size:18px;font-weight:900;letter-spacing:-.04em;}
+    .group-title span{font-size:9px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.48);}
+    .group-slots{display:grid;gap:0;}
+    .group-slot{min-height:62px;padding:11px 12px;display:grid;grid-template-columns:38px 1fr auto;gap:10px;align-items:center;border-top:1px solid #f2f2f6;transition:background .22s,transform .22s;}
+    .group-slot.just-drawn{background:#fff8df;transform:scale(1.01);}
+    .slot-logo{width:34px;height:34px;object-fit:contain;filter:drop-shadow(0 6px 10px rgba(0,0,0,.08));}
+    .slot-placeholder{width:34px;height:34px;border-radius:50%;background:#f5f5f7;border:1px dashed #d1d1d6;}
+    .slot-name{font-size:14px;font-weight:900;letter-spacing:-.025em;color:#1d1d1f;}
+    .slot-meta{font-size:9px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#aeaeb2;margin-top:2px;}
+    .slot-pot{font-size:10px;font-weight:900;color:#6e6e73;background:#f5f5f7;border-radius:999px;padding:5px 7px;}
+    .group-slot.user{background:linear-gradient(90deg,rgba(0,113,227,.10),rgba(255,255,255,0));}
+    .group-slot.user .slot-name{color:#0071e3;}
+    .next-card{display:none;background:linear-gradient(135deg,#11121d,#1b1b29);border:1px solid rgba(255,255,255,.1);border-radius:30px;color:#fff;padding:20px;box-shadow:0 24px 70px rgba(20,20,30,.16);}
+    .next-card.visible{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center;}
+    .next-title{font-size:24px;font-weight:900;letter-spacing:-.055em;margin-bottom:6px;}
+    .next-copy{font-size:13px;line-height:1.55;color:rgba(255,255,255,.60);font-weight:600;}
+    .draw-toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,18px);opacity:0;pointer-events:none;z-index:60;background:rgba(20,20,28,.88);color:#fff;border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(20px);border-radius:999px;padding:12px 16px;font-size:12px;font-weight:900;box-shadow:0 20px 50px rgba(0,0,0,.28);transition:opacity .2s,transform .2s;}
+    .draw-toast.visible{opacity:1;transform:translate(-50%,0);}
+    @media(max-width:1020px){
+      .draw-shell{padding:30px 20px 58px;}
+      .draw-hero{grid-template-columns:1fr;}
+      .draw-board{grid-template-columns:1fr;}
+      .ceremony-card{position:relative;top:auto;}
+      .pots-grid{grid-template-columns:repeat(2,1fr);}
+    }
+    @media(max-width:680px){
+      .draw-shell{padding:24px 16px 46px;}
+      .draw-title{font-size:46px;}
+      .draw-sub{font-size:15px;}
+      .hero-status{border-radius:24px;}
+      .groups-grid,.pots-grid{grid-template-columns:1fr;}
+      .groups-head,.next-card.visible{grid-template-columns:1fr;}
+      .groups-head{display:grid;}
+      .draw-state{justify-self:start;}
+      .draw-ball-stage{min-height:196px;}
+      .draw-ball{width:132px;height:132px;}
+      .draw-ball img{width:66px;height:66px;}
+    }
+  </style>
+</head>
+<body>
+<Navbar/>
+<main class="draw-page">
+  <div class="draw-shell">
+    <section class="draw-hero">
+      <div>
+        <div class="draw-kicker">All-Time World Cup Ceremony</div>
+        <h1 class="draw-title">The Draw <span>Begins</span></h1>
+        <p class="draw-sub">Four seeded pots, four groups, one nation per pot. The ceremony is theatrical, but the structure is strict: every group gets a giant, a contender, a dangerous outsider and a fourth-seed story.</p>
+      </div>
+      <aside class="hero-status">
+        <div class="status-label">Your selected nation</div>
+        <div class="status-team">
+          <img class="status-logo" id="statusLogo" src="/teams/all-time-brazil.svg" alt=""/>
+          <div>
+            <div class="status-name" id="statusName">Brazil</div>
+            <p class="status-copy" id="statusCopy">Your team will be highlighted wherever it lands.</p>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="draw-board">
+      <div>
+        <div class="ceremony-card">
+          <div class="card-step">Live ceremony</div>
+          <h2 class="card-title">Seeded draw</h2>
+          <p class="card-copy">Start the animation, watch each ball open, or skip straight to the completed groups.</p>
+          <div class="draw-ball-stage">
+            <div class="ball-caption">
+              <div class="draw-ball idle" id="drawBall">
+                <span class="ball-glint"></span>
+                <img id="ballLogo" src="/world-cup/logo-hero.jpg" alt=""/>
+              </div>
+              <div class="ball-team" id="ballTeam">Ready</div>
+              <div class="ball-meta" id="ballMeta">Awaiting first ball</div>
+            </div>
+          </div>
+          <div class="draw-actions">
+            <button class="draw-btn primary" type="button" id="beginDraw">Begin draw</button>
+            <button class="draw-btn light" type="button" id="skipDraw">Skip animation</button>
+            <button class="draw-btn dark" type="button" id="resetDraw">Redraw</button>
+          </div>
+        </div>
+
+        <div class="rules-card">
+          <div class="card-step">Rules</div>
+          <h2 class="card-title">Group stage format</h2>
+          <p class="card-copy">The tournament starts with four groups of four. The real drama begins with the tiebreakers.</p>
+          <div class="rules-list">
+            <div class="rule-row"><span class="rule-num">1</span><span>Each group contains one team from each pot.</span></div>
+            <div class="rule-row"><span class="rule-num">2</span><span>Top two nations from every group advance to the quarter-finals.</span></div>
+            <div class="rule-row"><span class="rule-num">3</span><span>Tiebreakers: points, goal difference, goals scored, head-to-head, fair play, drawing of lots.</span></div>
+            <div class="rule-row"><span class="rule-num">4</span><span>Knockout route will be built from group position: A1 vs B2, B1 vs A2, C1 vs D2, D1 vs C2.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="right-stack">
+        <div class="pots-card">
+          <div class="card-step">Official seedings</div>
+          <h2 class="card-title">The four pots</h2>
+          <div class="pots-grid" id="potsGrid">
+            {pots.map(pot => (
+              <div class="pot" data-pot={pot.id}>
+                <div class="pot-head">
+                  <div class="pot-title">{pot.label}</div>
+                  <div class="pot-tone">{pot.tone}</div>
+                </div>
+                {pot.teams.map(team => (
+                  <div class="pot-team" data-team={team.slug}>
+                    <img src={team.logo} alt="" loading="lazy"/>
+                    <span>{team.name}</span>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div class="groups-card">
+          <div class="groups-head">
+            <div>
+              <div class="card-step">Draw board</div>
+              <h2 class="card-title">Groups A-D</h2>
+              <p class="card-copy">Your nation is highlighted in blue. Completed groups are saved locally for the next tournament step.</p>
+            </div>
+            <div class="draw-state" id="drawState">Waiting for ceremony</div>
+          </div>
+          <div class="groups-grid" id="groupsGrid"></div>
+        </div>
+
+        <div class="next-card" id="nextCard">
+          <div>
+            <div class="next-title">Draw complete</div>
+            <p class="next-copy" id="nextCopy">Groups saved. Next we can build the national-team DNA page, fixtures and the first matchday calendar.</p>
+          </div>
+          <button class="draw-btn primary" type="button" id="saveDraw">Use this draw</button>
+        </div>
+      </div>
+    </section>
+  </div>
+  <div class="draw-toast" id="drawToast">Draw saved.</div>
+</main>
+<Footer/>
+<script type="application/json" id="drawData" set:html={pageData}></script>
+<script>
+  const drawData = JSON.parse(document.getElementById('drawData')?.textContent || '{}');
+  const pots = drawData.pots || [];
+  const teams = drawData.teams || [];
+  const letters = ['A','B','C','D'];
+  const teamBySlug = new Map(teams.map(team => [team.slug, team]));
+  const setup = readJson('ld_world_cup_setup') || {};
+  const userSlug = teamBySlug.has(setup.teamSlug) ? setup.teamSlug : (teams[0]?.slug || '');
+  let groups = emptyGroups();
+  let events = [];
+  let visibleCount = 0;
+  let running = false;
+  let timer = null;
+
+  function readJson(key) {
+    try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch { return null; }
+  }
+
+  function toast(msg) {
+    const el = document.getElementById('drawToast');
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add('visible');
+    clearTimeout(toast.t);
+    toast.t = setTimeout(() => el.classList.remove('visible'), 1900);
+  }
+
+  function emptyGroups() {
+    return { A: [], B: [], C: [], D: [] };
+  }
+
+  function shuffle(arr) {
+    const copy = [...arr];
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+  }
+
+  function createDraw() {
+    const nextGroups = emptyGroups();
+    const nextEvents = [];
+    pots.forEach(pot => {
+      const potTeams = shuffle(pot.teams || []);
+      const groupOrder = shuffle(letters);
+      potTeams.forEach((team, index) => {
+        const group = groupOrder[index % letters.length];
+        const entry = { ...team, pot: pot.id, group };
+        nextGroups[group].push(entry);
+        nextEvents.push(entry);
+      });
+    });
+    return { groups: nextGroups, events: nextEvents };
+  }
+
+  function visibleGroups() {
+    const next = emptyGroups();
+    events.slice(0, visibleCount).forEach(entry => next[entry.group].push(entry));
+    return next;
+  }
+
+  function renderGroups(activeSlug = '') {
+    const grid = document.getElementById('groupsGrid');
+    if (!grid) return;
+    const current = visibleGroups();
+    grid.innerHTML = letters.map(letter => {
+      const rows = [0,1,2,3].map(index => {
+        const team = current[letter][index];
+        if (!team) {
+          return `<div class="group-slot"><span class="slot-placeholder"></span><div><div class="slot-name">Awaiting draw</div><div class="slot-meta">Slot ${index + 1}</div></div><span class="slot-pot">-</span></div>`;
+        }
+        const cls = [
+          'group-slot',
+          team.slug === userSlug ? 'user' : '',
+          team.slug === activeSlug ? 'just-drawn' : '',
+        ].filter(Boolean).join(' ');
+        return `<div class="${cls}"><img class="slot-logo" src="${team.logo}" alt=""/><div><div class="slot-name">${team.name}</div><div class="slot-meta">${team.confederation || 'All-Time'} · ${team.formation}</div></div><span class="slot-pot">P${team.pot}</span></div>`;
+      }).join('');
+      return `<div class="group-card"><div class="group-title"><strong>Group ${letter}</strong><span>4 nations</span></div><div class="group-slots">${rows}</div></div>`;
+    }).join('');
+  }
+
+  function renderHero() {
+    const team = teamBySlug.get(userSlug) || teams[0];
+    if (!team) return;
+    document.getElementById('statusLogo').src = team.logo;
+    document.getElementById('statusName').textContent = team.name;
+    document.getElementById('statusCopy').textContent = `${team.shortLabel || 'Tournament profile'} · highlighted throughout the ceremony.`;
+    document.querySelectorAll('.pot-team').forEach(row => row.classList.toggle('user', row.dataset.team === userSlug));
+  }
+
+  function setBall(entry, idle = false) {
+    const ball = document.getElementById('drawBall');
+    const logo = document.getElementById('ballLogo');
+    const name = document.getElementById('ballTeam');
+    const meta = document.getElementById('ballMeta');
+    if (!ball || !logo || !name || !meta) return;
+    ball.classList.toggle('idle', idle);
+    ball.classList.toggle('active', !idle);
+    if (entry) {
+      logo.src = entry.logo;
+      name.textContent = entry.name;
+      meta.textContent = `Pot ${entry.pot} · Group ${entry.group}`;
+    } else {
+      logo.src = '/world-cup/logo-hero.jpg';
+      name.textContent = 'Ready';
+      meta.textContent = 'Awaiting first ball';
+    }
+  }
+
+  function setState(text) {
+    const el = document.getElementById('drawState');
+    if (el) el.textContent = text;
+  }
+
+  function prepareFreshDraw() {
+    const next = createDraw();
+    groups = next.groups;
+    events = next.events;
+    visibleCount = 0;
+    running = false;
+    clearTimeout(timer);
+    setBall(null, true);
+    setState('Waiting for ceremony');
+    document.getElementById('beginDraw').disabled = false;
+    document.getElementById('nextCard').classList.remove('visible');
+    renderGroups();
+  }
+
+  function finishDraw(skipAnimation = false) {
+    running = false;
+    visibleCount = events.length;
+    clearTimeout(timer);
+    const last = events[events.length - 1];
+    setBall(last, false);
+    renderGroups(skipAnimation ? '' : last?.slug);
+    setState('Draw complete');
+    document.getElementById('beginDraw').disabled = true;
+    document.getElementById('nextCard').classList.add('visible');
+    saveDraw(false);
+  }
+
+  function drawNext() {
+    if (!running) return;
+    if (visibleCount >= events.length) {
+      finishDraw();
+      return;
+    }
+    const entry = events[visibleCount];
+    visibleCount += 1;
+    setBall(entry, false);
+    renderGroups(entry.slug);
+    setState(`Drawing Pot ${entry.pot} · Group ${entry.group}`);
+    timer = setTimeout(drawNext, entry.slug === userSlug ? 1450 : 980);
+  }
+
+  function beginDraw() {
+    if (running) return;
+    if (!events.length || visibleCount >= events.length) prepareFreshDraw();
+    running = true;
+    document.getElementById('beginDraw').disabled = true;
+    document.getElementById('nextCard').classList.remove('visible');
+    setState('Ceremony in progress');
+    drawNext();
+  }
+
+  function saveDraw(showToast = true) {
+    const payload = {
+      createdAt: new Date().toISOString(),
+      setup,
+      userSlug,
+      groups,
+      pots,
+    };
+    localStorage.setItem('ld_world_cup_draw', JSON.stringify(payload));
+    if (showToast) toast('Draw saved. Next step: team DNA and fixtures.');
+  }
+
+  document.getElementById('beginDraw')?.addEventListener('click', beginDraw);
+  document.getElementById('skipDraw')?.addEventListener('click', () => {
+    if (!events.length || visibleCount >= events.length) prepareFreshDraw();
+    finishDraw(true);
+    toast('Animation skipped. Groups completed.');
+  });
+  document.getElementById('resetDraw')?.addEventListener('click', () => {
+    prepareFreshDraw();
+    toast('New draw ready.');
+  });
+  document.getElementById('saveDraw')?.addEventListener('click', () => saveDraw(true));
+
+  renderHero();
+  prepareFreshDraw();
+</script>
+</body>
+</html>
