@@ -584,7 +584,8 @@ const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
   function statusMood(value){return value>=82?'':value>=68?'warn':'bad';}
   function contextualRole(x, y, fallback){
     if(fallback === 'GK' && y >= 78 && x > 34 && x < 66) return 'GK';
-    if(y >= 72) return x < 30 ? 'LB' : x > 70 ? 'RB' : 'CB';
+    if(y >= 78) return x < 30 ? 'LB' : x > 70 ? 'RB' : 'SW';
+    if(y >= 68) return x < 30 ? 'LB' : x > 70 ? 'RB' : 'CB';
     if(y >= 58) return x < 22 ? 'LB' : x > 78 ? 'RB' : x < 39 ? 'CB' : x > 61 ? 'CB' : 'DM';
     if(y >= 44) return x < 24 ? 'LM' : x > 76 ? 'RM' : 'CM';
     if(y >= 30) return x < 24 ? 'LW' : x > 76 ? 'RW' : x < 42 ? 'CM' : x > 58 ? 'CM' : 'AM';
