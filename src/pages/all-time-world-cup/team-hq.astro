@@ -583,11 +583,12 @@ const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
   }
   function statusMood(value){return value>=82?'':value>=68?'warn':'bad';}
   function contextualRole(x, y, fallback){
-    if(y >= 80) return fallback === 'GK' && x > 35 && x < 65 ? 'GK' : x < 35 ? 'LB' : x > 65 ? 'RB' : 'CB';
-    if(y >= 64) return x < 24 ? 'LB' : x > 76 ? 'RB' : x < 43 ? 'CB' : x > 57 ? 'CB' : 'SW';
-    if(y >= 50) return x < 25 ? 'LM' : x > 75 ? 'RM' : x < 42 ? 'CM' : x > 58 ? 'CM' : 'DM';
-    if(y >= 34) return x < 24 ? 'LM' : x > 76 ? 'RM' : x < 42 ? 'CM' : x > 58 ? 'CM' : 'AM';
-    if(y >= 20) return x < 28 ? 'LW' : x > 72 ? 'RW' : x < 42 ? 'FW' : x > 58 ? 'FW' : 'ST';
+    if(fallback === 'GK' && y >= 78 && x > 34 && x < 66) return 'GK';
+    if(y >= 72) return x < 30 ? 'LB' : x > 70 ? 'RB' : 'CB';
+    if(y >= 58) return x < 22 ? 'LB' : x > 78 ? 'RB' : x < 39 ? 'CB' : x > 61 ? 'CB' : 'DM';
+    if(y >= 44) return x < 24 ? 'LM' : x > 76 ? 'RM' : 'CM';
+    if(y >= 30) return x < 24 ? 'LW' : x > 76 ? 'RW' : x < 42 ? 'CM' : x > 58 ? 'CM' : 'AM';
+    if(y >= 18) return x < 28 ? 'LW' : x > 72 ? 'RW' : x < 42 ? 'FW' : x > 58 ? 'FW' : 'ST';
     return x < 32 ? 'LW' : x > 68 ? 'RW' : 'ST';
   }
   function slotRoles(){
