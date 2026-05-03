@@ -255,7 +255,7 @@ const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
     .team-logo{width:62px;height:62px;object-fit:contain;filter:drop-shadow(0 14px 22px rgba(0,0,0,.26));}
     .team-name{font-size:30px;font-weight:900;letter-spacing:-.06em;line-height:.95;}
     .team-sub{font-size:12px;line-height:1.45;color:rgba(255,255,255,.56);font-weight:700;margin-top:6px;}
-    .identity-stats{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px;}
+    .identity-stats{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:18px;}
     .identity-stat{border-radius:18px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.10);padding:11px 10px;}
     .identity-stat b{display:block;font-size:22px;font-weight:950;letter-spacing:-.055em;color:#fff;}
     .identity-stat span{display:block;margin-top:3px;font-size:8px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;color:rgba(255,255,255,.38);}
@@ -274,7 +274,7 @@ const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
     .tab-btn{border:1px solid #e5e5ea;background:#f7f7f9;color:#6e6e73;border-radius:999px;padding:9px 11px;font-size:10px;font-weight:950;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;}
     .tab-btn.active{background:#1d1d1f;color:#fff;border-color:#1d1d1f;}
     .roster-table{display:flex;flex-direction:column;border-top:1px solid #f0f0f5;}
-    .player-row{display:grid;grid-template-columns:minmax(210px,1.35fr) 62px 70px 90px 90px 84px 84px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #f0f0f5;}
+    .player-row{display:grid;grid-template-columns:minmax(210px,1.35fr) 62px 70px 118px 118px 84px 84px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #f0f0f5;}
     .player-main{display:flex;align-items:center;gap:10px;min-width:0;}
     .face{width:38px;height:38px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid #e5e5ea;background:radial-gradient(circle at 50% 34%,#fff,#ececf1);box-shadow:0 4px 14px rgba(0,0,0,.08);}
     .face img{width:100%;height:100%;object-fit:cover;display:block;}
@@ -288,10 +288,19 @@ const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
     .metric.good{color:#1a7a1a;}
     .metric.warn{color:#c8a800;}
     .metric.bad{color:#c0392b;}
+    .status-stack{display:flex;flex-direction:column;gap:5px;}
+    .status-line{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+    .status-value{font-size:10px;font-weight:950;font-variant-numeric:tabular-nums;color:#1d1d1f;}
+    .status-mood{font-size:9px;font-weight:950;border-radius:999px;padding:3px 6px;background:#efffee;color:#1a7a1a;white-space:nowrap;}
+    .status-mood.warn{background:#fef9e7;color:#b7950b;}
+    .status-mood.bad{background:#fff0ee;color:#c0392b;}
+    .injury-flag{display:none;margin-left:5px;color:#c0392b;font-size:12px;}
+    .injured .injury-flag{display:inline;}
+    .injured .player-name a{color:#8e8e93;}
     .meter{height:8px;border-radius:999px;background:#ececf1;overflow:hidden;}
     .meter span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#c0392b,#d8b76a,#1a7a1a);}
     .meter.blue span{background:linear-gradient(90deg,#91bfff,#0071e3);}
-    .row-head{display:grid;grid-template-columns:minmax(210px,1.35fr) 62px 70px 90px 90px 84px 84px;gap:10px;padding:0 0 9px;color:#aeaeb2;font-size:8.5px;font-weight:950;letter-spacing:.12em;text-transform:uppercase;border-bottom:1px solid #f0f0f5;}
+    .row-head{display:grid;grid-template-columns:minmax(210px,1.35fr) 62px 70px 118px 118px 84px 84px;gap:10px;padding:0 0 9px;color:#aeaeb2;font-size:8.5px;font-weight:950;letter-spacing:.12em;text-transform:uppercase;border-bottom:1px solid #f0f0f5;}
     .pitch-wrap{position:relative;border-radius:32px;overflow:hidden;background:linear-gradient(160deg,#114a22,#1b6f32);box-shadow:inset 0 0 0 1px rgba(255,255,255,.18);min-height:560px;}
     .pitch-bg{position:absolute;inset:18px;border:1.5px solid rgba(255,255,255,.28);border-radius:18px;}
     .pitch-bg::before{content:'';position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(255,255,255,.22);}
@@ -314,7 +323,10 @@ const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
     .fit-chip.oop{color:#c0392b;}
     .control-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
     .control{border-radius:20px;background:#f7f7f9;border:1px solid #ececf1;padding:13px;}
-    .control label{display:block;font-size:9px;font-weight:950;letter-spacing:.13em;text-transform:uppercase;color:#aeaeb2;margin-bottom:8px;}
+    .control label{display:flex;align-items:center;gap:6px;font-size:9px;font-weight:950;letter-spacing:.13em;text-transform:uppercase;color:#aeaeb2;margin-bottom:8px;}
+    .tip{position:relative;display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#e9e9ef;color:#6e6e73;font-size:10px;font-weight:950;letter-spacing:0;cursor:help;}
+    .tip::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 9px);width:230px;transform:translateX(-50%) translateY(4px);opacity:0;pointer-events:none;background:rgba(20,20,28,.94);color:#fff;border-radius:14px;padding:10px 12px;font-size:11px;font-weight:650;line-height:1.45;text-transform:none;letter-spacing:0;box-shadow:0 18px 44px rgba(0,0,0,.24);transition:opacity .16s,transform .16s;z-index:20;}
+    .tip:hover::after,.tip:focus::after{opacity:1;transform:translateX(-50%) translateY(0);}
     .control select,.control input[type="range"]{width:100%;}
     .control select{border:1px solid #dedee6;border-radius:12px;background:#fff;color:#1d1d1f;padding:9px;font-size:12px;font-weight:800;outline:none;}
     .range-row{display:flex;align-items:center;gap:10px;}
@@ -324,7 +336,7 @@ const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
     .leader-box{border-radius:20px;background:#f7f7f9;border:1px solid #ececf1;padding:13px;}
     .leader-box label{display:block;font-size:9px;font-weight:950;letter-spacing:.13em;text-transform:uppercase;color:#aeaeb2;margin-bottom:8px;}
     .leader-box select{width:100%;border:1px solid #dedee6;border-radius:12px;background:#fff;color:#1d1d1f;padding:9px;font-size:12px;font-weight:850;outline:none;}
-    .insight-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:12px;}
+    .insight-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:12px;}
     .insight{border-radius:22px;background:#fff;border:1px solid #ececf1;padding:15px;}
     .insight b{display:block;font-size:23px;font-weight:950;letter-spacing:-.06em;color:#1d1d1f;}
     .insight span{display:block;margin-top:4px;font-size:9px;font-weight:950;letter-spacing:.13em;text-transform:uppercase;color:#aeaeb2;}
@@ -383,6 +395,7 @@ const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
           <div class="identity-stat"><b id="avgFitness">--</b><span>Fitness</span></div>
           <div class="identity-stat"><b id="avgMorale">--</b><span>Morale</span></div>
           <div class="identity-stat"><b id="tacticGrade">--</b><span>Tactic fit</span></div>
+          <div class="identity-stat"><b id="gellingGrade">--</b><span>Gelling</span></div>
         </div>
       </aside>
     </section>
@@ -434,7 +447,7 @@ const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
               <div>
                 <div class="eyebrow">Tactical canvas</div>
                 <h2 class="card-title">Shape and role fit</h2>
-                <p class="card-copy">Choose a historical base, assign players, then drag tokens to create your own interpretation. Secondary roles are weighted generously for adaptable legends.</p>
+                <p class="card-copy">Choose a historical base, assign players, then drag tokens to create your own interpretation. The role now reacts to field zones: push a full-back high and he becomes a wide midfielder or winger.</p>
               </div>
               <button class="pill-btn" id="saveTactic" type="button">Save tactic</button>
             </div>
@@ -463,14 +476,14 @@ const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
             <button class="pill-btn secondary" id="resetTactic" type="button">Reset tactic</button>
           </div>
           <div class="control-grid">
-            <div class="control"><label>Mentality</label><div class="range-row"><input type="range" min="0" max="100" value="54" data-range="mentality"/><span class="range-val">54</span></div></div>
-            <div class="control"><label>Tempo</label><div class="range-row"><input type="range" min="0" max="100" value="62" data-range="tempo"/><span class="range-val">62</span></div></div>
-            <div class="control"><label>Pressing</label><div class="range-row"><input type="range" min="0" max="100" value="58" data-range="pressing"/><span class="range-val">58</span></div></div>
-            <div class="control"><label>Defensive line</label><div class="range-row"><input type="range" min="0" max="100" value="55" data-range="line"/><span class="range-val">55</span></div></div>
-            <div class="control"><label>Width</label><div class="range-row"><input type="range" min="0" max="100" value="56" data-range="width"/><span class="range-val">56</span></div></div>
-            <div class="control"><label>Risk in possession</label><div class="range-row"><input type="range" min="0" max="100" value="48" data-range="risk"/><span class="range-val">48</span></div></div>
-            <div class="control"><label>Marking</label><select id="markingSelect"><option value="zonal">Zonal marking</option><option value="mixed">Mixed references</option><option value="man">Man-oriented marking</option><option value="libero">Libero protection</option></select></div>
-            <div class="control"><label>Build-up</label><select id="buildSelect"><option value="balanced">Balanced construction</option><option value="short">Short positional build-up</option><option value="direct">Direct vertical play</option><option value="wings">Wing progression</option><option value="regista">Regista-centred</option></select></div>
+            <div class="control"><label>Mentality <span class="tip" tabindex="0" data-tip="Low values protect structure and patience. High values push more players forward and increase emotional risk.">?</span></label><div class="range-row"><input type="range" min="0" max="100" value="54" data-range="mentality"/><span class="range-val">54</span></div></div>
+            <div class="control"><label>Tempo <span class="tip" tabindex="0" data-tip="Low tempo means slower circulation and control. High tempo means faster vertical attacks, more transitions and more fatigue.">?</span></label><div class="range-row"><input type="range" min="0" max="100" value="62" data-range="tempo"/><span class="range-val">62</span></div></div>
+            <div class="control"><label>Pressing <span class="tip" tabindex="0" data-tip="Low pressing keeps the block compact. High pressing hunts the ball earlier but drains stamina and opens space behind.">?</span></label><div class="range-row"><input type="range" min="0" max="100" value="58" data-range="pressing"/><span class="range-val">58</span></div></div>
+            <div class="control"><label>Defensive line <span class="tip" tabindex="0" data-tip="Low values defend closer to goal. High values compress the pitch, support pressing and risk balls in behind.">?</span></label><div class="range-row"><input type="range" min="0" max="100" value="55" data-range="line"/><span class="range-val">55</span></div></div>
+            <div class="control"><label>Width <span class="tip" tabindex="0" data-tip="Low width narrows the team for central overloads. High width stretches play and isolates wide duels.">?</span></label><div class="range-row"><input type="range" min="0" max="100" value="56" data-range="width"/><span class="range-val">56</span></div></div>
+            <div class="control"><label>Risk in possession <span class="tip" tabindex="0" data-tip="Low risk favours safe circulation. High risk encourages ambitious passes, dribbles and long switches.">?</span></label><div class="range-row"><input type="range" min="0" max="100" value="48" data-range="risk"/><span class="range-val">48</span></div></div>
+            <div class="control"><label>Marking <span class="tip" tabindex="0" data-tip="Zonal protects spaces, man-oriented increases duel pressure, mixed uses references, libero adds an old-school spare defender logic.">?</span></label><select id="markingSelect"><option value="zonal">Zonal marking</option><option value="mixed">Mixed references</option><option value="man">Man-oriented marking</option><option value="libero">Libero protection</option></select></div>
+            <div class="control"><label>Build-up <span class="tip" tabindex="0" data-tip="Choose where the first pass and rhythm come from: short combinations, direct play, wing progression or a regista hub.">?</span></label><select id="buildSelect"><option value="balanced">Balanced construction</option><option value="short">Short positional build-up</option><option value="direct">Direct vertical play</option><option value="wings">Wing progression</option><option value="regista">Regista-centred</option></select></div>
           </div>
         </div>
       </article>
@@ -488,6 +501,7 @@ const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
             <div class="insight"><b id="xiOvr">--</b><span>XI OVR</span></div>
             <div class="insight"><b id="fitAvg">--</b><span>Role fit</span></div>
             <div class="insight"><b id="rotationRisk">--</b><span>Fatigue risk</span></div>
+            <div class="insight"><b id="gellingScore">--</b><span>Tactical gelling</span></div>
           </div>
           <div class="dna-list" id="dnaList"></div>
         </div>
@@ -563,6 +577,32 @@ const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
   }
   function fitLabel(fit){return fit>=.98?'Natural':fit>=.88?'Alt role':fit>=.70?'Compatible':'Risk';}
   function fitClass(fit){return fit>=.88?'':fit>=.70?'alt':'oop';}
+  function statusText(value, type){
+    if(type==='fitness') return value>=86?'Fresh':value>=72?'OK':'Tired';
+    return value>=84?'Flying':value>=68?'Stable':'Shaken';
+  }
+  function statusMood(value){return value>=82?'':value>=68?'warn':'bad';}
+  function contextualRole(x, y, fallback){
+    if(y >= 80) return fallback === 'GK' && x > 35 && x < 65 ? 'GK' : x < 35 ? 'LB' : x > 65 ? 'RB' : 'CB';
+    if(y >= 64) return x < 24 ? 'LB' : x > 76 ? 'RB' : x < 43 ? 'CB' : x > 57 ? 'CB' : 'SW';
+    if(y >= 50) return x < 25 ? 'LM' : x > 75 ? 'RM' : x < 42 ? 'CM' : x > 58 ? 'CM' : 'DM';
+    if(y >= 34) return x < 24 ? 'LM' : x > 76 ? 'RM' : x < 42 ? 'CM' : x > 58 ? 'CM' : 'AM';
+    if(y >= 20) return x < 28 ? 'LW' : x > 72 ? 'RW' : x < 42 ? 'FW' : x > 58 ? 'FW' : 'ST';
+    return x < 32 ? 'LW' : x > 68 ? 'RW' : 'ST';
+  }
+  function slotRoles(){
+    const formation = FORMATIONS[hqState.formationName];
+    return hqState.roles || formation.pos;
+  }
+  function roleSignature(roles){
+    const counts = {};
+    roles.forEach(r => { if(r !== 'GK') counts[r] = (counts[r] || 0) + 1; });
+    const def = (counts.RB||0)+(counts.LB||0)+(counts.CB||0)+(counts.SW||0);
+    const mid = (counts.DM||0)+(counts.CM||0)+(counts.RM||0)+(counts.LM||0);
+    const am = counts.AM || 0;
+    const att = (counts.RW||0)+(counts.LW||0)+(counts.ST||0)+(counts.FW||0);
+    return am ? `${def}-${mid}-${am}-${att}` : `${def}-${mid}-${att}`;
+  }
   function weightedForRole(p, slot){
     const base = p.ovr * roleFit(p, slot);
     const roleBoost = slot==='GK' ? (p.reflexes+p.handling+p.positioning)/9 :
@@ -608,6 +648,7 @@ const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
       formationName,
       lineup: autoLineup(team, formationName),
       coords: null,
+      roles: null,
       status: defaultStatus(team),
       leaders: { captain: captain?.id || null, vice: vice?.id || null, fk: fk?.id || null, pen: pen?.id || null },
       instructions: { mentality:54, tempo:team.tempo || 62, pressing:team.pressing || 58, line:team.defensiveLine || 55, width:56, risk:team.risk || 48, marking:'zonal', build:'balanced' },
@@ -658,18 +699,18 @@ const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
         if(String(hqState.leaders.vice)===String(p.id)) tags.push('VC');
         if(String(hqState.leaders.fk)===String(p.id)) tags.push('FK');
         if(String(hqState.leaders.pen)===String(p.id)) tags.push('PEN');
-        return `<div class="player-row">
+        return `<div class="player-row ${st.injured?'injured':''}">
           <div class="player-main">
             ${portrait(p)}
             <div class="player-name">
-              <a href="${playerUrl(p)}">${esc(p.name)} ${tags.length?`<span style="color:#0071e3;font-weight:950;">${tags.join(' ')}</span>`:''}</a>
+              <a href="${playerUrl(p)}">${esc(p.name)}<span class="injury-flag" title="Injured">✚</span> ${tags.length?`<span style="color:#0071e3;font-weight:950;">${tags.join(' ')}</span>`:''}</a>
               <div class="player-meta">${esc(p.club || p.decade || p.section)} ${p.alt?`- alt: ${esc(p.alt)}`:''}</div>
             </div>
           </div>
           <span class="role-badge">${esc(p.role)}</span>
           <span class="metric">${p.ovr}</span>
-          <div class="hide-mobile"><div class="meter"><span style="width:${st.fitness}%"></span></div></div>
-          <div class="hide-mobile"><div class="meter blue"><span style="width:${st.morale}%"></span></div></div>
+          <div class="status-stack hide-mobile"><div class="status-line"><span class="status-value">${st.fitness}/100</span><span class="status-mood ${statusMood(st.fitness)}">${statusText(st.fitness,'fitness')}</span></div><div class="meter"><span style="width:${st.fitness}%"></span></div></div>
+          <div class="status-stack hide-mobile"><div class="status-line"><span class="status-value">${st.morale}/100</span><span class="status-mood ${statusMood(st.morale)}">${statusText(st.morale,'morale')}</span></div><div class="meter blue"><span style="width:${st.morale}%"></span></div></div>
           <span class="metric hide-mobile ${statusClass(p.mental)}">${p.mental}</span>
           <span class="metric hide-mobile ${statusClass(p.stamina)}">${p.stamina}</span>
         </div>`;
@@ -690,17 +731,17 @@ const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
   function renderFormationSelect(){
     const sel=document.getElementById('formationSelect');
     sel.innerHTML=Object.entries(FORMATIONS).map(([name,f])=>`<option value="${name}" ${name===hqState.formationName?'selected':''}>${name} - ${f.tag}</option>`).join('');
-    sel.onchange=()=>{hqState.formationName=sel.value;hqState.lineup=autoLineup(currentTeam, sel.value);hqState.coords=null;saveState();renderTactics();};
+    sel.onchange=()=>{hqState.formationName=sel.value;hqState.lineup=autoLineup(currentTeam, sel.value);hqState.coords=null;hqState.roles=null;saveState();renderTactics();};
   }
   function renderSavedSelect(){
     const sel=document.getElementById('savedSelect');
     const keys=Object.keys(hqState.saved || {});
     sel.innerHTML=`<option value="">Current working tactic</option>` + keys.map(k=>`<option value="${esc(k)}">${esc(k)}</option>`).join('');
-    sel.onchange=()=>{const saved=hqState.saved?.[sel.value];if(saved){hqState={...hqState,...saved,saved:hqState.saved};saveState();renderAll();toast(`Loaded ${sel.value}`);}};
+    sel.onchange=()=>{const saved=hqState.saved?.[sel.value];if(saved){hqState={...hqState,...saved,roles:saved.roles || null,saved:hqState.saved};saveState();renderAll();toast(`Loaded ${sel.value}`);}};
   }
   function renderLineup(){
-    const formation = FORMATIONS[hqState.formationName];
-    document.getElementById('lineupBoard').innerHTML = formation.pos.map((slot, idx) => {
+    const roles = slotRoles();
+    document.getElementById('lineupBoard').innerHTML = roles.map((slot, idx) => {
       const selected = byId(hqState.lineup[idx]);
       const fit = selected ? roleFit(selected, slot) : 0;
       const options = [...currentTeam.roster].sort((a,b)=>weightedForRole(b, slot)-weightedForRole(a, slot)).map(p => `<option value="${p.id}" ${String(hqState.lineup[idx])===String(p.id)?'selected':''}>${surname(p.name)} - ${p.role}${rolesOf(p).includes(slot)&&p.role!==slot?' / alt':''}</option>`).join('');
@@ -721,8 +762,9 @@ const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
     const pitch=document.getElementById('pitch');
     pitch.querySelectorAll('.token').forEach(n=>n.remove());
     const formation=FORMATIONS[hqState.formationName];
+    const roles=slotRoles();
     const coords=hqState.coords || formation.coords;
-    formation.pos.forEach((slot, idx) => {
+    roles.forEach((slot, idx) => {
       const p=byId(hqState.lineup[idx]);
       const fit=p?roleFit(p,slot):0;
       const [x,y]=coords[idx] || formation.coords[idx];
@@ -753,9 +795,15 @@ const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
     const formation=FORMATIONS[hqState.formationName];
     hqState.coords = hqState.coords ? [...hqState.coords] : formation.coords.map(c=>[...c]);
     hqState.coords[drag.idx]=[Math.round(x),Math.round(y)];
+    hqState.roles = hqState.roles ? [...hqState.roles] : formation.pos.map(r=>r);
+    hqState.roles[drag.idx] = contextualRole(x, y, hqState.roles[drag.idx]);
+    const p=byId(hqState.lineup[drag.idx]);
+    const slot=hqState.roles[drag.idx];
+    const fit=p?roleFit(p,slot):0;
+    drag.token.innerHTML=`<div class="token-role">${slot}</div><div class="token-name">${esc(p?surname(p.name):'Empty')}</div><div class="token-fit ${fitClass(fit)}">${p?fitLabel(fit):'No player'}</div>`;
   }
   function endDrag(){
-    if(drag){drag.token.removeEventListener('pointermove', moveDrag);saveState();renderDiagnosis();}
+    if(drag){drag.token.removeEventListener('pointermove', moveDrag);saveState();renderTactics();}
     drag=null;
   }
   function renderTactics(){
@@ -778,29 +826,63 @@ const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
     document.getElementById('markingSelect').onchange=e=>{hqState.instructions.marking=e.target.value;saveState();renderDiagnosis();};
     document.getElementById('buildSelect').onchange=e=>{hqState.instructions.build=e.target.value;saveState();renderDiagnosis();};
   }
+  function computeTacticalGelling(xi, roles, fit){
+    if(!xi.length)return 0;
+    let score = 45;
+    score += fit * 0.28;
+    score += avgOf(xi,p=>p.teamwork) * 0.12;
+    score += avgOf(xi,p=>p.mental) * 0.10;
+    const captain = byId(hqState.leaders.captain);
+    if(captain) score += clamp((captain.captainScore - 210) / 18, 0, 9);
+    const baseFormation = FORMATIONS[hqState.formationName];
+    const changedRoles = roles.filter((r,i)=>r !== baseFormation.pos[i]).length;
+    score -= changedRoles * 1.7;
+    const clubs = new Map();
+    xi.forEach(p => { if(p.club) clubs.set(p.club, (clubs.get(p.club)||0)+1); });
+    clubs.forEach(count => { if(count >= 2) score += Math.min(6, count * 1.25); });
+    const decades = new Map();
+    xi.forEach(p => { if(p.decade) decades.set(p.decade, (decades.get(p.decade)||0)+1); });
+    decades.forEach(count => { if(count >= 3) score += Math.min(5, count * .75); });
+    const hasKeeper = roles.includes('GK');
+    const defCount = roles.filter(r=>['RB','LB','CB','SW'].includes(r)).length;
+    const midCount = roles.filter(r=>['DM','CM','AM','RM','LM'].includes(r)).length;
+    const attCount = roles.filter(r=>['RW','LW','ST','FW'].includes(r)).length;
+    if(hasKeeper && defCount >= 3 && midCount >= 3 && attCount >= 2) score += 5;
+    if(defCount < 3 || attCount < 1) score -= 8;
+    return clamp(Math.round(score), 35, 99);
+  }
   function renderDiagnosis(){
     const formation=FORMATIONS[hqState.formationName];
+    const roles=slotRoles();
     const xi=selectedPlayers();
     const xiOvr=avgOf(xi,p=>p.ovr);
-    const fit=avgOf(hqState.lineup.map((id,i)=>({p:byId(id),slot:formation.pos[i]})).filter(x=>x.p), x=>Math.round(roleFit(x.p,x.slot)*100));
+    const fit=avgOf(hqState.lineup.map((id,i)=>({p:byId(id),slot:roles[i]})).filter(x=>x.p), x=>Math.round(roleFit(x.p,x.slot)*100));
     const avgFit=avgOf(xi,p=>hqState.status[p.id]?.fitness || 80);
     const fatigueRisk=clamp(Math.round(100-avgFit+(hqState.instructions.pressing-50)*.22+(hqState.instructions.tempo-50)*.16),4,58);
+    const gelling=computeTacticalGelling(xi, roles, fit || 0);
+    const signature=roleSignature(roles);
     document.getElementById('xiOvr').textContent=xiOvr || '--';
     document.getElementById('fitAvg').textContent=fit ? fit+'%' : '--';
     document.getElementById('rotationRisk').textContent=fatigueRisk+'%';
+    document.getElementById('gellingScore').textContent=gelling ? gelling+'%' : '--';
     document.getElementById('avgFitness').textContent=avgFit || '--';
     document.getElementById('avgMorale').textContent=avgOf(currentTeam.roster,p=>hqState.status[p.id]?.morale || 75) || '--';
     document.getElementById('tacticGrade').textContent=fit ? (fit>=92?'A':fit>=85?'B+':fit>=76?'B':'C+') : '--';
+    document.getElementById('gellingGrade').textContent=gelling ? (gelling>=88?'Elite':gelling>=76?'Good':gelling>=64?'Raw':'Fragile') : '--';
     const notes=[];
+    const changedRoles = roles.filter((r,i)=>r !== formation.pos[i]).length;
     if(fit>=90)notes.push('Role harmony is elite: the shape respects natural and secondary positions.');
     else if(fit>=80)notes.push('Good tactical fit, but one or two roles may be stretched.');
     else notes.push('The shape is experimental: check players marked as Risk before kick-off.');
+    if(changedRoles)notes.push(`Dynamic shape detected: ${changedRoles} role${changedRoles>1?'s':''} changed from the base system into a live ${signature}.`);
+    if(gelling>=84)notes.push('Tactical gelling is strong: leadership, roles and collective habits are pulling in the same direction.');
+    else if(gelling<65)notes.push('Gelling is fragile: the idea is interesting, but the XI may need stability before the big nights.');
     if(fatigueRisk>34)notes.push('High intensity settings could drain the XI across a short tournament cycle.');
     else notes.push('Physical load is manageable for a four-day tournament rhythm.');
     if(hqState.instructions.marking==='man')notes.push('Man-oriented marking adds duel pressure but may open gaps between lines.');
     if(hqState.instructions.build==='regista')notes.push('Regista build-up will make your deepest playmaker the strategic reference.');
     document.getElementById('diagnosisText').textContent=notes.join(' ');
-    const dna=[currentTeam.identity,currentTeam.shortLabel,`${hqState.formationName}`,`${hqState.instructions.marking.replace('-', ' ')} marking`,`${hqState.instructions.build} build-up`,...(currentTeam.tags||[]).slice(0,3)];
+    const dna=[currentTeam.identity,currentTeam.shortLabel,`${signature} live shape`,`${hqState.formationName} base`,`${hqState.instructions.marking.replace('-', ' ')} marking`,`${hqState.instructions.build} build-up`,...(currentTeam.tags||[]).slice(0,2)];
     document.getElementById('dnaList').innerHTML=dna.filter(Boolean).map(x=>`<span>${esc(x)}</span>`).join('');
   }
   function renderAll(){
@@ -813,8 +895,8 @@ const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
   function setupEvents(){
     document.getElementById('resetStatus').addEventListener('click',()=>{hqState.status=defaultStatus(currentTeam);saveState();renderAll();toast('Squad status recalculated');});
     document.getElementById('autoLeaders').addEventListener('click',()=>{const base=defaultState(currentTeam);hqState.leaders=base.leaders;saveState();renderAll();toast('Hierarchy suggested by staff');});
-    document.getElementById('resetTactic').addEventListener('click',()=>{const base=defaultState(currentTeam);hqState.formationName=base.formationName;hqState.lineup=base.lineup;hqState.coords=null;hqState.instructions=base.instructions;saveState();renderAll();toast('Tactic reset to national default');});
-    document.getElementById('saveTactic').addEventListener('click',()=>{const name=prompt('Name this tactic', `${currentTeam.name} ${hqState.formationName}`);if(!name)return;hqState.saved=hqState.saved||{};hqState.saved[name]={formationName:hqState.formationName,lineup:hqState.lineup,coords:hqState.coords,instructions:hqState.instructions};saveState();renderSavedSelect();toast('Tactic saved');});
+    document.getElementById('resetTactic').addEventListener('click',()=>{const base=defaultState(currentTeam);hqState.formationName=base.formationName;hqState.lineup=base.lineup;hqState.coords=null;hqState.roles=null;hqState.instructions=base.instructions;saveState();renderAll();toast('Tactic reset to national default');});
+    document.getElementById('saveTactic').addEventListener('click',()=>{const name=prompt('Name this tactic', `${currentTeam.name} ${roleSignature(slotRoles())}`);if(!name)return;hqState.saved=hqState.saved||{};hqState.saved[name]={formationName:hqState.formationName,lineup:hqState.lineup,coords:hqState.coords,roles:hqState.roles,instructions:hqState.instructions};saveState();renderSavedSelect();toast('Tactic saved');});
   }
   function init(){
     const setup=readJson('ld_world_cup_setup') || {};
