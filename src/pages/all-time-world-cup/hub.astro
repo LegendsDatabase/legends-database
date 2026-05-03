@@ -1,0 +1,448 @@
+---
+import { supabase } from '../../lib/supabase.js';
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+
+const { data: rawTeams } = await supabase
+  .from('teams')
+  .select('id,name,slug,type,confederation,world_cup_enabled,default_formation,default_tactic,default_coach_id,seed_weight,sim_profile')
+  .eq('world_cup_enabled', true)
+  .order('seed_weight', { ascending: false });
+
+function titleName(name = '') {
+  return name
+    .split(/[\s-]+/)
+    .filter(Boolean)
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+}
+
+function profileOf(team) {
+  const raw = team?.sim_profile ?? {};
+  if (typeof raw === 'string') {
+    try { return JSON.parse(raw); } catch { return {}; }
+  }
+  return raw || {};
+}
+
+const teams = (rawTeams ?? []).map(t => {
+  const profile = profileOf(t);
+  return {
+    id: t.id,
+    name: titleName(t.name),
+    slug: t.slug,
+    confederation: t.confederation ?? '',
+    formation: t.default_formation ?? '4-3-3',
+    tactic: t.default_tactic ?? 'balanced',
+    coachId: t.default_coach_id ?? '',
+    seed: t.seed_weight ?? 50,
+    identity: profile.identity ?? 'All-time national identity',
+    shortLabel: profile.short_label ?? 'Tournament profile',
+    style: profile.style ?? 'A legendary side built for the biggest stage.',
+    pressure: profile.pressure ?? 80,
+    tempo: profile.tempo ?? 70,
+    risk: profile.risk ?? 55,
+    tags: Array.isArray(profile.tags) ? profile.tags : [],
+    logo: `/teams/${t.slug}.svg`,
+  };
+});
+
+const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>All-Time World Cup Hub - Legends Database</title>
+  <meta name="description" content="Tournament dashboard for the Legends Database All-Time World Cup."/>
+  <meta name="robots" content="noindex, nofollow, noarchive"/>
+  <link rel="canonical" href="https://legendsdatabase.com/all-time-world-cup/hub"/>
+  <link rel="icon" type="image/png" href="/favicon.png"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style is:global>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --ink:#f7f4ee;
+      --muted:rgba(247,244,238,.64);
+      --dim:rgba(247,244,238,.38);
+      --gold:#d8b76a;
+      --blue:#0071e3;
+      --green:#1a7a1a;
+      --red:#c0392b;
+      --team-a:#0071e3;
+      --team-b:#d8b76a;
+      --team-c:#f7f4ee;
+    }
+    body{font-family:-apple-system,'SF Pro Text','Inter',sans-serif;background:#05050a;color:#1d1d1f;padding-top:44px;-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column;}
+    .hub-page{position:relative;overflow:hidden;min-height:calc(100vh - 44px);background:
+      radial-gradient(circle at 17% 5%,color-mix(in srgb,var(--team-a) 34%,transparent),transparent 30%),
+      radial-gradient(circle at 84% 10%,color-mix(in srgb,var(--team-b) 24%,transparent),transparent 28%),
+      linear-gradient(180deg,#070711 0%,#11111d 48%,#f2f2f7 48%,#f2f2f7 100%);
+    }
+    .hub-page::before{content:'';position:absolute;inset:0;background:
+      linear-gradient(rgba(255,255,255,.032) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(255,255,255,.032) 1px,transparent 1px);
+      background-size:72px 72px;mask-image:linear-gradient(to bottom,#000,transparent 63%);pointer-events:none;
+    }
+    .hub-shell{position:relative;max-width:1220px;margin:0 auto;padding:36px 32px 76px;}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:24px;}
+    .back-link{color:rgba(255,255,255,.58);text-decoration:none;font-size:12px;font-weight:850;}
+    .back-link:hover{color:#fff;}
+    .nav-pill{display:flex;align-items:center;gap:5px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.08);border-radius:999px;padding:5px;backdrop-filter:blur(18px);}
+    .nav-pill a{color:rgba(255,255,255,.62);text-decoration:none;border-radius:999px;padding:8px 10px;font-size:11px;font-weight:900;transition:background .16s,color .16s;}
+    .nav-pill a.active,.nav-pill a:hover{background:rgba(255,255,255,.13);color:#fff;}
+    .hero{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:34px;align-items:end;color:var(--ink);padding:12px 0 34px;}
+    .kicker{font-size:10px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-bottom:14px;}
+    .hero-title{font-size:clamp(44px,7vw,90px);line-height:.9;letter-spacing:-.08em;font-weight:900;max-width:780px;}
+    .hero-title span{display:block;color:var(--gold);}
+    .hero-copy{font-size:17px;line-height:1.62;color:var(--muted);max-width:720px;margin-top:20px;font-weight:520;}
+    .hero-card{position:relative;overflow:hidden;border-radius:30px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.13);backdrop-filter:blur(24px);padding:20px;box-shadow:0 30px 80px rgba(0,0,0,.26);}
+    .hero-card::before{content:'';position:absolute;right:-70px;top:-80px;width:190px;height:190px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--team-b) 34%,transparent),transparent 68%);}
+    .campaign-label{position:relative;font-size:9px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.38);margin-bottom:12px;}
+    .campaign-team{position:relative;display:flex;align-items:center;gap:13px;}
+    .campaign-logo{width:58px;height:58px;object-fit:contain;filter:drop-shadow(0 12px 20px rgba(0,0,0,.24));}
+    .campaign-name{font-size:27px;font-weight:900;letter-spacing:-.055em;color:#fff;line-height:1;}
+    .campaign-sub{font-size:12px;line-height:1.45;color:rgba(255,255,255,.56);font-weight:650;margin-top:5px;}
+    .campaign-strip{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px;}
+    .campaign-stat{border-radius:18px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.10);padding:11px 10px;}
+    .campaign-stat b{display:block;font-size:20px;font-weight:900;letter-spacing:-.05em;color:#fff;}
+    .campaign-stat span{display:block;margin-top:3px;font-size:8px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;color:rgba(255,255,255,.38);}
+    .quick-cta{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border:none;border-radius:999px;background:linear-gradient(135deg,#c0392b,#e85d4f);color:#fff;padding:13px 17px;font-family:inherit;font-size:13px;font-weight:900;box-shadow:0 18px 40px rgba(192,57,43,.28);cursor:pointer;transition:transform .16s,box-shadow .16s;margin-top:24px;}
+    .quick-cta:hover{transform:translateY(-2px);box-shadow:0 24px 48px rgba(192,57,43,.34);}
+    .dashboard{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;}
+    .hub-card{position:relative;width:100%;min-height:292px;overflow:hidden;border-radius:34px;background:rgba(255,255,255,.92);border:1px solid rgba(225,225,232,.95);box-shadow:0 24px 68px rgba(20,20,30,.10);padding:26px;text-decoration:none;color:#1d1d1f;display:flex;flex-direction:column;justify-content:space-between;font-family:inherit;text-align:left;appearance:none;cursor:pointer;transition:transform .18s,box-shadow .18s,border-color .18s;}
+    .hub-card:hover{transform:translateY(-4px);box-shadow:0 34px 88px rgba(20,20,30,.14);border-color:#d8d8df;}
+    .hub-card.primary{color:#fff;background:
+      radial-gradient(circle at 15% 10%,color-mix(in srgb,var(--team-c) 30%,transparent),transparent 30%),
+      radial-gradient(circle at 88% 12%,color-mix(in srgb,var(--team-b) 38%,transparent),transparent 28%),
+      linear-gradient(135deg,color-mix(in srgb,var(--team-a) 76%,#11121d),#11121d 68%);
+      border-color:rgba(255,255,255,.12);
+    }
+    .hub-card.primary::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.10),transparent 42%,rgba(0,0,0,.18));pointer-events:none;}
+    .hub-card.scout::before,.hub-card.tournament::before,.hub-card.stats::before{content:'';position:absolute;right:-68px;top:-86px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,var(--card-glow,rgba(0,113,227,.16)),transparent 68%);}
+    .hub-card.scout{--card-glow:rgba(0,113,227,.18);}
+    .hub-card.tournament{--card-glow:rgba(216,183,106,.22);}
+    .hub-card.stats{--card-glow:rgba(26,122,26,.16);}
+    .card-top{position:relative;display:flex;align-items:flex-start;justify-content:space-between;gap:18px;}
+    .card-eyebrow{font-size:9px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:#aeaeb2;margin-bottom:10px;}
+    .primary .card-eyebrow{color:rgba(255,255,255,.48);}
+    .card-title{font-size:34px;font-weight:900;letter-spacing:-.065em;line-height:.98;max-width:360px;}
+    .card-copy{position:relative;font-size:14px;line-height:1.58;color:#6e6e73;font-weight:600;max-width:520px;margin-top:13px;}
+    .primary .card-copy{color:rgba(255,255,255,.68);}
+    .card-icon{position:relative;flex-shrink:0;width:58px;height:58px;border-radius:20px;background:#f5f5f7;border:1px solid #ececf1;display:flex;align-items:center;justify-content:center;color:#1d1d1f;font-size:10px;font-weight:950;letter-spacing:.12em;text-transform:uppercase;box-shadow:inset 0 0 0 1px rgba(255,255,255,.5);}
+    .primary .card-icon{background:rgba(255,255,255,.13);border-color:rgba(255,255,255,.18);color:#fff;}
+    .scout-mark{position:relative;width:30px;height:20px;}
+    .scout-mark::before,.scout-mark::after{content:'';position:absolute;top:0;width:18px;height:18px;border-radius:50%;border:3px solid #0071e3;background:rgba(0,113,227,.08);}
+    .scout-mark::before{left:0;}
+    .scout-mark::after{right:0;}
+    .trophy-mark{width:26px;height:30px;border-radius:7px 7px 13px 13px;background:linear-gradient(180deg,#d8b76a,#b98f35);box-shadow:inset 0 0 0 2px rgba(255,255,255,.28);}
+    .bars-mark{display:flex;align-items:end;gap:4px;height:30px;}
+    .bars-mark span{width:6px;border-radius:999px;background:#1a7a1a;}
+    .bars-mark span:nth-child(1){height:15px;opacity:.55;}
+    .bars-mark span:nth-child(2){height:24px;opacity:.8;}
+    .bars-mark span:nth-child(3){height:30px;}
+    .card-foot{position:relative;display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:24px;}
+    .card-status{font-size:10px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;color:#8e8e93;border-radius:999px;background:#f5f5f7;border:1px solid #ececf1;padding:8px 10px;}
+    .primary .card-status{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.16);color:rgba(255,255,255,.72);}
+    .card-arrow{font-size:26px;font-weight:900;line-height:1;color:#1d1d1f;opacity:.45;}
+    .primary .card-arrow{color:#fff;opacity:.72;}
+    .lower-grid{margin-top:18px;display:grid;grid-template-columns:1.1fr .9fr;gap:16px;}
+    .info-panel,.next-panel{background:rgba(255,255,255,.92);border:1px solid rgba(225,225,232,.95);border-radius:30px;box-shadow:0 22px 64px rgba(20,20,30,.09);padding:22px;}
+    .panel-step{font-size:9px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:#aeaeb2;margin-bottom:8px;}
+    .panel-title{font-size:25px;font-weight:900;letter-spacing:-.055em;line-height:1.05;}
+    .panel-copy{font-size:13px;line-height:1.58;color:#6e6e73;font-weight:600;margin-top:8px;}
+    .next-match{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin-top:18px;padding:16px;border-radius:24px;background:#fff;border:1px solid #ececf1;}
+    .next-side{text-align:center;min-width:0;}
+    .next-side img{width:46px;height:46px;object-fit:contain;filter:drop-shadow(0 8px 14px rgba(0,0,0,.10));}
+    .next-side strong{display:block;margin-top:7px;font-size:13px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .versus{font-size:10px;font-weight:950;letter-spacing:.15em;text-transform:uppercase;color:#aeaeb2;}
+    .team-tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:15px;}
+    .team-tags span{font-size:9px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;border-radius:999px;padding:7px 9px;background:#f5f5f7;color:#6e6e73;border:1px solid #ececf1;}
+    .toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,18px);opacity:0;pointer-events:none;z-index:60;background:rgba(20,20,28,.88);color:#fff;border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(20px);border-radius:999px;padding:12px 16px;font-size:12px;font-weight:900;box-shadow:0 20px 50px rgba(0,0,0,.28);transition:opacity .2s,transform .2s;}
+    .toast.visible{opacity:1;transform:translate(-50%,0);}
+    @media(max-width:1020px){
+      .hub-shell{padding:30px 20px 58px;}
+      .hero{grid-template-columns:1fr;}
+      .dashboard{grid-template-columns:1fr;}
+      .lower-grid{grid-template-columns:1fr;}
+      .hub-card{min-height:250px;}
+    }
+    @media(max-width:700px){
+      .hub-shell{padding:24px 16px 46px;}
+      .topbar{flex-direction:column;align-items:flex-start;}
+      .nav-pill{width:100%;overflow-x:auto;justify-content:flex-start;}
+      .nav-pill a{white-space:nowrap;}
+      .hero-title{font-size:48px;}
+      .hero-copy{font-size:15px;}
+      .campaign-strip{grid-template-columns:1fr;}
+      .hub-card{border-radius:26px;padding:21px;min-height:242px;}
+      .card-title{font-size:29px;}
+      .card-top{gap:12px;}
+      .card-icon{width:50px;height:50px;border-radius:18px;}
+      .next-match{grid-template-columns:1fr;gap:10px;}
+      .versus{text-align:center;}
+    }
+  </style>
+</head>
+<body>
+<Navbar/>
+<main class="hub-page" id="hubPage">
+  <div class="hub-shell">
+    <div class="topbar">
+      <a class="back-link" href="/all-time-world-cup/fixtures">&larr; Back to fixtures</a>
+      <nav class="nav-pill" aria-label="Tournament navigation">
+        <a class="active" href="/all-time-world-cup/hub">Hub</a>
+        <a href="/all-time-world-cup/team">Team DNA</a>
+        <a href="/all-time-world-cup/fixtures">Fixtures</a>
+        <a href="/all-time-world-cup/draw">Draw</a>
+      </nav>
+    </div>
+
+    <section class="hero">
+      <div>
+        <div class="kicker" id="kicker">Tournament headquarters</div>
+        <h1 class="hero-title">Campaign <span>Hub</span></h1>
+        <p class="hero-copy" id="heroCopy">Your All-Time World Cup command centre. Read the next opponent, prepare the squad, follow the tournament and track every emerging story.</p>
+        <button class="quick-cta" type="button" id="mainCta">Prepare next match</button>
+      </div>
+      <aside class="hero-card">
+        <div class="campaign-label">Your campaign</div>
+        <div class="campaign-team">
+          <img class="campaign-logo" id="campaignLogo" src="/teams/all-time-brazil.svg" alt=""/>
+          <div>
+            <div class="campaign-name" id="campaignName">Your nation</div>
+            <p class="campaign-sub" id="campaignSub">Group stage ready.</p>
+          </div>
+        </div>
+        <div class="campaign-strip">
+          <div class="campaign-stat"><b id="statGroup">-</b><span>Group</span></div>
+          <div class="campaign-stat"><b id="statMatchday">MD1</b><span>Next</span></div>
+          <div class="campaign-stat"><b id="statPressure">--</b><span>Pressure</span></div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="dashboard" aria-label="World Cup dashboard">
+      <a class="hub-card primary" href="/all-time-world-cup/team" id="teamCard">
+        <div>
+          <div class="card-top">
+            <div>
+              <div class="card-eyebrow">Team HQ</div>
+              <h2 class="card-title">Squad, morale and tactics</h2>
+            </div>
+            <div class="card-icon">HQ</div>
+          </div>
+          <p class="card-copy">Your squad room. This will become the advanced pre-match area: fatigue, morale, captaincy, tactical setup and rotation choices.</p>
+        </div>
+        <div class="card-foot">
+          <span class="card-status">Open team room</span>
+          <span class="card-arrow">&rarr;</span>
+        </div>
+      </a>
+
+      <button class="hub-card scout" type="button" data-coming="Scout Report">
+        <div>
+          <div class="card-top">
+            <div>
+              <div class="card-eyebrow">Scout Report</div>
+              <h2 class="card-title">Next opponent analysis</h2>
+            </div>
+            <div class="card-icon"><span class="scout-mark"></span></div>
+          </div>
+          <p class="card-copy" id="scoutCopy">A clean observer report on the next rival: key players, likely approach, danger zones and where they can be hurt.</p>
+        </div>
+        <div class="card-foot">
+          <span class="card-status" id="scoutStatus">Coming next</span>
+          <span class="card-arrow">&rarr;</span>
+        </div>
+      </button>
+
+      <a class="hub-card tournament" href="/all-time-world-cup/fixtures">
+        <div>
+          <div class="card-top">
+            <div>
+              <div class="card-eyebrow">Tournament Centre</div>
+              <h2 class="card-title">Groups, fixtures and route</h2>
+            </div>
+            <div class="card-icon"><span class="trophy-mark"></span></div>
+          </div>
+          <p class="card-copy">The tournament map: calendar, group stage, possible knockout path and, later, results from every other match.</p>
+        </div>
+        <div class="card-foot">
+          <span class="card-status">Open fixtures</span>
+          <span class="card-arrow">&rarr;</span>
+        </div>
+      </a>
+
+      <button class="hub-card stats" type="button" data-coming="Stats Hub">
+        <div>
+          <div class="card-top">
+            <div>
+              <div class="card-eyebrow">Stats Hub</div>
+              <h2 class="card-title">Leaders, form and records</h2>
+            </div>
+            <div class="card-icon"><span class="bars-mark"><span></span><span></span><span></span></span></div>
+          </div>
+          <p class="card-copy">Global and team stats: goals, assists, ratings, clean sheets, cards, momentum and tournament stories as they unfold.</p>
+        </div>
+        <div class="card-foot">
+          <span class="card-status">Coming next</span>
+          <span class="card-arrow">&rarr;</span>
+        </div>
+      </button>
+    </section>
+
+    <section class="lower-grid">
+      <div class="next-panel">
+        <div class="panel-step">Next match</div>
+        <h2 class="panel-title" id="nextTitle">Opening fixture</h2>
+        <p class="panel-copy" id="nextCopy">Your first fixture will appear here once the draw and calendar are saved.</p>
+        <div class="next-match" id="nextMatchBox"></div>
+      </div>
+      <div class="info-panel">
+        <div class="panel-step">Team identity</div>
+        <h2 class="panel-title" id="identityTitle">Tournament DNA</h2>
+        <p class="panel-copy" id="identityCopy">The hub adapts to your selected team and will become the persistent navigation layer for the whole World Cup.</p>
+        <div class="team-tags" id="teamTags"></div>
+      </div>
+    </section>
+  </div>
+  <div class="toast" id="toast">Coming next.</div>
+</main>
+<Footer/>
+<script define:vars={{ pageData }}>
+  const DATA = JSON.parse(pageData);
+  const TEAMS = DATA.teams || [];
+  const TEAM_COLORS = {
+    'all-time-brazil': ['#178a38', '#ffdf00', '#002776'],
+    'all-time-italy': ['#1a7a1a', '#f4f7fb', '#c0392b'],
+    'all-time-germany': ['#111111', '#d8b76a', '#c0392b'],
+    'all-time-spain': ['#c0392b', '#f1bf28', '#7a1d1d'],
+    'all-time-france': ['#1f5fbf', '#f7f7fb', '#c0392b'],
+    'all-time-portugal': ['#0b7a3b', '#c0392b', '#d8b76a'],
+    'all-time-argentina': ['#5aa7d8', '#ffffff', '#d8b76a'],
+    'all-time-netherlands': ['#e87522', '#ffffff', '#1d4f91'],
+    'all-time-uruguay': ['#57a8df', '#ffffff', '#d8b76a'],
+    'all-time-croatia': ['#c0392b', '#ffffff', '#1f5fbf'],
+    'all-time-england': ['#f7f7fb', '#c0392b', '#1d1d1f'],
+    'all-time-denmark': ['#c0392b', '#ffffff', '#8b1e1e'],
+    'all-time-serbia': ['#c0392b', '#1f5fbf', '#ffffff'],
+    'all-time-belgium': ['#111111', '#f1bf28', '#c0392b'],
+    'all-time-scotland': ['#1f5fbf', '#ffffff', '#0d3f86'],
+    'all-time-sweden': ['#1f5fbf', '#f1bf28', '#174d95'],
+  };
+
+  function readJson(key) {
+    try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch { return null; }
+  }
+
+  function esc(value) {
+    return String(value ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;' }[c]));
+  }
+
+  function toast(msg) {
+    const el = document.getElementById('toast');
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add('visible');
+    clearTimeout(toast.t);
+    toast.t = setTimeout(() => el.classList.remove('visible'), 1900);
+  }
+
+  function formatDate(value) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return 'Fixture date pending';
+    const day = new Intl.DateTimeFormat('en-GB', { weekday: 'short', day: '2-digit', month: 'short' }).format(date);
+    const time = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit' }).format(date);
+    return `${day} · ${time}`;
+  }
+
+  function teamBySlug(slug) {
+    return TEAMS.find(team => team.slug === slug) || TEAMS[0] || null;
+  }
+
+  function applyColors(team) {
+    const colors = TEAM_COLORS[team?.slug] || ['#0071e3', '#d8b76a', '#f7f4ee'];
+    const root = document.documentElement;
+    root.style.setProperty('--team-a', colors[0]);
+    root.style.setProperty('--team-b', colors[1]);
+    root.style.setProperty('--team-c', colors[2]);
+  }
+
+  function findNextFixture(fixturesState, userSlug) {
+    const fixtures = fixturesState?.fixtures || [];
+    return fixtures.find(f => f.type === 'group' && (f.a?.slug === userSlug || f.b?.slug === userSlug))
+      || fixtures.find(f => f.type === 'knockout')
+      || null;
+  }
+
+  function sideHtml(team) {
+    if (!team) return `<div class="next-side"><span style="display:block;width:46px;height:46px;margin:0 auto;border-radius:50%;background:#f5f5f7;border:1px dashed #d1d1d6;"></span><strong>TBD</strong></div>`;
+    return `<div class="next-side"><img src="${team.logo}" alt=""/><strong>${esc(team.name)}</strong></div>`;
+  }
+
+  function renderFallback() {
+    document.getElementById('campaignSub').textContent = 'Set up your tournament first.';
+    document.getElementById('heroCopy').textContent = 'No saved World Cup campaign was found on this browser. Build the tournament setup, run the draw and return here.';
+    document.getElementById('mainCta').textContent = 'Build tournament';
+    document.getElementById('mainCta').addEventListener('click', () => { window.location.href = '/all-time-world-cup'; });
+    document.getElementById('teamCard').href = '/all-time-world-cup';
+    document.getElementById('nextMatchBox').innerHTML = sideHtml(null) + '<div class="versus">VS</div>' + sideHtml(null);
+  }
+
+  function render() {
+    const setup = readJson('ld_world_cup_setup') || {};
+    const draw = readJson('ld_world_cup_draw') || {};
+    const fixturesState = readJson('ld_world_cup_fixtures') || {};
+    const userSlug = draw.userSlug || fixturesState.userSlug || setup.teamSlug || TEAMS[0]?.slug || '';
+    const team = teamBySlug(userSlug);
+    if (!team) {
+      renderFallback();
+      return;
+    }
+
+    applyColors(team);
+    const group = fixturesState.userGroup || Object.entries(draw.groups || {}).find(([, teams]) => teams.some(t => t.slug === userSlug))?.[0] || '-';
+    const next = findNextFixture(fixturesState, userSlug);
+    const opponent = next ? (next.a?.slug === userSlug ? next.b : next.a) : null;
+    const matchday = next?.round?.match(/\d+/)?.[0] ? `MD${next.round.match(/\d+/)[0]}` : 'MD1';
+
+    document.getElementById('campaignLogo').src = team.logo;
+    document.getElementById('campaignName').textContent = team.name;
+    document.getElementById('campaignSub').textContent = `${team.shortLabel || 'Tournament profile'} · ${team.formation}`;
+    document.getElementById('statGroup').textContent = group;
+    document.getElementById('statMatchday').textContent = matchday;
+    document.getElementById('statPressure').textContent = team.pressure || '--';
+    document.getElementById('kicker').textContent = `Group ${group} command centre`;
+    document.getElementById('scoutStatus').textContent = opponent ? `${opponent.name} next` : 'Coming next';
+    document.getElementById('scoutCopy').textContent = opponent
+      ? `First scouting focus: ${opponent.name}. Their key players, rhythm, weak zones and pressure profile will live here.`
+      : 'A clean observer report on the next rival: key players, likely approach, danger zones and where they can be hurt.';
+    document.getElementById('identityTitle').textContent = team.identity || 'Tournament DNA';
+    document.getElementById('identityCopy').textContent = team.style || 'The hub adapts to your selected team and will become the persistent navigation layer for the whole World Cup.';
+    document.getElementById('teamTags').innerHTML = (team.tags || []).slice(0, 6).map(tag => `<span>${esc(tag)}</span>`).join('');
+
+    if (next) {
+      document.getElementById('nextTitle').textContent = `${next.stage || 'Next match'} · ${next.venue || 'Venue TBC'}`;
+      document.getElementById('nextCopy').textContent = `${formatDate(next.date)}. The tactical room will use this fixture for fatigue, morale and preparation choices.`;
+      document.getElementById('nextMatchBox').innerHTML = `${sideHtml(next.a)}<div class="versus">VS</div>${sideHtml(next.b)}`;
+    } else {
+      document.getElementById('nextTitle').textContent = 'Calendar not saved yet';
+      document.getElementById('nextCopy').textContent = 'Open fixtures once to generate and save the official tournament calendar.';
+      document.getElementById('nextMatchBox').innerHTML = sideHtml(team) + '<div class="versus">VS</div>' + sideHtml(null);
+    }
+
+    document.getElementById('mainCta').addEventListener('click', () => {
+      window.location.href = '/all-time-world-cup/team';
+    });
+  }
+
+  document.querySelectorAll('[data-coming]').forEach(btn => {
+    btn.addEventListener('click', () => toast(`${btn.dataset.coming} will be built next.`));
+  });
+
+  render();
+</script>
+</body>
+</html>

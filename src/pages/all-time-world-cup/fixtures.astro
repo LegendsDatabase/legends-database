@@ -423,7 +423,8 @@ import Footer from '../../components/Footer.astro';
     });
     document.getElementById('startTournament')?.addEventListener('click', () => {
       localStorage.setItem('ld_world_cup_ready', JSON.stringify({ readyAt: new Date().toISOString(), userSlug, group }));
-      toast('Tournament saved. Next build: dashboard and tactical hub.');
+      toast('Tournament saved. Opening campaign hub.');
+      setTimeout(() => { window.location.href = '/all-time-world-cup/hub'; }, 450);
     });
   }
 
