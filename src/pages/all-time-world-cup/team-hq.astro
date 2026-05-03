@@ -1,0 +1,834 @@
+---
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { supabase } from '../../lib/supabase.js';
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+import { COACHES } from '../../lib/match-simulator/coaches.js';
+
+const { data: rawTeams } = await supabase
+  .from('teams')
+  .select('id,name,slug,type,confederation,rivalries,world_cup_enabled,default_formation,default_tactic,default_coach_id,seed_weight,sim_profile')
+  .eq('world_cup_enabled', true)
+  .order('seed_weight', { ascending: false });
+
+const { data: rawPlayers } = await supabase
+  .from('players')
+  .select(`id,slug,name,role,nation,iconic_club,overall_rating,decade,height,preferred_foot,
+           acceleration,pace,agility,strength,balance,jumping,stamina,fitness,
+           dribbling,short_passing,long_passing,finishing,shot_accuracy,shot_power,
+           heading,tackling,free_kick,penalties,composure,aggression,consistency,
+           creativity,work_rate,vision,off_the_ball,def_positioning,teamwork,
+           anticipation,marking,reflexes,positioning,handling,kicking,alt_roles,
+           nat_apps,nat_goals,nat_goal_ratio`);
+
+const photoRoot = join(process.cwd(), 'public', 'players');
+
+function titleName(name = '') {
+  return name
+    .split(/[\s-]+/)
+    .filter(Boolean)
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+}
+
+function profileOf(team) {
+  const raw = team?.sim_profile ?? {};
+  if (typeof raw === 'string') {
+    try { return JSON.parse(raw); } catch { return {}; }
+  }
+  return raw || {};
+}
+
+function avg(vals) {
+  const v = vals.filter(x => x != null && !Number.isNaN(Number(x))).map(Number);
+  return v.length ? Math.round(v.reduce((a, b) => a + b, 0) / v.length) : 0;
+}
+
+function sortByOvr(arr) {
+  return [...arr].sort((a, b) => (b.overall_rating ?? 0) - (a.overall_rating ?? 0) || (a.name ?? '').localeCompare(b.name ?? ''));
+}
+
+function sortBy(arr, fn) {
+  return [...arr].sort((a, b) => fn(b) - fn(a) || (a.name ?? '').localeCompare(b.name ?? ''));
+}
+
+function pick(pool, n, usedIds) {
+  return sortByOvr(pool.filter(p => !usedIds.has(p.id))).slice(0, n);
+}
+
+function hasPhoto(slug) {
+  return !!slug && existsSync(join(photoRoot, `${slug}.jpg`));
+}
+
+function initials(name = '') {
+  return name
+    .replace(',', ' ')
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(w => w.charAt(0).toUpperCase())
+    .join('');
+}
+
+function pAtt(p) { return avg([p.finishing, p.off_the_ball, p.composure, p.anticipation, p.shot_accuracy]); }
+function pPlay(p) { return avg([p.short_passing, p.long_passing, p.vision, p.composure, p.creativity]); }
+function pDef(p) { return avg([p.marking, p.tackling, p.def_positioning, p.anticipation, p.heading, p.composure]); }
+function pSpeed(p) { return avg([p.pace, p.acceleration]); }
+function pMental(p) { return avg([p.composure, p.consistency, p.work_rate, p.teamwork]); }
+function pCaptain(p) { return (p.work_rate ?? 70) * 1.35 + (p.teamwork ?? 70) + (p.composure ?? 70) * 0.9 + (p.consistency ?? 70) * 0.8; }
+
+function buildRoster(team, allPlayers) {
+  const teamPlayers = allPlayers.filter(p => (p.nation ?? '').toLowerCase() === (team.name ?? '').toLowerCase());
+  const used = new Set();
+  const gkR = pick(teamPlayers.filter(p => p.role === 'GK'), 3, used);
+  gkR.forEach(p => used.add(p.id));
+  const rbR = pick(teamPlayers.filter(p => p.role === 'RB'), 2, used);
+  rbR.forEach(p => used.add(p.id));
+  const lbR = pick(teamPlayers.filter(p => p.role === 'LB'), 2, used);
+  lbR.forEach(p => used.add(p.id));
+  const swAvail = sortByOvr(teamPlayers.filter(p => p.role === 'SW' && !used.has(p.id)));
+  const cbAvail = sortByOvr(teamPlayers.filter(p => p.role === 'CB' && !used.has(p.id)));
+  const swSlot = swAvail.length ? [swAvail[0]] : [];
+  swSlot.forEach(p => used.add(p.id));
+  const centerPool = sortByOvr([...cbAvail.filter(p => !used.has(p.id)), ...swAvail.filter(p => !used.has(p.id))]);
+  const centerR = [...swSlot, ...pick(centerPool, 4 - swSlot.length, used)];
+  centerR.forEach(p => used.add(p.id));
+  const defR = [...rbR, ...lbR, ...centerR];
+  const dmR = pick(teamPlayers.filter(p => p.role === 'DM'), 2, used);
+  dmR.forEach(p => used.add(p.id));
+  const cmamR = pick(teamPlayers.filter(p => ['CM', 'AM'].includes(p.role)), 4, used);
+  cmamR.forEach(p => used.add(p.id));
+  const rmlmR = pick(teamPlayers.filter(p => ['RM', 'LM', 'CM', 'AM', 'DM'].includes(p.role)), 2, used);
+  rmlmR.forEach(p => used.add(p.id));
+  const midR = [...dmR, ...cmamR, ...rmlmR];
+  const stR = pick(teamPlayers.filter(p => p.role === 'ST'), 4, used);
+  stR.forEach(p => used.add(p.id));
+  const wingS = pick(teamPlayers.filter(p => ['RW', 'LW'].includes(p.role) && !used.has(p.id)), 1, used);
+  wingS.forEach(p => used.add(p.id));
+  const attFill = pick(teamPlayers.filter(p => ['ST', 'FW', 'RW', 'LW'].includes(p.role) && !used.has(p.id)), 6 - wingS.length, used);
+  attFill.forEach(p => used.add(p.id));
+  const attR = [...stR, ...wingS, ...attFill];
+  return { gkR, defR, midR, attR, roster: [...gkR, ...defR, ...midR, ...attR] };
+}
+
+function playerPayload(p, section) {
+  return {
+    id: p.id,
+    slug: p.slug ?? '',
+    name: p.name ?? '',
+    role: (p.role ?? '').toUpperCase(),
+    alt: p.alt_roles ?? '',
+    section,
+    nation: p.nation ?? '',
+    club: p.iconic_club ?? '',
+    decade: p.decade ?? '',
+    ovr: p.overall_rating ?? 0,
+    photo: hasPhoto(p.slug) ? `/players/${p.slug}.jpg` : '',
+    initials: initials(p.name),
+    apps: p.nat_apps ?? 0,
+    goals: p.nat_goals ?? 0,
+    foot: p.preferred_foot ?? '',
+    height: p.height ?? null,
+    pace: p.pace ?? 70,
+    acc: p.acceleration ?? 70,
+    stamina: p.stamina ?? 70,
+    fitnessBase: p.fitness ?? 80,
+    workRate: p.work_rate ?? 70,
+    composure: p.composure ?? 70,
+    consistency: p.consistency ?? 70,
+    teamwork: p.teamwork ?? 70,
+    aggression: p.aggression ?? 70,
+    vision: p.vision ?? 70,
+    creativity: p.creativity ?? 70,
+    shortPassing: p.short_passing ?? 70,
+    longPassing: p.long_passing ?? 70,
+    finishing: p.finishing ?? 70,
+    shotAccuracy: p.shot_accuracy ?? 70,
+    shotPower: p.shot_power ?? 70,
+    freeKick: p.free_kick ?? 70,
+    penalties: p.penalties ?? 70,
+    tackling: p.tackling ?? 70,
+    marking: p.marking ?? 70,
+    defPositioning: p.def_positioning ?? 70,
+    anticipation: p.anticipation ?? 70,
+    heading: p.heading ?? 70,
+    reflexes: p.reflexes ?? 70,
+    handling: p.handling ?? 70,
+    positioning: p.positioning ?? 70,
+    att: pAtt(p),
+    play: pPlay(p),
+    def: pDef(p),
+    speed: pSpeed(p),
+    mental: pMental(p),
+    captainScore: pCaptain(p),
+  };
+}
+
+const teams = (rawTeams ?? []).map(team => {
+  const profile = profileOf(team);
+  const rosterParts = buildRoster(team, rawPlayers ?? []);
+  const roster = [
+    ...rosterParts.gkR.map(p => playerPayload(p, 'Goalkeepers')),
+    ...rosterParts.defR.map(p => playerPayload(p, 'Defenders')),
+    ...rosterParts.midR.map(p => playerPayload(p, 'Midfielders')),
+    ...rosterParts.attR.map(p => playerPayload(p, 'Attackers')),
+  ];
+  const coach = COACHES.find(c => c.id === team.default_coach_id);
+  return {
+    id: team.id,
+    name: titleName(team.name),
+    rawName: team.name ?? '',
+    slug: team.slug,
+    confederation: team.confederation ?? '',
+    logo: `/teams/${team.slug}.svg`,
+    formation: team.default_formation ?? '4-3-3',
+    tactic: team.default_tactic ?? 'balanced',
+    coachId: team.default_coach_id ?? '',
+    coachName: coach?.name ?? 'Tournament manager',
+    coachStyle: coach?.style ?? 'National identity',
+    seed: team.seed_weight ?? 50,
+    identity: profile.identity ?? 'All-time national identity',
+    shortLabel: profile.short_label ?? 'Tournament profile',
+    style: profile.style ?? 'A legendary side built for the biggest stage.',
+    pressure: profile.pressure ?? 80,
+    tempo: profile.tempo ?? 70,
+    risk: profile.risk ?? 55,
+    possession: profile.possession ?? 55,
+    pressing: profile.pressing ?? 55,
+    defensiveLine: profile.defensive_line ?? 55,
+    strengths: Array.isArray(profile.strengths) ? profile.strengths : [],
+    vulnerabilities: Array.isArray(profile.vulnerabilities) ? profile.vulnerabilities : [],
+    tags: Array.isArray(profile.tags) ? profile.tags : [],
+    roster,
+    metrics: {
+      ovr: avg(roster.map(p => p.ovr)),
+      mental: avg(roster.map(p => p.mental)),
+      stamina: avg(roster.map(p => p.stamina)),
+      speed: avg(roster.map(p => p.speed)),
+      creators: avg(roster.filter(p => p.section === 'Midfielders').map(p => p.play)),
+      finishers: avg(roster.filter(p => p.section === 'Attackers').map(p => p.att)),
+      defenders: avg(roster.filter(p => p.section === 'Defenders').map(p => p.def)),
+    },
+  };
+});
+
+const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>All-Time World Cup Team HQ - Legends Database</title>
+  <meta name="description" content="Advanced team headquarters for the Legends Database All-Time World Cup."/>
+  <meta name="robots" content="noindex, nofollow, noarchive"/>
+  <link rel="canonical" href="https://legendsdatabase.com/all-time-world-cup/team-hq"/>
+  <link rel="icon" type="image/png" href="/favicon.png"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style is:global>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{--ink:#f7f4ee;--muted:rgba(247,244,238,.64);--dim:rgba(247,244,238,.38);--gold:#d8b76a;--blue:#0071e3;--green:#1a7a1a;--red:#c0392b;--team-a:#0071e3;--team-b:#d8b76a;--team-c:#f7f4ee;}
+    body{font-family:-apple-system,'SF Pro Text','Inter',sans-serif;background:#05050a;color:#1d1d1f;padding-top:44px;-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column;}
+    button,input,select{font:inherit;}
+    .hq-page{position:relative;overflow:hidden;min-height:calc(100vh - 44px);background:
+      radial-gradient(circle at 12% 0%,color-mix(in srgb,var(--team-a) 36%,transparent),transparent 31%),
+      radial-gradient(circle at 88% 6%,color-mix(in srgb,var(--team-b) 28%,transparent),transparent 29%),
+      linear-gradient(180deg,#070711 0%,#10101b 45%,#f2f2f7 45%,#f2f2f7 100%);
+    }
+    .hq-page::before{content:'';position:absolute;inset:0;background:linear-gradient(rgba(255,255,255,.032) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.032) 1px,transparent 1px);background-size:72px 72px;mask-image:linear-gradient(to bottom,#000,transparent 58%);pointer-events:none;}
+    .hq-shell{position:relative;max-width:1340px;margin:0 auto;padding:34px 30px 76px;}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:24px;}
+    .back-link{color:rgba(255,255,255,.58);text-decoration:none;font-size:12px;font-weight:850;}
+    .back-link:hover{color:#fff;}
+    .nav-pill{display:flex;align-items:center;gap:5px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.08);border-radius:999px;padding:5px;backdrop-filter:blur(18px);}
+    .nav-pill a{color:rgba(255,255,255,.62);text-decoration:none;border-radius:999px;padding:8px 10px;font-size:11px;font-weight:900;transition:background .16s,color .16s;white-space:nowrap;}
+    .nav-pill a.active,.nav-pill a:hover{background:rgba(255,255,255,.13);color:#fff;}
+    .hero{display:grid;grid-template-columns:minmax(0,1fr) 410px;gap:30px;color:var(--ink);align-items:end;margin-bottom:28px;}
+    .kicker{font-size:10px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-bottom:13px;}
+    .hero h1{font-size:clamp(48px,7vw,94px);line-height:.87;letter-spacing:-.085em;font-weight:900;max-width:850px;}
+    .hero h1 span{display:block;color:var(--gold);}
+    .hero-copy{font-size:17px;line-height:1.62;color:var(--muted);font-weight:540;max-width:780px;margin-top:18px;}
+    .identity-card{position:relative;overflow:hidden;border-radius:32px;background:rgba(255,255,255,.085);border:1px solid rgba(255,255,255,.13);backdrop-filter:blur(24px);box-shadow:0 30px 82px rgba(0,0,0,.27);padding:20px;color:#fff;}
+    .identity-card::before{content:'';position:absolute;right:-80px;top:-88px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--team-b) 36%,transparent),transparent 68%);}
+    .team-line{position:relative;display:flex;align-items:center;gap:14px;}
+    .team-logo{width:62px;height:62px;object-fit:contain;filter:drop-shadow(0 14px 22px rgba(0,0,0,.26));}
+    .team-name{font-size:30px;font-weight:900;letter-spacing:-.06em;line-height:.95;}
+    .team-sub{font-size:12px;line-height:1.45;color:rgba(255,255,255,.56);font-weight:700;margin-top:6px;}
+    .identity-stats{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px;}
+    .identity-stat{border-radius:18px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.10);padding:11px 10px;}
+    .identity-stat b{display:block;font-size:22px;font-weight:950;letter-spacing:-.055em;color:#fff;}
+    .identity-stat span{display:block;margin-top:3px;font-size:8px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;color:rgba(255,255,255,.38);}
+    .section{margin-top:18px;}
+    .grid-main{display:grid;grid-template-columns:minmax(0,1.18fr) minmax(390px,.82fr);gap:18px;align-items:start;}
+    .card{background:rgba(255,255,255,.94);border:1px solid rgba(225,225,232,.95);border-radius:32px;box-shadow:0 22px 66px rgba(20,20,30,.09);overflow:hidden;}
+    .card-pad{padding:22px;}
+    .card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px;}
+    .eyebrow{font-size:9px;font-weight:950;letter-spacing:.16em;text-transform:uppercase;color:#aeaeb2;margin-bottom:7px;}
+    .card-title{font-size:27px;font-weight:950;letter-spacing:-.06em;line-height:1;}
+    .card-copy{font-size:13px;line-height:1.55;color:#6e6e73;font-weight:620;margin-top:8px;}
+    .pill-btn{border:none;border-radius:999px;background:#1d1d1f;color:#fff;padding:10px 13px;font-size:11px;font-weight:900;cursor:pointer;transition:transform .15s,opacity .15s;}
+    .pill-btn:hover{transform:translateY(-1px);}
+    .pill-btn.secondary{background:#f5f5f7;color:#1d1d1f;border:1px solid #e5e5ea;}
+    .hq-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
+    .tab-btn{border:1px solid #e5e5ea;background:#f7f7f9;color:#6e6e73;border-radius:999px;padding:9px 11px;font-size:10px;font-weight:950;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;}
+    .tab-btn.active{background:#1d1d1f;color:#fff;border-color:#1d1d1f;}
+    .roster-table{display:flex;flex-direction:column;border-top:1px solid #f0f0f5;}
+    .player-row{display:grid;grid-template-columns:minmax(210px,1.35fr) 62px 70px 90px 90px 84px 84px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #f0f0f5;}
+    .player-main{display:flex;align-items:center;gap:10px;min-width:0;}
+    .face{width:38px;height:38px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid #e5e5ea;background:radial-gradient(circle at 50% 34%,#fff,#ececf1);box-shadow:0 4px 14px rgba(0,0,0,.08);}
+    .face img{width:100%;height:100%;object-fit:cover;display:block;}
+    .face.placeholder::before{content:'';width:19px;height:19px;border-radius:50% 50% 44% 44%;background:#c9c9d1;box-shadow:0 15px 0 4px #d9d9df;transform:translateY(-4px);}
+    .player-name{min-width:0;}
+    .player-name a{display:block;color:#1d1d1f;text-decoration:none;font-size:13px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .player-name a:hover{color:#0071e3;}
+    .player-meta{font-size:10px;color:#8e8e93;font-weight:750;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .role-badge{display:inline-flex;align-items:center;justify-content:center;border-radius:7px;background:#eef4ff;color:#0071e3;font-size:9px;font-weight:950;padding:4px 6px;min-width:28px;}
+    .metric{font-size:13px;font-weight:950;color:#1d1d1f;font-variant-numeric:tabular-nums;}
+    .metric.good{color:#1a7a1a;}
+    .metric.warn{color:#c8a800;}
+    .metric.bad{color:#c0392b;}
+    .meter{height:8px;border-radius:999px;background:#ececf1;overflow:hidden;}
+    .meter span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#c0392b,#d8b76a,#1a7a1a);}
+    .meter.blue span{background:linear-gradient(90deg,#91bfff,#0071e3);}
+    .row-head{display:grid;grid-template-columns:minmax(210px,1.35fr) 62px 70px 90px 90px 84px 84px;gap:10px;padding:0 0 9px;color:#aeaeb2;font-size:8.5px;font-weight:950;letter-spacing:.12em;text-transform:uppercase;border-bottom:1px solid #f0f0f5;}
+    .pitch-wrap{position:relative;border-radius:32px;overflow:hidden;background:linear-gradient(160deg,#114a22,#1b6f32);box-shadow:inset 0 0 0 1px rgba(255,255,255,.18);min-height:560px;}
+    .pitch-bg{position:absolute;inset:18px;border:1.5px solid rgba(255,255,255,.28);border-radius:18px;}
+    .pitch-bg::before{content:'';position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(255,255,255,.22);}
+    .pitch-bg::after{content:'';position:absolute;left:50%;top:50%;width:108px;height:108px;border:1px solid rgba(255,255,255,.18);border-radius:50%;transform:translate(-50%,-50%);}
+    .goalbox{position:absolute;left:50%;width:46%;height:78px;border:1px solid rgba(255,255,255,.17);transform:translateX(-50%);}
+    .goalbox.top{top:18px;border-top:none;}
+    .goalbox.bottom{bottom:18px;border-bottom:none;}
+    .token{position:absolute;z-index:3;width:88px;min-height:54px;transform:translate(-50%,-50%);border:none;border-radius:19px;background:rgba(255,255,255,.92);box-shadow:0 12px 28px rgba(0,0,0,.20);padding:7px 8px;cursor:grab;text-align:left;color:#1d1d1f;touch-action:none;}
+    .token:active{cursor:grabbing;}
+    .token-role{font-size:8px;font-weight:950;color:#0071e3;letter-spacing:.08em;}
+    .token-name{font-size:10px;font-weight:900;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;}
+    .token-fit{font-size:8px;font-weight:900;margin-top:3px;color:#1a7a1a;}
+    .token-fit.alt{color:#b7950b;}
+    .token-fit.oop{color:#c0392b;}
+    .lineup-board{display:grid;grid-template-columns:1fr;gap:8px;margin-top:14px;max-height:470px;overflow:auto;padding-right:4px;}
+    .slot-line{display:grid;grid-template-columns:44px minmax(0,1fr) 56px;gap:8px;align-items:center;background:#f7f7f9;border:1px solid #ececf1;border-radius:16px;padding:8px;}
+    .slot-line select{min-width:0;border:1px solid #e1e1e8;background:#fff;border-radius:11px;padding:8px;color:#1d1d1f;font-size:12px;font-weight:800;outline:none;}
+    .fit-chip{font-size:9px;font-weight:950;text-align:right;color:#1a7a1a;}
+    .fit-chip.alt{color:#b7950b;}
+    .fit-chip.oop{color:#c0392b;}
+    .control-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+    .control{border-radius:20px;background:#f7f7f9;border:1px solid #ececf1;padding:13px;}
+    .control label{display:block;font-size:9px;font-weight:950;letter-spacing:.13em;text-transform:uppercase;color:#aeaeb2;margin-bottom:8px;}
+    .control select,.control input[type="range"]{width:100%;}
+    .control select{border:1px solid #dedee6;border-radius:12px;background:#fff;color:#1d1d1f;padding:9px;font-size:12px;font-weight:800;outline:none;}
+    .range-row{display:flex;align-items:center;gap:10px;}
+    .range-row input{accent-color:#0071e3;}
+    .range-val{min-width:32px;text-align:right;font-size:13px;font-weight:950;color:#1d1d1f;}
+    .leaders-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+    .leader-box{border-radius:20px;background:#f7f7f9;border:1px solid #ececf1;padding:13px;}
+    .leader-box label{display:block;font-size:9px;font-weight:950;letter-spacing:.13em;text-transform:uppercase;color:#aeaeb2;margin-bottom:8px;}
+    .leader-box select{width:100%;border:1px solid #dedee6;border-radius:12px;background:#fff;color:#1d1d1f;padding:9px;font-size:12px;font-weight:850;outline:none;}
+    .insight-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:12px;}
+    .insight{border-radius:22px;background:#fff;border:1px solid #ececf1;padding:15px;}
+    .insight b{display:block;font-size:23px;font-weight:950;letter-spacing:-.06em;color:#1d1d1f;}
+    .insight span{display:block;margin-top:4px;font-size:9px;font-weight:950;letter-spacing:.13em;text-transform:uppercase;color:#aeaeb2;}
+    .dna-list{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+    .dna-list span{border-radius:999px;background:#f5f5f7;border:1px solid #ececf1;color:#6e6e73;padding:8px 10px;font-size:10px;font-weight:900;letter-spacing:.09em;text-transform:uppercase;}
+    .toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,18px);opacity:0;pointer-events:none;z-index:90;background:rgba(20,20,28,.9);color:#fff;border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(20px);border-radius:999px;padding:12px 16px;font-size:12px;font-weight:900;box-shadow:0 20px 50px rgba(0,0,0,.28);transition:opacity .2s,transform .2s;}
+    .toast.visible{opacity:1;transform:translate(-50%,0);}
+    @media(max-width:1120px){
+      .hq-shell{padding:28px 18px 56px;}
+      .hero,.grid-main{grid-template-columns:1fr;}
+      .pitch-wrap{min-height:520px;}
+    }
+    @media(max-width:760px){
+      .topbar{align-items:flex-start;flex-direction:column;}
+      .nav-pill{width:100%;overflow-x:auto;}
+      .hero h1{font-size:48px;}
+      .identity-stats,.control-grid,.leaders-grid,.insight-grid{grid-template-columns:1fr;}
+      .row-head{display:none;}
+      .player-row{grid-template-columns:1fr 46px 50px;gap:8px;padding:12px 0;}
+      .player-row .hide-mobile{display:none;}
+      .pitch-wrap{min-height:460px;}
+      .token{width:76px;min-height:50px;border-radius:16px;}
+      .token-name{font-size:9px;}
+    }
+  </style>
+</head>
+<body>
+<Navbar/>
+<main class="hq-page" id="hqPage">
+  <div class="hq-shell">
+    <div class="topbar">
+      <a class="back-link" href="/all-time-world-cup/hub">&larr; Back to campaign hub</a>
+      <nav class="nav-pill" aria-label="Tournament navigation">
+        <a href="/all-time-world-cup/hub">Hub</a>
+        <a class="active" href="/all-time-world-cup/team-hq">Team HQ</a>
+        <a href="/all-time-world-cup/team">Team DNA</a>
+        <a href="/all-time-world-cup/fixtures">Fixtures</a>
+      </nav>
+    </div>
+
+    <section class="hero">
+      <div>
+        <div class="kicker">Tournament war room</div>
+        <h1>Team <span>HQ</span></h1>
+        <p class="hero-copy" id="heroCopy">A tactical laboratory for the serious football obsessive: squad condition, morale, leadership, set-piece hierarchy, positional fit and custom historical systems.</p>
+      </div>
+      <aside class="identity-card">
+        <div class="team-line">
+          <img class="team-logo" id="teamLogo" src="/teams/all-time-brazil.svg" alt=""/>
+          <div>
+            <div class="team-name" id="teamName">Your Nation</div>
+            <p class="team-sub" id="teamSub">Loading squad command centre.</p>
+          </div>
+        </div>
+        <div class="identity-stats">
+          <div class="identity-stat"><b id="avgFitness">--</b><span>Fitness</span></div>
+          <div class="identity-stat"><b id="avgMorale">--</b><span>Morale</span></div>
+          <div class="identity-stat"><b id="tacticGrade">--</b><span>Tactic fit</span></div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="grid-main">
+      <div>
+        <article class="card">
+          <div class="card-pad">
+            <div class="card-head">
+              <div>
+                <div class="eyebrow">Squad status</div>
+                <h2 class="card-title">Roster, fitness and morale</h2>
+                <p class="card-copy">Fitness starts between 70 and 100 and recovers according to stamina and base fitness. Morale starts from mental strength, then the tournament will move it after wins, defeats and pressure moments.</p>
+              </div>
+              <button class="pill-btn secondary" id="resetStatus" type="button">Reset status</button>
+            </div>
+            <div class="hq-tabs" id="rosterTabs"></div>
+            <div class="row-head">
+              <span>Player</span><span>Role</span><span>OVR</span><span>Fitness</span><span>Morale</span><span>Mental</span><span>Stamina</span>
+            </div>
+            <div class="roster-table" id="rosterTable"></div>
+          </div>
+        </article>
+
+        <article class="card section">
+          <div class="card-pad">
+            <div class="card-head">
+              <div>
+                <div class="eyebrow">Leadership and set pieces</div>
+                <h2 class="card-title">Hierarchy board</h2>
+                <p class="card-copy">Captaincy is suggested from work rate, teamwork, composure and consistency. Free kicks and penalties are suggested from technical attributes, but you can overrule everything.</p>
+              </div>
+              <button class="pill-btn secondary" id="autoLeaders" type="button">Auto pick</button>
+            </div>
+            <div class="leaders-grid">
+              <div class="leader-box"><label>Captain</label><select id="captainSelect"></select></div>
+              <div class="leader-box"><label>Vice captain</label><select id="viceSelect"></select></div>
+              <div class="leader-box"><label>Free kicks</label><select id="fkSelect"></select></div>
+              <div class="leader-box"><label>Penalties</label><select id="penSelect"></select></div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <aside>
+        <article class="card">
+          <div class="card-pad">
+            <div class="card-head">
+              <div>
+                <div class="eyebrow">Tactical canvas</div>
+                <h2 class="card-title">Shape and role fit</h2>
+                <p class="card-copy">Choose a historical base, assign players, then drag tokens to create your own interpretation. Secondary roles are weighted generously for adaptable legends.</p>
+              </div>
+              <button class="pill-btn" id="saveTactic" type="button">Save tactic</button>
+            </div>
+            <div class="control-grid">
+              <div class="control"><label>Base system</label><select id="formationSelect"></select></div>
+              <div class="control"><label>Saved tactic</label><select id="savedSelect"></select></div>
+            </div>
+            <div class="pitch-wrap section" id="pitch">
+              <div class="pitch-bg"><div class="goalbox top"></div><div class="goalbox bottom"></div></div>
+            </div>
+            <div class="lineup-board" id="lineupBoard"></div>
+          </div>
+        </article>
+      </aside>
+    </section>
+
+    <section class="grid-main section">
+      <article class="card">
+        <div class="card-pad">
+          <div class="card-head">
+            <div>
+              <div class="eyebrow">Advanced instructions</div>
+              <h2 class="card-title">Match identity controls</h2>
+              <p class="card-copy">These settings are not yet wired into the tournament match engine, but this is the tactical vocabulary we will connect: mentality, tempo, pressure, block height, width and marking style.</p>
+            </div>
+            <button class="pill-btn secondary" id="resetTactic" type="button">Reset tactic</button>
+          </div>
+          <div class="control-grid">
+            <div class="control"><label>Mentality</label><div class="range-row"><input type="range" min="0" max="100" value="54" data-range="mentality"/><span class="range-val">54</span></div></div>
+            <div class="control"><label>Tempo</label><div class="range-row"><input type="range" min="0" max="100" value="62" data-range="tempo"/><span class="range-val">62</span></div></div>
+            <div class="control"><label>Pressing</label><div class="range-row"><input type="range" min="0" max="100" value="58" data-range="pressing"/><span class="range-val">58</span></div></div>
+            <div class="control"><label>Defensive line</label><div class="range-row"><input type="range" min="0" max="100" value="55" data-range="line"/><span class="range-val">55</span></div></div>
+            <div class="control"><label>Width</label><div class="range-row"><input type="range" min="0" max="100" value="56" data-range="width"/><span class="range-val">56</span></div></div>
+            <div class="control"><label>Risk in possession</label><div class="range-row"><input type="range" min="0" max="100" value="48" data-range="risk"/><span class="range-val">48</span></div></div>
+            <div class="control"><label>Marking</label><select id="markingSelect"><option value="zonal">Zonal marking</option><option value="mixed">Mixed references</option><option value="man">Man-oriented marking</option><option value="libero">Libero protection</option></select></div>
+            <div class="control"><label>Build-up</label><select id="buildSelect"><option value="balanced">Balanced construction</option><option value="short">Short positional build-up</option><option value="direct">Direct vertical play</option><option value="wings">Wing progression</option><option value="regista">Regista-centred</option></select></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-pad">
+          <div class="card-head">
+            <div>
+              <div class="eyebrow">Coach room</div>
+              <h2 class="card-title">Tactical diagnosis</h2>
+              <p class="card-copy" id="diagnosisText">The staff is reading your shape.</p>
+            </div>
+          </div>
+          <div class="insight-grid">
+            <div class="insight"><b id="xiOvr">--</b><span>XI OVR</span></div>
+            <div class="insight"><b id="fitAvg">--</b><span>Role fit</span></div>
+            <div class="insight"><b id="rotationRisk">--</b><span>Fatigue risk</span></div>
+          </div>
+          <div class="dna-list" id="dnaList"></div>
+        </div>
+      </article>
+    </section>
+  </div>
+</main>
+<div class="toast" id="toast"></div>
+<script type="application/json" id="hqData" set:html={pageData}></script>
+<script>
+  const data = JSON.parse(document.getElementById('hqData')?.textContent || '{}');
+  const teams = data.teams || [];
+  const teamMap = new Map(teams.map(team => [team.slug, team]));
+  const TEAM_COLORS = {
+    'all-time-brazil':['#f6d64a','#1a7a1a','#1f5fbf'],
+    'all-time-italy':['#1f6fd1','#f7f7f7','#1a7a1a'],
+    'all-time-germany':['#111111','#d8b76a','#c0392b'],
+    'all-time-spain':['#c0392b','#f1c232','#6d1d1d'],
+    'all-time-argentina':['#75bdf2','#ffffff','#d8b76a'],
+    'all-time-france':['#1f5fbf','#ffffff','#c0392b'],
+    'all-time-netherlands':['#f26b2f','#111111','#ffffff'],
+    'all-time-portugal':['#b51f2e','#1a7a1a','#d8b76a'],
+    'all-time-england':['#ffffff','#c0392b','#1f5fbf'],
+    'all-time-uruguay':['#79c7f2','#111111','#d8b76a'],
+    'all-time-croatia':['#d72828','#ffffff','#1f5fbf'],
+    'all-time-denmark':['#c0392b','#ffffff','#8b1a1a'],
+    'all-time-belgium':['#111111','#f1c232','#c0392b'],
+    'all-time-serbia':['#c0392b','#1f5fbf','#ffffff'],
+    'all-time-scotland':['#1f5fbf','#ffffff','#0f2e5d'],
+    'all-time-sweden':['#1f5fbf','#f1c232','#ffffff'],
+  };
+  const ROLE_COMPAT = {
+    GK:['GK'],RB:['RB','CB','LB'],LB:['LB','CB','RB'],CB:['CB','SW','RB','LB'],SW:['SW','CB'],
+    DM:['DM','CM','CB'],CM:['CM','DM','AM','LM','RM'],AM:['AM','CM','RW','LW'],
+    RM:['RM','CM','RW','AM','LM'],LM:['LM','CM','LW','AM','RM'],
+    RW:['RW','RM','AM','FW','LW'],LW:['LW','LM','AM','FW','RW'],FW:['FW','ST','AM','RW','LW'],ST:['ST','FW','RW','LW'],
+  };
+  const FORMATIONS = {
+    '4-3-3 Holding':{pos:['GK','RB','CB','CB','LB','DM','CM','CM','RW','ST','LW'],coords:[[50,88],[82,68],[62,69],[38,69],[18,68],[50,55],[66,43],[34,43],[82,23],[50,17],[18,23]],tag:'modern balance'},
+    '4-3-3 Classic':{pos:['GK','RB','CB','CB','LB','CM','CM','CM','RW','ST','LW'],coords:[[50,88],[82,68],[62,68],[38,68],[18,68],[72,47],[50,43],[28,47],[82,22],[50,18],[18,22]],tag:'wide front three'},
+    '4-2-3-1':{pos:['GK','RB','CB','CB','LB','DM','DM','RW','AM','LW','ST'],coords:[[50,88],[82,68],[62,68],[38,68],[18,68],[62,58],[38,58],[78,36],[50,32],[22,36],[50,16]],tag:'double pivot'},
+    '4-4-2':{pos:['GK','RB','CB','CB','LB','RM','CM','CM','LM','ST','ST'],coords:[[50,88],[82,68],[62,68],[38,68],[18,68],[82,46],[62,44],[38,44],[18,46],[62,20],[38,20]],tag:'classic pairs'},
+    '4-4-2 Diamond':{pos:['GK','RB','CB','CB','LB','DM','CM','CM','AM','ST','ST'],coords:[[50,88],[82,68],[62,68],[38,68],[18,68],[50,58],[67,44],[33,44],[50,31],[62,17],[38,17]],tag:'central overload'},
+    '3-5-2':{pos:['GK','CB','CB','CB','RM','CM','DM','CM','LM','ST','ST'],coords:[[50,88],[70,70],[50,68],[30,70],[86,46],[68,44],[50,51],[32,44],[14,46],[62,20],[38,20]],tag:'wing-back engine'},
+    '3-4-1-2':{pos:['GK','CB','CB','CB','RM','CM','CM','LM','AM','ST','ST'],coords:[[50,88],[70,70],[50,68],[30,70],[86,48],[66,46],[34,46],[14,48],[50,32],[62,18],[38,18]],tag:'number ten'},
+    '3-4-3':{pos:['GK','CB','CB','CB','RM','CM','CM','LM','RW','ST','LW'],coords:[[50,88],[70,70],[50,68],[30,70],[82,44],[62,40],[38,40],[18,44],[82,22],[50,18],[18,22]],tag:'aggressive width'},
+    '4-1-4-1':{pos:['GK','RB','CB','CB','LB','DM','RM','CM','CM','LM','ST'],coords:[[50,88],[82,68],[62,68],[38,68],[18,68],[50,58],[82,42],[62,38],[38,38],[18,42],[50,16]],tag:'control block'},
+    '5-3-2':{pos:['GK','RB','CB','CB','CB','LB','CM','DM','CM','ST','ST'],coords:[[50,88],[88,64],[72,70],[50,72],[28,70],[12,64],[72,44],[50,48],[28,44],[62,20],[38,20]],tag:'deep security'},
+    'WM 3-2-2-3':{pos:['GK','CB','CB','CB','DM','DM','AM','AM','RW','ST','LW'],coords:[[50,88],[70,69],[50,71],[30,69],[62,54],[38,54],[62,37],[38,37],[82,20],[50,15],[18,20]],tag:'historical WM'},
+    'Metodo 2-3-2-3':{pos:['GK','CB','CB','RB','DM','LB','AM','AM','RW','ST','LW'],coords:[[50,88],[62,70],[38,70],[78,56],[50,54],[22,56],[62,36],[38,36],[82,20],[50,15],[18,20]],tag:'old-school Italy'},
+  };
+
+  let currentTeam = null;
+  let activeSection = 'All';
+  let hqState = null;
+  let drag = null;
+
+  function readJson(key){try{return JSON.parse(localStorage.getItem(key) || 'null');}catch{return null;}}
+  function writeJson(key,value){localStorage.setItem(key, JSON.stringify(value));}
+  function esc(v){return String(v ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+  function clamp(n,min,max){return Math.max(min,Math.min(max,n));}
+  function seeded(id, salt){let x=0;String(id + ':' + salt).split('').forEach(ch=>{x=((x<<5)-x)+ch.charCodeAt(0);x|=0;});return Math.abs(x);}
+  function statusClass(v){return v>=82?'good':v>=68?'warn':'bad';}
+  function playerUrl(p){return p?.slug ? `/player/${p.slug}` : '#';}
+  function surname(name=''){const s=String(name).split(',')[0].trim();return s || name;}
+  function rolesOf(p){return [p.role,...String(p.alt||'').split(',').map(x=>x.trim().toUpperCase()).filter(Boolean)];}
+  function roleFit(p, slot){
+    if(!p)return 0;
+    if(p.role===slot)return 1;
+    if(rolesOf(p).includes(slot))return 0.9;
+    if((ROLE_COMPAT[slot]||[slot]).includes(p.role))return 0.74;
+    return 0.38;
+  }
+  function fitLabel(fit){return fit>=.98?'Natural':fit>=.88?'Alt role':fit>=.70?'Compatible':'Risk';}
+  function fitClass(fit){return fit>=.88?'':fit>=.70?'alt':'oop';}
+  function weightedForRole(p, slot){
+    const base = p.ovr * roleFit(p, slot);
+    const roleBoost = slot==='GK' ? (p.reflexes+p.handling+p.positioning)/9 :
+      ['CB','SW','RB','LB'].includes(slot) ? (p.def+p.speed*0.25+p.mental*0.20)/1.45 :
+      ['DM','CM','AM','RM','LM'].includes(slot) ? (p.play+p.mental*0.35+p.speed*0.15)/1.5 :
+      (p.att+p.speed*0.28+p.play*0.16)/1.44;
+    return base + roleBoost * 0.22;
+  }
+  function portrait(p){
+    if(p?.photo)return `<span class="face"><img src="${p.photo}" alt="${esc(p.name)}" loading="lazy"/></span>`;
+    return `<span class="face placeholder" aria-hidden="true"></span>`;
+  }
+  function stateKey(){return `ld_world_cup_team_hq_${currentTeam?.slug || 'default'}`;}
+  function defaultStatus(team){
+    const status = {};
+    team.roster.forEach(p => {
+      const fSeed = seeded(p.id, 'fitness') % 31;
+      const mSeed = seeded(p.id, 'morale') % 15;
+      const fitness = clamp(Math.round(70 + fSeed * 0.72 + (p.fitnessBase - 70) * 0.18), 70, 100);
+      const morale = clamp(Math.round(p.mental * 0.68 + 22 + mSeed * 0.55), 58, 96);
+      status[p.id] = { fitness, morale };
+    });
+    return status;
+  }
+  function autoLineup(team, formationName){
+    const formation = FORMATIONS[formationName] || Object.values(FORMATIONS)[0];
+    const used = new Set();
+    return formation.pos.map(slot => {
+      const best = [...team.roster]
+        .filter(p => !used.has(p.id))
+        .sort((a,b) => weightedForRole(b, slot) - weightedForRole(a, slot))[0];
+      if(best) used.add(best.id);
+      return best?.id || null;
+    });
+  }
+  function defaultState(team){
+    const formationName = Object.keys(FORMATIONS).find(k => k.startsWith(team.formation)) || '4-3-3 Holding';
+    const captain = [...team.roster].sort((a,b)=>b.captainScore-a.captainScore)[0];
+    const vice = [...team.roster].filter(p=>p.id!==captain?.id).sort((a,b)=>b.captainScore-a.captainScore)[0];
+    const fk = [...team.roster].sort((a,b)=>(b.freeKick+b.shotPower*.25+b.creativity*.2)-(a.freeKick+a.shotPower*.25+a.creativity*.2))[0];
+    const pen = [...team.roster].sort((a,b)=>(b.penalties+b.composure*.45+b.finishing*.2)-(a.penalties+a.composure*.45+a.finishing*.2))[0];
+    return {
+      formationName,
+      lineup: autoLineup(team, formationName),
+      coords: null,
+      status: defaultStatus(team),
+      leaders: { captain: captain?.id || null, vice: vice?.id || null, fk: fk?.id || null, pen: pen?.id || null },
+      instructions: { mentality:54, tempo:team.tempo || 62, pressing:team.pressing || 58, line:team.defensiveLine || 55, width:56, risk:team.risk || 48, marking:'zonal', build:'balanced' },
+      saved: {},
+    };
+  }
+  function loadState(team){
+    const base = defaultState(team);
+    const saved = readJson(stateKey());
+    hqState = saved ? {...base, ...saved, status:{...base.status, ...(saved.status||{})}, leaders:{...base.leaders, ...(saved.leaders||{})}, instructions:{...base.instructions, ...(saved.instructions||{})}, saved:saved.saved || {}} : base;
+  }
+  function saveState(){ if(currentTeam && hqState) writeJson(stateKey(), hqState); }
+  function toast(msg){
+    const el=document.getElementById('toast');
+    el.textContent=msg; el.classList.add('visible');
+    clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('visible'),2400);
+  }
+  function applyColors(team){
+    const [a,b,c]=TEAM_COLORS[team.slug] || ['#0071e3','#d8b76a','#f7f4ee'];
+    document.documentElement.style.setProperty('--team-a', a);
+    document.documentElement.style.setProperty('--team-b', b);
+    document.documentElement.style.setProperty('--team-c', c);
+  }
+  function byId(id){return currentTeam?.roster.find(p=>String(p.id)===String(id));}
+  function selectedPlayers(){return hqState.lineup.map(id=>byId(id)).filter(Boolean);}
+  function avgOf(arr, fn){return arr.length ? Math.round(arr.reduce((s,x)=>s+fn(x),0)/arr.length) : 0;}
+  function renderHeader(){
+    applyColors(currentTeam);
+    document.getElementById('teamLogo').src=currentTeam.logo;
+    document.getElementById('teamName').textContent=currentTeam.name;
+    document.getElementById('teamSub').textContent=`${currentTeam.coachName} - ${currentTeam.coachStyle} - ${currentTeam.shortLabel}`;
+    document.getElementById('heroCopy').textContent=`${currentTeam.name} HQ. ${currentTeam.style}`;
+  }
+  function renderRosterTabs(){
+    const tabs = ['All','Goalkeepers','Defenders','Midfielders','Attackers'];
+    document.getElementById('rosterTabs').innerHTML = tabs.map(t => `<button class="tab-btn ${t===activeSection?'active':''}" type="button" data-tab="${t}">${t}</button>`).join('');
+    document.querySelectorAll('[data-tab]').forEach(btn=>btn.addEventListener('click',()=>{activeSection=btn.dataset.tab;renderRoster();}));
+  }
+  function renderRoster(){
+    renderRosterTabs();
+    const rows = currentTeam.roster
+      .filter(p => activeSection === 'All' || p.section === activeSection)
+      .sort((a,b) => a.section.localeCompare(b.section) || b.ovr-a.ovr)
+      .map(p => {
+        const st = hqState.status[p.id] || {fitness:80,morale:75};
+        const tags = [];
+        if(String(hqState.leaders.captain)===String(p.id)) tags.push('C');
+        if(String(hqState.leaders.vice)===String(p.id)) tags.push('VC');
+        if(String(hqState.leaders.fk)===String(p.id)) tags.push('FK');
+        if(String(hqState.leaders.pen)===String(p.id)) tags.push('PEN');
+        return `<div class="player-row">
+          <div class="player-main">
+            ${portrait(p)}
+            <div class="player-name">
+              <a href="${playerUrl(p)}">${esc(p.name)} ${tags.length?`<span style="color:#0071e3;font-weight:950;">${tags.join(' ')}</span>`:''}</a>
+              <div class="player-meta">${esc(p.club || p.decade || p.section)} ${p.alt?`- alt: ${esc(p.alt)}`:''}</div>
+            </div>
+          </div>
+          <span class="role-badge">${esc(p.role)}</span>
+          <span class="metric">${p.ovr}</span>
+          <div class="hide-mobile"><div class="meter"><span style="width:${st.fitness}%"></span></div></div>
+          <div class="hide-mobile"><div class="meter blue"><span style="width:${st.morale}%"></span></div></div>
+          <span class="metric hide-mobile ${statusClass(p.mental)}">${p.mental}</span>
+          <span class="metric hide-mobile ${statusClass(p.stamina)}">${p.stamina}</span>
+        </div>`;
+      }).join('');
+    document.getElementById('rosterTable').innerHTML = rows;
+  }
+  function renderLeaders(){
+    const fill = (id, sortFn, selected) => {
+      const sel = document.getElementById(id);
+      sel.innerHTML = [...currentTeam.roster].sort(sortFn).map(p => `<option value="${p.id}" ${String(selected)===String(p.id)?'selected':''}>${esc(p.name)}</option>`).join('');
+      sel.onchange = () => { hqState.leaders[id.replace('Select','').replace('fk','fk').replace('pen','pen')] = Number(sel.value); saveState(); renderAll(); };
+    };
+    fill('captainSelect',(a,b)=>b.captainScore-a.captainScore,hqState.leaders.captain);
+    fill('viceSelect',(a,b)=>b.captainScore-a.captainScore,hqState.leaders.vice);
+    fill('fkSelect',(a,b)=>(b.freeKick+b.shotPower*.25+b.creativity*.2)-(a.freeKick+a.shotPower*.25+a.creativity*.2),hqState.leaders.fk);
+    fill('penSelect',(a,b)=>(b.penalties+b.composure*.45+b.finishing*.2)-(a.penalties+a.composure*.45+a.finishing*.2),hqState.leaders.pen);
+  }
+  function renderFormationSelect(){
+    const sel=document.getElementById('formationSelect');
+    sel.innerHTML=Object.entries(FORMATIONS).map(([name,f])=>`<option value="${name}" ${name===hqState.formationName?'selected':''}>${name} - ${f.tag}</option>`).join('');
+    sel.onchange=()=>{hqState.formationName=sel.value;hqState.lineup=autoLineup(currentTeam, sel.value);hqState.coords=null;saveState();renderTactics();};
+  }
+  function renderSavedSelect(){
+    const sel=document.getElementById('savedSelect');
+    const keys=Object.keys(hqState.saved || {});
+    sel.innerHTML=`<option value="">Current working tactic</option>` + keys.map(k=>`<option value="${esc(k)}">${esc(k)}</option>`).join('');
+    sel.onchange=()=>{const saved=hqState.saved?.[sel.value];if(saved){hqState={...hqState,...saved,saved:hqState.saved};saveState();renderAll();toast(`Loaded ${sel.value}`);}};
+  }
+  function renderLineup(){
+    const formation = FORMATIONS[hqState.formationName];
+    document.getElementById('lineupBoard').innerHTML = formation.pos.map((slot, idx) => {
+      const selected = byId(hqState.lineup[idx]);
+      const fit = selected ? roleFit(selected, slot) : 0;
+      const options = [...currentTeam.roster].sort((a,b)=>weightedForRole(b, slot)-weightedForRole(a, slot)).map(p => `<option value="${p.id}" ${String(hqState.lineup[idx])===String(p.id)?'selected':''}>${surname(p.name)} - ${p.role}${rolesOf(p).includes(slot)&&p.role!==slot?' / alt':''}</option>`).join('');
+      return `<div class="slot-line">
+        <span class="role-badge">${slot}</span>
+        <select data-slot="${idx}">${options}</select>
+        <span class="fit-chip ${fitClass(fit)}">${fitLabel(fit)}</span>
+      </div>`;
+    }).join('');
+    document.querySelectorAll('[data-slot]').forEach(sel => {
+      sel.addEventListener('change', () => {
+        hqState.lineup[Number(sel.dataset.slot)] = Number(sel.value);
+        saveState(); renderTactics(); renderRoster(); renderDiagnosis();
+      });
+    });
+  }
+  function renderPitch(){
+    const pitch=document.getElementById('pitch');
+    pitch.querySelectorAll('.token').forEach(n=>n.remove());
+    const formation=FORMATIONS[hqState.formationName];
+    const coords=hqState.coords || formation.coords;
+    formation.pos.forEach((slot, idx) => {
+      const p=byId(hqState.lineup[idx]);
+      const fit=p?roleFit(p,slot):0;
+      const [x,y]=coords[idx] || formation.coords[idx];
+      const btn=document.createElement('button');
+      btn.type='button';
+      btn.className='token';
+      btn.dataset.idx=String(idx);
+      btn.style.left=x+'%';
+      btn.style.top=y+'%';
+      btn.innerHTML=`<div class="token-role">${slot}</div><div class="token-name">${esc(p?surname(p.name):'Empty')}</div><div class="token-fit ${fitClass(fit)}">${p?fitLabel(fit):'No player'}</div>`;
+      btn.addEventListener('pointerdown', startDrag);
+      pitch.appendChild(btn);
+    });
+  }
+  function startDrag(e){
+    const token=e.currentTarget;
+    token.setPointerCapture(e.pointerId);
+    drag={token,idx:Number(token.dataset.idx),rect:document.getElementById('pitch').getBoundingClientRect()};
+    token.addEventListener('pointermove', moveDrag);
+    token.addEventListener('pointerup', endDrag, {once:true});
+  }
+  function moveDrag(e){
+    if(!drag)return;
+    const x=clamp(((e.clientX-drag.rect.left)/drag.rect.width)*100,8,92);
+    const y=clamp(((e.clientY-drag.rect.top)/drag.rect.height)*100,8,92);
+    drag.token.style.left=x+'%';
+    drag.token.style.top=y+'%';
+    const formation=FORMATIONS[hqState.formationName];
+    hqState.coords = hqState.coords ? [...hqState.coords] : formation.coords.map(c=>[...c]);
+    hqState.coords[drag.idx]=[Math.round(x),Math.round(y)];
+  }
+  function endDrag(){
+    if(drag){drag.token.removeEventListener('pointermove', moveDrag);saveState();renderDiagnosis();}
+    drag=null;
+  }
+  function renderTactics(){
+    renderFormationSelect();
+    renderSavedSelect();
+    renderPitch();
+    renderLineup();
+    renderDiagnosis();
+  }
+  function renderInstructions(){
+    Object.entries(hqState.instructions).forEach(([key,val]) => {
+      const range=document.querySelector(`[data-range="${key}"]`);
+      if(range){range.value=val;range.parentElement.querySelector('.range-val').textContent=val;}
+    });
+    document.getElementById('markingSelect').value=hqState.instructions.marking || 'zonal';
+    document.getElementById('buildSelect').value=hqState.instructions.build || 'balanced';
+    document.querySelectorAll('[data-range]').forEach(range => {
+      range.oninput = () => { hqState.instructions[range.dataset.range]=Number(range.value);range.parentElement.querySelector('.range-val').textContent=range.value;saveState();renderDiagnosis(); };
+    });
+    document.getElementById('markingSelect').onchange=e=>{hqState.instructions.marking=e.target.value;saveState();renderDiagnosis();};
+    document.getElementById('buildSelect').onchange=e=>{hqState.instructions.build=e.target.value;saveState();renderDiagnosis();};
+  }
+  function renderDiagnosis(){
+    const formation=FORMATIONS[hqState.formationName];
+    const xi=selectedPlayers();
+    const xiOvr=avgOf(xi,p=>p.ovr);
+    const fit=avgOf(hqState.lineup.map((id,i)=>({p:byId(id),slot:formation.pos[i]})).filter(x=>x.p), x=>Math.round(roleFit(x.p,x.slot)*100));
+    const avgFit=avgOf(xi,p=>hqState.status[p.id]?.fitness || 80);
+    const fatigueRisk=clamp(Math.round(100-avgFit+(hqState.instructions.pressing-50)*.22+(hqState.instructions.tempo-50)*.16),4,58);
+    document.getElementById('xiOvr').textContent=xiOvr || '--';
+    document.getElementById('fitAvg').textContent=fit ? fit+'%' : '--';
+    document.getElementById('rotationRisk').textContent=fatigueRisk+'%';
+    document.getElementById('avgFitness').textContent=avgFit || '--';
+    document.getElementById('avgMorale').textContent=avgOf(currentTeam.roster,p=>hqState.status[p.id]?.morale || 75) || '--';
+    document.getElementById('tacticGrade').textContent=fit ? (fit>=92?'A':fit>=85?'B+':fit>=76?'B':'C+') : '--';
+    const notes=[];
+    if(fit>=90)notes.push('Role harmony is elite: the shape respects natural and secondary positions.');
+    else if(fit>=80)notes.push('Good tactical fit, but one or two roles may be stretched.');
+    else notes.push('The shape is experimental: check players marked as Risk before kick-off.');
+    if(fatigueRisk>34)notes.push('High intensity settings could drain the XI across a short tournament cycle.');
+    else notes.push('Physical load is manageable for a four-day tournament rhythm.');
+    if(hqState.instructions.marking==='man')notes.push('Man-oriented marking adds duel pressure but may open gaps between lines.');
+    if(hqState.instructions.build==='regista')notes.push('Regista build-up will make your deepest playmaker the strategic reference.');
+    document.getElementById('diagnosisText').textContent=notes.join(' ');
+    const dna=[currentTeam.identity,currentTeam.shortLabel,`${hqState.formationName}`,`${hqState.instructions.marking.replace('-', ' ')} marking`,`${hqState.instructions.build} build-up`,...(currentTeam.tags||[]).slice(0,3)];
+    document.getElementById('dnaList').innerHTML=dna.filter(Boolean).map(x=>`<span>${esc(x)}</span>`).join('');
+  }
+  function renderAll(){
+    renderHeader();
+    renderRoster();
+    renderLeaders();
+    renderTactics();
+    renderInstructions();
+  }
+  function setupEvents(){
+    document.getElementById('resetStatus').addEventListener('click',()=>{hqState.status=defaultStatus(currentTeam);saveState();renderAll();toast('Squad status recalculated');});
+    document.getElementById('autoLeaders').addEventListener('click',()=>{const base=defaultState(currentTeam);hqState.leaders=base.leaders;saveState();renderAll();toast('Hierarchy suggested by staff');});
+    document.getElementById('resetTactic').addEventListener('click',()=>{const base=defaultState(currentTeam);hqState.formationName=base.formationName;hqState.lineup=base.lineup;hqState.coords=null;hqState.instructions=base.instructions;saveState();renderAll();toast('Tactic reset to national default');});
+    document.getElementById('saveTactic').addEventListener('click',()=>{const name=prompt('Name this tactic', `${currentTeam.name} ${hqState.formationName}`);if(!name)return;hqState.saved=hqState.saved||{};hqState.saved[name]={formationName:hqState.formationName,lineup:hqState.lineup,coords:hqState.coords,instructions:hqState.instructions};saveState();renderSavedSelect();toast('Tactic saved');});
+  }
+  function init(){
+    const setup=readJson('ld_world_cup_setup') || {};
+    const remembered=localStorage.getItem('ld_world_cup_selected_team_view');
+    const savedTeam = typeof setup.team === 'string' ? setup.team : setup.team?.slug;
+    const slug=setup.teamSlug || savedTeam || remembered || teams[0]?.slug;
+    currentTeam=teamMap.get(slug) || teams[0];
+    if(!currentTeam)return;
+    loadState(currentTeam);
+    renderAll();
+    setupEvents();
+  }
+  init();
+</script>
+<Footer/>
+</body>
+</html>

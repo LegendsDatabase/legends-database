@@ -193,6 +193,7 @@ const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
       <a class="back-link" href="/all-time-world-cup/fixtures">&larr; Back to fixtures</a>
       <nav class="nav-pill" aria-label="Tournament navigation">
         <a class="active" href="/all-time-world-cup/hub">Hub</a>
+        <a href="/all-time-world-cup/team-hq">Team HQ</a>
         <a href="/all-time-world-cup/team">Team DNA</a>
         <a href="/all-time-world-cup/fixtures">Fixtures</a>
         <a href="/all-time-world-cup/draw">Draw</a>
@@ -224,7 +225,7 @@ const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
     </section>
 
     <section class="dashboard" aria-label="World Cup dashboard">
-      <a class="hub-card primary" href="/all-time-world-cup/team" id="teamCard">
+      <a class="hub-card primary" href="/all-time-world-cup/team-hq" id="teamCard">
         <div>
           <div class="card-top">
             <div>
@@ -434,7 +435,7 @@ const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
     }
 
     document.getElementById('mainCta').addEventListener('click', () => {
-      window.location.href = '/all-time-world-cup/team';
+      window.location.href = '/all-time-world-cup/team-hq';
     });
   }
 
