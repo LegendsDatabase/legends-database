@@ -1,4 +1,19 @@
 {
+  "redirects": [
+    { "source": "/player/babangida,%20tijjani", "destination": "/player/babangida-tijjani", "permanent": true },
+    { "source": "/player/cannavario-fabio", "destination": "/player/cannavaro-fabio", "permanent": true },
+    { "source": "/player/iniesta-andrs", "destination": "/player/iniesta-andres", "permanent": true },
+    { "source": "/player/figueroa-elas", "destination": "/player/figueroa-elias", "permanent": true },
+    { "source": "/player/ronaldo-lus-nazrio", "destination": "/player/ronaldo-luis-nazario", "permanent": true },
+    { "source": "/player/Rivaldo", "destination": "/player/rivaldo", "permanent": true },
+    { "source": "/player/Raul", "destination": "/player/raul-gonzalez-blanco", "permanent": true },
+    { "source": "/player/matthus-lothar", "destination": "/player/matthaus-lothar", "permanent": true },
+    { "source": "/player/mller-gerd", "destination": "/player/muller-gerd", "permanent": true },
+    { "source": "/player/falco-paulo-roberto", "destination": "/player/falcao-paulo-roberto", "permanent": true },
+    { "source": "/player/kak", "destination": "/player/kaka", "permanent": true },
+    { "source": "/player/di-stfano-alfredo", "destination": "/player/di-stefano-alfredo", "permanent": true },
+    { "source": "/player/pusks-ferenc", "destination": "/player/puskas-ferenc", "permanent": true }
+  ],
   "headers": [
     {
       "source": "/match-simulator/:path*",
