@@ -310,7 +310,7 @@ const pageData = JSON.stringify({ pots, teams }).replace(/</g, '\\u003c');
             <div class="next-title">Draw complete</div>
             <p class="next-copy" id="nextCopy">Groups saved. Next we can build the national-team DNA page, fixtures and the first matchday calendar.</p>
           </div>
-          <button class="draw-btn primary" type="button" id="saveDraw">Use this draw</button>
+          <button class="draw-btn primary" type="button" id="saveDraw">Meet your squad</button>
         </div>
       </div>
     </section>
@@ -508,7 +508,10 @@ const pageData = JSON.stringify({ pots, teams }).replace(/</g, '\\u003c');
     prepareFreshDraw();
     toast('New draw ready.');
   });
-  document.getElementById('saveDraw')?.addEventListener('click', () => saveDraw(true));
+  document.getElementById('saveDraw')?.addEventListener('click', () => {
+    saveDraw(false);
+    window.location.href = '/all-time-world-cup/team';
+  });
 
   renderHero();
   prepareFreshDraw();
