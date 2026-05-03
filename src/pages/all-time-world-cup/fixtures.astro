@@ -1,0 +1,433 @@
+---
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>All-Time World Cup Fixtures - Legends Database</title>
+  <meta name="description" content="All-Time World Cup fixtures, dates, venues and knockout path."/>
+  <meta name="robots" content="noindex, nofollow, noarchive"/>
+  <link rel="canonical" href="https://legendsdatabase.com/all-time-world-cup/fixtures"/>
+  <link rel="icon" type="image/png" href="/favicon.png"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style is:global>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{--ink:#f7f4ee;--muted:rgba(247,244,238,.62);--dim:rgba(247,244,238,.36);--gold:#d8b76a;--blue:#0071e3;--green:#1a7a1a;--red:#c0392b;}
+    body{font-family:-apple-system,'SF Pro Text','Inter',sans-serif;background:#05050a;color:#1d1d1f;padding-top:44px;-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column;}
+    .fixtures-page{position:relative;overflow:hidden;min-height:calc(100vh - 44px);background:
+      radial-gradient(circle at 15% 5%,rgba(216,183,106,.24),transparent 30%),
+      radial-gradient(circle at 82% 9%,rgba(0,113,227,.18),transparent 27%),
+      linear-gradient(180deg,#070711 0%,#11111d 48%,#f2f2f7 48%,#f2f2f7 100%);
+    }
+    .fixtures-page::before{content:'';position:absolute;inset:0;background:
+      linear-gradient(rgba(255,255,255,.032) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(255,255,255,.032) 1px,transparent 1px);
+      background-size:72px 72px;mask-image:linear-gradient(to bottom,#000,transparent 62%);pointer-events:none;
+    }
+    .fixtures-shell{position:relative;max-width:1220px;margin:0 auto;padding:38px 32px 72px;}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:24px;}
+    .back-link{color:rgba(255,255,255,.58);text-decoration:none;font-size:12px;font-weight:800;}
+    .back-link:hover{color:#fff;}
+    .host-pill{border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);color:#fff;border-radius:999px;padding:10px 12px;font-size:12px;font-weight:900;backdrop-filter:blur(18px);}
+    .hero{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:34px;align-items:end;color:var(--ink);padding:12px 0 34px;}
+    .kicker{font-size:10px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-bottom:14px;}
+    .hero-title{font-size:clamp(46px,7vw,92px);line-height:.88;letter-spacing:-.08em;font-weight:900;max-width:760px;}
+    .hero-title span{display:block;color:var(--gold);}
+    .hero-copy{font-size:17px;line-height:1.62;color:var(--muted);max-width:720px;margin-top:20px;font-weight:520;}
+    .hero-card{border-radius:30px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.13);backdrop-filter:blur(24px);padding:20px;box-shadow:0 30px 80px rgba(0,0,0,.26);}
+    .hero-card-label{font-size:9px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.38);margin-bottom:10px;}
+    .hero-team{display:flex;align-items:center;gap:12px;}
+    .hero-logo{width:54px;height:54px;object-fit:contain;filter:drop-shadow(0 12px 20px rgba(0,0,0,.24));}
+    .hero-name{font-size:25px;font-weight:900;letter-spacing:-.055em;color:#fff;line-height:1;}
+    .hero-sub{font-size:12px;line-height:1.45;color:rgba(255,255,255,.54);font-weight:650;margin-top:5px;}
+    .content{display:grid;grid-template-columns:330px minmax(0,1fr);gap:18px;align-items:start;}
+    .side-panel,.calendar-panel,.path-panel,.empty-panel{background:rgba(255,255,255,.90);border:1px solid rgba(225,225,232,.92);border-radius:30px;box-shadow:0 22px 64px rgba(20,20,30,.10);backdrop-filter:blur(22px);}
+    .side-panel{position:sticky;top:62px;padding:22px;}
+    .step{font-size:9px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:#aeaeb2;margin-bottom:8px;}
+    .panel-title{font-size:25px;font-weight:900;letter-spacing:-.055em;line-height:1.05;}
+    .panel-copy{font-size:13px;line-height:1.55;color:#6e6e73;font-weight:600;margin-top:8px;}
+    .legend{display:grid;gap:8px;margin-top:18px;}
+    .legend-row{display:flex;align-items:center;gap:9px;font-size:12px;color:#3a3a3c;font-weight:700;}
+    .legend-dot{width:12px;height:12px;border-radius:50%;background:#e5e5ea;}
+    .legend-dot.user{background:#0071e3;}
+    .legend-dot.route{background:#d8b76a;}
+    .legend-dot.ko{background:#111827;}
+    .rest-card{margin-top:16px;border-radius:22px;background:#fff;border:1px solid #ececf1;padding:16px;}
+    .rest-number{font-size:42px;font-weight:900;letter-spacing:-.075em;color:#1a7a1a;line-height:1;}
+    .rest-label{font-size:9px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#aeaeb2;margin-top:5px;}
+    .rest-copy{font-size:12px;line-height:1.45;color:#6e6e73;font-weight:650;margin-top:9px;}
+    .cta-card{margin-top:16px;background:linear-gradient(135deg,#11121d,#1b1b29);border-radius:24px;color:#fff;padding:18px;overflow:hidden;position:relative;}
+    .cta-card::before{content:'';position:absolute;right:-60px;top:-70px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(216,183,106,.24),transparent 68%);}
+    .cta-title{position:relative;font-size:22px;font-weight:900;letter-spacing:-.055em;}
+    .cta-copy{position:relative;font-size:12px;line-height:1.5;color:rgba(255,255,255,.58);font-weight:600;margin-top:6px;}
+    .start-btn{position:relative;margin-top:14px;border:none;border-radius:999px;background:linear-gradient(135deg,#c0392b,#e85d4f);color:#fff;padding:12px 14px;font-family:inherit;font-size:12px;font-weight:900;cursor:pointer;box-shadow:0 16px 34px rgba(192,57,43,.26);transition:transform .16s,box-shadow .16s;}
+    .start-btn:hover{transform:translateY(-2px);box-shadow:0 22px 42px rgba(192,57,43,.32);}
+    .main-stack{display:grid;gap:18px;}
+    .calendar-panel{overflow:hidden;}
+    .calendar-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:22px;border-bottom:1px solid #ececf1;}
+    .calendar-filters{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
+    .filter-btn{border:1px solid #e5e5ea;background:#fff;color:#6e6e73;border-radius:999px;padding:8px 10px;font-family:inherit;font-size:11px;font-weight:900;cursor:pointer;}
+    .filter-btn.active{background:#0071e3;color:#fff;border-color:#0071e3;}
+    .timeline{display:grid;gap:0;}
+    .day-section{border-bottom:1px solid #ececf1;}
+    .day-section:last-child{border-bottom:none;}
+    .day-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;background:#f9f9fb;}
+    .day-date{font-size:13px;font-weight:900;color:#1d1d1f;}
+    .day-meta{font-size:9px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#aeaeb2;}
+    .match-list{display:grid;}
+    .match-row{display:grid;grid-template-columns:76px minmax(0,1fr) 146px;gap:14px;align-items:center;padding:13px 18px;border-top:1px solid #f3f3f6;transition:background .16s;}
+    .match-row:first-child{border-top:none;}
+    .match-row:hover{background:#fbfbfd;}
+    .match-row.user{background:linear-gradient(90deg,rgba(0,113,227,.12),rgba(255,255,255,0));}
+    .match-row.route{background:linear-gradient(90deg,rgba(216,183,106,.16),rgba(255,255,255,0));}
+    .match-time{font-size:13px;font-weight:900;color:#3a3a3c;font-variant-numeric:tabular-nums;}
+    .teams{display:grid;gap:7px;}
+    .side{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:9px;align-items:center;}
+    .team-logo{width:28px;height:28px;object-fit:contain;filter:drop-shadow(0 5px 8px rgba(0,0,0,.08));}
+    .placeholder-logo{width:28px;height:28px;border-radius:50%;background:#f5f5f7;border:1px dashed #d1d1d6;}
+    .team-name{font-size:14px;font-weight:900;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#1d1d1f;}
+    .team-name.user{color:#0071e3;}
+    .seed{font-size:9px;font-weight:900;color:#aeaeb2;background:#f5f5f7;border-radius:999px;padding:4px 6px;}
+    .match-info{text-align:right;}
+    .stage{font-size:9px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#0071e3;}
+    .venue{font-size:12px;line-height:1.35;color:#6e6e73;font-weight:650;margin-top:4px;}
+    .path-panel{padding:22px;}
+    .path-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px;}
+    .path-card{border-radius:20px;background:#fff;border:1px solid #ececf1;padding:14px;min-height:136px;}
+    .path-card.user-route{border-color:#d8b76a;box-shadow:0 0 0 4px rgba(216,183,106,.12);}
+    .path-stage{font-size:9px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#aeaeb2;margin-bottom:9px;}
+    .path-title{font-size:15px;font-weight:900;letter-spacing:-.035em;line-height:1.25;}
+    .path-date{font-size:11px;color:#6e6e73;font-weight:650;margin-top:9px;}
+    .empty-panel{padding:30px;text-align:center;}
+    .empty-title{font-size:30px;font-weight:900;letter-spacing:-.06em;margin-bottom:8px;}
+    .empty-copy{font-size:14px;color:#6e6e73;line-height:1.55;font-weight:600;max-width:520px;margin:0 auto 18px;}
+    .empty-link{display:inline-flex;text-decoration:none;border-radius:999px;background:#111827;color:#fff;padding:12px 16px;font-size:12px;font-weight:900;}
+    .toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,18px);opacity:0;pointer-events:none;z-index:60;background:rgba(20,20,28,.88);color:#fff;border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(20px);border-radius:999px;padding:12px 16px;font-size:12px;font-weight:900;box-shadow:0 20px 50px rgba(0,0,0,.28);transition:opacity .2s,transform .2s;}
+    .toast.visible{opacity:1;transform:translate(-50%,0);}
+    @media(max-width:1020px){
+      .fixtures-shell{padding:30px 20px 58px;}
+      .hero{grid-template-columns:1fr;}
+      .content{grid-template-columns:1fr;}
+      .side-panel{position:relative;top:auto;}
+      .path-grid{grid-template-columns:repeat(2,1fr);}
+    }
+    @media(max-width:700px){
+      .fixtures-shell{padding:24px 16px 46px;}
+      .topbar{flex-direction:column;align-items:flex-start;}
+      .hero-title{font-size:48px;}
+      .hero-copy{font-size:15px;}
+      .calendar-head{display:grid;grid-template-columns:1fr;padding:18px;}
+      .calendar-filters{justify-content:flex-start;}
+      .match-row{grid-template-columns:1fr;gap:10px;padding:14px;}
+      .match-info{text-align:left;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+      .path-grid{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+<Navbar/>
+<main class="fixtures-page">
+  <div class="fixtures-shell">
+    <div class="topbar">
+      <a class="back-link" href="/all-time-world-cup/team">&larr; Back to team presentation</a>
+      <div class="host-pill" id="hostPill">Host country</div>
+    </div>
+
+    <section class="hero">
+      <div>
+        <div class="kicker">Tournament calendar</div>
+        <h1 class="hero-title">Fixtures <span>& route</span></h1>
+        <p class="hero-copy">The group stage is spaced for realism: every nation gets at least four days between matches. Your team’s games are highlighted; the knockout path is already waiting.</p>
+      </div>
+      <aside class="hero-card">
+        <div class="hero-card-label">Your campaign</div>
+        <div class="hero-team">
+          <img class="hero-logo" id="heroLogo" src="/teams/all-time-brazil.svg" alt=""/>
+          <div>
+            <div class="hero-name" id="heroName">Your nation</div>
+            <p class="hero-sub" id="heroSub">Group stage schedule will appear here.</p>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="content" id="content"></section>
+  </div>
+  <div class="toast" id="toast">Fixtures saved.</div>
+</main>
+<Footer/>
+<script>
+  const HOSTS = {
+    england: { label: 'England', start: '2026-06-12T18:00:00', venues: ['Wembley', 'Old Trafford', 'Anfield', 'Villa Park', 'St James Park', 'Emirates Stadium'] },
+    italy: { label: 'Italy', start: '2026-06-12T18:00:00', venues: ['San Siro', 'Stadio Olimpico', 'San Paolo', 'Artemio Franchi', 'Delle Alpi', 'Renato Dall Ara'] },
+    germany: { label: 'Germany', start: '2026-06-12T18:00:00', venues: ['Olympiastadion Berlin', 'Allianz Arena', 'Westfalenstadion', 'Volksparkstadion', 'Mungersdorfer Stadion', 'Neckarstadion'] },
+    spain: { label: 'Spain', start: '2026-06-12T18:00:00', venues: ['Santiago Bernabeu', 'Camp Nou', 'Mestalla', 'Ramon Sanchez-Pizjuan', 'San Mames', 'La Cartuja'] },
+    brazil: { label: 'Brazil', start: '2026-06-12T18:00:00', venues: ['Maracana', 'Morumbi', 'Mineirao', 'Beira-Rio', 'Fonte Nova', 'Castelao'] },
+    argentina: { label: 'Argentina', start: '2026-06-12T18:00:00', venues: ['Monumental', 'La Bombonera', 'Cilindro de Avellaneda', 'Mario Kempes', 'Gigante de Arroyito', 'Estadio Unico'] },
+  };
+  const letters = ['A', 'B', 'C', 'D'];
+  const groupPairings = [
+    [[0, 1], [2, 3]],
+    [[0, 2], [1, 3]],
+    [[0, 3], [1, 2]],
+  ];
+
+  function readJson(key) {
+    try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch { return null; }
+  }
+
+  function esc(value) {
+    return String(value ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;' }[c]));
+  }
+
+  function toast(msg) {
+    const el = document.getElementById('toast');
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add('visible');
+    clearTimeout(toast.t);
+    toast.t = setTimeout(() => el.classList.remove('visible'), 1900);
+  }
+
+  function addDays(date, days, hour = 18) {
+    const next = new Date(date);
+    next.setDate(next.getDate() + days);
+    next.setHours(hour, 0, 0, 0);
+    return next;
+  }
+
+  function fmtDate(date) {
+    return new Intl.DateTimeFormat('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' }).format(date);
+  }
+
+  function fmtShort(date) {
+    return new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short' }).format(date);
+  }
+
+  function fmtTime(date) {
+    return new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit' }).format(date);
+  }
+
+  function teamSide(team, userSlug) {
+    if (!team) return `<div class="side"><span class="placeholder-logo"></span><span class="team-name">TBD</span><span class="seed">-</span></div>`;
+    return `<div class="side"><img class="team-logo" src="${team.logo}" alt=""/><span class="team-name ${team.slug === userSlug ? 'user' : ''}">${esc(team.name)}</span><span class="seed">P${team.pot || '-'}</span></div>`;
+  }
+
+  function placeholderSide(label, route = false) {
+    return `<div class="side"><span class="placeholder-logo"></span><span class="team-name">${esc(label)}</span><span class="seed">${route ? 'KO' : '-'}</span></div>`;
+  }
+
+  function buildFixtures(draw, setup) {
+    const host = HOSTS[setup?.hostId] || HOSTS.england;
+    const start = new Date(host.start);
+    const groupFixtures = [];
+    const venues = host.venues;
+    letters.forEach((letter, groupIndex) => {
+      const group = draw.groups?.[letter] || [];
+      groupPairings.forEach((roundPairs, roundIndex) => {
+        const dayOffset = roundIndex * 4 + groupIndex;
+        roundPairs.forEach((pair, pairIndex) => {
+          const date = addDays(start, dayOffset, pairIndex === 0 ? 18 : 21);
+          groupFixtures.push({
+            id: `G${letter}${roundIndex + 1}${pairIndex + 1}`,
+            stage: `Group ${letter} - MD${roundIndex + 1}`,
+            round: `Matchday ${roundIndex + 1}`,
+            date,
+            venue: venues[(groupIndex * 2 + pairIndex + roundIndex) % venues.length],
+            a: group[pair[0]],
+            b: group[pair[1]],
+            group: letter,
+            type: 'group',
+          });
+        });
+      });
+    });
+
+    const koSpecs = [
+      { id: 'QF1', stage: 'Quarter-final', offset: 15, hour: 18, venue: 0, a: 'Winner Group A', b: 'Runner-up Group B', groups: ['A', 'B'] },
+      { id: 'QF2', stage: 'Quarter-final', offset: 15, hour: 21, venue: 1, a: 'Winner Group B', b: 'Runner-up Group A', groups: ['A', 'B'] },
+      { id: 'QF3', stage: 'Quarter-final', offset: 16, hour: 18, venue: 2, a: 'Winner Group C', b: 'Runner-up Group D', groups: ['C', 'D'] },
+      { id: 'QF4', stage: 'Quarter-final', offset: 16, hour: 21, venue: 3, a: 'Winner Group D', b: 'Runner-up Group C', groups: ['C', 'D'] },
+      { id: 'SF1', stage: 'Semi-final', offset: 20, hour: 18, venue: 0, a: 'Winner QF1', b: 'Winner QF3', groups: [] },
+      { id: 'SF2', stage: 'Semi-final', offset: 20, hour: 21, venue: 1, a: 'Winner QF2', b: 'Winner QF4', groups: [] },
+      { id: 'TP', stage: 'Third-place match', offset: 24, hour: 18, venue: 2, a: 'Loser SF1', b: 'Loser SF2', groups: [] },
+      { id: 'F', stage: 'Final', offset: 25, hour: 20, venue: 0, a: 'Winner SF1', b: 'Winner SF2', groups: [] },
+    ];
+    const knockoutFixtures = koSpecs.map(spec => ({
+      ...spec,
+      date: addDays(start, spec.offset, spec.hour),
+      venue: venues[spec.venue % venues.length],
+      type: 'knockout',
+    }));
+
+    return { host, fixtures: [...groupFixtures, ...knockoutFixtures], groupFixtures, knockoutFixtures };
+  }
+
+  function userGroup(draw, userSlug) {
+    for (const letter of letters) {
+      if ((draw.groups?.[letter] || []).some(team => team.slug === userSlug)) return letter;
+    }
+    return '';
+  }
+
+  function isUserFixture(fixture, userSlug) {
+    return fixture.a?.slug === userSlug || fixture.b?.slug === userSlug;
+  }
+
+  function isRouteFixture(fixture, group) {
+    return fixture.type === 'knockout' && group && (fixture.groups || []).includes(group);
+  }
+
+  function renderMatch(fixture, userSlug, group) {
+    const user = isUserFixture(fixture, userSlug);
+    const route = !user && isRouteFixture(fixture, group);
+    const cls = ['match-row', user ? 'user' : '', route ? 'route' : ''].filter(Boolean).join(' ');
+    const sides = fixture.type === 'group'
+      ? `${teamSide(fixture.a, userSlug)}${teamSide(fixture.b, userSlug)}`
+      : `${placeholderSide(fixture.a, route)}${placeholderSide(fixture.b, route)}`;
+    return `
+      <div class="${cls}" data-filter="${user ? 'user' : fixture.type}">
+        <div class="match-time">${fmtTime(fixture.date)}</div>
+        <div class="teams">${sides}</div>
+        <div class="match-info">
+          <div class="stage">${esc(fixture.stage)}</div>
+          <div class="venue">${esc(fixture.venue)}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderCalendar(fixtures, userSlug, group) {
+    const days = new Map();
+    fixtures.forEach(fixture => {
+      const key = fixture.date.toISOString().slice(0, 10);
+      if (!days.has(key)) days.set(key, []);
+      days.get(key).push(fixture);
+    });
+    return [...days.values()].map(dayFixtures => {
+      const date = dayFixtures[0].date;
+      const hasUser = dayFixtures.some(f => isUserFixture(f, userSlug));
+      const hasRoute = dayFixtures.some(f => isRouteFixture(f, group));
+      const meta = hasUser ? 'Your team plays' : hasRoute ? 'Possible route' : dayFixtures.some(f => f.type === 'knockout') ? 'Knockout stage' : 'Group stage';
+      return `
+        <section class="day-section">
+          <div class="day-head">
+            <div class="day-date">${fmtDate(date)}</div>
+            <div class="day-meta">${meta}</div>
+          </div>
+          <div class="match-list">${dayFixtures.map(f => renderMatch(f, userSlug, group)).join('')}</div>
+        </section>
+      `;
+    }).join('');
+  }
+
+  function renderPath(knockoutFixtures, group) {
+    return knockoutFixtures.map(f => {
+      const route = isRouteFixture(f, group);
+      return `
+        <div class="path-card ${route ? 'user-route' : ''}">
+          <div class="path-stage">${esc(f.stage)}</div>
+          <div class="path-title">${esc(f.a)} vs ${esc(f.b)}</div>
+          <div class="path-date">${fmtShort(f.date)} · ${esc(f.venue)}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderEmpty() {
+    document.getElementById('content').innerHTML = `
+      <div></div>
+      <div class="empty-panel">
+        <div class="empty-title">No draw found</div>
+        <p class="empty-copy">Fixtures are generated from the saved group draw. Go back, run or skip the ceremony, then return here.</p>
+        <a class="empty-link" href="/all-time-world-cup/draw">Open the draw</a>
+      </div>
+    `;
+  }
+
+  function render() {
+    const draw = readJson('ld_world_cup_draw');
+    const setup = draw?.setup || readJson('ld_world_cup_setup') || {};
+    if (!draw?.groups || !draw?.userSlug) {
+      renderEmpty();
+      return;
+    }
+    const { host, fixtures, groupFixtures, knockoutFixtures } = buildFixtures(draw, setup);
+    const userSlug = draw.userSlug;
+    const group = userGroup(draw, userSlug);
+    const userTeam = Object.values(draw.groups).flat().find(team => team.slug === userSlug);
+    document.getElementById('hostPill').textContent = `${host.label} · ${host.venues.length} venues`;
+    if (userTeam) {
+      document.getElementById('heroLogo').src = userTeam.logo;
+      document.getElementById('heroName').textContent = userTeam.name;
+      document.getElementById('heroSub').textContent = `Group ${group} · three matches, minimum four days rest.`;
+    }
+    document.getElementById('content').innerHTML = `
+      <aside class="side-panel">
+        <div class="step">Schedule logic</div>
+        <h2 class="panel-title">Built for tournament rhythm</h2>
+        <p class="panel-copy">Groups A-D play on staggered days. Matchdays are spaced by four days for each team before the knockout phase begins.</p>
+        <div class="legend">
+          <div class="legend-row"><span class="legend-dot user"></span><span>Your team match</span></div>
+          <div class="legend-row"><span class="legend-dot route"></span><span>Possible knockout route</span></div>
+          <div class="legend-row"><span class="legend-dot ko"></span><span>Neutral knockout fixture</span></div>
+        </div>
+        <div class="rest-card">
+          <div class="rest-number">4+</div>
+          <div class="rest-label">days between games</div>
+          <p class="rest-copy">No nation plays again before four calendar days have passed. Later this will feed fatigue, morale and rotation choices.</p>
+        </div>
+        <div class="cta-card">
+          <div class="cta-title">Ready to begin?</div>
+          <p class="cta-copy">Fixtures will be saved for the future tournament dashboard.</p>
+          <button class="start-btn" type="button" id="startTournament">Let's start</button>
+        </div>
+      </aside>
+      <div class="main-stack">
+        <div class="calendar-panel">
+          <div class="calendar-head">
+            <div>
+              <div class="step">Official calendar</div>
+              <h2 class="panel-title">Group stage and knockout dates</h2>
+              <p class="panel-copy">${groupFixtures.length} group matches, ${knockoutFixtures.length} knockout slots, all generated from your draw.</p>
+            </div>
+            <div class="calendar-filters">
+              <button class="filter-btn active" type="button" data-filter="all">All</button>
+              <button class="filter-btn" type="button" data-filter="user">My team</button>
+              <button class="filter-btn" type="button" data-filter="knockout">Knockout</button>
+            </div>
+          </div>
+          <div class="timeline" id="timeline">${renderCalendar(fixtures, userSlug, group)}</div>
+        </div>
+        <div class="path-panel">
+          <div class="step">Knockout bracket</div>
+          <h2 class="panel-title">The road beyond the group</h2>
+          <p class="panel-copy">Final positions will fill these slots later. For now, your possible quarter-final route is marked in gold.</p>
+          <div class="path-grid">${renderPath(knockoutFixtures, group)}</div>
+        </div>
+      </div>
+    `;
+    localStorage.setItem('ld_world_cup_fixtures', JSON.stringify({ createdAt: new Date().toISOString(), host, fixtures: fixtures.map(f => ({ ...f, date: f.date.toISOString() })), userSlug, userGroup: group }));
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(x => x.classList.toggle('active', x === btn));
+        const filter = btn.dataset.filter;
+        document.querySelectorAll('.match-row').forEach(row => {
+          const kind = row.dataset.filter;
+          row.style.display = filter === 'all' || kind === filter ? '' : 'none';
+        });
+      });
+    });
+    document.getElementById('startTournament')?.addEventListener('click', () => {
+      localStorage.setItem('ld_world_cup_ready', JSON.stringify({ readyAt: new Date().toISOString(), userSlug, group }));
+      toast('Tournament saved. Next build: dashboard and tactical hub.');
+    });
+  }
+
+  render();
+</script>
+</body>
+</html>
