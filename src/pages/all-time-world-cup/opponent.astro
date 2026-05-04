@@ -1,0 +1,705 @@
+---
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { supabase } from '../../lib/supabase.js';
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+import { COACHES } from '../../lib/match-simulator/coaches.js';
+
+const { data: rawTeams } = await supabase
+  .from('teams')
+  .select('id,name,slug,type,confederation,rivalries,world_cup_enabled,default_formation,default_tactic,default_coach_id,seed_weight,sim_profile')
+  .eq('world_cup_enabled', true)
+  .order('seed_weight', { ascending: false });
+
+const { data: rawPlayers } = await supabase
+  .from('players')
+  .select(`id,slug,name,role,nation,iconic_club,overall_rating,decade,height,preferred_foot,
+           acceleration,pace,agility,strength,balance,jumping,stamina,fitness,
+           dribbling,short_passing,long_passing,finishing,shot_accuracy,shot_power,
+           heading,tackling,free_kick,penalties,composure,aggression,consistency,
+           creativity,work_rate,vision,off_the_ball,def_positioning,teamwork,
+           anticipation,marking,reflexes,positioning,handling,kicking,alt_roles,
+           nat_apps,nat_goals,nat_goal_ratio`);
+
+const photoRoot = join(process.cwd(), 'public', 'players');
+
+function titleName(name = '') {
+  return name
+    .split(/[\s-]+/)
+    .filter(Boolean)
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+}
+
+function profileOf(team) {
+  const raw = team?.sim_profile ?? {};
+  if (typeof raw === 'string') {
+    try { return JSON.parse(raw); } catch { return {}; }
+  }
+  return raw || {};
+}
+
+function avg(vals) {
+  const v = vals.filter(x => x != null && !Number.isNaN(Number(x))).map(Number);
+  return v.length ? Math.round(v.reduce((a, b) => a + b, 0) / v.length) : 0;
+}
+
+function sortByOvr(arr) {
+  return [...arr].sort((a, b) => (b.overall_rating ?? 0) - (a.overall_rating ?? 0) || (a.name ?? '').localeCompare(b.name ?? ''));
+}
+
+function sortBy(arr, fn) {
+  return [...arr].sort((a, b) => fn(b) - fn(a) || (a.name ?? '').localeCompare(b.name ?? ''));
+}
+
+function pick(pool, n, usedIds) {
+  return sortByOvr(pool.filter(p => !usedIds.has(p.id))).slice(0, n);
+}
+
+function pAtt(p) { return avg([p.finishing, p.off_the_ball, p.composure, p.anticipation, p.shot_accuracy]); }
+function pPlay(p) { return avg([p.short_passing, p.long_passing, p.vision, p.composure, p.creativity]); }
+function pDef(p) { return avg([p.marking, p.tackling, p.def_positioning, p.anticipation, p.heading, p.composure]); }
+function pSpeed(p) { return avg([p.pace, p.acceleration]); }
+function pMental(p) { return avg([p.composure, p.consistency, p.work_rate, p.teamwork]); }
+
+function hasPhoto(slug) {
+  return !!slug && existsSync(join(photoRoot, `${slug}.jpg`));
+}
+
+function initials(name = '') {
+  return name
+    .replace(',', ' ')
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(w => w.charAt(0).toUpperCase())
+    .join('');
+}
+
+function cleanRivalries(raw) {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw.filter(Boolean);
+  return String(raw)
+    .split(/[,;|]/)
+    .map(x => x.trim())
+    .filter(Boolean);
+}
+
+function buildRoster(team, allPlayers) {
+  const teamPlayers = allPlayers.filter(p => (p.nation ?? '').toLowerCase() === (team.name ?? '').toLowerCase());
+  const used = new Set();
+  const gkR = pick(teamPlayers.filter(p => p.role === 'GK'), 3, used);
+  gkR.forEach(p => used.add(p.id));
+  const rbR = pick(teamPlayers.filter(p => p.role === 'RB'), 2, used);
+  rbR.forEach(p => used.add(p.id));
+  const lbR = pick(teamPlayers.filter(p => p.role === 'LB'), 2, used);
+  lbR.forEach(p => used.add(p.id));
+  const swAvail = sortByOvr(teamPlayers.filter(p => p.role === 'SW' && !used.has(p.id)));
+  const cbAvail = sortByOvr(teamPlayers.filter(p => p.role === 'CB' && !used.has(p.id)));
+  const swSlot = swAvail.length ? [swAvail[0]] : [];
+  swSlot.forEach(p => used.add(p.id));
+  const centerPool = sortByOvr([...cbAvail.filter(p => !used.has(p.id)), ...swAvail.filter(p => !used.has(p.id))]);
+  const centerR = [...swSlot, ...pick(centerPool, 4 - swSlot.length, used)];
+  centerR.forEach(p => used.add(p.id));
+  const defR = [...rbR, ...lbR, ...centerR];
+  const dmR = pick(teamPlayers.filter(p => p.role === 'DM'), 2, used);
+  dmR.forEach(p => used.add(p.id));
+  const cmamR = pick(teamPlayers.filter(p => ['CM', 'AM'].includes(p.role)), 4, used);
+  cmamR.forEach(p => used.add(p.id));
+  const rmlmR = pick(teamPlayers.filter(p => ['RM', 'LM', 'CM', 'AM', 'DM'].includes(p.role)), 2, used);
+  rmlmR.forEach(p => used.add(p.id));
+  const midR = [...dmR, ...cmamR, ...rmlmR];
+  const stR = pick(teamPlayers.filter(p => p.role === 'ST'), 4, used);
+  stR.forEach(p => used.add(p.id));
+  const wingS = pick(teamPlayers.filter(p => ['RW', 'LW'].includes(p.role) && !used.has(p.id)), 1, used);
+  wingS.forEach(p => used.add(p.id));
+  const attFill = pick(teamPlayers.filter(p => ['ST', 'FW', 'RW', 'LW'].includes(p.role) && !used.has(p.id)), 6 - wingS.length, used);
+  attFill.forEach(p => used.add(p.id));
+  const attR = [...stR, ...wingS, ...attFill];
+  return { gkR, defR, midR, attR, roster: [...gkR, ...defR, ...midR, ...attR] };
+}
+
+function playerPayload(p, section) {
+  return {
+    id: p.id,
+    slug: p.slug ?? '',
+    name: p.name ?? '',
+    role: p.role ?? '',
+    section,
+    nation: p.nation ?? '',
+    club: p.iconic_club ?? '',
+    decade: p.decade ?? '',
+    ovr: p.overall_rating ?? 0,
+    photo: hasPhoto(p.slug) ? `/players/${p.slug}.jpg` : '',
+    initials: initials(p.name),
+    att: pAtt(p),
+    play: pPlay(p),
+    def: pDef(p),
+    speed: pSpeed(p),
+    mental: pMental(p),
+    stamina: p.stamina ?? 70,
+    strength: p.strength ?? 70,
+    aerial: avg([p.heading, p.jumping]),
+    dribbling: p.dribbling ?? 70,
+    finishing: p.finishing ?? 70,
+    passing: avg([p.short_passing, p.long_passing]),
+    tackling: p.tackling ?? 70,
+    composure: p.composure ?? 70,
+    workRate: p.work_rate ?? 70,
+  };
+}
+
+const teams = (rawTeams ?? []).map(team => {
+  const profile = profileOf(team);
+  const rosterParts = buildRoster(team, rawPlayers ?? []);
+  const roster = [
+    ...rosterParts.gkR.map(p => playerPayload(p, 'Goalkeepers')),
+    ...rosterParts.defR.map(p => playerPayload(p, 'Defenders')),
+    ...rosterParts.midR.map(p => playerPayload(p, 'Midfielders')),
+    ...rosterParts.attR.map(p => playerPayload(p, 'Attackers')),
+  ];
+  const coach = COACHES.find(c => c.id === team.default_coach_id);
+  const keyPlayers = [
+    { label: 'Icon', detail: 'Highest overall reference', player: sortBy(roster, p => p.ovr)[0] ?? null },
+    { label: 'Creator', detail: 'Main passing and rhythm source', player: sortBy(roster, p => p.play)[0] ?? null },
+    { label: 'Finisher', detail: 'Primary goal threat', player: sortBy(roster, p => p.att)[0] ?? null },
+    { label: 'Wall', detail: 'Best defensive anchor', player: sortBy(roster, p => p.def)[0] ?? null },
+  ].filter(item => item.player);
+  return {
+    id: team.id,
+    name: titleName(team.name),
+    rawName: team.name ?? '',
+    slug: team.slug,
+    confederation: team.confederation ?? '',
+    logo: `/teams/${team.slug}.svg`,
+    formation: team.default_formation ?? '4-3-3',
+    tactic: team.default_tactic ?? 'balanced',
+    coachId: team.default_coach_id ?? '',
+    coachName: coach?.name ?? 'National manager',
+    coachStyle: coach?.style ?? 'Tournament identity',
+    seed: team.seed_weight ?? 50,
+    identity: profile.identity ?? 'All-time national identity',
+    shortLabel: profile.short_label ?? 'Tournament profile',
+    style: profile.style ?? 'A legendary side built for the biggest stage.',
+    pressure: profile.pressure ?? 80,
+    tempo: profile.tempo ?? 70,
+    risk: profile.risk ?? 55,
+    possession: profile.possession ?? 55,
+    pressing: profile.pressing ?? 55,
+    defensiveLine: profile.defensive_line ?? 55,
+    knockoutNerve: profile.knockout_nerve ?? 80,
+    strengths: Array.isArray(profile.strengths) ? profile.strengths : [],
+    vulnerabilities: Array.isArray(profile.vulnerabilities) ? profile.vulnerabilities : [],
+    tags: Array.isArray(profile.tags) ? profile.tags : [],
+    rivalries: cleanRivalries(team.rivalries),
+    roster,
+    keyPlayers,
+    metrics: {
+      ovr: avg(roster.map(p => p.ovr)),
+      gk: avg(roster.filter(p => p.section === 'Goalkeepers').map(p => p.ovr)),
+      def: avg(roster.filter(p => p.section === 'Defenders').map(p => p.def)),
+      mid: avg(roster.filter(p => p.section === 'Midfielders').map(p => p.play)),
+      att: avg(roster.filter(p => p.section === 'Attackers').map(p => p.att)),
+      speed: avg(roster.map(p => p.speed)),
+      mental: avg(roster.map(p => p.mental)),
+      stamina: avg(roster.map(p => p.stamina)),
+      aerial: avg(roster.map(p => p.aerial)),
+    },
+  };
+});
+
+const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>All-Time World Cup Scout Report - Legends Database</title>
+  <meta name="description" content="Professional next-opponent scouting report for the Legends Database All-Time World Cup."/>
+  <meta name="robots" content="noindex, nofollow, noarchive"/>
+  <link rel="canonical" href="https://legendsdatabase.com/all-time-world-cup/opponent"/>
+  <link rel="icon" type="image/png" href="/favicon.png"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style is:global>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{--ink:#f7f4ee;--muted:rgba(247,244,238,.64);--dim:rgba(247,244,238,.38);--gold:#d8b76a;--blue:#0071e3;--green:#1a7a1a;--red:#c0392b;--team-a:#0071e3;--team-b:#d8b76a;--team-c:#f7f4ee;}
+    body{font-family:-apple-system,'SF Pro Text','Inter',sans-serif;background:#05050a;color:#1d1d1f;padding-top:44px;-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column;}
+    .scout-page{position:relative;overflow:hidden;min-height:calc(100vh - 44px);background:
+      radial-gradient(circle at 14% 4%,color-mix(in srgb,var(--team-a) 34%,transparent),transparent 30%),
+      radial-gradient(circle at 84% 7%,color-mix(in srgb,var(--team-b) 26%,transparent),transparent 28%),
+      linear-gradient(180deg,#070711 0%,#11111d 49%,#f2f2f7 49%,#f2f2f7 100%);
+    }
+    .scout-page::before{content:'';position:absolute;inset:0;background:linear-gradient(rgba(255,255,255,.032) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.032) 1px,transparent 1px);background-size:72px 72px;mask-image:linear-gradient(to bottom,#000,transparent 62%);pointer-events:none;}
+    .scout-shell{position:relative;max-width:1280px;margin:0 auto;padding:34px 30px 76px;}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:24px;}
+    .back-link{color:rgba(255,255,255,.58);text-decoration:none;font-size:12px;font-weight:850;}
+    .back-link:hover{color:#fff;}
+    .nav-pill{display:flex;align-items:center;gap:5px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.08);border-radius:999px;padding:5px;backdrop-filter:blur(18px);}
+    .nav-pill a{color:rgba(255,255,255,.62);text-decoration:none;border-radius:999px;padding:8px 10px;font-size:11px;font-weight:900;transition:background .16s,color .16s;white-space:nowrap;}
+    .nav-pill a.active,.nav-pill a:hover{background:rgba(255,255,255,.13);color:#fff;}
+    .hero{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:34px;align-items:end;color:var(--ink);padding:10px 0 34px;}
+    .kicker{font-size:10px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-bottom:14px;}
+    .hero-title{font-size:clamp(44px,7vw,88px);line-height:.88;letter-spacing:-.08em;font-weight:900;max-width:780px;}
+    .hero-title span{display:block;color:var(--gold);}
+    .hero-copy{font-size:17px;line-height:1.62;color:var(--muted);max-width:720px;margin-top:20px;font-weight:540;}
+    .report-card{position:relative;overflow:hidden;border-radius:32px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.13);backdrop-filter:blur(24px);padding:20px;box-shadow:0 30px 80px rgba(0,0,0,.26);}
+    .report-card::before{content:'';position:absolute;right:-70px;top:-80px;width:190px;height:190px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--team-b) 34%,transparent),transparent 68%);}
+    .report-label{position:relative;font-size:9px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.38);margin-bottom:12px;}
+    .report-team{position:relative;display:flex;align-items:center;gap:13px;}
+    .report-logo{width:62px;height:62px;object-fit:contain;filter:drop-shadow(0 12px 20px rgba(0,0,0,.24));}
+    .report-name{font-size:29px;font-weight:900;letter-spacing:-.055em;color:#fff;line-height:1;}
+    .report-sub{font-size:12px;line-height:1.45;color:rgba(255,255,255,.56);font-weight:650;margin-top:6px;}
+    .countdown{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px;}
+    .count-box{border-radius:18px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.10);padding:11px 10px;}
+    .count-box b{display:block;font-size:25px;font-weight:900;letter-spacing:-.06em;color:#fff;line-height:1;}
+    .count-box span{display:block;margin-top:4px;font-size:8px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;color:rgba(255,255,255,.38);}
+    .content{display:grid;grid-template-columns:360px minmax(0,1fr);gap:18px;align-items:start;}
+    .side-panel,.panel{background:rgba(255,255,255,.92);border:1px solid rgba(225,225,232,.95);border-radius:30px;box-shadow:0 22px 64px rgba(20,20,30,.10);backdrop-filter:blur(22px);}
+    .side-panel{position:sticky;top:62px;padding:22px;}
+    .main-stack{display:grid;gap:18px;}
+    .panel-pad{padding:22px;}
+    .step{font-size:9px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:#aeaeb2;margin-bottom:8px;}
+    .panel-title{font-size:28px;font-weight:900;letter-spacing:-.06em;line-height:1;}
+    .panel-copy{font-size:13px;line-height:1.58;color:#6e6e73;font-weight:600;margin-top:8px;}
+    .fixture-box{border-radius:24px;background:#fff;border:1px solid #ececf1;padding:16px;margin-top:16px;}
+    .fixture-line{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;}
+    .fixture-side{text-align:center;min-width:0;}
+    .fixture-side img{width:46px;height:46px;object-fit:contain;filter:drop-shadow(0 8px 14px rgba(0,0,0,.10));}
+    .fixture-side strong{display:block;margin-top:7px;font-size:13px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .versus{font-size:10px;font-weight:950;letter-spacing:.15em;text-transform:uppercase;color:#aeaeb2;}
+    .fixture-meta{display:grid;gap:7px;margin-top:15px;}
+    .fixture-meta div{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;color:#6e6e73;font-weight:700;}
+    .fixture-meta b{color:#1d1d1f;}
+    .alert-strip{margin-top:16px;border-radius:22px;background:linear-gradient(135deg,#11121d,#1b1b29);color:#fff;padding:18px;position:relative;overflow:hidden;}
+    .alert-strip::before{content:'';position:absolute;right:-54px;top:-60px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--team-b) 30%,transparent),transparent 68%);}
+    .alert-strip b{position:relative;display:block;font-size:21px;font-weight:900;letter-spacing:-.045em;}
+    .alert-strip p{position:relative;margin-top:7px;font-size:12px;line-height:1.55;color:rgba(255,255,255,.62);font-weight:600;}
+    .metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+    .metric-card{border-radius:22px;background:#fff;border:1px solid #ececf1;padding:15px;min-height:105px;position:relative;overflow:hidden;}
+    .metric-card::before{content:'';position:absolute;right:-36px;top:-44px;width:104px;height:104px;border-radius:50%;background:rgba(0,113,227,.09);}
+    .metric-value{position:relative;font-size:34px;font-weight:900;letter-spacing:-.065em;line-height:1;color:#1a7a1a;}
+    .metric-label{position:relative;font-size:9px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#aeaeb2;margin-top:6px;}
+    .metric-sub{position:relative;font-size:12px;color:#6e6e73;font-weight:650;margin-top:7px;}
+    .split-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+    .list-card{border-radius:26px;background:#fff;border:1px solid #ececf1;padding:18px;}
+    .list-title{font-size:18px;font-weight:900;letter-spacing:-.04em;margin-bottom:12px;}
+    .bullet-list{display:grid;gap:9px;}
+    .bullet{font-size:12px;line-height:1.5;color:#3a3a3c;font-weight:650;background:#f9f9fb;border-radius:15px;padding:10px 11px;border:1px solid #f0f0f5;}
+    .bullet.good{background:#efffee;border-color:#d8f0dc;color:#1a5e1a;}
+    .bullet.bad{background:#fff0ee;border-color:#f5c6bc;color:#8d2a20;}
+    .plan-card{background:linear-gradient(135deg,#11121d,#1b1b29);color:#fff;border-radius:30px;padding:24px;position:relative;overflow:hidden;}
+    .plan-card::before{content:'';position:absolute;right:-90px;top:-90px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--team-b) 26%,transparent),transparent 68%);}
+    .plan-title{position:relative;font-size:33px;font-weight:900;letter-spacing:-.065em;line-height:1;margin-bottom:12px;}
+    .plan-text{position:relative;font-size:14px;line-height:1.7;color:rgba(255,255,255,.66);font-weight:550;}
+    .bars{display:grid;gap:12px;margin-top:18px;position:relative;}
+    .bar-row{display:grid;grid-template-columns:96px 1fr 34px;gap:10px;align-items:center;}
+    .bar-label{font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.46);}
+    .bar-track{height:8px;border-radius:999px;background:rgba(255,255,255,.10);overflow:hidden;}
+    .bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#d8b76a,#fff1bd);}
+    .bar-val{font-size:11px;font-weight:900;color:rgba(255,255,255,.66);text-align:right;}
+    .key-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+    .key-card{display:flex;flex-direction:column;gap:10px;text-decoration:none;color:#1d1d1f;background:#fff;border:1px solid #ececf1;border-radius:22px;padding:14px;min-height:205px;transition:transform .16s,box-shadow .16s,border-color .16s;}
+    .key-card:hover{transform:translateY(-3px);box-shadow:0 18px 38px rgba(20,20,30,.10);border-color:#d6d6df;}
+    .key-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+    .key-label{font-size:9px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#0071e3;}
+    .role-pill{font-size:9px;font-weight:900;border-radius:999px;padding:5px 7px;background:#f5f5f7;color:#6e6e73;}
+    .face{width:64px;height:64px;border-radius:50%;background:linear-gradient(145deg,#eef4ff,#f8f8fb);border:1px solid #e5e5ea;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 12px 24px rgba(20,20,30,.08);}
+    .face img{width:100%;height:100%;object-fit:cover;display:block;}
+    .face span{font-size:19px;font-weight:900;color:#0071e3;}
+    .key-name{font-size:17px;font-weight:900;letter-spacing:-.04em;line-height:1.08;}
+    .key-detail{font-size:12px;line-height:1.4;color:#6e6e73;font-weight:650;}
+    .key-score{margin-top:auto;display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:900;color:#aeaeb2;}
+    .key-score b{font-size:25px;letter-spacing:-.06em;color:#1a7a1a;}
+    .roster-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+    .role-section{background:#fff;border:1px solid #ececf1;border-radius:24px;overflow:hidden;}
+    .section-title{padding:12px 14px;background:#f9f9fb;border-bottom:1px solid #f0f0f5;font-size:10px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;color:#8e8e93;}
+    .player-row{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;text-decoration:none;color:#1d1d1f;border-bottom:1px solid #f5f5f7;}
+    .player-row:last-child{border-bottom:none;}
+    .player-row:hover{background:#fbfbfd;}
+    .row-face{width:36px;height:36px;border-radius:50%;background:linear-gradient(145deg,#eef4ff,#f8f8fb);border:1px solid #e5e5ea;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+    .row-face img{width:100%;height:100%;object-fit:cover;}
+    .row-face span{font-size:12px;font-weight:900;color:#0071e3;}
+    .row-name{font-size:13px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .row-meta{font-size:9px;font-weight:900;letter-spacing:.10em;text-transform:uppercase;color:#aeaeb2;margin-top:2px;}
+    .row-ovr{font-size:18px;font-weight:900;color:#1a7a1a;letter-spacing:-.04em;}
+    .empty-panel{grid-column:1/-1;text-align:center;padding:42px;background:rgba(255,255,255,.92);border:1px solid rgba(225,225,232,.95);border-radius:30px;box-shadow:0 22px 64px rgba(20,20,30,.10);}
+    .empty-title{font-size:34px;font-weight:900;letter-spacing:-.06em;margin-bottom:10px;}
+    .empty-copy{font-size:14px;color:#6e6e73;line-height:1.55;font-weight:600;max-width:560px;margin:0 auto 18px;}
+    .empty-link{display:inline-flex;text-decoration:none;border-radius:999px;background:#111827;color:#fff;padding:12px 16px;font-size:12px;font-weight:900;}
+    @media(max-width:1080px){
+      .scout-shell{padding:30px 20px 58px;}
+      .hero{grid-template-columns:1fr;}
+      .content{grid-template-columns:1fr;}
+      .side-panel{position:relative;top:auto;}
+      .key-grid,.metrics-grid{grid-template-columns:repeat(2,1fr);}
+      .split-grid{grid-template-columns:1fr;}
+    }
+    @media(max-width:720px){
+      .scout-shell{padding:24px 16px 46px;}
+      .topbar{flex-direction:column;align-items:flex-start;}
+      .nav-pill{width:100%;overflow-x:auto;}
+      .hero-title{font-size:48px;}
+      .hero-copy{font-size:15px;}
+      .countdown{grid-template-columns:1fr;}
+      .metrics-grid,.key-grid,.roster-grid{grid-template-columns:1fr;}
+      .fixture-line{grid-template-columns:1fr;text-align:center;}
+      .bar-row{grid-template-columns:82px 1fr 30px;}
+    }
+  </style>
+</head>
+<body>
+<Navbar/>
+<main class="scout-page">
+  <div class="scout-shell">
+    <div class="topbar">
+      <a class="back-link" href="/all-time-world-cup/hub">&larr; Back to campaign hub</a>
+      <nav class="nav-pill" aria-label="Tournament navigation">
+        <a href="/all-time-world-cup/hub">Hub</a>
+        <a href="/all-time-world-cup/team-hq">Team HQ</a>
+        <a class="active" href="/all-time-world-cup/opponent">Opponent</a>
+        <a href="/all-time-world-cup/team">Team DNA</a>
+        <a href="/all-time-world-cup/fixtures">Fixtures</a>
+      </nav>
+    </div>
+
+    <section class="hero">
+      <div>
+        <div class="kicker" id="kicker">Scout department</div>
+        <h1 class="hero-title">Next opponent <span>report</span></h1>
+        <p class="hero-copy" id="heroCopy">A professional observer report on the next rival: identity, key players, pressure points and the likely match plan.</p>
+      </div>
+      <aside class="report-card">
+        <div class="report-label">Opposition file</div>
+        <div class="report-team">
+          <img class="report-logo" id="opponentLogo" src="/teams/all-time-brazil.svg" alt=""/>
+          <div>
+            <div class="report-name" id="opponentName">Opponent</div>
+            <p class="report-sub" id="opponentSub">Waiting for fixtures.</p>
+          </div>
+        </div>
+        <div class="countdown">
+          <div class="count-box"><b id="daysLeft">--</b><span>days left</span></div>
+          <div class="count-box"><b id="oppOvr">--</b><span>opp ovr</span></div>
+          <div class="count-box"><b id="threatLevel">--</b><span>threat</span></div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="content" id="content"></section>
+  </div>
+</main>
+<Footer/>
+<script type="application/json" id="opponentData" set:html={pageData}></script>
+<script>
+  const data = JSON.parse(document.getElementById('opponentData')?.textContent || '{}');
+  const teams = data.teams || [];
+  const teamMap = new Map(teams.map(team => [team.slug, team]));
+  const TEAM_COLORS = {
+    'all-time-brazil':['#1f7a34','#f6d84a','#1f5fbf'],
+    'all-time-argentina':['#6ab7ff','#ffffff','#111827'],
+    'all-time-italy':['#0071e3','#ffffff','#1a7a1a'],
+    'all-time-germany':['#111111','#d8b76a','#c0392b'],
+    'all-time-france':['#1f4fa3','#ffffff','#c0392b'],
+    'all-time-spain':['#c0392b','#f1c232','#111827'],
+    'all-time-england':['#ffffff','#c0392b','#1d1d1f'],
+    'all-time-netherlands':['#f47b20','#ffffff','#1f5fbf'],
+    'all-time-portugal':['#b3212d','#1a7a1a','#f1c232'],
+    'all-time-uruguay':['#6ab7ff','#111827','#ffffff'],
+    'all-time-croatia':['#c0392b','#ffffff','#1f5fbf'],
+    'all-time-serbia':['#c0392b','#1f5fbf','#ffffff'],
+    'all-time-denmark':['#c0392b','#ffffff','#111827'],
+    'all-time-belgium':['#111111','#f1c232','#c0392b'],
+    'all-time-scotland':['#1f5fbf','#ffffff','#111827'],
+    'all-time-sweden':['#1f5fbf','#f1c232','#ffffff'],
+  };
+
+  function readJson(key) {
+    try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch { return null; }
+  }
+
+  function esc(value) {
+    return String(value ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;' }[c]));
+  }
+
+  function applyColors(team) {
+    const colors = TEAM_COLORS[team?.slug] || ['#0071e3', '#d8b76a', '#f7f4ee'];
+    const root = document.documentElement;
+    root.style.setProperty('--team-a', colors[0]);
+    root.style.setProperty('--team-b', colors[1]);
+    root.style.setProperty('--team-c', colors[2]);
+  }
+
+  function fmtDate(value) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return 'Date pending';
+    const day = new Intl.DateTimeFormat('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' }).format(date);
+    const time = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit' }).format(date);
+    return `${day} - ${time}`;
+  }
+
+  function daysUntil(value) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '--';
+    return Math.max(0, Math.ceil((date.getTime() - Date.now()) / 86400000));
+  }
+
+  function nextFixture(fixturesState, userSlug) {
+    const fixtures = fixturesState?.fixtures || [];
+    return fixtures.find(f => f.type === 'group' && (f.a?.slug === userSlug || f.b?.slug === userSlug))
+      || fixtures.find(f => f.type === 'knockout')
+      || null;
+  }
+
+  function teamSide(team) {
+    if (!team) return `<div class="fixture-side"><span style="display:block;width:46px;height:46px;margin:0 auto;border-radius:50%;background:#f5f5f7;border:1px dashed #d1d1d6;"></span><strong>TBD</strong></div>`;
+    return `<div class="fixture-side"><img src="${team.logo}" alt=""/><strong>${esc(team.name)}</strong></div>`;
+  }
+
+  function portrait(player, cls = 'face') {
+    if (!player) return `<div class="${cls}"><span>-</span></div>`;
+    const content = player.photo ? `<img src="${player.photo}" alt="" loading="lazy"/>` : `<span>${esc(player.initials)}</span>`;
+    return `<div class="${cls}">${content}</div>`;
+  }
+
+  function playerUrl(player) {
+    return player?.slug ? `/player/${player.slug}` : '#';
+  }
+
+  function threatLabel(team, user) {
+    const delta = (team?.metrics?.ovr || 0) - (user?.metrics?.ovr || 0);
+    if (delta >= 4) return 'HIGH';
+    if (delta >= 0) return 'MED';
+    return 'LOW';
+  }
+
+  function likelyApproach(team) {
+    const traits = [];
+    if (team.possession >= 64) traits.push('They will try to own long spells of possession and move you side to side.');
+    else if (team.risk >= 62) traits.push('They are comfortable turning matches into transition-heavy, emotionally volatile games.');
+    else traits.push('They are likely to start from a controlled block and choose their moments carefully.');
+    if (team.pressing >= 64) traits.push('Expect aggressive pressure on first build-up and mistakes forced around your defensive third.');
+    else if (team.defensiveLine <= 48) traits.push('Their defensive line can sit lower, inviting pressure before attacking space behind you.');
+    if (team.tempo >= 66) traits.push('The rhythm should be high: quick restarts, early vertical passes and second-ball battles.');
+    return traits;
+  }
+
+  function whereToHurt(team) {
+    const items = [];
+    if (team.metrics.speed < 78) items.push('Attack space behind their full-backs before they can reset.');
+    if (team.risk >= 62) items.push('Press their riskier build-up moments and turn recoveries into immediate shots.');
+    if (team.metrics.stamina < 78) items.push('Raise tempo after half-time: their legs may become a problem late.');
+    if (team.defensiveLine >= 62) items.push('Use diagonal runs behind their high line, especially from the weak-side winger.');
+    if (!items.length) items.push('The margin is tactical patience: move them, avoid forcing the final pass too early, then attack the isolated duel.');
+    return items;
+  }
+
+  function dangerZones(team) {
+    const items = [];
+    const creator = [...team.roster].sort((a,b)=>b.play-a.play)[0];
+    const finisher = [...team.roster].sort((a,b)=>b.att-a.att)[0];
+    const wide = [...team.roster].filter(p=>['RW','LW','RM','LM','RB','LB'].includes(p.role)).sort((a,b)=>(b.speed+b.dribbling)-(a.speed+a.dribbling))[0];
+    if (creator) items.push(`${creator.name} is the rhythm source: deny clean receiving angles between your midfield lines.`);
+    if (finisher) items.push(`${finisher.name} is the penalty-box reference: track the second movement, not only the first run.`);
+    if (wide) items.push(`Wide threat through ${wide.name}: protect the outside channel and avoid 1v1 isolation.`);
+    return items;
+  }
+
+  function renderMetrics(team) {
+    const metrics = [
+      ['OVR', team.metrics.ovr, 'Total quality'],
+      ['DEF', team.metrics.def, 'Defensive base'],
+      ['MID', team.metrics.mid, 'Control level'],
+      ['ATT', team.metrics.att, 'Final-third threat'],
+      ['SPD', team.metrics.speed, 'Transition pace'],
+      ['AIR', team.metrics.aerial, 'Aerial edge'],
+      ['MNT', team.metrics.mental, 'Pressure response'],
+      ['STA', team.metrics.stamina, 'Legs and recovery'],
+    ];
+    return metrics.map(([label, value, sub]) => `
+      <div class="metric-card">
+        <div class="metric-value">${value}</div>
+        <div class="metric-label">${label}</div>
+        <div class="metric-sub">${esc(sub)}</div>
+      </div>
+    `).join('');
+  }
+
+  function renderBars(team) {
+    const bars = [
+      ['Pressure', team.pressure],
+      ['Tempo', team.tempo],
+      ['Risk', team.risk],
+      ['Possession', team.possession],
+      ['Pressing', team.pressing],
+      ['Line', team.defensiveLine],
+    ];
+    return bars.map(([label, value]) => `
+      <div class="bar-row">
+        <div class="bar-label">${esc(label)}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${Math.max(8, Math.min(100, value))}%"></div></div>
+        <div class="bar-val">${value}</div>
+      </div>
+    `).join('');
+  }
+
+  function renderKeys(team) {
+    return team.keyPlayers.map(item => {
+      const p = item.player;
+      return `
+        <a class="key-card" href="${playerUrl(p)}">
+          <div class="key-top"><span class="key-label">${esc(item.label)}</span><span class="role-pill">${esc(p.role)}</span></div>
+          ${portrait(p)}
+          <div>
+            <div class="key-name">${esc(p.name)}</div>
+            <div class="key-detail">${esc(item.detail)}</div>
+          </div>
+          <div class="key-score"><span>OVR</span><b>${p.ovr}</b></div>
+        </a>
+      `;
+    }).join('');
+  }
+
+  function renderRoster(team) {
+    const sections = ['Goalkeepers', 'Defenders', 'Midfielders', 'Attackers'];
+    return sections.map(section => {
+      const players = team.roster.filter(p => p.section === section);
+      return `
+        <div class="role-section">
+          <div class="section-title">${section}</div>
+          ${players.map(p => `
+            <a class="player-row" href="${playerUrl(p)}">
+              ${portrait(p, 'row-face')}
+              <div>
+                <div class="row-name">${esc(p.name)}</div>
+                <div class="row-meta">${esc(p.role)} - ${esc(p.club || p.decade || 'All-time')}</div>
+              </div>
+              <div class="row-ovr">${p.ovr}</div>
+            </a>
+          `).join('')}
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderEmpty() {
+    document.getElementById('content').innerHTML = `
+      <div class="empty-panel">
+        <div class="empty-title">No opponent yet</div>
+        <p class="empty-copy">Open the fixtures page once to generate and save the tournament calendar. The scouting room will then identify your next rival automatically.</p>
+        <a class="empty-link" href="/all-time-world-cup/fixtures">Generate fixtures</a>
+      </div>
+    `;
+  }
+
+  function render() {
+    const setup = readJson('ld_world_cup_setup') || {};
+    const draw = readJson('ld_world_cup_draw') || {};
+    const fixturesState = readJson('ld_world_cup_fixtures') || {};
+    const userSlug = fixturesState.userSlug || draw.userSlug || setup.teamSlug || '';
+    const userTeam = teamMap.get(userSlug);
+    const fixture = nextFixture(fixturesState, userSlug);
+    const opponentRef = fixture ? (fixture.a?.slug === userSlug ? fixture.b : fixture.a) : null;
+    const opponent = teamMap.get(opponentRef?.slug || '');
+    if (!userTeam || !fixture || !opponent) {
+      renderEmpty();
+      return;
+    }
+
+    applyColors(opponent);
+    document.getElementById('kicker').textContent = `${fixture.stage || 'Next match'} scouting file`;
+    document.getElementById('heroCopy').textContent = `${opponent.name} arrive with a ${opponent.formation} base, ${opponent.coachName} on the bench and a clear ${opponent.shortLabel.toLowerCase()} identity.`;
+    document.getElementById('opponentLogo').src = opponent.logo;
+    document.getElementById('opponentName').textContent = opponent.name;
+    document.getElementById('opponentSub').textContent = `${fixture.venue || 'Venue TBC'} - ${fmtDate(fixture.date)}`;
+    document.getElementById('daysLeft').textContent = daysUntil(fixture.date);
+    document.getElementById('oppOvr').textContent = opponent.metrics.ovr;
+    document.getElementById('threatLevel').textContent = threatLabel(opponent, userTeam);
+
+    const strengths = opponent.strengths?.length ? opponent.strengths : likelyApproach(opponent).slice(0, 2);
+    const weaknesses = opponent.vulnerabilities?.length ? opponent.vulnerabilities : whereToHurt(opponent).slice(0, 2);
+    const plan = likelyApproach(opponent);
+    const hurt = whereToHurt(opponent);
+    const dangers = dangerZones(opponent);
+
+    document.getElementById('content').innerHTML = `
+      <aside class="side-panel">
+        <div class="step">Fixture context</div>
+        <h2 class="panel-title">${esc(fixture.stage || 'Next match')}</h2>
+        <p class="panel-copy">Observer report prepared for ${esc(userTeam.name)}. The goal is simple: understand where the opponent wants the game, then drag them somewhere else.</p>
+        <div class="fixture-box">
+          <div class="fixture-line">${teamSide(fixture.a)}<div class="versus">VS</div>${teamSide(fixture.b)}</div>
+          <div class="fixture-meta">
+            <div><span>Date</span><b>${esc(fmtDate(fixture.date))}</b></div>
+            <div><span>Venue</span><b>${esc(fixture.venue || 'TBC')}</b></div>
+            <div><span>Group</span><b>${esc(fixture.group || fixturesState.userGroup || '-')}</b></div>
+          </div>
+        </div>
+        <div class="alert-strip">
+          <b>${esc(opponent.coachName)} - ${esc(opponent.coachStyle)}</b>
+          <p>${esc(opponent.identity)}. Expect a side that reflects the manager profile and the country's historical football memory.</p>
+        </div>
+      </aside>
+      <div class="main-stack">
+        <div class="panel panel-pad">
+          <div class="step">Executive summary</div>
+          <h2 class="panel-title">How they want to hurt you</h2>
+          <p class="panel-copy">${esc(opponent.style)}</p>
+          <div class="metrics-grid" style="margin-top:18px;">${renderMetrics(opponent)}</div>
+        </div>
+
+        <div class="split-grid">
+          <div class="list-card">
+            <div class="step">Strengths</div>
+            <h3 class="list-title">What must be respected</h3>
+            <div class="bullet-list">${strengths.map(x => `<div class="bullet good">${esc(x)}</div>`).join('')}</div>
+          </div>
+          <div class="list-card">
+            <div class="step">Weak points</div>
+            <h3 class="list-title">Where the match can open</h3>
+            <div class="bullet-list">${weaknesses.map(x => `<div class="bullet bad">${esc(x)}</div>`).join('')}</div>
+          </div>
+        </div>
+
+        <div class="plan-card">
+          <div class="step">Likely game model</div>
+          <h2 class="plan-title">${esc(opponent.formation)} - ${esc(opponent.tactic)}</h2>
+          <p class="plan-text">${plan.map(esc).join(' ')}</p>
+          <div class="bars">${renderBars(opponent)}</div>
+        </div>
+
+        <div class="split-grid">
+          <div class="list-card">
+            <div class="step">Danger zones</div>
+            <h3 class="list-title">Scout warnings</h3>
+            <div class="bullet-list">${dangers.map(x => `<div class="bullet">${esc(x)}</div>`).join('')}</div>
+          </div>
+          <div class="list-card">
+            <div class="step">Counter-plan</div>
+            <h3 class="list-title">Recommended preparation</h3>
+            <div class="bullet-list">${hurt.map(x => `<div class="bullet">${esc(x)}</div>`).join('')}</div>
+          </div>
+        </div>
+
+        <div class="panel panel-pad">
+          <div class="step">Key players</div>
+          <h2 class="panel-title">Players who decide their ceiling</h2>
+          <p class="panel-copy">These are the names your staff should circle before setting marking references, pressing traps and transition cover.</p>
+          <div class="key-grid" style="margin-top:18px;">${renderKeys(opponent)}</div>
+        </div>
+
+        <div class="panel panel-pad">
+          <div class="step">Opponent roster</div>
+          <h2 class="panel-title">Full all-time squad</h2>
+          <p class="panel-copy">Photos appear where available, while clean placeholders preserve the report layout.</p>
+          <div class="roster-grid" style="margin-top:18px;">${renderRoster(opponent)}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  render();
+</script>
+</body>
+</html>
