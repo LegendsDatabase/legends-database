@@ -1,7 +1,6 @@
 ---
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
 import { supabase } from '../../lib/supabase.js';
+import { getPlayerMedia } from '../../lib/player-media.js';
 import Navbar from '../../components/Navbar.astro';
 import Footer from '../../components/Footer.astro';
 
@@ -20,8 +19,6 @@ const { data: rawPlayers } = await supabase
            creativity,work_rate,vision,off_the_ball,def_positioning,teamwork,
            anticipation,marking,reflexes,positioning,handling,kicking,alt_roles,
            nat_apps,nat_goals,nat_goal_ratio`);
-
-const photoRoot = join(process.cwd(), 'public', 'players');
 
 function profileOf(team) {
   const raw = team?.sim_profile ?? {};
@@ -42,20 +39,6 @@ function sortByOvr(arr) {
 
 function pick(pool, n, usedIds) {
   return sortByOvr(pool.filter(p => !usedIds.has(p.id))).slice(0, n);
-}
-
-function hasPhoto(slug) {
-  return !!slug && existsSync(join(photoRoot, `${slug}.jpg`));
-}
-
-function initials(name = '') {
-  return name
-    .replace(',', ' ')
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map(w => w.charAt(0).toUpperCase())
-    .join('');
 }
 
 function pAtt(p) { return avg([p.finishing, p.off_the_ball, p.composure, p.anticipation, p.shot_accuracy]); }
@@ -144,6 +127,7 @@ const teams = (rawTeams ?? []).map(team => {
     metrics,
     roster: roster.map(p => {
       const line = tournamentLine();
+      const media = getPlayerMedia(p);
       return {
         id: p.id,
         slug: p.slug ?? '',
@@ -157,8 +141,8 @@ const teams = (rawTeams ?? []).map(team => {
         apps: p.nat_apps ?? 0,
         natGoals: p.nat_goals ?? 0,
         foot: p.preferred_foot ?? '',
-        photo: hasPhoto(p.slug) ? `/players/${p.slug}.jpg` : '',
-        initials: initials(p.name),
+        photo: media.photo,
+        initials: media.initials,
         att: pAtt(p),
         play: pPlay(p),
         def: pDef(p),

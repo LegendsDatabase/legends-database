@@ -1,5 +1,6 @@
 ---
 import { supabase } from '../../../lib/supabase.js';
+import { getPlayerMedia, getPlayerPhotoSrc } from '../../../lib/player-media.js';
 import Navbar from '../../../components/Navbar.astro';
 import Footer from '../../../components/Footer.astro';
 
@@ -63,6 +64,10 @@ const bestPlayer = sortBy(roster,p=>p.overall_rating??0)[0];
 const bestTech   = sortBy(roster,p=>p['first-touch']??0)[0];
 const fastestP   = sortBy(roster,p=>pSpd(p))[0];
 const strongestP = sortBy(roster,p=>p.strength??0)[0];
+const bestPlayerPhoto = getPlayerPhotoSrc(bestPlayer?.slug);
+const fastestPhoto = getPlayerPhotoSrc(fastestP?.slug);
+const bestTechPhoto = getPlayerPhotoSrc(bestTech?.slug);
+const strongestPhoto = getPlayerPhotoSrc(strongestP?.slug);
 const mostAppsP  = sortBy(roster,p=>p.nat_apps??0)[0];
 const mostGoalsP = sortBy(roster,p=>p.nat_goals??0)[0];
 const bestRatioP = sortBy(roster.filter(p=>(p.nat_apps??0)>=5),p=>parseFloat(p.nat_goal_ratio??0))[0];
@@ -74,6 +79,7 @@ const rosterData = roster.map(p=>({
   name:p.name??'', slug:p.slug??'', role:p.role??'', alt_roles:p.alt_roles??'',
   section:gkR.some(g=>g.id===p.id)?'GK':defR.some(d=>d.id===p.id)?'DEF':midR.some(m=>m.id===p.id)?'MID':'ATT',
   ovr:p.overall_rating??0, def:pDef(p), play:pPlay(p), att:pAtt(p),
+  photo:getPlayerMedia(p).photo, initials:getPlayerMedia(p).initials,
 }));
 
 // ─── ERA CLASH DATA ──────────────────────────────────────────────────────
@@ -419,10 +425,10 @@ const currentStats = buildDecadeStats(decadeNum);
       </div>
 
       <div class="highlights-grid">
-        {bestPlayer&&<div class="hl-card"><div class="hl-head"><div><div class="hl-label">Best Player</div><div class="hl-name"><a href={`/player/${bestPlayer.slug}`}>{bestPlayer.name}</a></div></div><img class="hl-photo" src={`/players/${bestPlayer.slug}.jpg`} alt="" loading="lazy" decoding="async" width="40" height="40" onerror="this.style.display='none'"/></div><div class="hl-val" style={`color:${ovrColor(bestPlayer.overall_rating)}`}>{bestPlayer.overall_rating}</div></div>}
-        {fastestP&&<div class="hl-card"><div class="hl-head"><div><div class="hl-label">Fastest</div><div class="hl-name"><a href={`/player/${fastestP.slug}`}>{fastestP.name}</a></div></div><img class="hl-photo" src={`/players/${fastestP.slug}.jpg`} alt="" loading="lazy" decoding="async" width="40" height="40" onerror="this.style.display='none'"/></div><div class="hl-val" style={`color:${skillColor(pSpd(fastestP))}`}>{pSpd(fastestP)} <span class="hl-unit">SPD</span></div></div>}
-        {bestTech&&<div class="hl-card"><div class="hl-head"><div><div class="hl-label">Most Technical</div><div class="hl-name"><a href={`/player/${bestTech.slug}`}>{bestTech.name}</a></div></div><img class="hl-photo" src={`/players/${bestTech.slug}.jpg`} alt="" loading="lazy" decoding="async" width="40" height="40" onerror="this.style.display='none'"/></div><div class="hl-val" style={`color:${skillColor(bestTech['first-touch']??0)}`}>{bestTech['first-touch']} <span class="hl-unit">1-TCH</span></div></div>}
-        {strongestP&&<div class="hl-card"><div class="hl-head"><div><div class="hl-label">Strongest</div><div class="hl-name"><a href={`/player/${strongestP.slug}`}>{strongestP.name}</a></div></div><img class="hl-photo" src={`/players/${strongestP.slug}.jpg`} alt="" loading="lazy" decoding="async" width="40" height="40" onerror="this.style.display='none'"/></div><div class="hl-val" style={`color:${skillColor(strongestP.strength??0)}`}>{strongestP.strength} <span class="hl-unit">STR</span></div></div>}
+        {bestPlayer&&<div class="hl-card"><div class="hl-head"><div><div class="hl-label">Best Player</div><div class="hl-name"><a href={`/player/${bestPlayer.slug}`}>{bestPlayer.name}</a></div></div>{bestPlayerPhoto&&<img class="hl-photo" src={bestPlayerPhoto} alt="" loading="lazy" decoding="async" width="40" height="40"/>}</div><div class="hl-val" style={`color:${ovrColor(bestPlayer.overall_rating)}`}>{bestPlayer.overall_rating}</div></div>}
+        {fastestP&&<div class="hl-card"><div class="hl-head"><div><div class="hl-label">Fastest</div><div class="hl-name"><a href={`/player/${fastestP.slug}`}>{fastestP.name}</a></div></div>{fastestPhoto&&<img class="hl-photo" src={fastestPhoto} alt="" loading="lazy" decoding="async" width="40" height="40"/>}</div><div class="hl-val" style={`color:${skillColor(pSpd(fastestP))}`}>{pSpd(fastestP)} <span class="hl-unit">SPD</span></div></div>}
+        {bestTech&&<div class="hl-card"><div class="hl-head"><div><div class="hl-label">Most Technical</div><div class="hl-name"><a href={`/player/${bestTech.slug}`}>{bestTech.name}</a></div></div>{bestTechPhoto&&<img class="hl-photo" src={bestTechPhoto} alt="" loading="lazy" decoding="async" width="40" height="40"/>}</div><div class="hl-val" style={`color:${skillColor(bestTech['first-touch']??0)}`}>{bestTech['first-touch']} <span class="hl-unit">1-TCH</span></div></div>}
+        {strongestP&&<div class="hl-card"><div class="hl-head"><div><div class="hl-label">Strongest</div><div class="hl-name"><a href={`/player/${strongestP.slug}`}>{strongestP.name}</a></div></div>{strongestPhoto&&<img class="hl-photo" src={strongestPhoto} alt="" loading="lazy" decoding="async" width="40" height="40"/>}</div><div class="hl-val" style={`color:${skillColor(strongestP.strength??0)}`}>{strongestP.strength} <span class="hl-unit">STR</span></div></div>}
       </div>
 
       <div class="records-grid">

@@ -1,0 +1,167 @@
+---
+import { supabase } from '../../lib/supabase.js';
+import {
+  getPlayerPhotoSrc,
+  listPlayerPhotoFiles,
+  normalizePhotoBase,
+} from '../../lib/player-media.js';
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+
+const { data: rawPlayers } = await supabase
+  .from('players')
+  .select('id,slug,name,role,nation,overall_rating')
+  .order('name', { ascending: true });
+
+const players = (rawPlayers ?? []).filter(p => p.slug);
+const playersBySlug = new Map(players.map(p => [p.slug, p]));
+const playersByNormalizedSlug = new Map(players.map(p => [normalizePhotoBase(p.slug), p]));
+const photoFiles = listPlayerPhotoFiles();
+
+const photoRows = photoFiles.map(file => {
+  const exactBase = file.replace(/\.[^.]+$/, '');
+  const normalizedBase = normalizePhotoBase(file);
+  const exactPlayer = playersBySlug.get(exactBase);
+  const suggestedPlayer = exactPlayer ? null : playersByNormalizedSlug.get(normalizedBase);
+  return {
+    file,
+    exactBase,
+    normalizedBase,
+    exactPlayer,
+    suggestedPlayer,
+    status: exactPlayer ? 'linked' : suggestedPlayer ? 'rename' : 'orphan',
+  };
+});
+
+const linkedPhotos = photoRows.filter(row => row.status === 'linked');
+const renamePhotos = photoRows.filter(row => row.status === 'rename');
+const orphanPhotos = photoRows.filter(row => row.status === 'orphan');
+const missingPhotos = players.filter(p => !getPlayerPhotoSrc(p.slug));
+const coverage = players.length ? Math.round((players.length - missingPhotos.length) / players.length * 100) : 0;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="robots" content="noindex, nofollow"/>
+  <title>Photo Audit - Legends Database</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Inter",sans-serif;background:#f5f5f7;color:#1d1d1f;padding-top:44px;-webkit-font-smoothing:antialiased}
+    .page{max-width:1180px;margin:0 auto;padding:42px 24px 64px}
+    .eyebrow{font-size:11px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#0071e3;margin-bottom:8px}
+    h1{font-size:48px;letter-spacing:-.055em;line-height:.95;margin-bottom:12px}
+    .lead{font-size:15px;line-height:1.65;color:#6e6e73;max-width:720px;margin-bottom:24px}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+    .stat{background:#fff;border:1px solid #e5e5ea;border-radius:22px;padding:18px 20px;box-shadow:0 10px 28px rgba(0,0,0,.05)}
+    .stat-val{font-size:34px;font-weight:950;letter-spacing:-.05em;color:#0071e3}
+    .stat-label{font-size:10px;font-weight:900;color:#aeaeb2;letter-spacing:.12em;text-transform:uppercase;margin-top:3px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+    .panel{background:#fff;border:1px solid #e5e5ea;border-radius:24px;padding:18px;box-shadow:0 10px 28px rgba(0,0,0,.05);overflow:hidden}
+    .panel-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:12px}
+    .panel-title{font-size:18px;font-weight:900;letter-spacing:-.035em}
+    .panel-count{font-size:11px;font-weight:900;color:#6e6e73;background:#f5f5f7;border-radius:999px;padding:5px 9px}
+    table{width:100%;border-collapse:collapse}
+    th{font-size:9px;font-weight:900;color:#aeaeb2;letter-spacing:.12em;text-transform:uppercase;text-align:left;padding:9px 8px;border-bottom:1px solid #e5e5ea}
+    td{font-size:12px;font-weight:650;padding:9px 8px;border-bottom:1px solid #f0f0f5;vertical-align:middle}
+    tr:last-child td{border-bottom:0}
+    .muted{color:#8e8e93;font-weight:600}
+    .slug{font-family:"SF Mono",Consolas,monospace;font-size:11px;color:#a33;background:#fbf3f3;border:1px solid #f0d8d8;border-radius:7px;padding:2px 6px;display:inline-block}
+    .ok{color:#1a7a1a}
+    .warn{color:#b07800}
+    .bad{color:#c0392b}
+    .empty{font-size:13px;color:#6e6e73;background:#f8f8fb;border:1px dashed #d1d1d6;border-radius:16px;padding:14px}
+    @media(max-width:860px){h1{font-size:38px}.stats,.grid{grid-template-columns:1fr}.page{padding:28px 16px 52px}.panel{overflow-x:auto}}
+  </style>
+</head>
+<body>
+<Navbar/>
+<main class="page">
+  <div class="eyebrow">Internal maintenance</div>
+  <h1>Photo Audit</h1>
+  <p class="lead">Quick control room for player portraits. It checks the files in <strong>public/players</strong> against Supabase player slugs, so new uploads can be verified before they create visual inconsistencies.</p>
+
+  <section class="stats" aria-label="Photo coverage summary">
+    <div class="stat"><div class="stat-val">{coverage}%</div><div class="stat-label">Coverage</div></div>
+    <div class="stat"><div class="stat-val">{linkedPhotos.length}</div><div class="stat-label">Linked photos</div></div>
+    <div class="stat"><div class="stat-val">{missingPhotos.length}</div><div class="stat-label">Missing players</div></div>
+    <div class="stat"><div class="stat-val">{renamePhotos.length + orphanPhotos.length}</div><div class="stat-label">Needs review</div></div>
+  </section>
+
+  <section class="grid">
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Files to review</div>
+        <div class="panel-count">{renamePhotos.length + orphanPhotos.length}</div>
+      </div>
+      {renamePhotos.length + orphanPhotos.length ? (
+        <table>
+          <thead><tr><th>File</th><th>Status</th><th>Suggestion</th></tr></thead>
+          <tbody>
+            {[...renamePhotos, ...orphanPhotos].map(row => (
+              <tr>
+                <td><span class="slug">{row.file}</span></td>
+                <td class={row.status === 'rename' ? 'warn' : 'bad'}>{row.status === 'rename' ? 'Rename' : 'No match'}</td>
+                <td>{row.suggestedPlayer ? <span>{row.suggestedPlayer.name} <span class="muted">-> {row.suggestedPlayer.slug}</span></span> : <span class="muted">No likely player found</span>}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : <div class="empty">No suspicious photo filenames. Beautiful little green-room moment.</div>}
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Missing photos</div>
+        <div class="panel-count">{missingPhotos.length}</div>
+      </div>
+      {missingPhotos.length ? (
+        <table>
+          <thead><tr><th>Player</th><th>Slug</th><th>Meta</th></tr></thead>
+          <tbody>
+            {missingPhotos.slice(0, 80).map(p => (
+              <tr>
+                <td>{p.name}</td>
+                <td><span class="slug">{p.slug}.jpg</span></td>
+                <td class="muted">{p.role ?? '-'} · {p.nation ?? '-'} · {p.overall_rating ?? '-'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : <div class="empty">Every player has a photo. That is the museum-grade dream.</div>}
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Linked photos</div>
+        <div class="panel-count">{linkedPhotos.length}</div>
+      </div>
+      <table>
+        <thead><tr><th>File</th><th>Player</th><th>Status</th></tr></thead>
+        <tbody>
+          {linkedPhotos.slice(0, 80).map(row => (
+            <tr>
+              <td><span class="slug">{row.file}</span></td>
+              <td>{row.exactPlayer.name}</td>
+              <td class="ok">OK</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Naming rule</div>
+      </div>
+      <div class="empty">
+        Use the player slug exactly, for example <strong>di-stefano-alfredo.jpg</strong>. JPG is fine; the helper also accepts jpeg, png and webp if needed.
+      </div>
+    </div>
+  </section>
+</main>
+<Footer/>
+</body>
+</html>

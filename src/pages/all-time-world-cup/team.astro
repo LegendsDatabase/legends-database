@@ -1,7 +1,6 @@
 ---
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
 import { supabase } from '../../lib/supabase.js';
+import { getPlayerMedia } from '../../lib/player-media.js';
 import Navbar from '../../components/Navbar.astro';
 import Footer from '../../components/Footer.astro';
 import { COACHES } from '../../lib/match-simulator/coaches.js';
@@ -21,8 +20,6 @@ const { data: rawPlayers } = await supabase
            creativity,work_rate,vision,off_the_ball,def_positioning,teamwork,
            anticipation,marking,reflexes,positioning,handling,kicking,alt_roles,
            nat_apps,nat_goals,nat_goal_ratio`);
-
-const photoRoot = join(process.cwd(), 'public', 'players');
 
 function titleName(name = '') {
   return name
@@ -63,20 +60,6 @@ function pDef(p) { return avg([p.marking, p.tackling, p.def_positioning, p.antic
 function pSpeed(p) { return avg([p.pace, p.acceleration]); }
 function pMental(p) { return avg([p.composure, p.consistency, p.work_rate, p.teamwork]); }
 function pCaptain(p) { return (p.work_rate ?? 70) * 1.3 + (p.teamwork ?? 70) * 1.0 + (p.composure ?? 70) * 0.8 + (p.consistency ?? 70) * 0.8; }
-
-function hasPhoto(slug) {
-  return !!slug && existsSync(join(photoRoot, `${slug}.jpg`));
-}
-
-function initials(name = '') {
-  return name
-    .replace(',', ' ')
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map(w => w.charAt(0).toUpperCase())
-    .join('');
-}
 
 function cleanRivalries(raw) {
   if (!raw) return [];
@@ -122,6 +105,7 @@ function buildRoster(team, allPlayers) {
 }
 
 function playerPayload(p, section) {
+  const media = getPlayerMedia(p);
   return {
     id: p.id,
     slug: p.slug ?? '',
@@ -135,8 +119,8 @@ function playerPayload(p, section) {
     goals: p.nat_goals ?? 0,
     foot: p.preferred_foot ?? '',
     height: p.height ?? null,
-    photo: hasPhoto(p.slug) ? `/players/${p.slug}.jpg` : '',
-    initials: initials(p.name),
+    photo: media.photo,
+    initials: media.initials,
     att: pAtt(p),
     play: pPlay(p),
     def: pDef(p),

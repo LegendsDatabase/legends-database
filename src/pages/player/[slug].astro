@@ -1,5 +1,6 @@
 ---
 import { supabase } from '../../lib/supabase.js';
+import { getPlayerMedia } from '../../lib/player-media.js';
 import Navbar from '../../components/Navbar.astro';
 import Footer from '../../components/Footer.astro';
 
@@ -179,8 +180,9 @@ const gkTechAvg = isGK ? weightedAvg(
 const GAUGE_R=45,HALF_CIRC=Math.PI*GAUGE_R,FULL_CIRC=2*Math.PI*GAUGE_R;
 function gaugeDash(v){const f=(Math.max(0,Math.min(v,99))/99)*HALF_CIRC;return`${f} ${FULL_CIRC}`;}
 
-const initials=p.name.split(',').map(s=>s.trim()[0]).join('').toUpperCase().slice(0,2);
-const playerPhoto=`/players/${p.slug}.jpg`;
+const playerMedia = getPlayerMedia(p);
+const initials = playerMedia.initials;
+const playerPhoto = playerMedia.photo;
 function roleColor(role){
   const att=['ST','FW','RW','LW'],mid=['AM','CM','DM','RM','LM'],def=['CB','SW','RB','LB'];
   if(att.includes(role))return{bg:'#fff0ee',text:'#c0392b'};
@@ -851,21 +853,21 @@ const bioRoleColor = ovrColor(p.overall_rating);
         <div class="avatar-ring" style={`background:conic-gradient(${gradientStops});border-radius:50%;`}>
           <div class="avatar">
             <span class="avatar-initials">{initials}</span>
-            <img class="avatar-img" src={playerPhoto} alt={p.name} loading="eager" decoding="async" fetchpriority="high" draggable="false" oncontextmenu="return false" onerror="this.hidden=true"/>
+            {playerPhoto && <img class="avatar-img" src={playerPhoto} alt={p.name} loading="eager" decoding="async" fetchpriority="high" draggable="false" oncontextmenu="return false"/>}
           </div>
         </div>
       ) : hasSolidBorder ? (
         <div class="avatar-ring" style={`background:${solidColor};`}>
           <div class="avatar">
             <span class="avatar-initials">{initials}</span>
-            <img class="avatar-img" src={playerPhoto} alt={p.name} loading="eager" decoding="async" fetchpriority="high" draggable="false" oncontextmenu="return false" onerror="this.hidden=true"/>
+            {playerPhoto && <img class="avatar-img" src={playerPhoto} alt={p.name} loading="eager" decoding="async" fetchpriority="high" draggable="false" oncontextmenu="return false"/>}
           </div>
         </div>
       ) : (
         <div class="avatar-ring" style="background:#e8e8ed;">
           <div class="avatar">
             <span class="avatar-initials">{initials}</span>
-            <img class="avatar-img" src={playerPhoto} alt={p.name} loading="eager" decoding="async" fetchpriority="high" draggable="false" oncontextmenu="return false" onerror="this.hidden=true"/>
+            {playerPhoto && <img class="avatar-img" src={playerPhoto} alt={p.name} loading="eager" decoding="async" fetchpriority="high" draggable="false" oncontextmenu="return false"/>}
           </div>
         </div>
       )}
@@ -1242,21 +1244,22 @@ const bioRoleColor = ovrColor(p.overall_rating);
       <div class="see-also-label">See also</div>
       <div class="see-also-grid">
         {related.map(q=>{
-          const qi=q.name.split(',').map(s=>s.trim()[0]).join('').toUpperCase().slice(0,2);
+          const qMedia = getPlayerMedia(q);
           const qr=roleColor(q.role);
           return(
             <a href={`/player/${q.slug}`} class="see-also-card">
               <div class="sa-avatar">
-                <span class="sa-initials">{qi}</span>
-                <img
-                  class="sa-avatar-img"
-                  src={`/players/${q.slug}.jpg`}
-                  alt=""
-                  loading="lazy"
-                  decoding="async"
-                  draggable="false"
-                  onerror="this.hidden=true"
-                />
+                <span class="sa-initials">{qMedia.initials}</span>
+                {qMedia.photo && (
+                  <img
+                    class="sa-avatar-img"
+                    src={qMedia.photo}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    draggable="false"
+                  />
+                )}
               </div>
               <div class="sa-body">
                 <div class="sa-name">{q.name}</div>
