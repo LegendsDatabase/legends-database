@@ -105,31 +105,22 @@ function sectionFor(role) {
   return 'ATT';
 }
 
-function projectedLine(p, team) {
-  const ovr = p.overall_rating ?? 70;
-  const section = sectionFor(p.role);
-  const att = pAtt(p);
-  const play = pPlay(p);
-  const def = pDef(p);
-  const mental = pMental(p);
-  const speed = pSpeed(p);
-  const keeper = pKeeper(p);
-  const appsWeight = Math.min(1.15, 0.86 + ((p.nat_apps ?? 0) / 280));
-  const goalBias = Math.min(1.25, 0.88 + ((p.nat_goal_ratio ?? 0) * 0.34));
-  const gk = p.role === 'GK';
-  const goals = gk ? 0 : Number(Math.max(0, ((att - 68) * (section === 'ATT' ? 0.115 : section === 'MID' ? 0.052 : 0.014) * appsWeight * goalBias)).toFixed(1));
-  const assists = gk ? 0 : Number(Math.max(0, ((play - 66) * (section === 'ATT' ? 0.052 : section === 'MID' ? 0.082 : 0.024) * appsWeight)).toFixed(1));
-  const xg = gk ? 0 : Number(Math.max(0, goals * 0.82 + ((p.shot_accuracy ?? 70) - 70) * 0.015).toFixed(1));
-  const xa = gk ? 0 : Number(Math.max(0, assists * 0.78 + ((p.vision ?? 70) - 70) * 0.018).toFixed(1));
-  const yellows = Number(Math.max(0.1, ((p.aggression ?? 70) - 52) * 0.024 + (section === 'DEF' ? 0.34 : section === 'MID' ? 0.22 : 0.08)).toFixed(1));
-  const reds = Number(Math.max(0, ((p.aggression ?? 70) - 78) * 0.006).toFixed(2));
-  const saves = gk ? Number(Math.max(4.4, (keeper - 65) * 0.34).toFixed(1)) : 0;
-  const cleanSheets = gk ? Number(Math.max(0.6, (keeper - 72) * 0.075 + ((team.metrics.def ?? 80) - 78) * 0.045).toFixed(1)) : 0;
-  const ballWins = gk ? Number(Math.max(0.4, ((p.handling ?? 70) - 60) * 0.04).toFixed(1)) : Number(Math.max(0.4, (def - 58) * (section === 'DEF' ? 0.115 : section === 'MID' ? 0.102 : 0.035)).toFixed(1));
-  const carries = gk ? Number(Math.max(0.2, ((p.kicking ?? 70) - 62) * 0.035).toFixed(1)) : Number(Math.max(0.2, (((p.dribbling ?? 70) + speed) / 2 - 62) * (section === 'ATT' ? 0.098 : section === 'MID' ? 0.072 : 0.038)).toFixed(1));
-  const rating = Number(Math.max(5.8, Math.min(8.9, 6.18 + (ovr - 78) * 0.062 + (mental - 74) * 0.012 + (gk ? (keeper - 76) * 0.014 : 0))).toFixed(2));
-  const impact = Number((rating * 8.5 + goals * 9 + assists * 6 + ballWins * 2.2 + saves * 1.9 - yellows * 1.2 - reds * 5).toFixed(1));
-  return { goals, assists, xg, xa, yellows, reds, saves, cleanSheets, ballWins, carries, rating, impact };
+function tournamentLine() {
+  return {
+    played: 0,
+    goals: 0,
+    assists: 0,
+    xg: 0,
+    xa: 0,
+    yellows: 0,
+    reds: 0,
+    saves: 0,
+    cleanSheets: 0,
+    ballWins: 0,
+    carries: 0,
+    rating: null,
+    impact: null,
+  };
 }
 
 const players = (rawPlayers ?? []).map(p => ({ ...p, role: (p.role ?? '').toUpperCase() }));
@@ -152,7 +143,7 @@ const teams = (rawTeams ?? []).map(team => {
     style: profile.style ?? '',
     metrics,
     roster: roster.map(p => {
-      const line = projectedLine(p, { metrics });
+      const line = tournamentLine();
       return {
         id: p.id,
         slug: p.slug ?? '',
@@ -242,11 +233,11 @@ const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
     .team-table{display:grid;gap:8px;margin-top:14px;}
     .team-row{display:grid;grid-template-columns:32px 1fr 44px;gap:8px;align-items:center;padding:8px;border-radius:16px;background:#f8f8fb;border:1px solid #f0f0f4;}
     .team-row img{width:28px;height:28px;object-fit:contain;}
-    .team-row b{font-size:12px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .team-row span{font-size:10px;color:#aeaeb2;font-weight:900;}
+    .team-row b{display:block;font-size:12px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .team-row span{display:block;font-size:9px;color:#aeaeb2;font-weight:900;text-transform:uppercase;letter-spacing:.08em;margin-top:2px;}
     .team-row strong{font-size:15px;font-weight:950;color:#1a7a1a;text-align:right;font-variant-numeric:tabular-nums;}
-    .leader-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px;}
-    .leader-card{border-radius:26px;background:rgba(255,255,255,.92);border:1px solid rgba(225,225,232,.95);padding:16px;box-shadow:0 18px 52px rgba(20,20,30,.08);min-height:218px;}
+    .leader-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:14px;}
+    .leader-card{border-radius:26px;background:rgba(255,255,255,.92);border:1px solid rgba(225,225,232,.95);padding:16px;box-shadow:0 18px 52px rgba(20,20,30,.08);min-height:190px;overflow:hidden;}
     .leader-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;}
     .leader-head h3{font-size:13px;font-weight:950;letter-spacing:-.025em;}
     .leader-head span{font-size:8px;font-weight:950;letter-spacing:.12em;text-transform:uppercase;color:#aeaeb2;}
@@ -259,7 +250,20 @@ const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
     .lp-name{font-size:11px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .lp-meta{font-size:9px;color:#aeaeb2;font-weight:850;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .leader-value{font-size:18px;font-weight:950;color:#0071e3;font-variant-numeric:tabular-nums;}
+    .empty-leader{height:112px;border-radius:18px;background:#f7f7fa;border:1px dashed #d8d8df;display:flex;align-items:center;justify-content:center;text-align:center;padding:14px;font-size:11px;line-height:1.45;color:#8e8e93;font-weight:800;}
     .main-stack{display:grid;gap:14px;}
+    .official-empty{border-radius:28px;background:linear-gradient(135deg,#111827,#1d1d2a);color:#fff;padding:24px;box-shadow:0 22px 64px rgba(20,20,30,.16);position:relative;overflow:hidden;}
+    .official-empty::after{content:'';position:absolute;right:-80px;top:-90px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(0,113,227,.34),transparent 70%);}
+    .official-empty h2{position:relative;font-size:30px;font-weight:950;letter-spacing:-.065em;margin-bottom:8px;}
+    .official-empty p{position:relative;font-size:13px;line-height:1.6;color:rgba(255,255,255,.62);font-weight:650;max-width:720px;}
+    .stat-zero-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px;position:relative;}
+    .stat-zero{border-radius:18px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);padding:14px;text-align:center;}
+    .stat-zero b{display:block;font-size:30px;font-weight:950;line-height:1;font-variant-numeric:tabular-nums;}
+    .stat-zero span{display:block;font-size:8px;font-weight:950;letter-spacing:.13em;text-transform:uppercase;color:rgba(255,255,255,.42);margin-top:7px;}
+    .baseline-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 18px 18px;}
+    .baseline-card{border-radius:18px;background:#fbfbfd;border:1px solid #ececf1;padding:13px;}
+    .baseline-card b{display:block;font-size:18px;font-weight:950;color:#0071e3;}
+    .baseline-card span{display:block;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#aeaeb2;margin-top:4px;}
     details.panel summary{list-style:none;cursor:pointer;padding:18px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
     details.panel summary::-webkit-details-marker{display:none;}
     .summary-left{min-width:0;}
@@ -297,6 +301,7 @@ const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
       .side-stack{position:relative;top:auto;}
       .leader-grid{grid-template-columns:repeat(2,1fr);}
       .filters{grid-template-columns:1fr 1fr;}
+      .baseline-grid{grid-template-columns:1fr 1fr;}
     }
     @media(max-width:720px){
       .stats-shell{padding:24px 16px 46px;}
@@ -305,7 +310,7 @@ const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
       .hero-title{font-size:48px;}
       .leader-grid{grid-template-columns:1fr;}
       .filters{grid-template-columns:1fr;}
-      .snapshot,.note-strip{grid-template-columns:1fr;}
+      .snapshot,.note-strip,.stat-zero-grid,.baseline-grid{grid-template-columns:1fr;}
     }
   </style>
 </head>
@@ -337,7 +342,7 @@ const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
           <img class="team-logo" id="heroLogo" src="/teams/all-time-brazil.svg" alt=""/>
           <div>
             <div class="team-name" id="heroTeam">Your team</div>
-            <p class="team-sub" id="heroSub">Projection mode until matches are played.</p>
+            <p class="team-sub" id="heroSub">No matches played yet.</p>
           </div>
         </div>
         <div class="snapshot">
@@ -440,20 +445,34 @@ const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
     return rows.map(row => {
       const real = playerStats[row.slug] || playerStats[row.id];
       if (!real) return row;
+      const goals = Number(real.goals ?? row.goals);
+      const assists = Number(real.assists ?? row.assists);
+      const rating = real.rating ?? real.avgRating ?? row.rating;
+      const yellows = Number(real.yellows ?? row.yellows);
+      const reds = Number(real.reds ?? row.reds);
+      const saves = Number(real.saves ?? row.saves);
+      const ballWins = Number(real.ballWins ?? row.ballWins);
+      const played = Number(real.played ?? 0);
+      const impact = real.impact != null
+        ? Number(real.impact)
+        : rating != null
+          ? Number((Number(rating) * 8.5 + goals * 9 + assists * 6 + ballWins * 2.2 + saves * 1.9 - yellows * 1.2 - reds * 5).toFixed(1))
+          : null;
       return {
         ...row,
-        goals: Number(real.goals ?? row.goals),
-        assists: Number(real.assists ?? row.assists),
-        rating: Number(real.rating ?? real.avgRating ?? row.rating),
-        yellows: Number(real.yellows ?? row.yellows),
-        reds: Number(real.reds ?? row.reds),
+        goals,
+        assists,
+        rating: rating == null ? null : Number(rating),
+        yellows,
+        reds,
         xg: Number(real.xg ?? row.xg),
         xa: Number(real.xa ?? row.xa),
-        saves: Number(real.saves ?? row.saves),
+        saves,
         cleanSheets: Number(real.cleanSheets ?? row.cleanSheets),
-        ballWins: Number(real.ballWins ?? row.ballWins),
+        ballWins,
         carries: Number(real.carries ?? row.carries),
-        played: Number(real.played ?? 0),
+        played,
+        impact,
         dataMode: 'live',
       };
     });
@@ -467,7 +486,7 @@ const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
       teamLogo: team.logo,
       teamOvr: team.metrics.ovr,
       isMine: team.slug === userSlug,
-      dataMode: 'projection',
+      dataMode: 'empty',
     })));
     return hydrateRealStats(rows);
   }
@@ -509,10 +528,13 @@ const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
   }
 
   function top(rows, key, n = 5, predicate = () => true) {
-    return [...rows].filter(predicate).sort((a, b) => (Number(b[key]) || 0) - (Number(a[key]) || 0) || b.ovr - a.ovr).slice(0, n);
+    return [...rows].filter(p => p.played > 0).filter(predicate).sort((a, b) => (Number(b[key]) || 0) - (Number(a[key]) || 0) || b.ovr - a.ovr).slice(0, n);
   }
 
   function leaderList(rows, key, decimals = 1) {
+    if (!rows.length) {
+      return '<div class="empty-leader">No official tournament data yet.<br/>This leaderboard activates after the first played match.</div>';
+    }
     return rows.map((p, i) => `
       <div class="leader-item">
         <span class="rank">${i + 1}</span>
@@ -529,8 +551,10 @@ const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
   }
 
   function tableRows(rows) {
-    return rows.slice(0, 160).map((p, i) => {
+    return rows.filter(p => p.played > 0).slice(0, 60).map((p, i) => {
       const cards = `${Number(p.yellows || 0).toFixed(1)} / ${Number(p.reds || 0).toFixed(2)}`;
+      const rating = p.rating == null ? '-' : Number(p.rating).toFixed(2);
+      const impact = p.impact == null ? '-' : Number(p.impact).toFixed(1);
       return `
         <tr class="${p.isMine ? 'user-row' : ''}">
           <td>${i + 1}</td>
@@ -542,8 +566,8 @@ const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
           </td>
           <td><span class="role-chip ${roleClass(p.section)}">${esc(p.role)}</span></td>
           <td>${p.ovr}</td>
-          <td class="metric-hot">${Number(p.rating || 0).toFixed(2)}</td>
-          <td class="metric-good">${Number(p.impact || 0).toFixed(1)}</td>
+          <td class="metric-hot">${rating}</td>
+          <td class="metric-good">${impact}</td>
           <td>${Number(p.goals || 0).toFixed(1)}</td>
           <td>${Number(p.assists || 0).toFixed(1)}</td>
           <td>${Number(p.xg || 0).toFixed(1)}</td>
@@ -580,80 +604,131 @@ const pageData = JSON.stringify({ teams }).replace(/</g, '\\u003c');
 
   function render(rows, userTeam, userSlug) {
     const filtered = filteredRows(rows);
-    const mode = rows.some(r => r.dataMode === 'live') ? 'LIVE' : 'PRE';
+    const officialRows = filtered.filter(r => r.played > 0);
+    const allOfficialRows = rows.filter(r => r.played > 0);
+    const hasLive = allOfficialRows.length > 0;
+    const mode = hasLive ? 'LIVE' : '0 GP';
     const mine = rows.filter(r => r.isMine);
     document.getElementById('heroLogo').src = userTeam.logo;
     document.getElementById('heroTeam').textContent = userTeam.name;
-    document.getElementById('heroSub').textContent = mode === 'LIVE' ? 'Live tournament stats loaded.' : 'Projection mode until matches are played.';
+    document.getElementById('heroSub').textContent = hasLive ? 'Official tournament stats loaded.' : 'No matches played yet. Official stats are empty.';
     document.getElementById('snapPlayers').textContent = mine.length || userTeam.roster.length;
     document.getElementById('snapAvg').textContent = userTeam.metrics.ovr;
     document.getElementById('snapData').textContent = mode;
+
+    const goalsTotal = allOfficialRows.reduce((s, p) => s + (Number(p.goals) || 0), 0);
+    const assistsTotal = allOfficialRows.reduce((s, p) => s + (Number(p.assists) || 0), 0);
+    const cardsTotal = allOfficialRows.reduce((s, p) => s + (Number(p.yellows) || 0) + (Number(p.reds) || 0), 0);
+    const ratingVals = allOfficialRows.map(p => p.rating).filter(v => v != null);
+    const avgRating = ratingVals.length ? (ratingVals.reduce((a, b) => a + Number(b), 0) / ratingVals.length).toFixed(2) : '-';
+
+    const myRows = rows.filter(r => r.isMine);
+    const topBaseline = (label, key, predicate = () => true) => {
+      const p = [...myRows].filter(predicate).sort((a, b) => (Number(b[key]) || 0) - (Number(a[key]) || 0) || b.ovr - a.ovr)[0];
+      return `<div class="baseline-card"><b>${p ? esc(p.name) : '-'}</b><span>${label}${p ? ` - ${Number(p[key] || 0)}` : ''}</span></div>`;
+    };
+
+    const inactiveBlock = `
+      <section class="official-empty">
+        <h2>Official stats start at kick-off.</h2>
+        <p>This page now tracks tournament data only. Goals, assists, ratings, cards, xG and all match metrics stay empty until the All-Time World Cup engine saves played fixtures.</p>
+        <div class="stat-zero-grid">
+          <div class="stat-zero"><b>0</b><span>Goals</span></div>
+          <div class="stat-zero"><b>0</b><span>Assists</span></div>
+          <div class="stat-zero"><b>-</b><span>Avg Rating</span></div>
+          <div class="stat-zero"><b>0</b><span>Cards</span></div>
+        </div>
+      </section>
+    `;
+
+    const liveTable = hasLive ? `
+      <details class="panel" open>
+        <summary>
+          <div class="summary-left">
+            <div class="summary-title">Official player data</div>
+            <div class="summary-copy">${officialRows.length} players with tournament minutes after filters. Your players are highlighted in blue.</div>
+          </div>
+          <span class="chev">+</span>
+        </summary>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th><th>Player</th><th>Role</th><th>OVR</th><th>Rating</th><th>Impact</th><th>G</th><th>A</th><th>xG</th><th>xA</th><th>Wins</th><th>Carries</th><th>YC / RC</th>
+              </tr>
+            </thead>
+            <tbody>${tableRows(filtered)}</tbody>
+          </table>
+        </div>
+      </details>
+    ` : `
+      <details class="panel" open>
+        <summary>
+          <div class="summary-left">
+            <div class="summary-title">Pre-tournament baseline</div>
+            <div class="summary-copy">Not official tournament output: just a compact squad-reading panel while no match has been played.</div>
+          </div>
+          <span class="chev">+</span>
+        </summary>
+        <div class="baseline-grid">
+          ${topBaseline('Best finisher profile', 'att', p => p.section === 'ATT')}
+          ${topBaseline('Best creator profile', 'play', p => p.section !== 'GK')}
+          ${topBaseline('Best defensive profile', 'def', p => p.section !== 'ATT')}
+          ${topBaseline('Best mentality profile', 'mental')}
+          ${topBaseline('Highest OVR', 'ovr')}
+          ${topBaseline('Keeper baseline', 'keeper', p => p.section === 'GK')}
+        </div>
+      </details>
+    `;
 
     app.innerHTML = `
       <div class="grid">
         <aside class="side-stack">
           <div class="panel panel-pad">
-            <div class="panel-step">Ranking model</div>
-            <h2 class="panel-title">Impact index</h2>
-            <p class="panel-copy">A compact synthetic score blending rating, goals, assists, defensive output, keeper work and discipline. It is deliberately nerdy, but readable.</p>
+            <div class="panel-step">Official mode</div>
+            <h2 class="panel-title">${hasLive ? 'Tournament data' : 'Waiting room'}</h2>
+            <p class="panel-copy">${hasLive ? 'All visible leaderboards are based on saved played fixtures.' : 'No match has been played yet, so every official tournament stat is intentionally empty.'}</p>
           </div>
           <div class="panel panel-pad">
-            <div class="panel-step">Team power table</div>
+            <div class="panel-step">Baseline only</div>
             <h2 class="panel-title">Squad strength</h2>
             <div class="team-table">${teamRows(DATA.teams, userSlug)}</div>
           </div>
         </aside>
         <div class="main-stack">
+          ${hasLive ? '' : inactiveBlock}
           <section class="leader-grid">
             <div class="leader-card">
-              <div class="leader-head"><h3>Goals</h3><span>xG aware</span></div>
+              <div class="leader-head"><h3>Goals</h3><span>${goalsTotal.toFixed(0)} total</span></div>
               <div class="leader-list">${leaderList(top(filtered, 'goals', 5, p => p.section !== 'GK'), 'goals', 1)}</div>
             </div>
             <div class="leader-card">
-              <div class="leader-head"><h3>Assists</h3><span>chance creation</span></div>
+              <div class="leader-head"><h3>Assists</h3><span>${assistsTotal.toFixed(0)} total</span></div>
               <div class="leader-list">${leaderList(top(filtered, 'assists', 5, p => p.section !== 'GK'), 'assists', 1)}</div>
             </div>
             <div class="leader-card">
-              <div class="leader-head"><h3>Avg rating</h3><span>form guide</span></div>
+              <div class="leader-head"><h3>Avg rating</h3><span>${avgRating}</span></div>
               <div class="leader-list">${leaderList(top(filtered, 'rating', 5), 'rating', 2)}</div>
             </div>
             <div class="leader-card">
-              <div class="leader-head"><h3>Ball wins</h3><span>without ball</span></div>
-              <div class="leader-list">${leaderList(top(filtered, 'ballWins', 5), 'ballWins', 1)}</div>
+              <div class="leader-head"><h3>Cards</h3><span>${cardsTotal.toFixed(0)} total</span></div>
+              <div class="leader-list">${leaderList([...filtered].filter(p => p.played > 0).sort((a,b)=>((b.yellows || 0)+(b.reds || 0)*3)-((a.yellows || 0)+(a.reds || 0)*3)).slice(0,5), 'yellows', 0)}</div>
             </div>
           </section>
 
-          <details class="panel" open>
-            <summary>
-              <div class="summary-left">
-                <div class="summary-title">Technical player table</div>
-                <div class="summary-copy">${filtered.length} players after filters. Your players are highlighted in blue.</div>
-              </div>
-              <span class="chev">+</span>
-            </summary>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>#</th><th>Player</th><th>Role</th><th>OVR</th><th>Rating</th><th>Impact</th><th>G</th><th>A</th><th>xG</th><th>xA</th><th>Wins</th><th>Carries</th><th>YC / RC</th>
-                  </tr>
-                </thead>
-                <tbody>${tableRows(filtered)}</tbody>
-              </table>
-            </div>
-          </details>
+          ${liveTable}
 
-          <details class="panel" open>
+          <details class="panel" ${hasLive ? 'open' : ''}>
             <summary>
               <div class="summary-left">
-                <div class="summary-title">Specialist leaderboards</div>
-                <div class="summary-copy">Extra lenses for keepers, discipline, xG overperformance and creative volume.</div>
+                <div class="summary-title">Specialist views</div>
+                <div class="summary-copy">Keeper work, defensive output and creative volume. These remain empty until real match events are saved.</div>
               </div>
               <span class="chev">+</span>
             </summary>
             <div class="note-strip">
               <div class="note"><b>Keeper watch</b><span>${leaderList(top(filtered, 'saves', 3, p => p.section === 'GK'), 'saves', 1) || 'No goalkeepers in current filter.'}</span></div>
-              <div class="note"><b>Discipline risk</b><span>${leaderList([...filtered].sort((a,b)=>((b.yellows || 0)+(b.reds || 0)*3)-((a.yellows || 0)+(a.reds || 0)*3)).slice(0,3), 'yellows', 1)}</span></div>
+              <div class="note"><b>Ball winning</b><span>${leaderList(top(filtered, 'ballWins', 3), 'ballWins', 1)}</span></div>
               <div class="note"><b>Creative engine</b><span>${leaderList(top(filtered, 'xa', 3, p => p.section !== 'GK'), 'xa', 1)}</span></div>
             </div>
           </details>
